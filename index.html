@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RSUD Pasar Minggu | Rumah Sehat Untuk Jakarta</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ===== TOP BAR ===== -->
+<div class="topbar">
+  <div class="container topbar-inner">
+    <div class="topbar-contact">
+      <a href="tel:02150866999">📞 (021) 50866999</a>
+      <a href="https://wa.me/+628118712752" target="_blank" rel="noopener">💬 +62 811-8712-752</a>
+      <a href="mailto:info.rsudpasarminggu@jakarta.go.id">✉️ info.rsudpasarminggu@jakarta.go.id</a>
+    </div>
+    <div class="topbar-social">
+      <a href="https://www.facebook.com/rsudpasarminggu/" target="_blank" rel="noopener" aria-label="Facebook">FB</a>
+      <a href="https://x.com/rsudpasarminggu/" target="_blank" rel="noopener" aria-label="X">X</a>
+      <a href="https://www.instagram.com/rsudpasarminggu/" target="_blank" rel="noopener" aria-label="Instagram">IG</a>
+      <a href="https://www.youtube.com/channel/UCj-lfb-Cc0GVVLvznfIp1Mw" target="_blank" rel="noopener" aria-label="YouTube">YT</a>
+    </div>
+  </div>
+</div>
+
+<!-- ===== HEADER / NAVBAR ===== -->
+<header class="header">
+  <div class="container header-inner">
+    <a href="#" class="logo">
+      <span class="logo-badge">RS</span>
+      <span class="logo-text">
+        <strong>RSUD Pasar Minggu</strong>
+        <small>Rumah Sehat Untuk Jakarta</small>
+      </span>
+    </a>
+
+    <button class="nav-toggle" id="navToggle" aria-label="Buka menu">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="nav" id="mainNav">
+      <ul>
+        <li><a href="#beranda" class="active">Home</a></li>
+        <li class="has-dropdown">
+          <a href="javascript:void(0)">Tentang Kami</a>
+          <ul class="dropdown">
+            <li><a href="#">Profile RSUD PM</a></li>
+            <li><a href="#">Manajemen</a></li>
+          </ul>
+        </li>
+        <li class="has-dropdown">
+          <a href="javascript:void(0)">Pelayanan</a>
+          <ul class="dropdown">
+            <li><a href="#">Poliklinik</a></li>
+            <li><a href="#layanan-unggulan">Layanan Prioritas</a></li>
+            <li><a href="#fasilitas">Layanan Diagnostik</a></li>
+            <li><a href="#fasilitas">Layanan Medis</a></li>
+            <li><a href="#mcu">MCU</a></li>
+          </ul>
+        </li>
+        <li class="has-dropdown">
+          <a href="javascript:void(0)">Informasi Publik</a>
+          <ul class="dropdown">
+            <li><a href="#">Survey Kepuasan Masyarakat</a></li>
+            <li><a href="#">Standar Pelayanan</a></li>
+            <li><a href="#">Karir</a></li>
+            <li><a href="#">Budaya Keselamatan</a></li>
+          </ul>
+        </li>
+        <li><a href="#berita">Berita</a></li>
+        <li><a href="#">PPID</a></li>
+        <li><a href="#">Kapasitas Bed</a></li>
+      </ul>
+    </nav>
+
+    <div class="header-cta">
+      <a href="#" class="btn btn-outline">Daftar Online</a>
+      <a href="#" class="btn btn-primary">Administrasi Pasien</a>
+    </div>
+  </div>
+</header>
+
+<main id="beranda">
+
+  <!-- ===== HERO SLIDER ===== -->
+  <section class="hero">
+    <div class="slider" id="heroSlider">
+      <div class="slide active" style="background-image:url('https://placehold.co/1600x600/1A77CC/ffffff?text=Klinik+Eksekutif')"></div>
+      <div class="slide" style="background-image:url('https://placehold.co/1600x600/16406e/ffffff?text=Zona+Integritas')"></div>
+      <div class="slide" style="background-image:url('https://placehold.co/1600x600/0f9d58/ffffff?text=Paket+Medical+Check+Up')"></div>
+      <div class="slide" style="background-image:url('https://placehold.co/1600x600/1A77CC/ffffff?text=Maternal+Center')"></div>
+    </div>
+    <button class="slider-btn prev" id="prevSlide" aria-label="Sebelumnya">&#10094;</button>
+    <button class="slider-btn next" id="nextSlide" aria-label="Berikutnya">&#10095;</button>
+    <div class="slider-dots" id="sliderDots"></div>
+  </section>
+
+  <!-- ===== CARI JADWAL DOKTER ===== -->
+  <section class="doctor-search container">
+    <div class="doctor-search-card">
+      <h2>Cari Jadwal Dokter</h2>
+      <form id="doctorForm" class="doctor-form">
+        <div class="form-field">
+          <label for="spesialis">Spesialis</label>
+          <select id="spesialis" name="spesialis">
+            <option value="">Pilih Spesialis</option>
+            <option>Anak</option>
+            <option>Bedah Umum</option>
+            <option>Jantung</option>
+            <option>Kebidanan dan Kandungan</option>
+            <option>Kulit dan Kelamin</option>
+            <option>Mata</option>
+            <option>Orthopedi</option>
+            <option>Paru</option>
+            <option>Penyakit Dalam</option>
+            <option>Saraf</option>
+            <option>THT</option>
+            <option>Urologi</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="dokter">Dokter</label>
+          <select id="dokter" name="dokter">
+            <option value="">Pilih Dokter</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="hari">Pilihan Hari</label>
+          <select id="hari" name="hari">
+            <option value="">Semua Hari</option>
+            <option>Senin</option>
+            <option>Selasa</option>
+            <option>Rabu</option>
+            <option>Kamis</option>
+            <option>Jumat</option>
+            <option>Sabtu</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Cari Jadwal</button>
+      </form>
+      <p class="form-result" id="formResult"></p>
+    </div>
+  </section>
+
+  <!-- ===== LAYANAN UNGGULAN ===== -->
+  <section id="layanan-unggulan" class="section">
+    <div class="container">
+      <h2 class="section-title">Layanan Unggulan &amp; Prioritas</h2>
+      <p class="section-subtitle">"Layanan Terbaik Untuk Kesehatan Anda"</p>
+      <div class="card-grid" id="layananGrid"></div>
+    </div>
+  </section>
+
+  <!-- ===== FASILITAS ===== -->
+  <section id="fasilitas" class="section section-alt">
+    <div class="container">
+      <h2 class="section-title">Fasilitas &amp; Layanan</h2>
+      <p class="section-subtitle">Pelayanan kesehatan terpadu dengan tenaga medis profesional dan teknologi medis terkini</p>
+
+      <div class="tabs">
+        <div class="tabs-nav" id="fasilitasTabsNav"></div>
+        <div class="tabs-panels" id="fasilitasTabsPanels"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== MCU ===== -->
+  <section id="mcu" class="section">
+    <div class="container">
+      <h2 class="section-title">Paket MCU &amp; Promosi</h2>
+      <p class="section-subtitle">"Berbagai penawaran istimewa untuk Anda"</p>
+      <div class="card-grid" id="mcuGrid"></div>
+    </div>
+  </section>
+
+  <!-- ===== BERITA ===== -->
+  <section id="berita" class="section section-alt">
+    <div class="container">
+      <h2 class="section-title">Berita dan Artikel Kesehatan</h2>
+      <div class="card-grid" id="beritaGrid"></div>
+    </div>
+  </section>
+
+  <!-- ===== FAQ ===== -->
+  <section class="section">
+    <div class="container container-narrow">
+      <h2 class="section-title">Frequently Asked Questions</h2>
+      <div class="accordion" id="faqAccordion"></div>
+    </div>
+  </section>
+
+  <!-- ===== CTA / PENDAFTARAN ===== -->
+  <section class="section section-cta">
+    <div class="container cta-inner">
+      <div>
+        <h2>Butuh Layanan Kesehatan?</h2>
+        <p>Daftar online sekarang untuk menghindari antrean panjang.</p>
+      </div>
+      <div class="cta-buttons">
+        <a href="#" class="btn btn-light">JAKSEHAT</a>
+        <a href="#" class="btn btn-light">JKN Mobile</a>
+        <a href="#" class="btn btn-light">E-Pasien</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="container footer-grid">
+    <div>
+      <h3>RSUD Pasar Minggu</h3>
+      <p>Jl. TB Simatupang No. 1<br>Ragunan, Pasar Minggu<br>Jakarta Selatan, DKI Jakarta 12550</p>
+      <p><strong>Telepon:</strong> (021) 50866999<br><strong>Email:</strong> info.rsudpasarminggu@jakarta.go.id</p>
+    </div>
+    <div>
+      <h4>Link Terkait</h4>
+      <ul class="footer-links">
+        <li><a href="#">PPID</a></li>
+        <li><a href="#">PANRB</a></li>
+        <li><a href="#">Kemenkes</a></li>
+        <li><a href="#">Pemprov DKI Jakarta</a></li>
+        <li><a href="#">Dinas Kesehatan DKI Jakarta</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Jam Operasional</h4>
+      <p>Rawat Jalan: Senin – Jumat, 07.30 – 14.00 WIB</p>
+      <p>IGD &amp; Rawat Inap: 24 jam setiap hari</p>
+    </div>
+    <div>
+      <h4>Ikuti Kami</h4>
+      <div class="footer-social">
+        <a href="https://www.facebook.com/rsudpasarminggu/" target="_blank" rel="noopener">Facebook</a>
+        <a href="https://x.com/rsudpasarminggu/" target="_blank" rel="noopener">X (Twitter)</a>
+        <a href="https://www.instagram.com/rsudpasarminggu/" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://www.youtube.com/channel/UCj-lfb-Cc0GVVLvznfIp1Mw" target="_blank" rel="noopener">YouTube</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="container">
+      &copy; <span id="year"></span> RSUD Pasar Minggu. All Rights Reserved.
+    </div>
+  </div>
+</footer>
+
+<button id="backToTop" class="back-to-top" aria-label="Kembali ke atas">↑</button>
+
+<script src="script.js"></script>
+</body>
+</html>
