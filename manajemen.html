@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile Management | RSUD Unpam</title>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-white text-slate-800">
+
+<div class="topbar">
+  <div class="container topbar-inner">
+    <div class="topbar-contact">
+      <a href="tel:0899999999">📞 (021) 999999</a>
+      <a href="https://wa.me/+628999999" target="_blank" rel="noopener">💬 +62 811-8712-752</a>
+      <a href="mailto:info.rsudunpam@tangerang.go.id">✉️ info.rsudunpam@tangerang.go.id</a>
+    </div>
+    <div class="topbar-social">
+      <a href="https://www.facebook.com/unpam/" target="_blank" rel="noopener">FB</a>
+      <a href="https://x.com/rsudunpam/" target="_blank" rel="noopener">X</a>
+      <a href="https://www.instagram.com/rsudunpam/" target="_blank" rel="noopener">IG</a>
+      <a href="https://www.youtube.com/channel/UCj-lfb-Cc0GVVLvznfIp1Mw" target="_blank" rel="noopener">YT</a>
+    </div>
+  </div>
+</div>
+
+<header class="header">
+  <div class="container header-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-badge">RS</span>
+      <span class="logo-text"><strong>RSUD Unpam</strong><small>Rumah Sehat Untuk Tangerang</small></span>
+    </a>
+    <button class="nav-toggle" id="navToggle" aria-label="Buka menu"><span></span><span></span><span></span></button>
+    <nav class="nav" id="mainNav">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li class="has-dropdown">
+          <a href="javascript:void(0)" class="active">Tentang Kami</a>
+          <ul class="dropdown">
+            <li><a href="profil-rumah-sakit.html">Profile RSUD Unpam</a></li>
+            <li><a href="manajemen.html">Manajemen</a></li>
+          </ul>
+        </li>
+        <li><a href="index.html#layanan-unggulan">Layanan</a></li>
+        <li><a href="index.html#berita">Berita</a></li>
+        <li><a href="index.html#mcu">MCU</a></li>
+      </ul>
+    </nav>
+    <div class="header-cta">
+      <a href="index.html" class="btn btn-outline">← Beranda</a>
+      <a href="profil-rumah-sakit.html" class="btn btn-primary">Profil RS</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="bg-slate-900 text-white">
+    <div class="mx-auto max-w-6xl px-5 py-12">
+      <p class="text-xs"><a href="index.html" class="underline">Beranda</a> / <span class="font-bold">Profile Management</span></p>
+      <h1 class="mt-3 text-4xl font-extrabold">Profile Management</h1>
+      <p class="mt-3 max-w-3xl text-slate-300">Direksi, struktur organisasi, komite medis & tata kelola RSUD Unpam. Sinkron dengan versi Next.js di <code>/manajemen</code>. Data dummy.</p>
+      <div class="mt-5 flex flex-wrap gap-3">
+        <a href="profil-rumah-sakit.html" class="rounded-lg bg-white px-5 py-2.5 text-sm font-bold text-slate-900">Lihat Profil RS</a>
+        <a href="index.html" class="rounded-lg border border-white/40 px-5 py-2.5 text-sm font-bold">Kembali ke HTML Utama</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-6xl px-5 py-12">
+    <h2 class="text-2xl font-extrabold text-blue-900">Direksi & Pimpinan</h2>
+    <div class="mt-5 grid gap-5 md:grid-cols-3">
+      <div class="card"><div class="card-body"><span class="card-tag">Direktur Utama</span><h3>dr. H. Ahmad Hilmi, MARS</h3><p>Strategi, akreditasi KARS, penanggung jawab umum.</p></div></div>
+      <div class="card"><div class="card-body"><span class="card-tag">Direktur Medis</span><h3>dr. Ratna Sari, Sp.PD</h3><p>Pelayanan medis, komite medis, keselamatan pasien.</p></div></div>
+      <div class="card"><div class="card-body"><span class="card-tag">Direktur Administrasi</span><h3>Hj. Maya Putri, SE, MM</h3><p>SDM, keuangan, BPJS, SIMRS.</p></div></div>
+      <div class="card"><div class="card-body"><span class="card-tag">Ketua Komite Medis</span><h3>dr. Budi Santoso, Sp.A</h3><p>Etik profesi, kredensialing, audit klinis.</p></div></div>
+      <div class="card"><div class="card-body"><span class="card-tag">Keperawatan</span><h3>Ns. Sinta Dewi, S.Kep</h3><p>Asuhan keperawatan, IGD, rawat inap 148 bed.</p></div></div>
+      <div class="card"><div class="card-body"><span class="card-tag">SPI & Mutu</span><h3>Rudi Hartono, SKM</h3><p>Pengawas intern, zona integritas WBK.</p></div></div>
+    </div>
+
+    <h2 class="mt-12 text-2xl font-extrabold text-blue-900">Struktur Organisasi</h2>
+    <div class="mt-4 grid gap-4 md:grid-cols-2">
+      <div class="rounded-xl border p-4 shadow"><h3 class="font-bold">Dewan Pengawas</h3><p class="text-sm text-slate-500">Pemkot Tangsel, Dinkes, akademisi UNPAM.</p></div>
+      <div class="rounded-xl border p-4 shadow"><h3 class="font-bold">Direktur Utama</h3><p class="text-sm text-slate-500">Membawahi Direktur Medis & Administrasi.</p></div>
+      <div class="rounded-xl border p-4 shadow"><h3 class="font-bold">Bidang Medis</h3><p class="text-sm text-slate-500">IGD, OK, Lab, Radiologi, Farmasi, PPI, K3RS.</p></div>
+      <div class="rounded-xl border p-4 shadow"><h3 class="font-bold">Bidang Penunjang</h3><p class="text-sm text-slate-500">SDM, SIMRS, keuangan, aset, humas & PPID.</p></div>
+    </div>
+
+    <h2 class="mt-12 text-2xl font-extrabold text-blue-900">Tata Kelola</h2>
+    <div class="mt-4 grid gap-4 md:grid-cols-4">
+      <div class="rounded-xl bg-blue-50 p-4"><h3 class="font-bold">Transparansi</h3><p class="text-sm">Jadwal & kuota dipublikasi.</p></div>
+      <div class="rounded-xl bg-blue-50 p-4"><h3 class="font-bold">Keselamatan</h3><p class="text-sm">Budaya keselamatan pasien.</p></div>
+      <div class="rounded-xl bg-blue-50 p-4"><h3 class="font-bold">Integritas</h3><p class="text-sm">WBK, anti gratifikasi.</p></div>
+      <div class="rounded-xl bg-blue-50 p-4"><h3 class="font-bold">Mutu Klinis</h3><p class="text-sm">Audit & kredensialing.</p></div>
+    </div>
+
+    <div class="mt-8 flex gap-3">
+      <a href="index.html" class="btn btn-outline">← HTML Utama</a>
+      <a href="profil-rumah-sakit.html" class="btn btn-primary">Lanjut ke Profil Rumah Sakit →</a>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container footer-grid">
+    <div><h3>RSUD Unpam</h3><p>Jl. Pitara, Viktor, Tangerang, Banten</p></div>
+    <div><h4>Navigasi</h4><ul class="footer-links"><li><a href="index.html">HTML Utama (Beranda)</a></li><li><a href="profil-rumah-sakit.html">Profil Rumah Sakit</a></li><li><a href="manajemen.html">Profile Management</a></li></ul></div>
+    <div><h4>Jam Operasional</h4><p>Rawat Jalan: Senin–Jumat 07.30–14.00<br>IGD 24 jam</p></div>
+  </div>
+  <div class="footer-bottom"><div class="container">&copy; <span id="year"></span> RSUD Tangerang.</div></div>
+</footer>
+<script src="script.js"></script>
+</body>
+</html>
