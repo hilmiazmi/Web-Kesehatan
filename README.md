@@ -1,7 +1,8 @@
 # Web-skesehatan — Frontend Rebuild
 
-Replika UI/UX **RSUD Pasar Minggu** (`rsudpasarminggu.jakarta.go.id`) rebuilt
-dengan Next.js. Identitas, konten, dan aset diganti menjadi fiktih sesuai PRD.
+Website rumah sakit fiktif ("RSUD Contoh Sehat") rebuilt dengan Next.js.
+Seluruh identitas, konten, foto, dan data di sini dibuat sendiri untuk
+keperluan demonstrasi dan portofolio.
 
 > **Situs demo untuk pembelajaran/portofolio.** Bukan situs resmi rumah sakit
 > pemerintah. Data seluruhnya fiktif.
