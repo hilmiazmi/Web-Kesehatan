@@ -1,0 +1,4 @@
+# Artefak perkakas browser otomatisasi (screenshot, log konsol).
+.playwright-mcp/
+
+# Bergantian dengan rs-frontend/.gitignore (node_modules, .next, .env*).
