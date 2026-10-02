@@ -1,0 +1,106 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import PageHeader from "@/components/layout/PageHeader";
+import { CONTACT, SITE } from "@/data/navigation";
+import { collectNavPaths, humanize, resolveTrail } from "@/lib/nav-path";
+
+/**
+ * Halaman umum untuk seluruh link navbar yang belum punya halaman khusus.
+ *
+ * Route yang lebih spesifik (mis. `/berita/[slug]`) selalu menang atas
+ * `[...slug]`, jadi halaman ini hanya menangani sisanya. Gunanya supaya tidak
+ * ada tautan mati di navbar.
+ *
+ * Isinya masih kerangka: judul, breadcrumb otomatis dari hierarki menu, dan
+ * blok kontak. Saat backend siap, tiap halaman diisi dari Route Handler
+ * sesuai PRD bagian 6.4.
+ */
+
+/** Prerender semua path navbar. */
+export function generateStaticParams() {
+  return collectNavPaths();
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string[] }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const path = "/" + slug.join("/");
+  const trail = resolveTrail(path);
+  const title = trail?.at(-1)?.label ?? humanize(slug.at(-1) ?? "");
+  return { title: `${title} - ${SITE.name}` };
+}
+
+export default async function GenericPage({
+  params,
+}: {
+  params: Promise<{ slug: string[] }>;
+}) {
+  const { slug } = await params;
+  const path = "/" + slug.join("/");
+
+  // Breadcrumb dari hierarki menu; fallback ke segment terakhir.
+  const navTrail = resolveTrail(path);
+  const last = slug.at(-1) ?? "";
+  const trail = navTrail?.map((t, i) =>
+    i === navTrail.length - 1 ? { label: t.label } : t
+  ) ?? [{ label: humanize(last) }];
+
+  return (
+    <>
+      <PageHeader title={trail.at(-1)?.label ?? humanize(last)} trail={trail} />
+
+      <section className="section">
+        <div className="container">
+          <div className="row justify-content-center">
+            <div className="col-lg-8">
+              <div className="content-placeholder-soft">
+                <p>
+                  Halaman <strong>{trail.at(-1)?.label ?? humanize(last)}</strong>{" "}
+                  sedang disiapkan. Sementara ini yang tampil baru kerangka
+                  halaman beserta informasi kontak di bawah.
+                </p>
+                <p>
+                  Isi lengkap halaman ini akan diisi dari basis data saat
+                  backend PostgreSQL selesai dibangun, mengikuti skema pada PRD
+                  bagian 7.
+                </p>
+              </div>
+
+              <h2 className="detail-heading mt-5">Informasi Kontak</h2>
+              <ul className="detail-list">
+                <li>
+                  <i className="bi bi-telephone" aria-hidden="true" />
+                  Telepon: <a href={CONTACT.phoneHref}>{CONTACT.phone}</a>
+                </li>
+                <li>
+                  <i className="bi bi-envelope" aria-hidden="true" />
+                  Email: <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a>
+                </li>
+                <li>
+                  <i className="bi bi-clock" aria-hidden="true" />
+                  Rawat jalan: Senin sampai Jumat, pukul 07.30 sampai 14.00
+                </li>
+                <li>
+                  <i className="bi bi-hospital" aria-hidden="true" />
+                  Instalasi gawat darurat dan rawat inap: 24 jam
+                </li>
+              </ul>
+
+              <div className="d-flex gap-2 flex-wrap mt-4">
+                <Link href="/" className="btn btn-primary">
+                  Kembali ke Home
+                </Link>
+                <Link href="/daftar-online" className="btn btn-tertiary">
+                  Daftar Online
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}
