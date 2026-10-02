@@ -1,0 +1,245 @@
+/* ==========================================================================
+   Design Tokens — NILAI INI TERVERIFIKASI dari getComputedStyle() situs
+   referensi rsudpasarminggu.jakarta.go.id (2 Oktober 2026).
+   Sumber: main.css (BootstrapMade "Medilab" + Bootstrap 5.3.3) dan style.css.
+
+   Jangan menebak angka di sini. Kalau perlu ubah, ubah berdasarkan
+   pengukuran baru, lalu catat di docs/design-tokens-terverifikasi.md.
+   ========================================================================== */
+
+:root {
+  /* --- Warna ---
+     Catatan penting: warna aksen yang BENAR-BENAR dipakai CSS adalah #1977cc.
+     Nilai #1A77CC hanya muncul di meta theme-color (browser chrome).
+     Untuk pixel-match, pakai #1977cc. */
+  --rs-accent: #1977cc;
+  --rs-accent-theme-color: #1a77cc;
+  --rs-white: #ffffff;
+  --rs-black: #000000;
+  --rs-text-body: #444444; /* rgb(68,68,68) */
+  --rs-text-heading: #000000;
+  --rs-text-nav: #2c4964; /* rgb(44,73,100) */
+  --rs-section-light: #f1f7fc; /* rgb(241,247,252) */
+  --rs-gray-100: #f4f4f4;
+  --rs-gray-300: #c9c8cd;
+  --rs-whatsapp: #25d366;
+
+  --rs-accent-rgb: 25, 119, 204;
+
+  /* --- Font ---
+     Aslinya memakai Gotham (heading, weight 700) dan Gotham Rounded (body,
+     weight 400). Keduanya font komersial berlisensi sehingga TIDAK boleh
+     disalin ke repo ini. Poppins dipilih karena paling dekat secara visual:
+     sama-sama geometris dan membulat.
+     src/components/providers/FontProvider.tsx memuat font ini. */
+  --rs-font-heading: var(--font-poppins), system-ui, sans-serif;
+  --rs-font-body: var(--font-poppins), system-ui, sans-serif;
+
+  /* --- Ukuran tipografi (hasil pengukuran) --- */
+  --rs-fs-body: 16px; /* line-height 24px */
+  --rs-lh-body: 24px;
+  --rs-fs-nav: 15px; /* line-height 22.5px, weight 700 */
+  --rs-lh-nav: 22.5px;
+  --rs-fs-btn: 16px; /* tombol di dalam kartu, line-height 24px */
+  --rs-lh-btn: 24px;
+  --rs-fs-btn-cta: 14px; /* tombol CTA header, line-height 21px */
+  --rs-lh-btn-cta: 21px;
+  --rs-fs-topbar: 14px; /* line-height 21px */
+  --rs-lh-topbar: 21px;
+  --rs-fs-h2-section: 42px; /* line-height 50.4px, weight 500 */
+  --rs-lh-h2-section: 50.4px;
+
+  /* --- Border & spacing --- */
+  /* Penting: pill 50px HANYA untuk tombol CTA di header.
+     Tombol di dalam kartu memakai radius 5px (terverifikasi). */
+  --rs-radius-pill: 50px;
+  --rs-radius-btn: 5px;
+  --rs-radius-card: 25px;
+  --rs-radius-card-img: 20px 20px 0 0;
+  --rs-border-card: 1px solid rgba(0, 0, 0, 0.176);
+  --rs-text-card-title: #333333;
+  --rs-text-card-desc: #707070;
+  --rs-padding-btn: 10px 20px;
+  --rs-padding-btn-cta: 8px 25px;
+  --rs-padding-section: 60px 0;
+
+  /* --- Layout --- */
+  --rs-header-height: 72px;
+  --rs-max-width: 1320px;
+}
+
+/* Terapkan font ke elemen dasar. */
+html {
+  font-family: var(--rs-font-body);
+}
+
+html {
+  /* Cegah scroll horizontal dari gutter Bootstrap yang meleset sedikit.
+     Pakai clip, bukan hidden, supaya position: sticky tetap berfungsi. */
+  overflow-x: clip;
+}
+
+body {
+  overflow-x: clip;
+  font-family: var(--rs-font-body);
+  font-size: var(--rs-fs-body);
+  line-height: var(--rs-lh-body);
+  color: var(--rs-text-body);
+  background-color: var(--rs-white);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Judul memakai font heading, selalu hitam — situs asal punya `!important`
+   pada h1..h6 yang memaksa warna hitam. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--rs-font-heading);
+  color: var(--rs-text-heading);
+  margin-bottom: 0;
+  font-weight: 500;
+}
+
+/* Label form memakai font heading, sama seperti situs asal. */
+.form-label {
+  font-family: var(--rs-font-heading);
+}
+
+/* Semua teks navigasi bold. */
+.navmenu a {
+  font-weight: 700;
+}
+
+/* Tombol di dalam kartu: radius 5px (terverifikasi di situs referensi). */
+.btn {
+  border-radius: var(--rs-radius-btn);
+  padding: var(--rs-padding-btn);
+  font-size: var(--rs-fs-btn);
+  line-height: var(--rs-lh-btn);
+  font-family: var(--rs-font-body);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Tombol CTA di header saja yang berbentuk pill. */
+.header-ctas .btn {
+  border-radius: var(--rs-radius-pill);
+  padding: var(--rs-padding-btn-cta);
+  font-size: var(--rs-fs-btn-cta);
+  line-height: var(--rs-lh-btn-cta);
+}
+
+.btn:focus-visible {
+  outline: 3px solid rgba(var(--rs-accent-rgb), 0.4);
+  outline-offset: 2px;
+}
+
+/* Tombol primary: biru solid, teks putih. */
+.btn-primary {
+  background-color: var(--rs-accent);
+  color: var(--rs-white);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: #1565b0;
+  color: var(--rs-white);
+}
+
+/* Tombol secondary: putih, teks biru, garis biru tipis. */
+.btn-tertiary {
+  background-color: var(--rs-white);
+  color: var(--rs-accent);
+  border: 1px solid var(--rs-accent);
+}
+
+.btn-tertiary:hover,
+.btn-tertiary:focus {
+  background-color: var(--rs-accent);
+  color: var(--rs-white);
+}
+
+.btn-flat {
+  border-radius: unset;
+}
+
+/* Latar section terang. */
+.light-background {
+  background-color: var(--rs-section-light);
+}
+
+.section {
+  padding: var(--rs-padding-section);
+}
+
+.section-title {
+  margin-bottom: 1.5rem;
+}
+
+.section-title h2 {
+  font-size: var(--rs-fs-h2-section);
+  line-height: var(--rs-lh-h2-section);
+  font-weight: 500;
+  color: var(--rs-text-heading);
+  text-align: center;
+  padding-bottom: 20px; /* nilai asli dari situs referensi */
+  margin-bottom: 0;
+}
+
+/* Garis dekoratif tipis di bawah judul section. */
+.section-title p {
+  font-size: var(--rs-fs-body);
+  line-height: var(--rs-lh-body);
+  color: var(--rs-text-body);
+  text-align: center;
+  margin-bottom: 0;
+}
+
+/* Tombol WhatsApp hijau. */
+.btn-whatsapp {
+  background-color: var(--rs-whatsapp);
+}
+
+/* Latar biru aksen. */
+.bg-rs {
+  background-color: var(--rs-accent);
+  color: var(--rs-white);
+}
+
+/* Link "Selengkapnya" dengan garis bawah. */
+.link-more {
+  color: var(--rs-accent);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 2px;
+  transition: opacity 0.2s ease;
+}
+
+.link-more:hover {
+  opacity: 0.75;
+}
+
+/* Fokus keyboard yang konsisten untuk aksesibilitas. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid rgba(var(--rs-accent-rgb), 0.4);
+  outline-offset: 2px;
+}
+
+/* Hormati preferensi pengguna yang mengurangi animasi. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,584 @@
+/* ==========================================================================
+   Layout & komponen global.
+   Nilai warna/ukuran yang bertanda "terverifikasi" berasal dari pengukuran
+   getComputedStyle() pada situs referensi. Lihat docs/design-tokens-terverifikasi.md.
+   ========================================================================== */
+
+/* Lewati navigasi — hanya tampil saat keyboard user. */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  z-index: 9999;
+  padding: 0.75rem 1.25rem;
+  background: var(--rs-accent);
+  color: var(--rs-white);
+  border-radius: 0 0 var(--rs-radius-card) 0;
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  left: 0;
+  top: 0;
+}
+
+/* ---------- Topbar ---------- */
+.topbar {
+  background-color: var(--rs-accent);
+  font-size: var(--rs-fs-topbar);
+  line-height: var(--rs-lh-topbar);
+  min-height: 40px;
+  padding: 0;
+}
+
+.topbar .text-contact {
+  font-weight: 700;
+}
+
+.topbar a {
+  text-decoration: none;
+}
+
+.topbar a:hover {
+  text-decoration: underline;
+}
+
+.topbar .social-links a {
+  color: var(--rs-white);
+  font-size: 1.05rem;
+  padding: 0 0.5rem;
+  transition: opacity 0.2s ease;
+}
+
+.topbar .social-links a:hover {
+  opacity: 0.7;
+}
+
+/* ---------- Header / branding ---------- */
+.branding {
+  background-color: var(--rs-white);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 4px 0;
+}
+
+/* Sticky header seperti situs asal (`sticky-top`). */
+.header-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+}
+
+.header-nav-menu {
+  max-width: none;
+  margin: 0 auto;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+
+/* Logo: since situs asli memakai logo instansi resmi, dipakai placeholder
+   Buatan sendiri yang meniru proporsi dan posisinya, bukan logonya. */
+.logo {
+  text-decoration: none;
+  gap: 0.65rem;
+}
+
+.logo-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: var(--rs-accent);
+  color: var(--rs-white);
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+/* Logo bisa diklik: beri tanda tangan + garis bawah saat hover. */
+.logo:hover .logo-text strong {
+  text-decoration: underline;
+}
+
+.logo-mark {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.logo:hover .logo-mark {
+  transform: scale(1.06);
+  box-shadow: 0 4px 14px rgba(var(--rs-accent-rgb), 0.35);
+}
+
+.logo:focus-visible {
+  outline: 3px solid rgba(var(--rs-accent-rgb), 0.4);
+  outline-offset: 4px;
+  border-radius: var(--rs-radius-card);
+}
+
+.footer-identity-link {
+  display: inline-block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.footer-identity-link:hover .footer-name {
+  text-decoration: underline;
+}
+
+.footer-identity-link:focus-visible {
+  outline: 3px solid rgba(var(--rs-accent-rgb), 0.4);
+  outline-offset: 4px;
+  border-radius: var(--rs-radius-card);
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.logo-text strong {
+  font-family: var(--rs-font-heading);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--rs-accent);
+}
+
+.logo-text small {
+  font-size: 0.72rem;
+  color: var(--rs-text-body);
+}
+
+/* ---------- Navbar ---------- */
+.navmenu {
+  display: flex;
+  align-items: center;
+}
+
+.navmenu > ul {
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 0.15rem;
+}
+
+.navmenu > ul > li {
+  position: relative;
+}
+
+.navmenu a {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-family: var(--rs-font-heading);
+  font-size: var(--rs-fs-nav);
+  line-height: var(--rs-lh-nav);
+  color: var(--rs-text-nav);
+  text-decoration: none;
+  padding: 0.5rem 0.45rem;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.navmenu a:hover,
+.navmenu a.active {
+  color: var(--rs-accent);
+}
+
+.navmenu .toggle-dropdown {
+  font-size: 0.7rem;
+  transition: transform 0.2s ease;
+}
+
+/* Dropdown di dalam dropdown memakai chevron kanan, seperti situs asli. */
+.dropdown-depth-0 > a .toggle-dropdown {
+  transform: rotate(0deg);
+}
+
+/* Submenu disembunyikan secara default, dibuka lewat hover di desktop. */
+.navmenu li > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background-color: var(--rs-white);
+  border-radius: var(--rs-radius-card);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  min-width: 230px;
+  opacity: 0;
+  visibility: hidden;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1050;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  transform: translateY(6px);
+}
+
+.navmenu li:hover > ul {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Submenu di dalam submenu muncul ke samping, bukan ke bawah. */
+.navmenu li > ul ul {
+  top: 0;
+  left: 100%;
+  transform: translateX(6px);
+}
+
+.navmenu li:hover > ul ul {
+  transform: translateX(0);
+}
+
+/* Putuskan rantai hover supaya submenu tetap terbuka saat kursor bergerak ke
+  area submenu. Tanpa ini, submenu tertutup sebelum kursor sampai ke sana. */
+.navmenu li > ul:hover {
+  opacity: 1;
+  visibility: visible;
+}
+
+.navmenu li > ul a {
+  display: block;
+  padding: 0.55rem 0.9rem;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.navmenu li > ul a:last-child {
+  border-bottom: none;
+}
+
+.navmenu li > ul a:hover {
+  background-color: var(--rs-section-light);
+}
+
+/* Tombol CTA di kanan header. */
+.header-ctas {
+  gap: 0.5rem;
+  margin-left: 0.75rem;
+  flex-shrink: 0;
+}
+
+.cta-btn {
+  white-space: nowrap;
+}
+
+.mobile-nav-toggle {
+  background: none;
+  border: none;
+  font-size: 1.9rem;
+  color: var(--rs-text-nav);
+  cursor: pointer;
+  padding: 0 0.5rem;
+  line-height: 1;
+}
+
+/* ---------- Menu mobile ---------- */
+@media (max-width: 1199.98px) {
+  .navmenu {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(340px, 88vw);
+    background-color: var(--rs-white);
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    padding: 1.25rem;
+    overflow-y: auto;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    box-shadow: -6px 0 24px rgba(0, 0, 0, 0.15);
+    z-index: 1200;
+  }
+
+  .navmenu.navmenu-open {
+    transform: translateX(0);
+  }
+
+  .navmenu > ul {
+    flex-direction: column;
+    width: 100%;
+    gap: 0;
+  }
+
+  .navmenu > ul > li {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  }
+
+  /* Situs acuan memakai 17px di mobile, bukan 15px seperti desktop. */
+  .navmenu a {
+    font-size: 17px;
+    width: 100%;
+    justify-content: space-between;
+    padding: 0.8rem 0.25rem;
+    white-space: normal;
+  }
+
+  /* Di mobile tidak ada hover, jadi submenu terbuka lewat klik (state React). */
+  .navmenu li > ul {
+    position: static;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    box-shadow: none;
+    background-color: var(--rs-section-light);
+    min-width: 0;
+    border-radius: 0;
+    display: none;
+    padding-left: 0.75rem;
+  }
+
+  .navmenu li > ul:hover {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .navmenu .dropdown > a:hover + ul {
+    display: none;
+  }
+
+  /* Submenu yang state-nya expanded (kelas .show dari Navbar). */
+  .navmenu li > ul.show {
+    display: block;
+  }
+
+  .navmobile {
+    display: block;
+  }
+}
+
+@media (min-width: 1200px) {
+  .nav-mobile {
+    display: none;
+  }
+}
+
+/* ---------- Footer ---------- */
+.footer {
+  background-color: var(--rs-white);
+  border-top: 1px solid rgba(0, 0, 0, 0.07);
+  padding-top: 3rem;
+  font-size: 14px;
+}
+
+.footer h3,
+.footer h4 {
+  font-weight: 700;
+}
+
+.footer h4 {
+  font-size: 16px;
+  line-height: 19.2px;
+  margin-bottom: 8px;
+}
+
+.footer-name {
+  font-size: 1.35rem;
+  color: var(--rs-accent);
+  margin: 0.75rem 0 0.25rem;
+}
+
+.footer-tagline {
+  color: var(--rs-text-body);
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+}
+
+.footer-address {
+  font-style: normal;
+  color: var(--rs-text-body);
+  font-size: 0.9rem;
+}
+
+.logo-mark-footer {
+  width: 52px;
+  height: 52px;
+  font-size: 1.75rem;
+}
+
+.footer-heading {
+  font-size: 1.05rem;
+  margin-bottom: 0.9rem;
+  color: var(--rs-text-heading);
+}
+
+.footer-related {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+/* Placeholder link terkait: situs asli memakai logo instansi resmi. */
+.related-logo-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 0.5rem;
+  border: 1px solid var(--rs-gray-300);
+  border-radius: var(--rs-radius-card);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--rs-text-nav);
+  background-color: var(--rs-white);
+}
+
+.footer-contact li {
+  margin-bottom: 0.55rem;
+  color: var(--rs-text-body);
+  font-size: 0.9rem;
+}
+
+.footer-contact a {
+  color: var(--rs-text-body);
+  text-decoration: none;
+}
+
+.footer-contact a:hover {
+  color: var(--rs-accent);
+  text-decoration: underline;
+}
+
+.footer-map-placeholder {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 110px;
+  border: 1px dashed var(--rs-gray-300);
+  border-radius: var(--rs-radius-card);
+  background-color: var(--rs-section-light);
+  color: var(--rs-text-nav);
+  font-size: 0.8rem;
+}
+
+.footer-bottom {
+  margin-top: 2.5rem;
+  padding: 1.25rem 0;
+  background-color: var(--rs-section-light);
+  font-size: 0.85rem;
+  color: var(--rs-text-body);
+}
+
+/* Penanda situs demo — wajib ada sesuai PRD bagian 13. */
+.footer-disclaimer {
+  font-size: 0.78rem;
+  color: #6b7280;
+  margin: 0.35rem 0 0.5rem;
+}
+
+.footer-utility {
+  display: flex;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  font-size: 0.85rem;
+}
+
+.footer-utility a {
+  color: var(--rs-text-nav);
+  text-decoration: none;
+}
+
+.footer-utility a:hover {
+  color: var(--rs-accent);
+  text-decoration: underline;
+}
+
+/* ---------- Kartu umum ---------- */
+.card {
+  border: var(--rs-border-card);
+  border-radius: var(--rs-radius-card);
+  box-shadow: none;
+  overflow: visible;
+  background-color: var(--rs-white);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.image-content img {
+  width: 100%;
+  height: 190px;
+  object-fit: cover;
+  display: block;
+  border-radius: var(--rs-radius-card-img);
+}
+
+.card-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.card-title {
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 27px;
+  color: var(--rs-text-card-title);
+  margin-bottom: 0.5rem;
+}
+
+.card-description {
+  font-size: 14px;
+  line-height: 21px;
+  color: var(--rs-text-card-desc);
+  margin-bottom: 16px;
+  flex-grow: 1;
+}
+
+.card-content .btn {
+  align-self: flex-start;
+}
+
+/* ---------- Konten halaman ---------- */
+.page-header {
+  background-color: var(--rs-section-light);
+  padding: 3rem 0 2.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.page-header h1 {
+  font-size: 2.1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.breadcrumb {
+  margin-bottom: 0;
+  font-size: 0.88rem;
+}
+
+.breadcrumb a {
+  color: var(--rs-accent);
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.breadcrumb-item.active {
+  color: var(--rs-text-body);
+}
+
+/* Placeholder konten statis untuk halaman yang belum terisi. */
+.content-placeholder {
+  padding: 4rem 0;
+}
+
+.content-placeholder p {
+  max-width: 70ch;
+  color: var(--rs-text-body);
+}
