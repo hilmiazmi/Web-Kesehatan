@@ -12,7 +12,12 @@ export default function PageHeader({
   subtitle,
   trail,
 }: {
-  title: string;
+  /**
+   * Judul halaman. Boleh dikosongkan pada halaman yang sudah punya judul
+   * sendiri di dalam badan halaman, misalnya halaman detail layanan yang
+   * judulnya diletakkan di kolom konten. Remah roti tetap dirender.
+   */
+  title?: string;
   subtitle?: string;
   /** Remah roti selain Home, mis. [{ label: "Berita", href: "/berita" }]. */
   trail?: { label: string; href?: string }[];
@@ -43,7 +48,7 @@ export default function PageHeader({
           </ol>
         </nav>
 
-        <h1>{title}</h1>
+        {title ? <h1>{title}</h1> : null}
         {subtitle ? <p className="page-subtitle">{subtitle}</p> : null}
 
         <p className="page-help">
