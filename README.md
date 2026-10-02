@@ -12,21 +12,26 @@ dengan Next.js. Identitas, konten, dan aset diganti menjadi fiktih sesuai PRD.
 
 ```
 .
+├── src/                   # Aplikasi Next.js (aktif, di root repo)
+│   ├── app/               # Route: beranda, berita, layanan, MCU, formulir
+│   ├── components/        # Komponen UI per bagian
+│   ├── data/              # Konten dan kumpulan foto (masih data lokal)
+│   ├── lib/               # Pembantu: format, penelusuran path menu
+│   └── styles/            # CSS: token, layout, section, halaman detail
 ├── archive/legacy-v1/     # Kode versi lama, read-only
-├── docs/                  # PRD & dokumentasi desain token
-│   ├── prd-web-rumah-sakit.md
-│   └── design-tokens-terverifikasi.md
-└── rs-frontend/           # Aplikasi Next.js (aktif)
+└── docs/                  # PRD & dokumentasi desain token
 ```
 
 ## Menjalankan
 
 ```bash
-cd rs-frontend
 bun install
 bun run dev        # http://localhost:3000
 bun run build      # build produksi
+bun run lint       # pemeriksaan ESLint
 ```
+
+Aplikasi berada di root repo, tidak perlu `cd` ke subdirektori.
 
 Butuh Node 20+ dan Bun. `packageManager` di `package.json` dikunci ke `bun@1.4.2`.
 
