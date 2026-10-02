@@ -5,6 +5,11 @@ import { CONTACT, SOCIALS } from "@/data/navigation";
  *
  * Latar biru aksen, nomor telepon/WhatsApp/email di kiri, ikon sosial media
  * di kanan ( disembunyikan di layar kecil, mengikuti `d-none d-md-flex` ).
+ *
+ * Nomor telepon disembunyikan di lebar 768px ke bawah, mengikuti aturan
+ * `@media (max-width: 768px)` milik situs acuan. Karena teksnya hilang dari
+ * tampilan, tiap tautan punya `aria-label` yang memuat nilainya sendiri supaya
+ * pembaca layar tetap menyebut nomor yang benar.
  */
 export default function Topbar() {
   return (
@@ -14,7 +19,11 @@ export default function Topbar() {
           <div className="text-contact text-white m-2">
             <span>Kontak Kami</span>
           </div>
-          <a href={CONTACT.phoneHref} className="phone text-white m-2">
+          <a
+            href={CONTACT.phoneHref}
+            className="phone text-white m-2"
+            aria-label={`Telepon ${CONTACT.phone}`}
+          >
             <i className="bi bi-phone" aria-hidden="true" />{" "}
             <span>{CONTACT.phone}</span>
           </a>
@@ -23,11 +32,16 @@ export default function Topbar() {
             target="_blank"
             rel="noopener noreferrer"
             className="hp text-white m-2"
+            aria-label={`WhatsApp ${CONTACT.whatsapp}`}
           >
             <i className="bi bi-whatsapp" aria-hidden="true" />{" "}
             <span>{CONTACT.whatsapp}</span>
           </a>
-          <a href={`mailto:${CONTACT.email}`} className="email text-white m-2">
+          <a
+            href={`mailto:${CONTACT.email}`}
+            className="email text-white m-2"
+            aria-label={`Surel ${CONTACT.email}`}
+          >
             <i className="bi bi-envelope" aria-hidden="true" />{" "}
             <span>{CONTACT.email}</span>
           </a>
