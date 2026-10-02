@@ -136,7 +136,7 @@ export const FACILITIES = [
     slug: "eswl",
     title: "ESWL (Extracorporeal Shock Wave Lithotripsy)",
     description:
-      "Layanan penguin batu kanal kemih menggunakan gelombang kejut tanpa pembedahan",
+      "Layanan penghancuran batu kanal kemih menggunakan gelombang kejut tanpa pembedahan",
   },
   {
     slug: "mri",
@@ -148,7 +148,7 @@ export const FACILITIES = [
     slug: "klinik-eksekutif",
     title: "Klinik Eksekutif",
     description:
-      "Layanan '-' untuk pasien yang membutuhkan konsultasi cepat dengan dokter spesialis",
+      "Layanan konsultasi cepat bagi pasien yang membutuhkan langsung bertemu dokter spesialis",
   },
 ];
 
@@ -260,7 +260,7 @@ export const FAQS = [
   {
     question: "Apakah RSUD Contoh Sehat menerima pasien BPJS Kesehatan?",
     answer:
-      "Ya, kami menerima rujukan pasien BPJS Kesehatan dari fasilitas kesehatan primer. Pasien disarankan membawa kartu BPJS yang masih aktif dan surat rujukan dari fasilitas kesehatan tempatEDFDC akan dilayani.",
+      "Ya, kami menerima rujukan pasien BPJS Kesehatan dari fasilitas kesehatan primer. Pasien disarankan membawa kartu BPJS yang masih aktif dan surat rujukan dari fasilitas kesehatan asal.",
   },
   {
     question: "Bagaimana alur pasien gawat darurat?",
