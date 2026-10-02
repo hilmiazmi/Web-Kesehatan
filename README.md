@@ -27,8 +27,9 @@ dengan Next.js. Identitas, konten, dan aset diganti menjadi fiktih sesuai PRD.
 ```bash
 bun install
 bun run dev        # http://localhost:3000
-bun run build      # build produksi
+bun run build      # build produksi + typecheck
 bun run lint       # pemeriksaan ESLint
+bun run test       # unit test (Vitest)
 ```
 
 Aplikasi berada di root repo, tidak perlu `cd` ke subdirektori.

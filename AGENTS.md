@@ -25,15 +25,29 @@ di root. Semula ada di subdirektori `rs-frontend/` dan dipindahkan pada 2 Oktobe
 
 ```bash
 bun install
-bun run dev      # http://localhost:3000
-bun run build    # build produksi, sekaligus typecheck
-bun run lint     # ESLint
+bun run dev         # http://localhost:3000
+bun run build       # build produksi, sekaligus typecheck
+bun run lint        # ESLint
+bun run test        # Vitest, sekali jalan
+bun run test:watch  # Vitest, mode watching
 ```
 
-`packageManager` dikunci ke `bun@1.4.2`. **Belum ada test runner** (tidak ada
-Vitest maupun Jest), jadi `bun run lint` dan `bun run build` adalah satu-satunya
-gerbang otomatis. Perilaku harus diverifikasi manual lewat browser. Belum ada
-CI workflow.
+`packageManager` dikunci ke `bun@1.4.2`. Belum ada CI workflow, jadi jalankan
+`bun run lint && bun run test && bun run build` sebelum menyatakan selesai.
+
+## Tes
+
+Vitest 5, tanpa jsdom karena semua yang diuji logika murni. Tes ada di
+`tests/*.test.ts` dan hanya mencakup apa yang tidak bisa dijamin mata:
+`nav-path.ts`, `format.ts`, `validate()` di formulir, dan bentuk data konten.
+
+Alias `@/` dideklarasikan ulang di `vitest.config.mts`; Vite tidak membaca
+`tsconfig.json`. Berkas itu memakai ekstensi `.mts` karena paket ini tidak
+menulis `"type": "module"`.
+
+Yang **tidak** bisa diuji di sini dan harus diperiksa manual lewat browser:
+tata letak responsif, carousel Swiper, panel navigasi off-canvas, dan interaksi
+SweetAlert2.
 
 Memeriksa satu route setelah build:
 
@@ -88,6 +102,8 @@ bukan tebakan. Rinciannya ada di `docs/design-tokens-terverifikasi.md`.
 - Submenu navbar: hover di desktop dan tautan induk tetap dinavigasi; accordion
   di mobile. Percabangan ini lewat `isDesktopNav()` dengan batas `1200px` yang
   **harus sama** dengan media query `.navmenu` di `site.css`.
+- **`validate()` di `registration-form.tsx` sengaja di-export** supaya aturan
+  validasinya bisa diuji tanpa merender komponen. Jangan dibuat lokal lagi.
 - Form dan komponen lain tidak boleh memanggil `setState` di dalam `useEffect`;
   aturan eslint `react-hooks/set-state-in-effect` aktif. Pola yang dipakai adalah
   penyesuaian saat render lewat pasangan `lastX` dan `setLastX`, contoh di
