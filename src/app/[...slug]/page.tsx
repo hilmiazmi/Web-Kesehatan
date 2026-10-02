@@ -16,6 +16,15 @@ import { collectNavPaths, humanize, resolveTrail } from "@/lib/nav-path";
  * sesuai PRD bagian 6.4.
  */
 
+/**
+ * Hanya path yang benar-benar ada di menu yang boleh dilayani.
+ *
+ * Tanpa baris ini, sembarang URL seperti /halaman-acak akan dirender sebagai
+ * halaman umum dengan status 200alias soft-404, yang buruk untuk mesin
+ * pencari. Dengan `false`, path di luar daftar mengembalikan 404 sungguhan.
+ */
+export const dynamicParams = false;
+
 /** Prerender semua path navbar. */
 export function generateStaticParams() {
   return collectNavPaths();

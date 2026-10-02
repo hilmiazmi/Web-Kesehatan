@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CONTACT, SITE } from "@/data/navigation";
+import { CONTACT, FOOTER_LINKS, SITE } from "@/data/navigation";
 
 /** Logo-link dummy untuk "Link Terkait". Di situs asli berisi logo instansi
  *  pemerintah; karena aset resmi tidak disalin, dipakai placeholder teks. */
@@ -102,12 +102,11 @@ export default function Footer() {
             data fiktif.
           </p>
           <ul className="footer-utility list-unstyled">
-            <li>
-              <Link href="/sitemap">Peta Situs</Link>
-            </li>
-            <li>
-              <Link href="/kontak">Kontak</Link>
-            </li>
+            {FOOTER_LINKS.map((l) => (
+              <li key={l.href}>
+                <Link href={l.href}>{l.label}</Link>
+              </li>
+            ))}
           </ul>
         </div>
       </div>

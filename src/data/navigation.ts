@@ -146,6 +146,17 @@ export const HEADER_CTAS = [
   { label: "Administrasi Pasien", href: "/administrasi", className: "btn-tertiary" },
 ];
 
+/**
+ * Tautan kecil di footer.
+ *
+ * Disimpan sebagai data, bukan ditulis langsung di JSX, supaya ikut ikut
+ * didaftarkan oleh `collectNavPaths()` dan tidak berakhir jadi tautan mati.
+ */
+export const FOOTER_LINKS = [
+  { label: "Peta Situs", href: "/sitemap" },
+  { label: "Kontak", href: "/kontak" },
+];
+
 /** Kontak di topbar. Fiktif, bukan data asli. */
 export const CONTACT = {
   phone: "(021) 5000 1234",

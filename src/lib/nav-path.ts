@@ -1,4 +1,10 @@
-import { NAV_ITEMS, type NavChild, type NavItem } from "@/data/navigation";
+import {
+  FOOTER_LINKS,
+  HEADER_CTAS,
+  NAV_ITEMS,
+  type NavChild,
+  type NavItem,
+} from "@/data/navigation";
 
 /**
  * Pencarian jejak remah roti di dalam data navigasi.
@@ -96,12 +102,17 @@ export function humanize(segment: string): string {
     .join(" ");
 }
 /**
- * Kumpulkan seluruh path dari data navigasi (kecuali root).
+ * Kumpulkan seluruh path dari data navigasi (kecuali root) dalam bentuk
+ * parameter catch-all.
  *
- * Dipakai `generateStaticParams` pada halaman "[...slug]" supaya semua link
- * navbar punya halaman yang sudah di-prerender, tidak ada 404.
+ * Dipakai `generateStaticParams` pada halaman `[...slug]`. Rute catch-all
+ * memerlukan `{ slug: string[] }`, bukan `{ path: string }`; kalau salah
+ * bentuk, tidak ada satu pun halaman yang ter-prerender dan setiap tautan
+ * navbar berakhir jadi 404.
+ *
+ * Lihat `generate-static-params` pada dokumentasi Next.js.
  */
-export function collectNavPaths(): { path: string }[] {
+export function collectNavPaths(): { slug: string[] }[] {
   const out: string[] = [];
 
   const walk = (nodes: (NavItem | NavChild)[], parent: string) => {
@@ -114,6 +125,11 @@ export function collectNavPaths(): { path: string }[] {
     }
   };
 
+  // Menu utama, tombol CTA header, dan tautan footer semuanya menghasilkan
+  // halaman, jadi ketiganya ikut terdaftar.
   walk(NAV_ITEMS, "");
-  return out.map((path) => ({ path }));
+  walk(HEADER_CTAS, "");
+  walk(FOOTER_LINKS, "");
+
+  return out.map((path) => ({ slug: segments(path) }));
 }
