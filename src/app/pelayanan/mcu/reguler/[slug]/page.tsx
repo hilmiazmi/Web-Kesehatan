@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import PageHeader from "@/components/layout/PageHeader";
+import Photo from "@/components/ui/Photo";
+import { DetailLayout } from "@/components/pelayanan/DetailLayout";
 import { MCU_PACKAGES } from "@/data/home";
+import { FACILITY_PHOTOS, photo } from "@/data/images";
 import { formatIDR } from "@/lib/format";
-
 
 /** Prerender semua paket MCU saat build. */
 export function generateStaticParams() {
@@ -25,6 +27,21 @@ export async function generateMetadata({
   };
 }
 
+/** Syarat pendaftaran yang berlaku untuk semua paket reguler. */
+const SYARAT = [
+  "Pesanan minimal 2 hari sebelum pemeriksaan.",
+  "Puasa 8 sampai 10 jam sebelum pemeriksaan.",
+  "Bawa surat rujukan bila memakai BPJS Kesehatan.",
+  "Hasil pemeriksaan berlaku selama 30 hari.",
+];
+
+/**
+ * Halaman detail satu paket medical check up.
+ *
+ * Daftar paket lain diletakkan di kolom kiri, mengikuti halaman detail paket
+ * di situs referensi. Rincian pemeriksaan diambil dari data paket, bukan
+ * ditulis ulang di sini.
+ */
 export default async function McuPackagePage({
   params,
 }: {
@@ -35,13 +52,11 @@ export default async function McuPackagePage({
   if (index === -1) notFound();
 
   const pkg = MCU_PACKAGES[index];
-  const others = MCU_PACKAGES.filter((p) => p.slug !== slug).slice(0, 3);
+  const href = `/pelayanan/mcu/reguler/${pkg.slug}`;
 
   return (
     <>
       <PageHeader
-        title={pkg.title}
-        subtitle="Paket medical check up untuk membantu Anda mengenali kondisi kesehatan sejak dini."
         trail={[
           { label: "Pelayanan", href: "/pelayanan" },
           { label: "MCU", href: "/pelayanan/mcu" },
@@ -52,81 +67,64 @@ export default async function McuPackagePage({
 
       <section className="section">
         <div className="container">
-          <div className="row justify-content-center">
-            <div className="col-lg-8">
-              <div className="card mcu-detail-card">
-                <div className="card-content">
-                  <p className="mcu-price mcu-price-large">{formatIDR(pkg.price)}</p>
+          <DetailLayout
+            items={MCU_PACKAGES.map((p) => ({
+              href: `/pelayanan/mcu/reguler/${p.slug}`,
+              label: p.title,
+            }))}
+            currentHref={href}
+          >
+            <article>
+              <h1 className="detail-title">{pkg.title}</h1>
 
-                  <h2 className="detail-heading">Rincian Pemeriksaan</h2>
-                  <ul className="mcu-items mcu-items-detailed">
-                    {pkg.items.map((item) => (
-                      <li key={item}>{item}</li>
-                    ))}
-                  </ul>
-
-                  <h2 className="detail-heading mt-4">Syarat dan Ketentuan</h2>
-                  <ul className="detail-list">
-                    <li>
-                      <i className="bi bi-check-circle" aria-hidden="true" />
-                      Pesanan Minimal 2 hari sebelum pemeriksaan.
-                    </li>
-                    <li>
-                      <i className="bi bi-check-circle" aria-hidden="true" />
-                      Puasa 8 sampai 10 jam sebelum pemeriksaan.
-                    </li>
-                    <li>
-                      <i className="bi bi-check-circle" aria-hidden="true" />
-                      Bawa surat rujukan bila memakai BPJS Kesehatan.
-                    </li>
-                    <li>
-                      <i className="bi bi-check-circle" aria-hidden="true" />
-                      Hasil pemeriksaan berlaku selama 30 hari.
-                    </li>
-                  </ul>
-
-                  <div className="d-flex gap-2 flex-wrap mt-4">
-                    <Link
-                      href={`/daftar-online?paket=${pkg.slug}`}
-                      className="btn btn-primary"
-                    >
-                      Pesan Paket Ini
-                    </Link>
-                    <Link href="/pelayanan/mcu/reguler" className="btn btn-tertiary">
-                      Semua Paket
-                    </Link>
-                  </div>
-                </div>
+              <div className="detail-body-photo">
+                <Photo
+                  src={photo(FACILITY_PHOTOS[index % FACILITY_PHOTOS.length], 900, 600)}
+                  alt={pkg.title}
+                  sizes="(max-width: 992px) 100vw, 720px"
+                  priority
+                  height={280}
+                  radius="all"
+                />
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      <section className="section light-background">
-        <div className="container section-title pb-4">
-          <h2>Paket Lainnya</h2>
-        </div>
-        <div className="container">
-          <div className="row gy-4 gx-4">
-            {others.map((p) => (
-              <div className="col-md-4" key={p.slug}>
-                <div className="card">
-                  <div className="card-content">
-                    <h3 className="card-title">{p.title}</h3>
-                    <p className="mcu-price">{formatIDR(p.price)}</p>
-                    <p className="card-description">{p.items[0]}</p>
-                    <Link
-                      href={`/pelayanan/mcu/reguler/${p.slug}`}
-                      className="btn btn-primary"
-                    >
-                      Detail
-                    </Link>
-                  </div>
-                </div>
+              <p className="mcu-price mcu-price-large">{formatIDR(pkg.price)}</p>
+
+              <p className="detail-lead">
+                Paket medical check up untuk membantu Anda mengenali kondisi
+                kesehatan sejak dini.
+              </p>
+
+              <h2 className="detail-subheading">Rincian Pemeriksaan</h2>
+              <ul className="mcu-items mcu-items-detailed">
+                {pkg.items.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+
+              <h2 className="detail-subheading">Syarat dan Ketentuan</h2>
+              <ul className="detail-list">
+                {SYARAT.map((s) => (
+                  <li key={s}>
+                    <i className="bi bi-check-circle" aria-hidden="true" />
+                    {s}
+                  </li>
+                ))}
+              </ul>
+
+              <div className="d-flex gap-2 flex-wrap mt-4">
+                <Link
+                  href={`/daftar-online?paket=${pkg.slug}`}
+                  className="btn btn-primary"
+                >
+                  Pesan Paket Ini
+                </Link>
+                <Link href="/pelayanan/mcu/reguler" className="btn btn-tertiary">
+                  Semua Paket
+                </Link>
               </div>
-            ))}
-          </div>
+            </article>
+          </DetailLayout>
         </div>
       </section>
     </>
