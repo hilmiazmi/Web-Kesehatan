@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Photo from "@/components/ui/Photo";
+import CardCarousel from "@/components/ui/CardCarousel";
 import { SOCIALS } from "@/data/navigation";
 import {
   FAQS,
@@ -83,7 +84,12 @@ export function SocialMediaSection() {
   );
 }
 
-/** Section 11 — "Patient Experience" (testimoni). Teks karangan sendiri. */
+/**
+ * Section 11 — "Patient Experience" (testimoni). Teks karangan sendiri.
+ *
+ * Di situs referensi ini slider penuh yang berganti sendiri, satu testimoni
+ * pada satu waktu, tanpa tombol navigasi dan hanya bullet pagination.
+ */
 export function TestimonialsSection() {
   return (
     <section id="testimoni" className="testimonials section">
@@ -97,7 +103,13 @@ export function TestimonialsSection() {
           </div>
 
           <div className="col-lg-8">
-            <div className="testimonial-slider" role="region" aria-label="Testimoni pasien" tabIndex={0}>
+            <CardCarousel
+              label="Testimoni pasien"
+              className="testimonial-carousel"
+              slidesPerView={1}
+              autoplay
+              showNavigation={false}
+            >
               {TESTIMONIALS.map((t, i) => (
                 <figure className="testimonial" key={t.name}>
                   <div className="testimonial-body">
@@ -105,17 +117,17 @@ export function TestimonialsSection() {
                     <blockquote>{t.quote}</blockquote>
                   </div>
                   <figcaption className="testimonial-person">
-                      <Photo
-                        src={photo(
-                          TESTIMONIAL_PHOTOS[i % TESTIMONIAL_PHOTOS.length],
-                          120,
-                          120
-                        )}
-                        alt={t.name}
-                        sizes="46px"
-                        height={46}
-                        radius="circle"
-                      />
+                    <Photo
+                      src={photo(
+                        TESTIMONIAL_PHOTOS[i % TESTIMONIAL_PHOTOS.length],
+                        120,
+                        120
+                      )}
+                      alt={t.name}
+                      sizes="46px"
+                      height={46}
+                      radius="circle"
+                    />
                     <div>
                       <strong>{t.name}</strong>
                       <span>{t.role}</span>
@@ -123,7 +135,7 @@ export function TestimonialsSection() {
                   </figcaption>
                 </figure>
               ))}
-            </div>
+            </CardCarousel>
           </div>
         </div>
       </div>
@@ -140,18 +152,19 @@ export function InsuranceSection() {
         <p>&quot;Mitra asuransi yang kami layani&quot;</p>
       </div>
 
-      <div className="container">
-        <div className="row gy-4 gx-4">
-          {INSURANCES.map((name) => (
-            <div className="col-6 col-md-4 col-lg-3" key={name}>
-              <div className="insurance-item" role="img" aria-label={`Mitra ${name}`}>
-                <i className="bi bi-shield-plus" aria-hidden="true" />
-                <span>{name}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <CardCarousel label="Mitra asuransi yang dilayani">
+        {INSURANCES.map((name) => (
+          <div
+            className="insurance-item"
+            role="img"
+            aria-label={`Mitra ${name}`}
+            key={name}
+          >
+            <i className="bi bi-shield-plus" aria-hidden="true" />
+            <span>{name}</span>
+          </div>
+        ))}
+      </CardCarousel>
     </section>
   );
 }
