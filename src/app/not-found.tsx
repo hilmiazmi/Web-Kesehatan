@@ -1,6 +1,11 @@
 import Link from "next/link";
 
-/** Halaman 404. */
+/**
+ * Halaman 404.
+ *
+ * Berbeda dengan `error.tsx`, berkas ini boleh tetap Server Component karena
+ * tidak memakai state maupun `reset()`.
+ */
 export default function NotFound() {
   return (
     <section className="section">
@@ -11,14 +16,16 @@ export default function NotFound() {
             <h1 className="not-found-title">Halaman Tidak Ditemukan</h1>
             <p className="not-found-text">
               Alamat yang Anda buka tidak tersedia atau sudah dipindahkan.
-              Periksa kembali tautannya, atau kembali ke halaman utama.
+              Periksa kembali tautannya, atau gunakan peta situs untuk
+              menemukan halaman yang dicari.
             </p>
+
             <div className="d-flex gap-2 justify-content-center flex-wrap mt-4">
               <Link href="/" className="btn btn-primary">
                 Kembali ke Home
               </Link>
-              <Link href="/daftar-online" className="btn btn-tertiary">
-                Daftar Online
+              <Link href="/sitemap" className="btn btn-tertiary">
+                Peta Situs
               </Link>
             </div>
           </div>

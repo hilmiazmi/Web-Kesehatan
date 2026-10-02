@@ -228,6 +228,18 @@
   box-shadow: 0 0 0 0.2rem rgba(var(--rs-accent-rgb), 0.15);
 }
 
+.error-digest {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-top: 1rem;
+}
+
+.error-digest code {
+  background-color: var(--rs-section-light);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+}
+
 .form-footnote {
   font-size: 0.85rem;
   color: var(--rs-text-body);
