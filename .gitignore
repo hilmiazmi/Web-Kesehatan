@@ -36,6 +36,9 @@ yarn-error.log*
 
 # env files (jangan pernah commit .env)
 .env*
+# ...tapi template-nya ikut, karena `.env.example` adalah dokumentasi
+# konfigurasi yang wajib ada di repo (lihat AGENTS.md global).
+!.env.example
 
 # vercel
 .vercel
@@ -43,3 +46,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# --- Rust API (berada di api/) ---
+# Artefak kompilasi dan cache cargo. Tanpa baris ini, `git add -A` ikut
+# meng-commit api/target/ yang ratusan megabyte.
+/api/target/
+**/*.rs.bk
