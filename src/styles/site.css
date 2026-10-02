@@ -53,6 +53,27 @@
   opacity: 0.7;
 }
 
+/* ---------- Responsif topbar ----------
+   Diukur pada situs acuan: di lebar 390 dan 576, `.contact-info` selebar
+   194px, yaitu teks "Kontak Kami" ditambah tiga ikon saja. Nomor telepon
+   disembunyikan lewat `max-width: 768px`; di 820 dan 991 nomornya kembali
+   tampil. Tanpa aturan ini topbar melebar 404px pada viewport 390 dan teks
+   di tepi kiri terpotong. */
+@media (max-width: 768px) {
+  .topbar .contact-info .phone span,
+  .topbar .contact-info .hp span,
+  .topbar .contact-info .email span {
+    display: none;
+  }
+
+  /* Perakitan isi ke kiri. `!important` diperlukan karena aturan Bootstrap
+     `justify-content-md-between` mulai berlaku tepat pada 768px, sedangkan
+     media query ini masih berlaku pada 768px juga. */
+  .topbar .justify-content-center {
+    justify-content: flex-start !important;
+  }
+}
+
 /* ---------- Header / branding ---------- */
 .branding {
   background-color: var(--rs-white);
@@ -493,6 +514,45 @@
 .footer-utility a:hover {
   color: var(--rs-accent);
   text-decoration: underline;
+}
+
+/* ---------- Kotak foto (dikelola komponen Photo) ----------
+   Aturan ini harus global, bukan di home.css: komponen Photo dipakai di
+   sebelas berkas dan sebagian besar di luar beranda, sementara home.css
+   hanya diimpor oleh src/app/page.tsx. Saat aturan ini masih di home.css,
+   halaman seperti /pelayanan/poliklinik menampilkan gambar keluar kotak. */
+.photo-box {
+  height: var(--photo-h, 190px);
+  overflow: hidden;
+}
+
+.photo-box img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Avatar SVG inline sudah mengatur ukuran sendiri lewat atribut style, jadi
+   di sini cukup membuang jarak bawaan elemen inline. */
+.photo-box svg {
+  display: block;
+}
+
+.photo-box--top {
+  border-radius: var(--rs-radius-card-img);
+}
+
+.photo-box--all {
+  border-radius: var(--rs-radius-card);
+}
+
+.photo-box--circle {
+  border-radius: 50%;
+}
+
+.testimonial-person .photo-box {
+  flex-shrink: 0;
 }
 
 /* ---------- Kartu umum ---------- */
