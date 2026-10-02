@@ -10,9 +10,10 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Web-Kesehatan
 
-Replika UI/UX rumah sakit References `rsudpasarminggu.jakarta.go.id` memakai Next.js.
-Identitas, konten, dan foto **fiktif** - jangan salin logo, nama dokter, testimoni,
-kontak, atau foto milik rumah sakit asli (PRD di `docs/` bagian 12 dan 13).
+Website rumah sakit **fiktif** ("RSUD Contoh Sehat") memakai Next.js. Identitas,
+konten, foto, dan nama orang semua dibuat sendiri - jangan salin logo, nama dokter,
+testimoni, kontak, atau foto milik rumah sakit nyata mana pun (PRD di `docs/`
+bagian 12 dan 13).
 
 ## Lokasi aplikasi
 
@@ -95,8 +96,17 @@ bukan tebakan. Rinciannya ada di `docs/design-tokens-terverifikasi.md`.
 
 ## Peran komponen
 
+- **Aturan `.photo-box` ada di `site.css`, bukan di `home.css`.** Komponen
+  `Photo` dipakai di sebelas berkas dan sebagian besar bukan halaman beranda,
+  sedangkan `home.css` hanya diimpor oleh `src/app/page.tsx`. Saat aturan ini
+  masih di `home.css`, `/pelayanan/poliklinik` dan semua halaman detail
+  menampilkan gambar keluar kotak. Jangan memindahkannya kembali.
 - **`src/components/ui/Photo.tsx` sudah memiliki wrapper-nya sendiri.** Pakai
   `<Photo height={165} radius="top" />`; jangan tambahkan div kelas `img-*` lagi.
+- **`AnimeAvatar` menggambar SVG di dalam komponen, bukan berkas gambar.**
+  `next/image` menolak SVG kecuali `dangerouslyAllowSVG` diaktifkan, dan
+  mengaktifkannya melemahkan keamanan seluruh situs. Bentuknya dihasilkan oleh
+  `/tmp/opencode/gen-avatar.py` supaya dapat dibangun ulang.
 - **Tombol hamburger harus di LUAR `.navmenu`.** Di mobile `.navmenu` menjadi
   panel off-canvas `translateX(100%)`, sehingga apa pun isinya tidak bisa diklik.
 - Submenu navbar: hover di desktop dan tautan induk tetap dinavigasi; accordion
@@ -143,3 +153,44 @@ Setelah menulis berkas sumber, audit sekali dengan:
 ```bash
 python3 -c "import io,re,sys; print([(i+1,l) for i,l in enumerate(io.open(sys.argv[1],encoding='utf-8').read().split(chr(10))) if re.search(r'[\u4e00-\u9fff]',l)] or 'BERSIH')" <file>
 ```
+
+Skrip yang lebih lengkap ada di `/tmp/opencode/audit-data.py`. Ia memindai
+**semua literal string**, bukan hanya komentar, dan menangkap tiga kelas
+kerusakan: karakter non-Latin, huruf kapital di tengah kata, dan sekitar 90
+kata Inggris yang mustahil ada di prosa Indonesia. Jalankan `audit-data.py src
+tests` sebelum menyatakan selesai.
+
+Skrip itu hanya menangkap kelas kerusakan yang terdaftar, jadi baris yang lolos
+tidak otomatis benar. Sudah pernah lolos baris seperti `lastly`,
+`prioritizing Adriatic`, `assessing`, dan `Penghancuran`, yang kesalahannya soal
+makna, bukan karakter.
+
+### Jebakan `.playwright-mcp`
+
+- **`scale` adalah parameter wajib** pada `browser_take_screenshot`, walau
+  keterangannya menulis `@default "css"`. Skema tool dan keterangan itu tidak
+  cocok. Selalu kirim `{ scale: "css", ... }`, atau `"device"` untuk ukuran
+  piksel asli.
+- **`browser_run_code_unsafe` tidak mengembalikan nilai balik** dari kode yang
+  kamu jalankan. Untuk membaca hasil pengukuran, pakai `browser_evaluate` dengan
+  bentuk `{ function: "() => ..." }`; parameternya bernama `function`.
+- `browser_take_screenshot` menolak selektor yang cocok lebih dari satu elemen.
+  Tambahkan `>> nth=0` atau `.first()`.
+
+### Mengukur situs rujukan
+
+Angka di CSS ini hasil `getComputedStyle()`, bukan tebakan. Bentuk yang dipakai
+di dalam `browser_evaluate`, setelah `page.goto` ke situs rujukan:
+
+```js
+() => JSON.stringify({
+  scrollW: bar.scrollWidth,
+  clientW: bar.clientWidth,
+  display: getComputedStyle(el).display,
+})
+```
+
+Kalau ragu soal jarak atau ukuran, ukur ulang. Beberapa angka sempat dikira
+salah lalu dikoreksi lewat pengukuran; contoh, jarak seksi pada `/about` ternyata
+`padding-top: 60px` dan `padding-bottom: 60px`, sama dengan nilai
+`--rs-padding-section` yang sudah dipakai.
