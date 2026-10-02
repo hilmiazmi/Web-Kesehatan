@@ -14,7 +14,13 @@ import { SPECIALTIES } from "@/data/home";
  * cukup ganti isi `handleSubmit` dengan fetch; aturan validasinya dipakai ulang.
  */
 
-type Fields = {
+/**
+ * Bentuk nilai formulir.
+ *
+ * Di-export supaya aturan validasinya bisa diuji langsung tanpa merender
+ * komponen. Lihat `tests/registration-form.test.ts`.
+ */
+export type Fields = {
   nama: string;
   nik: string;
   telepon: string;
@@ -40,9 +46,12 @@ const INITIAL: Fields = {
  * Periksa satu set field dan kembalikan pesan error per field.
  *
  * Bentuknya sengaja imperative biasa, bukan objek aturan generik: TypeScript
- * bisa menulay typediap field tanpa cast, dan kodenya lebih pendek.
+ * bisa menebak tipe tiap field tanpa cast, dan kodenya lebih pendek.
+ *
+ * Di-export supaya bisa diuji tanpa merender komponen. Fungsi ini murni,
+ * tidak menyentuh state React.
  */
-function validate(v: Fields): Partial<Record<keyof Fields, string>> {
+export function validate(v: Fields): Partial<Record<keyof Fields, string>> {
   const e: Partial<Record<keyof Fields, string>> = {};
   const digits = v.telepon.replace(/[\s-]/g, "");
   const today = new Date().toISOString().slice(0, 10);
