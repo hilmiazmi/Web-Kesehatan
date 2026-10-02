@@ -29,6 +29,11 @@ export default function DoctorSearchCard() {
 
   const doctorOptions = specialty ? (DOCTORS_BY_SPECIALTY[specialty] ?? []) : [];
 
+  // Tidak semua spesialisasi punya daftar dokter di data lokal. Kalau yang
+  // dipilih tidak punya, dropdown-nya diberi tahu, bukan dibiarkan
+  // aktif tapi kosong supaya pengunjung mengira ada pilihan yang gagal dimuat.
+  const belumAdaDokter = Boolean(specialty) && doctorOptions.length === 0;
+
   return (
     <section id="cari-dokter" className="dokter section pb-3">
       <div className="container position-relative cari-dokter mt-3">
@@ -72,10 +77,14 @@ export default function DoctorSearchCard() {
                         className="form-select"
                         value={doctor}
                         onChange={(e) => setDoctor(e.target.value)}
-                        disabled={!specialty}
+                        disabled={!specialty || belumAdaDokter}
                       >
                         <option value="">
-                          {specialty ? "Pilih Dokter" : "Pilih spesialis dahulu"}
+                          {!specialty
+                            ? "Pilih spesialis dahulu"
+                            : belumAdaDokter
+                              ? "Data dokter belum tersedia"
+                              : "Pilih Dokter"}
                         </option>
                         {doctorOptions.map((d) => (
                           <option key={d} value={d}>
