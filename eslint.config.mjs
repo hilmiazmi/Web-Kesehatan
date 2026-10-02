@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Kode arsip versi lama: bukan buatan repo ini dan tidak lagi dikerjakan,
+    // jadi jangan ikut dilinting. Lihat README bagian Struktur.
+    "archive/**",
+    "docs/**",
   ]),
 ]);
 
