@@ -1,0 +1,563 @@
+/* ==========================================================================
+   Styling section Home.
+   Struktur section dan pembagian kolom mengikuti DOM situs referensi yang
+   sudah diverifikasi (lihat docs/design-tokens-terverifikasi.md bagian 4).
+   ========================================================================== */
+
+/* ---------- Kotak foto (dikelola komponen Photo) ---------- */
+.photo-box {
+  height: var(--photo-h, 190px);
+  overflow: hidden;
+}
+
+.photo-box img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-box--top {
+  border-radius: var(--rs-radius-card-img);
+}
+
+.photo-box--all {
+  border-radius: var(--rs-radius-card);
+}
+
+.photo-box--circle {
+  border-radius: 50%;
+}
+
+.testimonial-person .photo-box {
+  flex-shrink: 0;
+}
+
+/* ---------- Section 1: Hero slider ---------- */
+.swiperslider {
+  width: 100%;
+  /* 303/1280 = 23.67vw; Sites acuan: 390px->92px, 768px->182px. */
+  height: min(303px, 23.67vw);
+}
+
+.swiperslider .swiper-slide {
+  height: auto;
+}
+
+.slide-slider {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+    position: relative;
+  overflow: hidden;
+}
+
+/* Overlay gelap supaya teks tetap terbaca di atas foto apa pun. */
+.slide-slider::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.35) 0%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
+}
+
+.slide-img {
+  object-fit: cover;
+}
+
+.slide-overlay {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  color: var(--rs-white);
+  padding: 2rem;
+  max-width: 720px;
+}
+
+.slide-overlay h2 {
+  color: var(--rs-white);
+  font-size: clamp(1.5rem, 3.4vw, 2.6rem);
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.28);
+}
+
+.slide-overlay p {
+  font-size: clamp(0.95rem, 1.6vw, 1.15rem);
+  margin-bottom: 1.5rem;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.25);
+}
+
+/* Pagination bulat seperti di situs asli. */
+.swiperslider .swiper-pagination-bullet {
+  width: 11px;
+  height: 11px;
+  background: var(--rs-white);
+  opacity: 0.55;
+}
+
+.swiperslider .swiper-pagination-bullet-active {
+  opacity: 1;
+  background: var(--rs-white);
+}
+
+/* ---------- Section 2: Cari jadwal dokter ---------- */
+.cari-dokter {
+  z-index: 2;
+}
+
+.cari-dokter .card {
+  box-shadow: none;
+}
+
+.cari-dokter .card-title h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.cari-dokter .form-select {
+  border: 1px solid var(--rs-gray-300);
+  border-radius: var(--rs-radius-card);
+  padding: 0.6rem 0.85rem;
+  font-size: 0.92rem;
+}
+
+.cari-dokter .form-select:focus {
+  border-color: var(--rs-accent);
+  box-shadow: 0 0 0 0.2rem rgba(var(--rs-accent-rgb), 0.15);
+}
+
+.cari-dokter .form-select:disabled {
+  background-color: #f1f1f1;
+  cursor: not-allowed;
+}
+
+.btn.disabled {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+/* ---------- Section 4: Tab fasilitas ---------- */
+.facility-tabs {
+  border: none;
+  gap: 0.15rem;
+}
+
+.facility-tabs .nav-link {
+  border: none;
+  background: transparent;
+  border-radius: var(--rs-radius-card);
+  color: var(--rs-text-nav);
+  font-size: 0.92rem;
+  font-weight: 600;
+  padding: 0.6rem 0.85rem;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.facility-tabs .nav-link:hover {
+  background-color: var(--rs-white);
+}
+
+.facility-tabs .nav-link.active {
+  background-color: var(--rs-accent);
+  color: var(--rs-white);
+}
+
+.facility-tabs .nav-link:focus-visible {
+  outline: 3px solid rgba(var(--rs-accent-rgb), 0.4);
+  outline-offset: 2px;
+}
+
+.details h3 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.details p {
+  color: var(--rs-text-body);
+  margin-bottom: 1rem;
+}
+
+
+
+/* ---------- Section 5: MCU ---------- */
+.mcu-price {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--rs-accent);
+  margin-bottom: 0.75rem;
+}
+
+.mcu-items {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+  font-size: 0.85rem;
+  color: var(--rs-text-body);
+  flex-grow: 1;
+}
+
+.mcu-items li {
+  padding-left: 1.1rem;
+  position: relative;
+  margin-bottom: 0.25rem;
+}
+
+.mcu-items li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--rs-accent);
+}
+
+
+
+/* ---------- Section 6: Berita ---------- */
+.berita-date {
+  display: block;
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+
+
+
+/* ---------- Section 7: Penghargaan ---------- */
+.award-item {
+  text-align: center;
+}
+
+
+
+.award-title {
+  font-size: 0.88rem;
+  color: var(--rs-text-body);
+  margin-top: 0.75rem;
+  margin-bottom: 0;
+}
+
+/* ---------- Section 8: Galeri ---------- */
+.gallery-item {
+  text-align: center;
+}
+
+
+
+.gallery-item figcaption {
+  font-size: 0.82rem;
+  color: var(--rs-text-body);
+  margin-top: 0.5rem;
+}
+
+/* ---------- Section 9: Pendaftaran ---------- */
+.registrasi-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.4rem;
+  min-height: 165px;
+  padding: 1.25rem;
+  background-color: var(--rs-white);
+  border: 1px solid var(--rs-gray-300);
+  border-radius: var(--rs-radius-card);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  color: var(--rs-text-heading);
+}
+
+a.registrasi-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(var(--rs-accent-rgb), 0.16);
+  border-color: var(--rs-accent);
+}
+
+.registrasi-card i {
+  font-size: 2.25rem;
+  color: var(--rs-accent);
+}
+
+.registrasi-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.registrasi-desc {
+  font-size: 0.85rem;
+  color: var(--rs-text-body);
+  margin: 0;
+}
+
+/* ---------- Section 10: Sosial media ---------- */
+.social-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 260px;
+  padding: 2rem;
+  text-align: center;
+  background-color: var(--rs-white);
+  border: 1px dashed var(--rs-gray-300);
+  border-radius: var(--rs-radius-card);
+  color: var(--rs-text-nav);
+}
+
+.social-placeholder i {
+  font-size: 3rem;
+  color: var(--rs-accent);
+}
+
+/* Kartu sosial media: tautan langsung ke profil resmi. */
+.social-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 165px;
+  padding: 1.25rem;
+  text-align: center;
+  text-decoration: none;
+  color: var(--rs-text-heading);
+  background-color: var(--rs-white);
+  border: 1px solid var(--rs-gray-300);
+  border-radius: var(--rs-radius-card);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.social-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(var(--rs-accent-rgb), 0.16);
+  border-color: var(--rs-accent);
+}
+
+.social-card i {
+  font-size: 2.25rem;
+  color: var(--rs-accent);
+}
+
+.social-card span {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.social-card small {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.social-placeholder p {
+  font-weight: 700;
+  margin: 0;
+}
+
+.social-placeholder small {
+  color: #6b7280;
+  max-width: 34ch;
+  line-height: 1.5;
+}
+
+/* ---------- Section 11: Testimoni ---------- */
+.testimonials {
+  background-color: var(--rs-white);
+}
+
+.testimonials-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.testimonials-sub {
+  color: var(--rs-text-body);
+  font-size: 0.95rem;
+}
+
+.testimonial-slider {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 0.75rem;
+  scroll-snap-type: x mandatory;
+}
+
+.testimonial-slider:focus-visible {
+  outline: 3px solid rgba(var(--rs-accent-rgb), 0.4);
+  outline-offset: 3px;
+}
+
+.testimonial {
+  flex: 0 0 min(340px, 82%);
+  scroll-snap-align: start;
+  margin: 0;
+  padding: 1.5rem;
+  background-color: var(--rs-white);
+  border: 1px solid var(--rs-gray-300);
+  border-radius: var(--rs-radius-card);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+.testimonial-body i {
+  color: var(--rs-accent);
+  font-size: 1.5rem;
+}
+
+.testimonial-body blockquote {
+  margin: 0.5rem 0 1rem;
+  font-size: 0.92rem;
+  color: var(--rs-text-body);
+  line-height: 1.6;
+}
+
+.testimonial-person {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.testimonial-person strong {
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.testimonial-person span {
+  font-size: 0.78rem;
+  color: #6b7280;
+}
+
+/* ---------- Section 12: Asuransi ---------- */
+.insurance-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 110px;
+  padding: 1rem;
+  text-align: center;
+  background-color: var(--rs-white);
+  border: 1px solid var(--rs-gray-300);
+  border-radius: var(--rs-radius-card);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.insurance-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+}
+
+.insurance-item i {
+  font-size: 1.85rem;
+  color: var(--rs-accent);
+}
+
+.insurance-item span {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--rs-text-nav);
+}
+
+/* ---------- Section 13: FAQ ---------- */
+.faq-list {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.faq-item {
+  background-color: var(--rs-white);
+  border: 1px solid var(--rs-gray-300);
+  border-radius: var(--rs-radius-card);
+  margin-bottom: 0.6rem;
+  overflow: hidden;
+}
+
+.faq-item summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--rs-text-heading);
+  list-style: none;
+}
+
+.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-item summary i {
+  color: var(--rs-accent);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.faq-item[open] summary i {
+  transform: rotate(45deg);
+}
+
+.faq-item summary:focus-visible {
+  outline: 3px solid rgba(var(--rs-accent-rgb), 0.4);
+  outline-offset: -3px;
+}
+
+.faq-answer {
+  padding: 0 1.25rem 1.15rem;
+}
+
+.faq-answer p {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--rs-text-body);
+  line-height: 1.65;
+}
+
+/* ---------- Responsif ---------- */
+@media (max-width: 991.98px) {
+  .testimonials-title {
+    font-size: 1.65rem;
+  }
+
+  .footer-related {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 575.98px) {
+  .topbar {
+    font-size: 0.8rem;
+  }
+
+  .topbar .contact-info {
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 0;
+  }
+
+  .topbar .contact-info a span {
+    display: none;
+  }
+
+  .topbar .contact-info a i {
+    font-size: 1.05rem;
+  }
+
+  .section {
+    padding: 40px 0;
+  }
+}

@@ -1,0 +1,258 @@
+/* ==========================================================================
+   Styling halaman selain Home (detail berita, layanan, MCU, halaman umum,
+   formulir, dan 404).
+
+   Nilai ukuran mengikuti design token di `tokens.css`; jangan menulis angka
+   mentah, kecuali benar-benar hasil pengukuran.
+   ========================================================================== */
+
+/* ---------- Kepala halaman + remah roti ---------- */
+.page-header h1 {
+  font-size: 2.1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.page-subtitle {
+  color: var(--rs-text-body);
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  max-width: 70ch;
+}
+
+.page-help {
+  font-size: 0.9rem;
+  color: var(--rs-text-body);
+  margin: 0;
+}
+
+.page-help a {
+  color: var(--rs-accent);
+  font-weight: 600;
+}
+
+/* ---------- Judul dan daftar di halaman detail ---------- */
+.detail-heading {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.detail-subheading {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 1.5rem 0 0.75rem;
+}
+
+.detail-lead {
+  color: var(--rs-text-body);
+  font-size: 1rem;
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+
+.detail-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  color: var(--rs-text-body);
+  font-size: 0.92rem;
+}
+
+.detail-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.4rem 0;
+  line-height: 1.55;
+}
+
+.detail-list i {
+  color: var(--rs-accent);
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.detail-list a {
+  color: var(--rs-accent);
+}
+
+/* ---------- Artikel berita ---------- */
+.article-meta {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-bottom: 1rem;
+}
+
+.article-body {
+  margin-top: 1.75rem;
+}
+
+.article-body p {
+  color: var(--rs-text-body);
+  line-height: 1.8;
+  margin-bottom: 1.15rem;
+  max-width: 72ch;
+}
+
+.article-nav {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--rs-gray-300);
+  padding-top: 1.5rem;
+  margin-top: 2rem;
+}
+
+.article-nav-link {
+  flex: 1 1 240px;
+  text-decoration: none;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--rs-gray-300);
+  border-radius: var(--rs-radius-card);
+  color: var(--rs-text-heading);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.article-nav-link:hover {
+  border-color: var(--rs-accent);
+  background-color: var(--rs-section-light);
+}
+
+.article-nav-link small {
+  display: block;
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+
+.article-nav-link span {
+  font-weight: 600;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  display: block;
+}
+
+/* ---------- Halaman detail MCU ---------- */
+.mcu-detail-card {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.mcu-price-large {
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.mcu-items-detailed {
+  font-size: 0.95rem;
+}
+
+.mcu-items-detailed li {
+  margin-bottom: 0.45rem;
+  padding-left: 1.3rem;
+}
+
+/* ---------- Halaman umum ---------- */
+.content-placeholder-soft {
+  background-color: var(--rs-white);
+  border: 1px solid var(--rs-gray-300);
+  border-radius: var(--rs-radius-card);
+  padding: 1.75rem;
+}
+
+.content-placeholder-soft p {
+  color: var(--rs-text-body);
+  line-height: 1.75;
+  margin-bottom: 1rem;
+  max-width: 70ch;
+}
+
+.content-placeholder-soft p:last-child {
+  margin-bottom: 0;
+}
+
+/* ---------- 404 ---------- */
+.not-found-code {
+  font-size: 5rem;
+  font-weight: 700;
+  color: var(--rs-accent);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+.not-found-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.not-found-text {
+  color: var(--rs-text-body);
+  max-width: 48ch;
+  margin: 0 auto;
+}
+
+/* ---------- Formulir ---------- */
+.form-label {
+  font-size: 0.92rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.form-control,
+.form-select {
+  border: 1px solid var(--rs-gray-300);
+  border-radius: var(--rs-radius-card);
+  padding: 0.6rem 0.85rem;
+  font-size: 0.94rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--rs-accent);
+  box-shadow: 0 0 0 0.2rem rgba(var(--rs-accent-rgb), 0.15);
+}
+
+.invalid-feedback {
+  font-size: 0.82rem;
+}
+
+.form-check-input:checked {
+  background-color: var(--rs-accent);
+  border-color: var(--rs-accent);
+}
+
+.form-check-input:focus {
+  border-color: var(--rs-accent);
+  box-shadow: 0 0 0 0.2rem rgba(var(--rs-accent-rgb), 0.15);
+}
+
+.form-footnote {
+  font-size: 0.85rem;
+  color: var(--rs-text-body);
+  margin-top: 1rem;
+  line-height: 1.6;
+}
+
+.form-footnote i {
+  color: var(--rs-accent);
+  margin-right: 0.35rem;
+}
+
+.form-footnote code {
+  background-color: var(--rs-section-light);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  font-size: 0.85em;
+}
+
+@media (max-width: 575.98px) {
+  .page-header h1 {
+    font-size: 1.6rem;
+  }
+
+  .not-found-code {
+    font-size: 3.5rem;
+  }
+}
