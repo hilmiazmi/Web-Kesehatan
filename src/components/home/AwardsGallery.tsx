@@ -1,4 +1,5 @@
 import Photo from "@/components/ui/Photo";
+import CardCarousel from "@/components/ui/CardCarousel";
 import { AWARDS, GALLERY } from "@/data/home";
 import { GALLERY_PHOTOS, photo, randomPhoto } from "@/data/images";
 
@@ -6,12 +7,15 @@ import { GALLERY_PHOTOS, photo, randomPhoto } from "@/data/images";
  * Section 7 — "Akreditasi & Penghargaan".
  * Section 8 — "Gallery".
  *
- * Digabung dalam satu file karena keduanya sama-sama grid tanpa interaksi.
+ * Digabung dalam satu file karena keduanya satu berkas sederhana tanpa state.
+ *
+ * Perbedaan penting: akreditasi di situs referensi berupa carousel
+ * 4-tampilan, sedangkan gallery berupa grid statis empat kolom tanpa
+ * interaksi. Karena itu hanya akreditasi yang memakai CardCarousel.
+ *
  * Foto penghargaan memakai picsum.photos dengan seed tetap supaya hasilnya
  * stabil dan tidak berganti-ganti tiap muat halaman.
  */
-
-
 export function AwardsSection() {
   return (
     <section id="akreditasi" className="penghargaan section">
@@ -20,24 +24,20 @@ export function AwardsSection() {
         <p>&quot;Komitmen kami terhadap mutu dan pelayanan&quot;</p>
       </div>
 
-      <div className="container">
-        <div className="row gy-4 gx-4">
-          {AWARDS.map((a, i) => (
-            <div className="col-md-6 col-lg-3" key={a}>
-              <div className="award-item">
-                  <Photo
-                    src={randomPhoto(`award-${i}`, 500, 400)}
-                    alt={a}
-                    sizes="(max-width: 768px) 50vw, 280px"
-                    height={130}
-                    radius="all"
-                  />
-                <p className="award-title">{a}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <CardCarousel label="Akreditasi dan penghargaan">
+        {AWARDS.map((a, i) => (
+          <div className="award-item" key={a}>
+            <Photo
+              src={randomPhoto(`award-${i}`, 500, 400)}
+              alt={a}
+              sizes="(max-width: 576px) 100vw, (max-width: 992px) 50vw, 280px"
+              height={130}
+              radius="all"
+            />
+            <p className="award-title">{a}</p>
+          </div>
+        ))}
+      </CardCarousel>
     </section>
   );
 }
