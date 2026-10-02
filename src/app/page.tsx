@@ -32,6 +32,15 @@ import "@/styles/home.css";
 export default function Home() {
   return (
     <>
+      {/* Beranda tidak punya judul yang terlihat secara visual, jadi judul
+          utama halaman ini disembunyikan saja. Tanpa elemen h1, struktur
+          heading beranda mulai dari h2 dan buruk untuk pembaca layar serta
+          mesin pencari. Kelas visually-hidden datang dari Bootstrap. */}
+      <h1 className="visually-hidden">
+        RSUD Contoh Sehat: Instalasi Gawat Darurat 24 Jam dan Layanan
+        Terpadu
+      </h1>
+
       <HeroSlider />
       <DoctorSearchCard />
       <PriorityServices />
