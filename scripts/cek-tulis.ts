@@ -17,6 +17,15 @@ import {
 const db = dbOrNull();
 if (!db) throw new Error("tidak ada db");
 
+// Kode tiket di bawah harus unik setiap kali skrip ini dijalankan. Kode tetap
+// membuat skrip hanya bisa dipakai sekali per database, dan jalannya kedua
+// gagal dengan pelanggaran unique constraint, yang jauh lebih mudah salah
+// dibaca sebagai backend rusak daripada sebagai skrip pemeriksa yang tidak
+// bisa diulang.
+const suntik = `${Date.now().toString(36)}${Math.floor(Math.random() * 1296)
+  .toString(36)
+  .padStart(2, "0")}`.toUpperCase();
+
 for (const d of ["2026-10-05", "2026-10-11"]) {
   const tanggal = new Date(`${d}T00:00:00Z`);
   console.log(`${d} -> ${isoWeekday(tanggal)} (${weekdayName(isoWeekday(tanggal))})`);
@@ -47,7 +56,7 @@ const polyclinicId = (jadwalPenuh[0] as { polyclinic_id: string }).polyclinic_id
 
 const sebelum = await countTaken(db, doktorId, visitDate);
 const sesudah = await createAppointment(db, {
-  ticket_code: "EP-UJIKONTEN1",
+  ticket_code: `EP-UJIKONTEN${suntik}`,
   doctor_id: doktorId,
   polyclinic_id: polyclinicId,
   patient_name: "Pasien Uji",
@@ -68,7 +77,7 @@ const salahHari = new Date(target);
 salahHari.setUTCDate(salahHari.getUTCDate() + 1);
 try {
   await createAppointment(db, {
-    ticket_code: "EP-UJISALAH1",
+    ticket_code: `EP-UJISALAH${suntik}`,
     doctor_id: doktorId,
     polyclinic_id: polyclinicId,
     patient_name: "Pasien Uji",
