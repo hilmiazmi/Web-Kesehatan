@@ -1,21 +1,22 @@
 import Link from "next/link";
-import { CONTACT, FOOTER_LINKS, SITE } from "@/data/navigation";
-
-/** Logo-link dummy untuk "Link Terkait". Di situs asli berisi logo instansi
- *  pemerintah; karena aset resmi tidak disalin, dipakai placeholder teks. */
-const RELATED_LINKS = [
-  "PPID",
-  "PANRB",
-  "Kemenkes",
-  "Pemerintah Provinsi Jakarta",
-  "Dinkes DKI Jakarta",
-];
+import {
+  CONTACT,
+  FOOTER_ADDRESS,
+  FOOTER_LINKS,
+  FOOTER_RELATED,
+  SITE,
+} from "@/data/navigation";
 
 /**
  * Footer.
  *
- * Susunannya mengikuti situs referensi: identitas di kiri, link terkait +
- * media pengaduan di tengah, blok lokasi di kanan, hak cipta di bawah.
+ * Susunan kolom mengikuti situs referensi yang sudah diukur: identitas di
+ * kiri (3 dari 12), link terkait dan media pengaduan di tengah (6 dari 12),
+ * lokasi di kanan (3 dari 12).
+ *
+ * Di situs referensi tiap logo pada "Link Terkait" adalah tautan ke instansi
+ * lain. Logo resmi tidak disalin, jadi tempat logo dipakai link internal yang
+ * benar-benar ada di situs ini; lebih berguna daripada kotak teks mati.
  */
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -24,7 +25,7 @@ export default function Footer() {
     <footer className="footer">
       <div className="container">
         <div className="row gy-4">
-          <div className="col-lg-4">
+          <div className="col-lg-3">
             {/* Logo footer juga harus bisa diklik untuk kembali ke Home. */}
             <Link
               href="/"
@@ -37,54 +38,66 @@ export default function Footer() {
               <h3 className="footer-name">{SITE.name}</h3>
               <p className="footer-tagline">{SITE.tagline}</p>
             </Link>
-            <div className="footer-identity">
-              <address className="footer-address">
-                Jl. Contoh No. 123, Jakarta Selatan, DKI Jakarta 12560
-              </address>
-            </div>
+            <address className="footer-address">
+              {FOOTER_ADDRESS.map((baris) => (
+                <span key={baris}>{baris}</span>
+              ))}
+            </address>
           </div>
 
-          <div className="col-lg-4">
+          <div className="col-lg-6">
             <h4 className="footer-heading">Link Terkait</h4>
             <ul className="footer-related">
-              {RELATED_LINKS.map((label) => (
-                <li key={label}>
-                  <span className="related-logo-placeholder">{label}</span>
+              {FOOTER_RELATED.map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className="related-tile">
+                    {l.label}
+                  </Link>
                 </li>
               ))}
             </ul>
 
             <h4 className="footer-heading mt-4">Media Pengaduan</h4>
-            <div className="footer-complaint">
-              <span className="related-logo-placeholder">Lapor</span>
-            </div>
+            <ul className="footer-related footer-related-single">
+              <li>
+                <Link
+                  href="/informasi-publik/pengaduan"
+                  className="related-tile"
+                >
+                  <i className="bi bi-chat-square-text" aria-hidden="true" />
+                  <span>Lapor Pengaduan</span>
+                </Link>
+              </li>
+            </ul>
           </div>
 
-          <div className="col-lg-4">
-            <h4 className="footer-heading">Lokasi &amp; Kontak</h4>
-            <ul className="footer-contact list-unstyled">
+          <div className="col-lg-3">
+            <h4 className="footer-heading">Lokasi</h4>
+            <div
+              className="footer-map-placeholder"
+              role="img"
+              aria-label="Peta lokasi rumah sakit"
+            >
+              <i className="bi bi-geo-alt" aria-hidden="true" />
+              <span>Peta tidak ditampilkan</span>
+            </div>
+            <ul className="footer-contact list-unstyled mt-3">
               <li>
-                <i className="bi bi-telephone" aria-hidden="true" />{" "}
+                <strong>Telepon:</strong>{" "}
                 <a href={CONTACT.phoneHref}>{CONTACT.phone}</a>
               </li>
               <li>
-                <i className="bi bi-envelope" aria-hidden="true" />{" "}
+                <strong>Email:</strong>{" "}
                 <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a>
               </li>
               <li>
-                <i className="bi bi-clock" aria-hidden="true" /> Rawat jalan:{" "}
-                Senin&ndash;Jumat 07.30&ndash;14.00
+                <strong>Rawat jalan:</strong> Senin sampai Jumat, 07.30 sampai
+                14.00
               </li>
               <li>
-                <i className="bi bi-hospital" aria-hidden="true" /> IGD dan
-                rawat inap: 24 jam
+                <strong>IGD dan rawat inap:</strong> 24 jam
               </li>
             </ul>
-
-            <div className="footer-map-placeholder" role="img" aria-label="Peta lokasi rumah sakit">
-              <i className="bi bi-geo-alt" aria-hidden="true" />
-              <span>Google Maps</span>
-            </div>
           </div>
         </div>
       </div>
@@ -94,8 +107,8 @@ export default function Footer() {
           <p className="mb-0">
             &copy; {year} {SITE.name}. Hak cipta dilindungi.
           </p>
-          {/* Penanda wajib: proyek ini replika untuk belajar/portofolio, bukan
-              situs resmi. PRD bagian 13 meminta penanda ini ada di footer. */}
+          {/* Penanda wajib: proyek ini replika untuk belajar dan portofolio,
+              bukan situs resmi. PRD bagian 13 meminta penanda ini ada. */}
           <p className="footer-disclaimer">
             Situs demo untuk keperluan pembelajaran dan portofolio. Bukan situs
             resmi rumah sakit pemerintah. Seluruh data pada halaman ini adalah

@@ -166,6 +166,36 @@ export const FOOTER_LINKS = [
   { label: "Kontak", href: "/kontak" },
 ];
 
+/**
+ * Alamat yang tampil di footer.
+ *
+ * Dipisah dari komponen supaya tidak ada alamat yang ditulis langsung di
+ * markup. Isinya fiktif, bukan alamat rumah sakit nyata.
+ */
+export const FOOTER_ADDRESS = [
+  "Jl. Contoh No. 123",
+  "Ragunan, Pasar Minggu",
+  "Jakarta Selatan, DKI Jakarta",
+  "Indonesia 12560",
+];
+
+/**
+ * Isi blok "Link Terkait" di footer.
+ *
+ * Di situs referensi isinya logo instansi pemerintah lain yang membuka tab
+ * baru. Logo resmi tidak disalin (PRD bagian 12), jadi tempat logo dipakai
+ * link internal yang benar-benar ada di situs ini. Menautkan ke situs
+ * pemerintah sungguhan dari identitas fiktif akan menyesatkan.
+ */
+export const FOOTER_RELATED = [
+  { label: "PPID", href: "/ppid" },
+  { label: "Peta Situs", href: "/sitemap" },
+  { label: "Daftar Online", href: "/daftar-online" },
+  { label: "Zona Integritas", href: "/zona-integritas" },
+  { label: "Kontak", href: "/kontak" },
+  { label: "Tentang Kami", href: "/tentang-kami" },
+];
+
 /** Kontak di topbar. Fiktif, bukan data asli. */
 export const CONTACT = {
   phone: "(021) 5000 1234",

@@ -436,11 +436,14 @@
   gap: 0.6rem;
 }
 
-/* Placeholder link terkait: situs asli memakai logo instansi resmi. */
-.related-logo-placeholder {
+/* Kotak link terkait. Situs asli memakai logo instansi resmi di sini; logo
+   resmi tidak disalin (PRD bagian 12), jadi tempatnya diisi label yang bisa
+   diklik. Gridnya sudah dua kolom, sama seperti kolom-6 di situs referensi. */
+.related-tile {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.4rem;
   min-height: 52px;
   padding: 0.5rem;
   border: 1px solid var(--rs-gray-300);
@@ -450,6 +453,26 @@
   text-align: center;
   color: var(--rs-text-nav);
   background-color: var(--rs-white);
+  text-decoration: none;
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.related-tile:hover,
+.related-tile:focus-visible {
+  border-color: var(--rs-accent);
+  color: var(--rs-accent);
+}
+
+.related-tile:focus-visible {
+  outline: 3px solid rgba(var(--rs-accent-rgb), 0.4);
+  outline-offset: 2px;
+}
+
+/* Satu isinya untuk "Media Pengaduan"; sisanya tetap dua kolom. */
+.footer-related-single {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .footer-contact li {
