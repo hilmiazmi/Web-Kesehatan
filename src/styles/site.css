@@ -706,3 +706,54 @@
 .kartu-baca::after {
   content: " \2192";
 }
+
+/* ---------- Tab vertikal (daftar di kiri, panel di kanan) ----------
+   Dipakai dua halaman: beranda lewat FacilityTabs, dan profil rumah sakit
+   lewat ProfileTabs. Aturannya harus di sini, bukan di home.css, karena
+   home.css hanya diimpor src/app/page.tsx. Satu aturan di home.css pernah
+   membuat gambar halaman lain keluar kotak. */
+.facility-tabs,
+.profil-tabs {
+  border: none;
+  gap: 0.15rem;
+}
+
+.facility-tabs .nav-link,
+.profil-tabs .nav-link {
+  border: none;
+  background: transparent;
+  border-radius: var(--rs-radius-card);
+  color: var(--rs-text-nav);
+  font-size: 0.92rem;
+  font-weight: 600;
+  padding: 0.6rem 0.85rem;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.facility-tabs .nav-link:hover,
+.profil-tabs .nav-link:hover {
+  background-color: var(--rs-white);
+}
+
+.facility-tabs .nav-link.active,
+.profil-tabs .nav-link.active {
+  background-color: var(--rs-accent);
+  color: var(--rs-white);
+}
+
+.facility-tabs .nav-link:focus-visible,
+.profil-tabs .nav-link:focus-visible {
+  outline: 3px solid rgba(var(--rs-accent-rgb), 0.4);
+  outline-offset: 2px;
+}
+
+/* Judul panel profil.
+   Halaman acuan /about mengukur judul panel 40px, weight 500, line-height
+   48px, margin-bottom 8px. Angkanya bukan tebakan. */
+.detail-title h2 {
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 48px;
+  color: var(--rs-text-heading);
+  margin: 0 0 8px;
+}

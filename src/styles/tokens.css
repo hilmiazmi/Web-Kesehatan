@@ -243,3 +243,14 @@ select:focus-visible {
     scroll-behavior: auto !important;
   }
 }
+/* Pembungkus halaman dalam, dipakai halaman profil.
+   Halaman acuan /about mengukur padding-top 48px dan padding-bottom 60px.
+
+   Angka ditulis langsung, bukan memakai --rs-padding-section, karena token itu
+   bernilai shorthand "60px 0". Padding-bottom: var(--rs-padding-section)
+   mengambil komponen bawah dari shorthand itu, yaitu 0. */
+.inner-page {
+  background-color: var(--rs-white);
+  padding-top: 48px;
+  padding-bottom: 60px;
+}

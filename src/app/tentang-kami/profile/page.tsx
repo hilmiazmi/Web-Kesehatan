@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import PageHeader from "@/components/layout/PageHeader";
-import { ABOUT_SECTIONS } from "@/data/informasi";
+import ProfileTabs from "@/components/tentang/ProfileTabs";
 
 export const metadata: Metadata = {
   title: "Profile RSUD",
@@ -12,13 +12,12 @@ export const metadata: Metadata = {
 /**
  * Halaman profil.
  *
- * Halaman acuan `/about` di situs referensi memuat lima seksi berurutan: Visi
- * dan Misi, Budaya Kerja, Company Profile, Sejarah, lalu Maklumat Pelayanan.
- * Lima seksi itu dipakai apa adanya di sini, dan urutannya dijaga di
- * `src/data/informasi.ts`.
+ * Halaman acuan `/about` di situs referensi memuat lima seksi: Visi dan Misi,
+ * Budaya Kerja, Company Profile, Sejarah, lalu Maklumat Pelayanan. Kelimanya
+ * tidak ditumpuk berurutan melainkan jadi lima tab dengan daftar vertikal di
+ * kolom kiri. Bagian tabnya ada di `src/components/tentang/ProfileTabs.tsx`.
  *
- * Di halaman acuan kelima seksi itu sama-sama memakai tag h1. Tag itu tidak
- * ditiru: halaman ini punya satu h1 di PageHeader, tiap seksi memakai h2.
+ * Urutan dan isi kelima seksi dijaga di `src/data/informasi.ts`.
  */
 export default function ProfilePage() {
   return (
@@ -32,22 +31,7 @@ export default function ProfilePage() {
         ]}
       />
 
-      {ABOUT_SECTIONS.map((section) => (
-        <section className="section" key={section.slug}>
-          <div className="container">
-            <h2 className="detail-heading">{section.title}</h2>
-            <p className="detail-lead">{section.lead}</p>
-            <ul className="detail-list">
-              {section.points.map((p) => (
-                <li key={p}>
-                  <i className="bi bi-check-circle" aria-hidden="true" />
-                  {p}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-      ))}
+      <ProfileTabs />
 
       <section className="section">
         <div className="container">
