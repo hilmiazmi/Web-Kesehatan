@@ -579,7 +579,7 @@
 /* Penanda situs demo — wajib ada sesuai PRD bagian 13. */
 .footer-disclaimer {
   font-size: 0.78rem;
-  color: #6b7280;
+  color: var(--rs-text-lembut);
   margin: 0.35rem 0 0.5rem;
 }
 
@@ -774,7 +774,7 @@
   display: inline-block;
   padding-top: 0.3rem;
   padding-bottom: 0.3rem;
-  color: var(--rs-accent);
+  color: var(--rs-accent-teks);
   text-decoration: none;
 }
 

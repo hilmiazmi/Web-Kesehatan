@@ -35,7 +35,7 @@ export default function Footer() {
               <span className="logo-mark logo-mark-footer" aria-hidden="true">
                 <i className="bi bi-plus-lg" />
               </span>
-              <h3 className="footer-name">{SITE.name}</h3>
+              <h2 className="footer-name">{SITE.name}</h2>
               <p className="footer-tagline">{SITE.tagline}</p>
             </Link>
             <address className="footer-address">
@@ -46,7 +46,7 @@ export default function Footer() {
           </div>
 
           <div className="col-lg-6">
-            <h4 className="footer-heading">Link Terkait</h4>
+            <h3 className="footer-heading">Link Terkait</h3>
             <ul className="footer-related">
               {FOOTER_RELATED.map((l) => (
                 <li key={l.href}>
@@ -57,7 +57,7 @@ export default function Footer() {
               ))}
             </ul>
 
-            <h4 className="footer-heading mt-4">Media Pengaduan</h4>
+            <h3 className="footer-heading mt-4">Media Pengaduan</h3>
             <ul className="footer-related footer-related-single">
               <li>
                 <Link
@@ -72,7 +72,7 @@ export default function Footer() {
           </div>
 
           <div className="col-lg-3">
-            <h4 className="footer-heading">Lokasi</h4>
+            <h3 className="footer-heading">Lokasi</h3>
             <div
               className="footer-map-placeholder"
               role="img"

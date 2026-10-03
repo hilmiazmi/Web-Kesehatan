@@ -27,7 +27,7 @@
 }
 
 .page-help a {
-  color: var(--rs-accent);
+  color: var(--rs-accent-teks);
   font-weight: 600;
 }
 
@@ -84,7 +84,7 @@
 /* ---------- Artikel berita ---------- */
 .article-meta {
   font-size: 0.85rem;
-  color: #6b7280;
+  color: var(--rs-text-lembut);
   margin-bottom: 1rem;
 }
 
@@ -126,7 +126,7 @@
 .article-nav-link small {
   display: block;
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--rs-text-lembut);
   margin-bottom: 0.25rem;
 }
 
@@ -515,7 +515,7 @@
 
 .error-digest {
   font-size: 0.85rem;
-  color: #6b7280;
+  color: var(--rs-text-lembut);
   margin-top: 1rem;
 }
 

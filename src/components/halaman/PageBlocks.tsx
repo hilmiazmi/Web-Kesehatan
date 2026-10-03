@@ -44,12 +44,12 @@ function Blok({
       return <h2 className="halaman-sub">{blok.teks}</h2>;
 
     case "sub-kecil":
-      return <h3 className="halaman-sub-kecil">{blok.teks}</h3>;
+      return <h2 className="halaman-sub-kecil">{blok.teks}</h2>;
 
     case "daftar":
       return (
         <>
-          {blok.judul ? <h3 className="halaman-sub-kecil">{blok.judul}</h3> : null}
+          {blok.judul ? <h2 className="halaman-sub-kecil">{blok.judul}</h2> : null}
           <ul className={blok.ikon ? "halaman-daftar halaman-daftar-ikon" : "halaman-daftar"}>
             {blok.butir.map((t) => (
               <li key={t}>{t}</li>
@@ -61,7 +61,7 @@ function Blok({
     case "daftar-tebal":
       return (
         <>
-          {blok.judul ? <h3 className="halaman-sub-kecil">{blok.judul}</h3> : null}
+          {blok.judul ? <h2 className="halaman-sub-kecil">{blok.judul}</h2> : null}
           <ul className="halaman-daftar">
             {blok.butir.map((t) => (
               <li key={t.tebal}>
@@ -75,7 +75,7 @@ function Blok({
     case "langkah":
       return (
         <>
-          {blok.judul ? <h3 className="halaman-sub-kecil">{blok.judul}</h3> : null}
+          {blok.judul ? <h2 className="halaman-sub-kecil">{blok.judul}</h2> : null}
           <ol className="halaman-langkah">
             {blok.butir.map((t) => (
               <li key={t}>{t}</li>
@@ -87,7 +87,7 @@ function Blok({
     case "tabel":
       return (
         <div className="halaman-blok">
-          {blok.judul ? <h3 className="halaman-sub-kecil">{blok.judul}</h3> : null}
+          {blok.judul ? <h2 className="halaman-sub-kecil">{blok.judul}</h2> : null}
           <div className="halaman-tabel-wrap">
             <table className="table halaman-tabel">
               <thead>
@@ -117,7 +117,7 @@ function Blok({
     case "kartu":
       return (
         <div className="halaman-blok">
-          {blok.judul ? <h3 className="halaman-sub-kecil">{blok.judul}</h3> : null}
+          {blok.judul ? <h2 className="halaman-sub-kecil">{blok.judul}</h2> : null}
           <div className="halaman-kartu-grid">
             {blok.butir.map((k) => {
               const isi = (
@@ -144,7 +144,7 @@ function Blok({
     case "statistik":
       return (
         <div className="halaman-blok">
-          {blok.judul ? <h3 className="halaman-sub-kecil">{blok.judul}</h3> : null}
+          {blok.judul ? <h2 className="halaman-sub-kecil">{blok.judul}</h2> : null}
           <div className="halaman-statistik">
             {blok.butir.map((s) => (
               <div className="halaman-stat" key={s.label}>
@@ -162,7 +162,7 @@ function Blok({
       if (anak.length === 0) return null;
       return (
         <div className="halaman-blok">
-          {blok.judul ? <h3 className="halaman-sub-kecil">{blok.judul}</h3> : null}
+          {blok.judul ? <h2 className="halaman-sub-kecil">{blok.judul}</h2> : null}
           {blok.ket ? <p className="halaman-teks">{blok.ket}</p> : null}
           <ul className="halaman-daftar halaman-daftar-ikon">
             {anak.map((a) => (
@@ -178,7 +178,7 @@ function Blok({
     case "tautan":
       return (
         <div className="halaman-blok">
-          {blok.judul ? <h3 className="halaman-sub-kecil">{blok.judul}</h3> : null}
+          {blok.judul ? <h2 className="halaman-sub-kecil">{blok.judul}</h2> : null}
           <p className="halaman-teks">{blok.ket}</p>
           <Link href={blok.href} className="btn btn-primary">
             {blok.label}
@@ -189,7 +189,7 @@ function Blok({
     case "galeri":
       return (
         <div className="halaman-blok">
-          {blok.judul ? <h3 className="halaman-sub-kecil">{blok.judul}</h3> : null}
+          {blok.judul ? <h2 className="halaman-sub-kecil">{blok.judul}</h2> : null}
             <GalleryLightbox foto={blok.foto} height={150} />
           {blok.ket ? <p className="halaman-keterangan">{blok.ket}</p> : null}
         </div>

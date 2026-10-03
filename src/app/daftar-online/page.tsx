@@ -30,9 +30,11 @@ export default function DaftarOnlinePage() {
 
               <p className="form-footnote">
                 <i className="bi bi-info-circle" aria-hidden="true" />
-                Validasi formulir berjalan di sisi peramban. Penyimpanan ke
-                server menyusul setelah Route Handler
-                <code> /api/registrations</code> selesai (PRD bagian 6.4).
+                Validasi formulir berjalan di sisi peramban, dan
+                penyimpanannya ke server belum dikirim. Endpoint-nya sudah
+                ada (<code>POST /api/v1/appointments</code>), tetapi
+                bentuknya berbeda: endpoint itu menuntut pilihan dokter dan
+                jam, sedangkan formulir ini baru menanyakan tanggal.
               </p>
             </div>
           </div>

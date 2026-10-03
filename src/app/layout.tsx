@@ -76,7 +76,15 @@ export default function RootLayout({
         </a>
         <Topbar />
         <Navbar />
-        <main id="main-content">{children}</main>
+        {/* `tabIndex={-1}` membuat tautan lewati benar-benar memindahkan fokus,
+            bukan hanya menggulir layar. Tanpa itu, menekan Tab setelah
+            melompat ke sini mengembalikan fokus ke link itu sendiri, sehingga
+            pengguna keyboard harus melompat satu per satu melewati seluruh
+            header lagi. Nilainya -1 supaya elemen ini tidak masuk urutan Tab
+            biasa. */}
+        <main id="main-content" tabIndex={-1}>
+          {children}
+        </main>
         <Footer />
       </body>
     </html>

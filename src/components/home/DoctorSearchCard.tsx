@@ -11,7 +11,7 @@ import { DOCTORS_BY_SPECIALTY } from "@/data/doctors";
  * Alur sesuai PRD bagian 5.1: pilih spesialisasi, lalu dropdown dokter terisi
  * sesuai spesialisasi itu, lalu pilih hari. Daftar dokter diturunkan dari
  * `src/data/doctors.ts` supaya namanya sama dengan halaman dokter; saat backend
- * PostgreSQL siap, pemanggilan Route Handler `/api/schedules` menggantikannya
+ * PostgreSQL siap, pemanggilan Route Handler `/api/v1/schedules` menggantikannya
  * (rencana di PRD bagian 6.4).
  */
 export default function DoctorSearchCard() {

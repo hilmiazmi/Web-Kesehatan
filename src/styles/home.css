@@ -260,7 +260,7 @@
 .berita-date {
   display: block;
   font-size: 0.8rem;
-  color: #6b7280;
+  color: var(--rs-text-lembut);
   margin-bottom: 0.5rem;
 }
 
@@ -404,7 +404,7 @@ a.registrasi-card:hover {
 
 .social-card small {
   font-size: 0.75rem;
-  color: #6b7280;
+  color: var(--rs-text-lembut);
 }
 
 .social-placeholder p {
@@ -413,7 +413,7 @@ a.registrasi-card:hover {
 }
 
 .social-placeholder small {
-  color: #6b7280;
+  color: var(--rs-text-lembut);
   max-width: 34ch;
   line-height: 1.5;
 }
@@ -477,7 +477,7 @@ a.registrasi-card:hover {
 
 .testimonial-person span {
   font-size: 0.78rem;
-  color: #6b7280;
+  color: var(--rs-text-lembut);
 }
 
 /* ---------- Section 12: Asuransi ---------- */
