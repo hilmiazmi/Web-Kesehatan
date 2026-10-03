@@ -25,8 +25,7 @@ def tulis(path: str, isi: str):
 # Rute tanpa segmen dinamis: kunci snapshot-nya tetap.
 
 def statis(path: str, impor_repo: str, panggil: str, kunci: str, doc: str = ''):
-    tulis(path, f'''{doc}import type {{ NextRequest }} from "next/server";
-import {{ NextResponse }} from "next/server";
+    tulis(path, f'''{doc}import {{ NextResponse }} from "next/server";
 import {{ handle, ok }} from "@/server/api/respond";
 import {{ denganSnapshot }} from "@/server/api/snapshot";
 {impor_repo}
@@ -61,42 +60,42 @@ statis(
     'home/route.ts',
     'import { loadHome } from "@/server/db/repo/content";',
     '(db) => loadHome(db)',
-    'home',
+    '/home',
 )
 
 statis(
     'specialties/route.ts',
     'import { listSpecialties } from "@/server/db/repo/content";',
     '(db) => listSpecialties(db)',
-    'specialties',
+    '/specialties',
 )
 
 statis(
     'polyclinics/route.ts',
     'import { listPolyclinics } from "@/server/db/repo/content";',
     '(db) => listPolyclinics(db)',
-    'polyclinics',
+    '/polyclinics',
 )
 
 statis(
     'beds/route.ts',
     'import { loadBeds } from "@/server/db/repo/beds";',
     '(db) => loadBeds(db)',
-    'beds',
+    '/beds',
 )
 
 statis(
     'jobs/route.ts',
     'import { listJobs } from "@/server/db/repo/content";',
     '(db) => listJobs(db)',
-    'jobs',
+    '/jobs',
 )
 
 statis(
     'settings/public/route.ts',
     'import { loadSettings } from "@/server/db/repo/content";',
     '(db) => loadSettings(db)',
-    'settings__public',
+    '/settings/public',
 )
 
 dengan_params(
@@ -108,7 +107,7 @@ dengan_params(
     return ok(
       await denganSnapshot(
         (db) => listDoctors(db, { specialty: spesialis }),
-        "doctors",
+        "/doctors",
       ),
     );''',
     'doctors',
@@ -125,7 +124,7 @@ dengan_params(
     return ok(
       await denganSnapshot(
         (db) => listServices(db, { type: jenis, section }),
-        "services",
+        "/services",
       ),
     );''',
     'services',
@@ -138,8 +137,9 @@ dengan_params(
     '''    const kategori = teks(request.nextUrl.searchParams, "category");
 
     return ok(
-      await denganSnapshot((db) => listMcuPackages(db, kategori), "mcu__packages"),
-    );''',
+      await denganSnapshot((db) => listMcuPackages(db, kategori), "/mcu/packages"),
+    );
+''',
     'mcu__packages',
 )
 
@@ -150,7 +150,7 @@ dengan_params(
     '''    const kategori = teks(request.nextUrl.searchParams, "category");
 
     return ok(
-      await denganSnapshot((db) => listDocuments(db, kategori), "documents"),
+      await denganSnapshot((db) => listDocuments(db, kategori), "/documents"),
     );''',
     'documents',
 )
@@ -189,7 +189,7 @@ export function GET(request: NextRequest): Promise<NextResponse> {
           offset: (halaman - 1) * ukuran,
           category: kategori,
         }),
-      "articles",
+      "/articles",
     );
 
     const total = hasil.total;
@@ -209,10 +209,11 @@ artikel('articles/route.ts')
 
 
 # ------------------------------------------------------------------ dinamis
-# Kunci snapshot dihitung dari nilai segmen, jadi harus sama persis dengan
-# nama berkas yang ditulis `scripts/db-snapshot.ts`.
+# Nama berkas dihitung `snapshotKey()` dari path API yang ditulis di sini, jadi
+# path itu harus sama persis dengan yang dipakai `scripts/db-snapshot.ts` saat
+# menulis manifest.
 
-def detail(path: str, segmen: str, prefiks: str, panggil: str, tidak_ada: str, impor: str):
+def detail(path: str, segmen: str, rute: str, panggil: str, tidak_ada: str, impor: str):
     tulis(path, f'''import type {{ NextRequest }} from "next/server";
 import {{ NextResponse }} from "next/server";
 import {{ handle, ok }} from "@/server/api/respond";
@@ -228,7 +229,7 @@ export async function GET(
 ): Promise<NextResponse> {{
   return handle(async () => {{
     const {{ {segmen} }} = await context.params;
-    const baris = await denganSnapshot((db) => {panggil}, `{prefiks}_$_{segmen}`);
+    const baris = await denganSnapshot((db) => {panggil}, `{rute}`);
 
     if (baris === null) throw ApiError.notFound("{tidak_ada}");
     return ok(baris);
@@ -238,27 +239,27 @@ export async function GET(
 
 
 detail(
-    'services/[slug]/route.ts', 'slug', 'services', 'findService(db, slug)', 'layanan',
+    'services/[slug]/route.ts', 'slug', '/services/${slug}', 'findService(db, slug)', 'layanan',
     'import { findService } from "@/server/db/repo/content";',
 )
 detail(
-    'mcu/packages/[slug]/route.ts', 'slug', 'mcu__packages', 'findMcuPackage(db, slug)', 'paket MCU',
+    'mcu/packages/[slug]/route.ts', 'slug', '/mcu/packages/${slug}', 'findMcuPackage(db, slug)', 'paket MCU',
     'import { findMcuPackage } from "@/server/db/repo/content";',
 )
 detail(
-    'articles/[slug]/route.ts', 'slug', 'articles', 'findArticle(db, slug)', 'berita',
+    'articles/[slug]/route.ts', 'slug', '/articles/${slug}', 'findArticle(db, slug)', 'berita',
     'import { findArticle } from "@/server/db/repo/content";',
 )
 detail(
-    'pages/[slug]/route.ts', 'slug', 'pages', 'findPage(db, slug)', 'halaman',
+    'pages/[slug]/route.ts', 'slug', '/pages/${slug}', 'findPage(db, slug)', 'halaman',
     'import { findPage } from "@/server/db/repo/content";',
 )
 detail(
-    'jobs/[slug]/route.ts', 'slug', 'jobs', 'findJob(db, slug)', 'lowongan',
+    'jobs/[slug]/route.ts', 'slug', '/jobs/${slug}', 'findJob(db, slug)', 'lowongan',
     'import { findJob } from "@/server/db/repo/content";',
 )
 
-# Jadwal satu dokter: kuncinya `doctors__<id>__schedules`.
+# Jadwal satu dokter.
 tulis('doctors/[id]/schedules/route.ts', '''import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { handle, ok } from "@/server/api/respond";
@@ -274,7 +275,7 @@ export async function GET(
 ): Promise<NextResponse> {
   return handle(async () => {
     const { id } = await context.params;
-    const dokter = uuid({ id }, "doctor");
+    const dokter = uuid(id, "doctor");
 
     // Dokter yang tidak ada dan dokter tanpa jadwal sama-sama menghasilkan
     // daftar kosong di sini. Keduanya dibedakan di `GET /doctors`, yang
@@ -282,7 +283,7 @@ export async function GET(
     return ok(
       await denganSnapshot(
         (db) => listSchedules(db, { doctorId: dokter }),
-        `doctors__${dokter}__schedules`,
+        `/doctors/${dokter}/schedules`,
       ),
     );
   });
