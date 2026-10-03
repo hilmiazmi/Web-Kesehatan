@@ -1,140 +1,52 @@
-// Konten halaman /laboratorium. Seluruhnya fiktif (data demo/portofolio).
+// Konten halaman /laboratorium. Identitas fiktif (data demo/portofolio).
 // Saat backend siap, pindahkan ke tabel `pages`/`services` (PRD bagian 7).
 
-export type KategoriLab = {
-  id: string;
-  nama: string;
-  ikon: string; // nama kelas Bootstrap Icons
-  deskripsi: string;
-  pemeriksaan: string[];
-};
-
-export type LangkahLab = { judul: string; isi: string };
-export type FaqLab = { tanya: string; jawab: string };
+export type LayananLab = { id: string; nama: string; ikon: string; deskripsi: string };
 
 export const labInfo = {
   judul: "Layanan Laboratorium",
-  ringkasan:
-    "Pemeriksaan laboratorium klinik untuk menunjang diagnosis, pemantauan terapi, dan pemeriksaan kesehatan berkala dengan alur yang cepat dan terstandar.",
-  jam: [
-    { layanan: "Rawat jalan", waktu: "Senin–Jumat, 07.00–14.00" },
-    { layanan: "Instalasi Gawat Darurat", waktu: "24 jam" },
-    { layanan: "Rawat inap", waktu: "24 jam" },
-  ],
-  lokasi: "Gedung Penunjang Lantai 1 (data demo)",
-  kontak: "(021) 000-0000 (nomor dummy)",
+  pengantar:
+    "Instalasi Laboratorium RSUD Contoh Sehat merupakan instalasi pelayanan penunjang medis dengan metode layanan diagnostik.",
+  keunggulan:
+    "Instalasi Laboratorium RSUD Contoh Sehat memiliki keunggulan berupa jenis pemeriksaan yang lengkap, hasil data yang akurat, dan harga terjangkau.",
 } as const;
 
-export const kategoriLab: KategoriLab[] = [
+export const jenisPemeriksaanLab: string[] = [
+  "Hematologi",
+  "Urin lengkap",
+  "Kimia darah",
+  "Elektrolit",
+  "Analisis gas darah",
+  "Hemostasis dan lain-lain",
+];
+
+export const layananLab: LayananLab[] = [
   {
-    id: "hematologi",
-    nama: "Hematologi",
-    ikon: "bi-droplet-half",
-    deskripsi: "Pemeriksaan sel darah dan fungsi pembekuan darah.",
-    pemeriksaan: [
-      "Darah lengkap",
-      "Hemoglobin",
-      "Hematokrit",
-      "Laju endap darah (LED)",
-      "Hitung jenis leukosit",
-      "Masa perdarahan dan pembekuan",
-    ],
+    id: "bank-darah",
+    nama: "Bank Darah",
+    ikon: "bi-droplet-fill",
+    deskripsi:
+      "Menyediakan pengadaan kantong darah (PRC, PCRR, FPP, AHF, WE, TC), crossmatch, dan layanan rujukan incompatible.",
   },
   {
-    id: "kimia-klinik",
-    nama: "Kimia Klinik",
+    id: "patologi-anatomi",
+    nama: "Laboratorium Patologi Anatomi",
+    ikon: "bi-eyedropper",
+    deskripsi:
+      "Melayani pemeriksaan FNAB, histopatologi, sitopatologi ginekologi, dan sitopatologi non ginekologi.",
+  },
+  {
+    id: "patologi-klinik",
+    nama: "Laboratorium Patologi Klinik",
     ikon: "bi-activity",
-    deskripsi: "Pemeriksaan kadar zat kimia dalam darah untuk menilai fungsi organ.",
-    pemeriksaan: [
-      "Gula darah puasa dan sewaktu",
-      "HbA1c",
-      "Profil lemak (kolesterol, trigliserida)",
-      "Fungsi hati (SGOT, SGPT)",
-      "Fungsi ginjal (ureum, kreatinin)",
-      "Asam urat",
-      "Elektrolit",
-    ],
-  },
-  {
-    id: "imunologi",
-    nama: "Imunologi dan Serologi",
-    ikon: "bi-shield-check",
-    deskripsi: "Pemeriksaan penanda infeksi dan respons kekebalan tubuh.",
-    pemeriksaan: [
-      "Penanda hepatitis",
-      "Tes widal",
-      "Dengue (NS1, IgG/IgM)",
-      "CRP",
-      "Tes kehamilan",
-    ],
-  },
-  {
-    id: "urinalisa",
-    nama: "Urinalisa dan Feses",
-    ikon: "bi-clipboard2-pulse",
-    deskripsi: "Pemeriksaan urine dan feses rutin.",
-    pemeriksaan: [
-      "Urine lengkap",
-      "Sedimen urine",
-      "Protein urine",
-      "Feses lengkap",
-      "Darah samar feses",
-    ],
+    deskripsi:
+      "Melayani pemeriksaan kimia klinik, hematologi, imunologi, serologi, urinalisis, feses, dan cairan tubuh yang lengkap (termasuk analisis sperma).",
   },
   {
     id: "mikrobiologi",
-    nama: "Mikrobiologi",
+    nama: "Laboratorium Mikrobiologi",
     ikon: "bi-bug",
-    deskripsi: "Pemeriksaan kuman penyebab infeksi dan uji kepekaan antibiotik.",
-    pemeriksaan: [
-      "Pewarnaan Gram",
-      "Pewarnaan BTA (TB)",
-      "Kultur dan uji kepekaan antibiotik",
-      "Pemeriksaan jamur",
-    ],
-  },
-];
-
-export const alurLab: LangkahLab[] = [
-  {
-    judul: "Daftar",
-    isi: "Daftar di loket atau melalui Daftar Online, lalu bawa surat permintaan pemeriksaan dari dokter.",
-  },
-  {
-    judul: "Pengambilan sampel",
-    isi: "Petugas mengambil sampel darah, urine, atau feses sesuai jenis pemeriksaan.",
-  },
-  {
-    judul: "Pemeriksaan",
-    isi: "Sampel diperiksa di laboratorium dengan pengendalian mutu berkala.",
-  },
-  {
-    judul: "Hasil",
-    isi: "Hasil diserahkan ke pasien atau diteruskan ke dokter pemeriksa sesuai waktu layanan.",
-  },
-];
-
-export const persiapanLab: string[] = [
-  "Puasa 8–10 jam untuk gula darah puasa dan profil lemak (air putih boleh).",
-  "Bawa surat permintaan dokter dan kartu identitas.",
-  "Informasikan obat yang sedang dikonsumsi kepada petugas.",
-  "Untuk urine, gunakan sampel pancar tengah pagi hari bila diminta.",
-];
-
-export const faqLab: FaqLab[] = [
-  {
-    tanya: "Apakah harus puasa sebelum periksa?",
-    jawab:
-      "Hanya pemeriksaan tertentu seperti gula darah puasa dan profil lemak. Petugas akan menginformasikan persiapan saat pendaftaran.",
-  },
-  {
-    tanya: "Berapa lama hasil keluar?",
-    jawab:
-      "Pemeriksaan rutin umumnya selesai pada hari yang sama. Kultur kuman membutuhkan waktu lebih lama.",
-  },
-  {
-    tanya: "Apakah bisa periksa tanpa surat dokter?",
-    jawab:
-      "Untuk pemeriksaan mandiri tertentu bisa, tetapi interpretasi hasil tetap disarankan melalui dokter.",
+    deskripsi:
+      "Melayani pemeriksaan kultur dan uji resistensi manual maupun otomatis, pemeriksaan Gram, BTA, dan sediaan jamur KOH.",
   },
 ];
