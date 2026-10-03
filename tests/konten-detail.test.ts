@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { CLINICS } from "@/data/clinics";
 import { DETAIL_CONTENT } from "@/data/detail-content";
 import {
   ABOUT_SECTIONS,
@@ -23,6 +24,89 @@ function slugPrioritas(): string[] {
   return PRIORITY_SERVICES.map((p) => p.slug);
 }
 
+describe("DIRECTORY klinik", () => {
+  it("memuat enam belas klinik", () => {
+    expect(CLINICS).toHaveLength(16);
+  });
+
+  it("punya slug yang unik dan berbentuk URL", () => {
+    const slug = CLINICS.map((c) => c.slug);
+    expect(new Set(slug).size).toBe(slug.length);
+    for (const s of slug) expect(s).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
+  });
+
+  it("mengisi semua kolom yang dibaca ClinicDirectory", () => {
+    for (const c of CLINICS) {
+      expect(c.name.trim()).not.toBe("");
+      expect(c.description.trim()).not.toBe("");
+      expect(c.hours.trim()).not.toBe("");
+      expect(c.services.length, `layanan ${c.slug}`).toBeGreaterThan(0);
+      for (const s of c.services) expect(s.trim()).not.toBe("");
+    }
+  });
+});
+
+/**
+ * Bentuk teks klinik yang sampai ke layar.
+ *
+ * `scripts/audit-teks.ts` menangkap karakter asing dan huruf kapital di tengah
+ * kata, tapi tidak menangkap kelas yang paling sering merusak data klinik:
+ * kata bahasa Inggris yang lolos karena memang huruf Latin (`Spirometry`,
+ * `Biopsy`), `Terapi_family`, kalimat tanpa titik akhir, dan butir layanan
+ * yang mengulang diri. Semuanya lolos pemeriksaan tipe dan audit teks, lalu
+ * tampil apa adanya di halaman. Bentuknya deshalb diuji di sini.
+ */
+describe("teks klinik yang tampil di layar", () => {
+  const deskripsi = CLINICS.flatMap((c) => [
+    { asal: c.slug, teks: c.description },
+    ...c.details.map((d) => ({ asal: d.slug, teks: d.description })),
+  ]);
+  const jam = CLINICS.flatMap((c) => [
+    { asal: c.slug, teks: c.hours },
+    ...c.details.map((d) => ({ asal: d.slug, teks: d.hours })),
+  ]);
+  const layanan = CLINICS.flatMap((c) => [
+    ...c.services.map((s) => ({ asal: c.slug, teks: s })),
+    ...c.details.flatMap((d) =>
+      d.services.map((s) => ({ asal: d.slug, teks: s }))
+    ),
+  ]);
+
+  it("tidak ada underscore di teks yang dirender", () => {
+    const rusak = [...deskripsi, ...jam, ...layanan].filter((x) =>
+      x.teks.includes("_")
+    );
+    expect(rusak.map((x) => `${x.asal}: ${x.teks}`)).toEqual([]);
+  });
+
+  it("deskripsi diakhiri titik", () => {
+    const rusak = deskripsi.filter((x) => !x.teks.endsWith("."));
+    expect(rusak.map((x) => `${x.asal}: ${x.teks}`)).toEqual([]);
+  });
+
+  it("jam praktik memakai pola 'Hari sampai Hari, 07.00 sampai 20.00'", () => {
+    const pola = new RegExp(
+      "^(Senin|Selasa|Rabu|Kamis|Jumat|Sabtu|Minggu) sampai " +
+        "(Senin|Selasa|Rabu|Kamis|Jumat|Sabtu|Minggu), " +
+        "[0-9]{2}[.][0-9]{2} sampai [0-9]{2}[.][0-9]{2}$"
+    );
+    const rusak = jam.filter((x) => !pola.test(x.teks));
+    expect(rusak.map((x) => `${x.asal}: ${x.teks}`)).toEqual([]);
+  });
+
+  it("butir layanan tidak ada yang berulang dan tidak berujung titik", () => {
+    for (const c of CLINICS) {
+      expect(new Set(c.services).size, `tab ${c.slug}`).toBe(c.services.length);
+      for (const d of c.details) {
+        expect(new Set(d.services).size, `detail ${d.slug}`).toBe(
+          d.services.length
+        );
+      }
+    }
+    const bertitik = layanan.filter((x) => x.teks.endsWith("."));
+    expect(bertitik.map((x) => `${x.asal}: ${x.teks}`)).toEqual([]);
+  });
+});
 
 describe("isi halaman detail", () => {
   const terpakai = [
