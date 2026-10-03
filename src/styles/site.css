@@ -415,6 +415,12 @@
   font-size: 0.9rem;
 }
 
+/* Alamat ditulis sebagai daftar baris di FOOTER_ADDRESS. Tanpa ini setiap
+   span menempel ke baris sebelumnya karena span bersifat inline. */
+.footer-address span {
+  display: block;
+}
+
 .logo-mark-footer {
   width: 52px;
   height: 52px;
