@@ -64,7 +64,7 @@ export function DetailBody({
           src={photoSrc}
           alt={photoAlt}
           sizes="(max-width: 992px) 100vw, 720px"
-          priority
+          preload
           height={280}
           radius="all"
         />

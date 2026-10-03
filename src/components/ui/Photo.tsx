@@ -10,12 +10,15 @@ import type { CSSProperties } from "react";
  *
  * Aset foto ada di `src/data/images.ts` (Unsplash dan picsum), bukan dari
  * situs referensi.
+ *
+ * `preload` menggantikan `priority`, yang sejak Next.js 16 dianggap deprecated.
+ * Propi-nya diekspos di sini supaya cukup satu tempat yang perlu diubah.
  */
 export default function Photo({
   src,
   alt,
   sizes = "(max-width: 768px) 100vw, 400px",
-  priority = false,
+  preload = false,
   /** Tinggi wrapper dalam piksel. */
   height = 190,
   /** Sudut membulat: atas saja (dalam kartu) atau semua sudut (grid). */
@@ -25,7 +28,7 @@ export default function Photo({
   src: string;
   alt: string;
   sizes?: string;
-  priority?: boolean;
+  preload?: boolean;
   height?: number;
   /** Sudut: atas (kartu), semua sudut (grid), atau lingkaran (avatar). */
   radius?: "top" | "all" | "circle";
@@ -44,7 +47,7 @@ export default function Photo({
         width={800}
         height={500}
         sizes={sizes}
-        priority={priority}
+        preload={preload}
       />
     </div>
   );

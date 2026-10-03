@@ -66,7 +66,7 @@ export default async function ArticlePage({
                   src={photo(NEWS_PHOTOS[index % NEWS_PHOTOS.length], 1000, 560)}
                   alt={article.title}
                   sizes="(max-width: 992px) 100vw, 900px"
-                  priority
+                  preload
                   height={420}
                   radius="top"
                 />

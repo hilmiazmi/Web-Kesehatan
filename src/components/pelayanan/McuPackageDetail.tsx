@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Photo from "@/components/ui/Photo";
 import { DetailLayout } from "@/components/pelayanan/DetailLayout";
-import { FACILITY_PHOTOS, NEWS_PHOTOS, photo } from "@/data/images";
+import { FACILITY_PHOTOS, photo } from "@/data/images";
 import { formatIDR } from "@/lib/format";
 
 /**
@@ -60,7 +60,7 @@ export function McuPackageDetail({
             src={photo(photos[index % photos.length], 900, 600)}
             alt={pkg.title}
             sizes="(max-width: 992px) 100vw, 720px"
-            priority
+            preload
             height={280}
             radius="all"
           />
@@ -103,4 +103,6 @@ export function McuPackageDetail({
   );
 }
 
-export { FACILITY_PHOTOS, NEWS_PHOTOS };
+// `NEWS_PHOTOS` pernah ikut diekspor dari sini, tetapi tidak ada yang
+// membacanya. Dua route MCU mengambil foto paket dari `FACILITY_PHOTOS` saja.
+export { FACILITY_PHOTOS };

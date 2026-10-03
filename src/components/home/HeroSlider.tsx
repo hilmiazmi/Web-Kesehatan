@@ -40,7 +40,7 @@ export default function HeroSlider() {
                   alt={slide.title}
                   fill
                   sizes="100vw"
-                  priority={i === 0}
+                  preload={i === 0}
                   className="slide-img"
                 />
                 <div className="slide-overlay">

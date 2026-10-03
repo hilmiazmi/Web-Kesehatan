@@ -77,7 +77,7 @@ export default async function DiagnosticServicePage({
                   )}
                   alt={service.title}
                   sizes="(max-width: 992px) 100vw, 720px"
-                  priority
+                  preload
                   height={280}
                   radius="all"
                 />
