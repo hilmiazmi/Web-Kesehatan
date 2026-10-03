@@ -42,17 +42,36 @@ pub async fn list_records(
         .unwrap_or(spec.default_order);
     let direction = if descending { "DESC" } else { "ASC" };
 
+    // Dua bentuk nilai yang harus tetap terpisah. `needle` adalah apa yang
+    // diketik pengguna dan dikembalikan apa adanya di respons. `pola` adalah
+    // bentuk `ILIKE`-nya: sudah dibungkus wildcard, dan wildcard di dalam teks
+    // sudah di-escape. Mencampur keduanya berarti respons membocorkan bentuk
+    // SQL internal.
     let needle = search.map(validation::squash).filter(|s| !s.is_empty());
+    let pola = needle.as_deref().map(validation::search_pattern);
 
+    // `$1`, bukan `$FILTER`. Nama seperti `$FILTER` hanya sah di perintah
+    // `PREPARE`; pada prepared statement Postgres hanya mengenali `$1`, `$2`,
+    // dan seterusnya, jadi bentuk yang dulu dipakai gagal dengan `syntax error
+    // at or near "$"` untuk setiap pencarian yang punya kata kunci.
+    //
+    // `ESCAPE` juga wajib ikut. Tanpa itu backslash hanya dibaca sebagai
+    // karakter biasa, sehingga setiap pola yang sudah di-escape tidak akan
+    // cocok dengan apa pun.
     let conditions: Vec<String> = spec
         .search_columns
         .iter()
-        .map(|column| format!("{column}::text ILIKE $FILTER"))
+        .map(|column| format!("{column}::text ILIKE $1 ESCAPE '\\'"))
         .collect();
-    let where_clause = if conditions.is_empty() {
-        String::new()
-    } else {
+    // Klausa pencarian hanya ditambahkan kalau memang ada kata kunci. Kalau
+    // klausanya selalu ditambahkan, `?q` yang tidak dikirim terikat sebagai
+    // NULL, dan `kolom ILIKE NULL` bernilai NULL untuk semua baris. Hasilnya
+    // daftar selalu kosong begitu kotak pencarian dikosongkan, dan gejalanya
+    // terlihat seperti database yang kosong, bukan seperti filter yang salah.
+    let where_clause = if needle.is_some() && !conditions.is_empty() {
         format!("WHERE {}", conditions.join(" OR "))
+    } else {
+        String::new()
     };
 
     let list_sql = format!(
@@ -68,12 +87,12 @@ pub async fn list_records(
     );
 
     let rows = sqlx::query(&list_sql)
-        .bind(needle.as_deref())
+        .bind(pola.as_deref())
         .fetch_all(pool)
         .await?;
 
     let total: i64 = sqlx::query_scalar(&count_sql)
-        .bind(needle.as_deref())
+        .bind(pola.as_deref())
         .fetch_one(pool)
         .await?;
 

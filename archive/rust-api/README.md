@@ -4,7 +4,8 @@ Backend pertama untuk Web-Kesehatan, ditulis dengan Rust (axum + sqlx).
 Sudah **selesai dan lulus semua pengujiannya**, lalu dipindahkan ke sini
 ketika backend utama diganti ke Bun + Next.js Route Handler + Drizzle.
 
-Folder ini read-only. Jangan diperbaiki, jangan dipindahkan.
+Folder ini tidak lagi dipakai. Jangan dipindahkan, dan baca bagian cacat di
+bawah ini sebelum memakai tabel status sebagai bukti bahwa kodenya benar.
 
 ## Status saat diarsipkan
 
@@ -13,37 +14,60 @@ Folder ini read-only. Jangan diperbaiki, jangan dipindahkan.
 | `cargo check --all-targets` | bersih |
 | `cargo clippy --all-targets` | bersih, tanpa warning |
 | `cargo fmt --check` | bersih |
-| `cargo test` | 132 lulus, 0 gagal |
+| `cargo test` | 132 lulus, 0 gagal (136 setelah empat cacat panel diperbaiki) |
 
 Jadi ini bukan kode setengah jadi. Kode ini bekerja, hanya tidak lagi dipakai.
 
-## Keterbatasan yang diketahui
+Catatan penting: angka 132 di atas diukur **sebelum** dua halaman utama panel
+diperbaiki. Pada waktu itu seluruh tes hijau sementara panel mengembalikan 500.
+Bacalah bagian cacat di bawah ini sebelum memakai angka itu sebagai bukti.
 
-Satu bug yang sudah teridentifikasi tapi sengaja tidak diperbaiki di sini,
-karena folder ini read-only dan backend aktif sudah tidak memakai kode ini.
+## Cacat yang ditemukan lewat pengujian, lalu diperbaiki
 
-**Pencarian panel admin tidak meng-escape wildcard SQL.** `admin/records.rs`
-dan `admin/inbox.rs` menyusun `ILIKE` dengan `%{search}%` apa adanya, jadi
-`%` dan `_` di dalam kata yang diketik pengguna tetap punya arti wildcard:
+Folder ini sempat ditulis "read-only". Empat cacat di panel admin baru terlihat
+setelah servernya dijalankan terhadap database sungguhan, dan keempatnya tembus
+di seluruh tes yang ada. Bentuk SQL-nya disusun dengan `format!`, sedangkan
+tes di folder ini semuanya unit murni tanpa database, jadi tidak satu pun bisa
+menyentuh kalimat SQL yang menyusunnya.
 
-| Yang diketik di panel | Yang sebenarnya dicocokkan |
+| Cacat | Gejala dari luar |
 |---|---|
-| `%` | seluruh isi tabel |
-| `_` | satu karakter apa pun |
-| `100%` | yang diawali `100` |
+| `$FILTER` dipakai sebagai placeholder | 500 `syntax error at or near "$"` |
+| `$2::text IS NULL OR status = $2` | 500 `operator does not exist: submission_status = text` |
+| klausa `ILIKE` ditambahkan walau kata kunci kosong | daftar selalu kosong begitu kotak pencarian dikosongkan |
+| pola `ILIKE` tidak meng-escape wildcard | satu `%` di kotak pencarian mencocokkan seluruh isi tabel |
 
-Akibatnya satu `%` saja mengembalikan setiap baris, dan `100%` mengembalikan
-baris yang tidak ada hubungannya. Ini bukan celah kebocoran data, karena
-panel sudah butuh sesi admin, tapi hasil pencariannya tidak dapat dipercaya.
+Dua yang pertama lebih serius daripada dua sisanya, karena tidak terlihat
+sebagai hasil pencarian yang salah. `$FILTER` dan `$2` membuat **setiap**
+permintaan daftar catatan dan daftar inbox berakhir 500, dengan atau tanpa kata
+kunci. Panelnya tidak terlihat rusak, panelnya tidak bisa dipakai sama sekali.
 
-Perbaikannya sudah ada di backend aktif: `searchPattern()` di
-`src/server/validation.ts` meng-escape `\`, `%`, dan `_` sebelum menambahkan
-Wildcard, dan ada tesnya di `tests/validation.test.ts`.
+Dua yang terakhir tidak terlihat sebagai galat sama sekali, hanya sebagai
+hasil yang salah. Tanpa kata kunci, `?q` yang tidak dikirim terikat sebagai
+NULL, dan `kolom ILIKE NULL` bernilai NULL untuk semua baris, jadi daftar
+selalu kosong. Tanpa escape, `%` dan `_` di dalam kata kunci tetap punya arti
+wildcard, jadi satu `%` saja mengembalikan setiap baris.
 
-Kalau folder ini nanti dihidupkan kembali, dua berkas itu adalah tempat
-pertama yang perlu diperiksa. Menjalankan `cargo test` untuk memastikan tidak
-ada regresi lain membutuhkan build ulang dari nol, karena `target/` tidak
-disimpan di Git.
+Perbaikannya: pola pencarian pindah ke `validation::search_pattern`, yang
+membungkus wildcard lalu meng-escape `\`, `%`, dan `_`; setiap `ILIKE` mendapat
+`ESCAPE '\\'`; klausa hanya ditambahkan kalau memang ada kata kunci; dan
+placeholder-nya menjadi posisional. Bentuk yang sama sudah ada di backend
+aktif (`searchPattern()` di `src/server/validation.ts`), jadi sekarang kedua
+backend berpikir sama.
+
+Verifikasi tidak berhenti di `cargo test`. Setelah diperbaiki, servernya
+dijalankan di atas database ter-seed lalu diperiksa lewat HTTP sungguhan:
+`%`, `_`, `100%`, dan `koridorLY` masing-masing mengembalikan nol baris dari
+lima baris yang ada; `jam` dan `JAM` masing-masing mengembalikan satu baris yang
+sama; `?q=lampu&status=resolved` mengembalikan nol; dan tanpa kata kunci daftar
+tetap menampilkan seluruh isi tabel.
+
+Pelajaran yang lebih berguna daripada perbaikannya: tes yang hijau tidak
+berarti kodenya jalan. Seluruh tes di folder ini benar dan tetap hijau ketika
+dua halaman utama panel mengembalikan 500 untuk semua permintaan. `cargo test`
+membuktikan kodenya berperilaku seperti yang ditulis, tidak ada yang
+membuktikan tidak ada yang salah ditulis. Untuk jalur yang menyentuh database,
+jalankan servernya.
 
 ## Kenapa diarsipkan, bukan dihapus
 

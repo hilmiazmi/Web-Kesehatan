@@ -234,6 +234,45 @@ pub fn squash(value: &str) -> String {
     value.split_whitespace().collect::<Vec<_>>().join(" ")
 }
 
+/// Ubah kata kunci pencarian menjadi pola `ILIKE`.
+///
+/// Dua hal dikerjakan di sini, dan keduanya soal apa yang dilakukan server
+/// terhadap teks yang dikirim pengguna.
+///
+/// **Dibungkus wildcard.** `ILIKE` tanpa `%` berarti pencocokan seluruh nilai,
+/// jadi mengetik "gigi" di kotak pencarian tidak akan menemukan baris yang
+/// isinya "Penyakit Gigi dan Mulut". Pola yang benar selalu punya `%` di kedua
+/// ujungnya.
+///
+/// **Wildcard di dalam teks di-escape.** Tanpa ini, `100%` terbaca sebagai
+/// "mulai dengan 100", dan satu `%` saja cocok dengan seluruh tabel. Backslash
+/// dipakai sebagai penandanya, jadi setiap query yang memakai hasil fungsi ini
+/// wajib menyertakan `ESCAPE '\\'`. Tanpa klausa itu, backslash ikut dibaca
+/// sebagai karakter biasa dan setiap pola yang di-escape tidak akan cocok dengan
+/// apa pun.
+///
+/// Fungsi ini hanya mengubah bentuk teksnya, bukan kelayakannya: kata kunci
+/// kosong menghasilkan string kosong, dan pemanggil wajib memilih untuk tidak
+/// menambahkan klausa pencarian sama sekali. `kolom ILIKE ''` tidak pernah
+/// bernilai benar, jadi menempelkan klausanya membuat daftar selalu kosong.
+pub fn search_pattern(needle: &str) -> String {
+    let teks = squash(needle);
+    if teks.is_empty() {
+        return String::new();
+    }
+
+    let mut keluar = String::with_capacity(teks.len() + 2);
+    keluar.push('%');
+    for ch in teks.chars() {
+        if matches!(ch, '\\' | '%' | '_') {
+            keluar.push('\\');
+        }
+        keluar.push(ch);
+    }
+    keluar.push('%');
+    keluar
+}
+
 /// Validasi honeypot.
 ///
 /// Kolom perangkap diisi robot dan tidak pernah diisi manusia. Jadi kalau ada
@@ -427,5 +466,42 @@ mod tests {
     #[test]
     fn squash_collapses_whitespace() {
         assert_eq!(squash("  a   b\tc  "), "a b c");
+    }
+
+    #[test]
+    fn search_pattern_wraps_in_wildcards() {
+        assert_eq!(search_pattern("gigi"), "%gigi%");
+        assert_eq!(search_pattern("  Poli  gigI "), "%Poli gigI%");
+    }
+
+    #[test]
+    fn search_pattern_is_empty_for_blank_needle() {
+        // Yang memaksa pemanggil tidak menambahkan klausa pencarian sama
+        // sekali. `kolom ILIKE ''` tidak pernah bernilai benar.
+        assert_eq!(search_pattern(""), "");
+        assert_eq!(search_pattern("   "), "");
+    }
+
+    #[test]
+    fn search_pattern_escapes_wildcards() {
+        // Tanpa escape, satu `%` saja akan mencocokkan seluruh isi tabel.
+        assert_eq!(search_pattern("%"), "%\\%%");
+        assert_eq!(search_pattern("_"), "%\\_%");
+        assert_eq!(search_pattern("100%"), "%100\\%%");
+        assert_eq!(search_pattern("a_b"), "%a\\_b%");
+        // Backslash sendiri harus di-escape dua kali, kalau tidak penandanya
+        // hilang dan wildcard berikutnya kembali punya arti.
+        assert_eq!(search_pattern("a\\%b"), "%a\\\\\\%b%");
+    }
+
+    #[test]
+    fn search_pattern_leaves_sql_characters_untouched() {
+        // Karakter yang berarti bagi SQL tidak di-escape, dan tidak seharusnya:
+        // polanya dikirim sebagai parameter, bukan disisipkan ke teks SQL, jadi
+        // `standard_conforming_strings` tidak bisa mengubah maknanya. Satu-
+        // satunya hal yang menentukan adalah `ESCAPE` di klausa `ILIKE`.
+        assert_eq!(search_pattern("a b\\c"), "%a b\\\\c%");
+        assert_eq!(search_pattern("quote'"), "%quote'%");
+        assert_eq!(search_pattern("\"; drop table --"), "%\"; drop table --%");
     }
 }

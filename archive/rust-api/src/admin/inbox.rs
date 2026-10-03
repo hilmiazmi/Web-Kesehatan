@@ -115,16 +115,22 @@ pub async fn list(
     let needle = search
         .map(crate::validation::squash)
         .filter(|s| !s.is_empty());
+    let pola = needle.as_deref().map(crate::validation::search_pattern);
 
+    // `ESCAPE` wajib ikut, dan hanya itu yang menentukan apakah wildcard di
+    // dalam teks pengguna diperlakukan sebagai teks biasa. Tanpa klausanya,
+    // satu `%` di kotak pencarian akan mencocokkan seluruh isi tabel.
     let columns: Vec<String> = kind
         .search_columns()
         .iter()
-        .map(|c| format!("{c}::text ILIKE $1"))
+        .map(|c| format!("{c}::text ILIKE $1 ESCAPE '\\'"))
         .collect();
-    let search_clause = if columns.is_empty() {
-        String::new()
-    } else {
+    // Sama seperti di panel catatan: tanpa kata kunci, `?search` yang tidak
+    // dikirim terikat sebagai NULL dan klausanya membuat semua baris hilang.
+    let search_clause = if needle.is_some() && !columns.is_empty() {
         format!(" AND ({})", columns.join(" OR "))
+    } else {
+        String::new()
     };
 
     let table = kind.table_name();
@@ -132,8 +138,14 @@ pub async fn list(
     // `survey_responses` tidak punya kolom status, jadi klausa status harus
     // dilewati untuk jenis itu. Bukan hanya kosongkan filter: kolomnya memang
     // tidak ada, jadi menyebutnya akan membuat query gagal.
+    //
+    // Cast harus ada di sisi kolom, bukan hanya di sisi parameter. Postgres
+    // menolak tipe saat menyusun rencana kueri, bukan saat menjalankannya, jadi
+    // `status = $2` dengan `$2` bertipe teks gagal untuk semua nilai termasuk
+    // NULL. Bentuk yang benar `status::text = $2`, sama seperti kolom pencarian
+    // yang juga sudah memakai `::text`.
     let status_clause = if kind.has_status() {
-        "AND ($2::text IS NULL OR status = $2) "
+        "AND ($2::text IS NULL OR status::text = $2) "
     } else {
         ""
     };
@@ -151,13 +163,13 @@ pub async fn list(
         format!("SELECT count(*) FROM {table} t WHERE true {status_clause}{search_clause}");
 
     let rows = sqlx::query(&list_sql)
-        .bind(needle.as_deref())
+        .bind(pola.as_deref())
         .bind(if status_bind { status } else { None })
         .fetch_all(pool)
         .await?;
 
     let total: i64 = sqlx::query_scalar(&count_sql)
-        .bind(needle.as_deref())
+        .bind(pola.as_deref())
         .bind(if status_bind { status } else { None })
         .fetch_one(pool)
         .await?;
