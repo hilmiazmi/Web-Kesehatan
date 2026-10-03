@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { validate, type Fields } from "@/components/forms/registration-form";
 
 /**
@@ -9,7 +9,16 @@ import { validate, type Fields } from "@/components/forms/registration-form";
  * tidak ada satu pun tes yang menyentuh kode ini sebelum ini.
  */
 
-const BESOK = new Date(Date.now() + 86_400_000).toISOString().slice(0, 10);
+/** Tanggal dalam waktu setempat, bukan UTC. Lihat catatan di bawah. */
+function tanggalSetempat(offsetHari = 0): string {
+  const d = new Date();
+  d.setDate(d.getDate() + offsetHari);
+  const bulan = String(d.getMonth() + 1).padStart(2, "0");
+  const hari = String(d.getDate()).padStart(2, "0");
+  return `${d.getFullYear()}-${bulan}-${hari}`;
+}
+
+const BESOK = tanggalSetempat(1);
 
 const SAH: Fields = {
   nama: "Budi Santoso",
@@ -21,6 +30,10 @@ const SAH: Fields = {
   metode: "jkn",
   setuju: true,
 };
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 describe("validate", () => {
   it("menerima data yang lengkap dan benar", () => {
@@ -80,14 +93,38 @@ describe("validate", () => {
   });
 
   it("menolak tanggal yang sudah lewat", () => {
-    const kemarin = new Date(Date.now() - 86_400_000).toISOString().slice(0, 10);
-    expect(validate({ ...SAH, tanggal: kemarin }).tanggal).toBeTruthy();
+    expect(validate({ ...SAH, tanggal: tanggalSetempat(-1) }).tanggal).toBeTruthy();
   });
 
   it("menerima tanggal hari ini dan sesudahnya", () => {
-    const hariIni = new Date().toISOString().slice(0, 10);
-    expect(validate({ ...SAH, tanggal: hariIni }).tanggal).toBeUndefined();
+    expect(validate({ ...SAH, tanggal: tanggalSetempat(0) }).tanggal).toBeUndefined();
     expect(validate({ ...SAH, tanggal: BESOK }).tanggal).toBeUndefined();
+  });
+
+  /*
+   * Dua tes di bawah dikunci ke jam palsu karena bug-nya cuma muncul di
+   * jendela tujuh jam. WIB tujuh jam di depan UTC, jadi antara 00:00 dan 06:59
+   * waktu setempat, `toISOString()` masih memberi tanggal kemarin. Dengan
+   * implementasi lamanya, booking kemarin lolos di jam-jam itu saja, jadi tes
+   * yang memakai jam sebenarnya bisa lulus selama bertahun-tahun tanpa pernah
+   * menyentuh jalurnya.
+   */
+  it("menolak kemarin antara pukul 00.00 dan 06.59 waktu setempat", () => {
+    // 2026-03-10T21:30:00Z = 2026-03-11 04:30 WIB. Tanggal UTC masih 10 Maret.
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-03-10T21:30:00Z"));
+
+    expect(validate({ ...SAH, tanggal: "2026-03-10" }).tanggal).toBeTruthy();
+    expect(validate({ ...SAH, tanggal: "2026-03-11" }).tanggal).toBeUndefined();
+  });
+
+  it("tetap memakai tanggal setempat, bukan UTC, di detik pertama hari", () => {
+    // 2026-03-10T17:00:00Z = 2026-03-11 00:00 WIB, detik pertama hari baru.
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-03-10T17:00:00Z"));
+
+    expect(validate({ ...SAH, tanggal: "2026-03-11" }).tanggal).toBeUndefined();
+    expect(validate({ ...SAH, tanggal: "2026-03-10" }).tanggal).toBeTruthy();
   });
 
   it("meharuskan persetujuan dicentang", () => {
