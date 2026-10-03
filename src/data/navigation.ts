@@ -69,6 +69,17 @@ export const NAV_ITEMS: NavItem[] = [
           { label: "Rawat Jalan", href: "/pelayanan/medis/rawat-jalan" },
           { label: "Rawat Inap", href: "/pelayanan/medis/rawat-inap" },
           { label: "Rawat Inap Khusus", href: "/pelayanan/medis/rawat-inap-khusus" },
+          // Empat unit ini sudah punya data di FACILITIES dan DETAIL_CONTENT,
+          // sehingga rutenya terbentuk sendiri dari generateStaticParams. Tapi
+          // tanpa baris di sini, tidak ada satu pun tautan yang mengarah
+          // kepadanya: submenu ini, halaman indeks "/pelayanan/medis", dan
+          // blok tautan-anak di "/informasi-publik/fasilitas" semuanya membaca
+          // dari NAV_ITEMS. Halaman yang tidak punya jalan masuk hanya bisa
+          // dibuka lewat URL yang diketik tangan.
+          { label: "Diagnostic Center", href: "/pelayanan/medis/diagnostic-center" },
+          { label: "ESWL", href: "/pelayanan/medis/eswl" },
+          { label: "MRI", href: "/pelayanan/medis/mri" },
+          { label: "Klinik Eksekutif", href: "/pelayanan/medis/klinik-eksekutif" },
         ],
       },
       {
