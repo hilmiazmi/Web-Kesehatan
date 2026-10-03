@@ -31,7 +31,7 @@ export default function LaboratoriumPage() {
           </nav>
           <h1 className={s.title}>{labInfo.judul}</h1>
           <p className="lead mb-4">{labInfo.pengantar}</p>
-          <Link href="/register" className={s.btn}>
+          <Link href="/daftar-online" className={s.btn}>
             Daftar Online
           </Link>
         </div>
