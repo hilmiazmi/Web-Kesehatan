@@ -59,7 +59,17 @@ export default function RootLayout({
     // data-gr-ext-installed dan data-lt-installed ke <html> dan <body>
     // SEBELUM React selesai hydrate. Tanpa flag ini mismatch dilaporkan
     // sebagai error, padahal bukan bug kode kita.
-    <html lang="id" className={poppins.variable} suppressHydrationWarning>
+    //
+    // data-scroll-behavior="smooth" adalah atribut milik Next.js, bukan
+    // atribut HTML. Bootstrap men-set scroll-behavior: smooth pada :root
+    // selama pengguna tidak meminta reduced motion, dan Next.js memperingatkan
+    // bahwa navigasi antar halaman tidak boleh memakai smooth scroll tanpa
+    <html
+      lang="id"
+      className={poppins.variable}
+      data-scroll-behavior="smooth"
+      suppressHydrationWarning
+    >
       <body suppressHydrationWarning>
         <a href="#main-content" className="skip-link">
           Lewati ke konten utama
