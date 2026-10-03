@@ -198,9 +198,16 @@ async function main(): Promise<void> {
     );
   }
 
+  // Manifest sengaja tidak memakai cap waktu. Nilai seperti `dibuat_pada` selalu
+  // berubah setiap kali skrip ini dijalankan, sehingga `bun run db:snapshot`
+  // selalu meninggalkan working tree kotor dengan selisih yang tidak membawa
+  // informasi apa pun. Nilai itu juga tidak pernah dibaca siapa pun, jadi satu-
+  // satunya efeknya adalah membuat skrip pemeriksaan terlihat sudah rusak.
+  //
+  // Kalau suatu saat cap waktu memang dibutuhkan, tempatnya ada di pesan commit,
+  // bukan di berkas hasil generate.
   const manifest = {
     versi: 1,
-    dibuat_pada: new Date().toISOString(),
     jumlah: Object.keys(peta).length,
     rute: peta,
   };
