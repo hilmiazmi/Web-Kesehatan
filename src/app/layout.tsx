@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -48,6 +48,26 @@ export const metadata: Metadata = {
     siteName: "RSUD Contoh Sehat",
   },
   robots: { index: true, follow: true },
+};
+
+/**
+ * Warna bilah peramban, bukan warna aksen CSS.
+ *
+ * PRD bagian 8.2 menyebut `#1A77CC` sebagai "nilai theme-color pada meta
+ * situs referensi", dan nilai itulah yang dipakai di sini. `--rs-accent`
+ * yang `#1977cc` hanya untuk tombol, latar, dan garis.
+ *
+ * `themeColor` harus ada di sini, bukan di `metadata`. Sudah deprecated
+ * sejak Next.js 14 di sana, dan Next.js membuangnya tanpa peringatan:
+ * menulisnya di `metadata` tetap lolos typecheck, tapi tag-nya tidak
+ * pernah muncul di HTML hasil build.
+ *
+ * Sebelum meta ini ditambahkan, nilai tersebut tidak muncul di HTML
+ * sama sekali dan token `--rs-accent-theme-color` di `tokens.css` tidak
+ * pernah dibaca siapa pun.
+ */
+export const viewport: Viewport = {
+  themeColor: "#1a77cc",
 };
 
 export default function RootLayout({
