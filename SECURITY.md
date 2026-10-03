@@ -114,6 +114,35 @@ teks screenshot, atau di dalam pesan log sering lolos.
 
 ---
 
+## Sesi admin: logout tidak mencabut token yang sudah dicuri
+
+Cookie `rsud_session` tidak menyimpan catatan di database. Isinya adalah klaim
+yang ditandatangani dengan `AUTH_SECRET` dan punya waktu kedaluwarsa sendiri
+(`SESSION_MAX_AGE_SECONDS`, bawaan delapan jam). Server cukup memeriksa tanda
+tangannya, tanpa perlu menanyakan ke mana pun.
+
+Empat konsekuensi yang perlu diketahui sebelum cookie sesi ikut tersalin:
+
+- **Keluar dari panel tidak membatalkan tokennya.** `POST /auth/logout`
+  hanya menghapus cookie di peramban. Salinan yang sudah tersalin tetap sah
+  sampai kedaluwarsa.
+- **Tidak ada "keluar dari semua perangkat"** dan tidak ada pencabutan per
+  token. Satu token bisa dicabut dengan menaikkan `TOKEN_VERSION` di
+  `src/server/auth/session.ts`, yang membatalkan seluruh sesi yang sedang
+  berjalan, termasuk yang tidak disengaja.
+- **Jendelanya adalah delapan jam.** Menyingkat `SESSION_MAX_AGE_SECONDS`
+  memperpendek masa itu tanpa mengubah kode apa pun.
+- **Penyalahgunaan tidak kelihatan sebagai kegagalan.** Satu cookie yang
+  dipakai dari alamat lain terbaca seperti permintaan biasa, bukan seperti
+  percobaan masuk. Rate limit di `POST /auth/login` tidak menutup jalur ini,
+  karena penyalahguna tidak melewati halaman login.
+
+Kalau sebuah cookie sesi dicuriga bocor, rotasi `AUTH_SECRET` di deployment.
+Membatalkan seluruh sesi yang sedang berjalan sekaligus membuat jelas ada yang
+berubah.
+
+---
+
 ## Untuk sesi AI agent
 
 Tiga aturan tambahan yang berlaku khusus untuk agent yang bekerja di
