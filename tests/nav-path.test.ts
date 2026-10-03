@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   collectNavPaths,
+  hasOwnRoute,
   humanize,
   resolveTrail,
   slugify,
@@ -10,6 +11,8 @@ import {
   HEADER_CTAS,
   NAV_ITEMS,
 } from "@/data/navigation";
+import { BROSURS } from "@/data/brosur";
+import { PPID_SUBPAGES } from "@/data/ppid";
 
 describe("collectNavPaths", () => {
   it("mengembalikan bentuk catch-all yang benar: { slug: string[] }", () => {
@@ -51,6 +54,11 @@ describe("collectNavPaths", () => {
 
   it("setiap tautan internal di data navigasi punya halaman", () => {
     // Penjamin agar tautan baru tidak diam-diam menjadi 404.
+    //
+    // Path yang dilayani route khusus (lihat `hasOwnRoute`) tidak muncul di
+    // catch-all, jadi ikut dicoret di sini. Kalau tidak dicoret, setiap
+    // submenu PPID dan halaman brosur akan dilaporkan hilang padahal
+    // halamannya memang ada di src/app.
     const slugs = new Set(collectNavPaths().map((e) => e.slug.join("/")));
     const internal: string[] = [];
 
@@ -64,8 +72,26 @@ describe("collectNavPaths", () => {
     };
     walk(NAV_ITEMS);
 
-    const hilang = internal.filter((h) => !slugs.has(h.replace(/^\//, "")));
+    const hilang = internal.filter(
+      (h) => !hasOwnRoute(h) && !slugs.has(h.replace(/^\//, "")),
+    );
     expect(hilang).toEqual([]);
+  });
+
+  it("path yang punya route khusus benar-benar dikecualikan dari catch-all", () => {
+    const slugs = new Set(collectNavPaths().map((e) => e.slug.join("/")));
+
+    // Brosur dan PPID keduanya punya folder sendiri di src/app, jadi
+    // tidak boleh didaftarkan ulang oleh catch-all.
+    expect(slugs.has("informasi-publik/brosur")).toBe(false);
+    expect(slugs.has("ppid")).toBe(false);
+
+    for (const b of BROSURS) {
+      expect(hasOwnRoute(`/informasi-publik/brosur/${b.slug}`)).toBe(true);
+    }
+    for (const p of PPID_SUBPAGES) {
+      expect(hasOwnRoute(`/ppid/${p.slug}`)).toBe(true);
+    }
   });
 
   it("menyelesaikan path anak relatif terhadap induknya", () => {
