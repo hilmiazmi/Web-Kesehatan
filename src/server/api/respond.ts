@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ApiError, toApiError } from "./error";
+import { toApiError } from "./error";
 
 /**
  * Bentuk respons yang selalu sama: `{ "data": ... }` untuk sukses dan
@@ -59,27 +59,17 @@ export async function handle(fn: () => Promise<NextResponse>): Promise<NextRespo
   }
 }
 
-/**
- * Header CORS untuk endpoint yang boleh dipanggil dari origin admin.
+/*
+ * Sengaja tidak ada header CORS di berkas ini.
  *
- * `Vary: Origin` wajib: tanpa itu, cache CDN bisa menyajikan ulang header CORS
- * milik origin lain, dan browser menolak jawabannya.
+ * Panel admin disajikan dari origin yang sama dengan API, jadi peramban tidak
+ * pernah mengirim permintaan lintas origin dan CORS tidak diperlukan. Menambah
+ * `access-control-allow-origin` hanya memperlebar jalan bagi origin lain untuk
+ * membaca API ini sebagai pengguna yang sedang login, tanpa memberi manfaat
+ * apa pun pada deployment sekarang.
+ *
+ * Kalau panel nanti benar-benar pindah ke origin terpisah, CORS harus
+ * ditambahkan saat itu juga, dengan pengujian yang menolak origin yang tidak
+ * cocok. `ADMIN_ORIGIN` tetap berguna untuk menentukan apakah cookie sesi
+ * diberi atribut `Secure`.
  */
-export function corsHeaders(origin: string, requestOrigin: string | null): Record<string, string> {
-  if (!requestOrigin || requestOrigin !== origin) return {};
-
-  return {
-    "access-control-allow-origin": origin,
-    "access-control-allow-credentials": "true",
-    "access-control-allow-methods": "GET,HEAD,POST,PATCH,PUT,DELETE,OPTIONS",
-    "access-control-allow-headers": "content-type,accept,cookie",
-    vary: "Origin",
-  };
-}
-
-/** Balasan untuk preflight `OPTIONS`. */
-export function preflight(origin: string): NextResponse {
-  return new NextResponse(null, { status: 204, headers: corsHeaders(origin, "*") });
-}
-
-export { ApiError };

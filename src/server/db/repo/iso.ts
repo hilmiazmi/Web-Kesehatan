@@ -16,10 +16,3 @@ export function iso(value: Date | string | null | undefined): string {
   const parsed = new Date(value);
   return Number.isNaN(parsed.getTime()) ? value : parsed.toISOString();
 }
-
-/** Waktu lokal tanpa detik, mis. `09.30`. */
-export function jam(value: Date | string): string {
-  const isoValue = iso(value);
-  // `09:30:00` menjadi `09.30`, supaya cocok dengan format di situs.
-  return isoValue.slice(11, 16).replace(":", ".");
-}
