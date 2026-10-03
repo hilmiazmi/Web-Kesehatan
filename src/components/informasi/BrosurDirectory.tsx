@@ -2,7 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { BROSUR_CATEGORIES, BROSURS, type Brosur } from "@/data/brosur";
+import type { BrosurCategory } from "@/data/brosur";
+
+/** Yang dibutuhkan kartu untuk berdiri sendiri di direktori. */
+export type BrosurCard = {
+  slug: string;
+  title: string;
+  category: string;
+  lead: string;
+};
 
 /**
  * Daftar brosur digital untuk halaman /informasi-publik/brosur.
@@ -12,17 +20,27 @@ import { BROSUR_CATEGORIES, BROSURS, type Brosur } from "@/data/brosur";
  *
  * Tab memakai <button> seperti di ClinicDirectory, karena yang diklik hanya
  * mengganti panel dan tidak berpindah halaman.
+ *
+ * Data dikirim dari halaman server sebagai props, bukan diimpor dari
+ * `@/data/brosur`. Modul itu memuat isi penuh 21 brosur beserta semua poin di
+ * dalamnya, sementara direktori hanya menampilkan judul dan lead.
  */
-export default function BrosurDirectory() {
+export default function BrosurDirectory({
+  categories,
+  brosurs,
+}: {
+  categories: BrosurCategory[];
+  brosurs: BrosurCard[];
+}) {
   const [aktif, setAktif] = useState(0);
-  const kategori = BROSUR_CATEGORIES[aktif];
-  const isi = BROSURS.filter((b) => b.category === kategori.slug);
+  const kategori = categories[aktif];
+  const isi = brosurs.filter((b) => b.category === kategori.slug);
 
   return (
     <div className="row g-4">
       <div className="col-md-3">
         <ul className="klinik-tab-list" role="tablist" aria-orientation="vertical">
-          {BROSUR_CATEGORIES.map((c, i) => (
+          {categories.map((c, i) => (
             <li key={c.slug} role="presentation">
               <button
                 type="button"
@@ -62,7 +80,7 @@ export default function BrosurDirectory() {
 }
 
 /** Satu kartu brosur: tautan ke halaman detailnya. */
-function BrosurKartu({ brosur }: { brosur: Brosur }) {
+function BrosurKartu({ brosur }: { brosur: BrosurCard }) {
   return (
     <Link href={`/informasi-publik/brosur/${brosur.slug}`} className="brosur-kartu">
       <span className="brosur-kartu-judul">{brosur.title}</span>
