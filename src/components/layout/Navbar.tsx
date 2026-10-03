@@ -69,9 +69,9 @@ export default function Navbar() {
             .navmenu menjadi panel off-canvas yang digeser ke kanan, sehingga
             apa pun isinya otomatis tidak bisa diklik.
 
-            Tombol ini disembunyikan lewat CSS `@media (min-width: 1550px)`,
-            bukan kelas utilitas `d-xl-none`. Batas layout sudah 1550px, dan
-            `d-xl-none` masih berhenti di 1200px, jadi pada pita 1200-1549px
+            Tombol ini disembunyikan lewat CSS `@media (min-width: 1360px)`,
+            bukan kelas utilitas `d-xl-none`. Batas layout sudah 1360px, dan
+            `d-xl-none` masih berhenti di 1200px, jadi pada pita 1200-1359px
             tombolnya akan hilang padahal panel off-canvas justru sedang
             dipakai. */}
         <button
@@ -101,18 +101,17 @@ export default function Navbar() {
 /**
  * Lebar piksel tempat navigasi berhenti jadi panel off-canvas.
  *
- * Harus sama dengan `@media (max-width: 1549.98px)` untuk `.navmenu` dan
- * `@media (min-width: 1550px)` di `site.css`. Kalau ketiganya berbeda, satu
+ * Harus sama dengan `@media (max-width: 1359.98px)` untuk `.navmenu` dan
+ * `@media (min-width: 1360px)` di `site.css`. Kalau ketiganya berbeda, satu
  * dari dua hal terjadi: di tablet tombol hamburger disembunyikan padahal
  * tidak ada navigasi yang bisa dibuka, atau di desktop submenu memakai hover
  * padahal tidak ada hover.
  *
- * Angka 1550px berasal dari pengukuran, bukan tebakan. Delapan item navigasi
- * membutuhkan 894px yang tidak bisa menyusut, dan dua tombol CTA memakai 353px,
- * jadi ruang yang tersisa tidak cukup lagi di bawah 1500px. Rincian
- * perhitungannya ada di komentar `@media` di `site.css`.
+ * Angka 1360px berasal dari pengukuran, bukan tebakan: logo 237px + nav 750px
+ * + dua CTA 333px + padding 24px = 1344px, ditambah sisa 16px. Rinciannya
+ * ada di komentar `@media` di `site.css`.
  */
-const BATAS_NAV_DESKTOP = 1550;
+const BATAS_NAV_DESKTOP = 1360;
 
 /**
  * True kalau navigasi sedang dalam mode desktop.
