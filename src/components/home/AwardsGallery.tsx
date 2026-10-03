@@ -1,5 +1,6 @@
 import Photo from "@/components/ui/Photo";
 import CardCarousel from "@/components/ui/CardCarousel";
+import GalleryLightbox from "@/components/ui/GalleryLightbox";
 import { AWARDS, GALLERY } from "@/data/home";
 import { GALLERY_PHOTOS, photo, randomPhoto } from "@/data/images";
 
@@ -51,22 +52,16 @@ export function GallerySection() {
       </div>
 
       <div className="container">
-        <div className="row gy-3 gx-3">
-          {GALLERY.map((g, i) => (
-            <div className="col-6 col-md-4 col-lg-2" key={g}>
-              <figure className="gallery-item mb-0">
-                  <Photo
-                    src={photo(GALLERY_PHOTOS[i % GALLERY_PHOTOS.length], 400, 400)}
-                    alt={g}
-                    sizes="(max-width: 768px) 50vw, 200px"
-                    height={135}
-                    radius="all"
-                  />
-                <figcaption>{g}</figcaption>
-              </figure>
-            </div>
-          ))}
-        </div>
+        <GalleryLightbox
+          className="gallery-grid"
+          height={135}
+          sizes="(max-width: 768px) 50vw, 200px"
+          foto={GALLERY.map((g, i) => ({
+            src: photo(GALLERY_PHOTOS[i % GALLERY_PHOTOS.length], 400, 400),
+            alt: g,
+            caption: g,
+          }))}
+        />
       </div>
     </section>
   );

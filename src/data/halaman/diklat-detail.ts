@@ -1,4 +1,4 @@
-import { GALLERY_PHOTOS } from "@/data/images";
+import { GALLERY_PHOTOS, photo } from "@/data/images";
 import type { IsiHalaman } from "./types";
 
 /** Halaman "Kemahasiswaan", "Penelitian", dan "Kaji Banding". */
@@ -35,7 +35,7 @@ export const DIKLAT_DETAIL: Record<string, IsiHalaman> = {
       {
         jenis: "galeri",
         foto: GALLERY_PHOTOS.slice(0, 4).map((id) => ({
-          src: id,
+          src: photo(id, 1200, 800),
           alt: "Kegiatan pendidikan di RSUD Contoh Sehat",
         })),
       },

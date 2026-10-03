@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Photo from "@/components/ui/Photo";
+import GalleryLightbox from "@/components/ui/GalleryLightbox";
 import type { BlokHalaman } from "@/data/halaman";
 import { childrenOf } from "@/lib/nav-path";
 
@@ -190,18 +190,7 @@ function Blok({
       return (
         <div className="halaman-blok">
           {blok.judul ? <h3 className="halaman-sub-kecil">{blok.judul}</h3> : null}
-          <div className="halaman-galeri">
-            {blok.foto.map((f) => (
-              <Photo
-                key={f.src + f.alt}
-                src={f.src}
-                alt={f.alt}
-                height={150}
-                radius="all"
-                sizes="(max-width: 768px) 50vw, 25vw"
-              />
-            ))}
-          </div>
+            <GalleryLightbox foto={blok.foto} height={150} />
           {blok.ket ? <p className="halaman-keterangan">{blok.ket}</p> : null}
         </div>
       );
