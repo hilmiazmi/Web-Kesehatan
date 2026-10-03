@@ -921,7 +921,7 @@
 }
 
 /* Overlay. Angkanya 10000, bukan 1050 seperti modal Bootstrap, karena panel
-   navigasi off-canvas memakai 1200 dan tombol kembali ke atas memakai 9999.
+   navigasi off-canvas memakai 1200 dan tautan lewati memakai 9999.
    Kalau lightboxnya lebih rendah, keduanya masih bisa diklik menembus overlay
    yang seharusnya sudah menutup halaman. */
 .lightbox {
