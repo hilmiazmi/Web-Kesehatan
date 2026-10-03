@@ -7,7 +7,7 @@
  * detail sudah dicocokkan saat pengukuran (16 tab, 25 kartu detail).
  *
  * Hubungan klinik ke subspesialisasinya penting, bukan dandalan: "Klinik
- * Bedah" di acuan memuat tujuh subspesialisasi, sementara "Klinik THT - KL"
+ * Bedah" di acuan memuat enam subspesialisasi, sementara "Klinik THT - KL"
  * hanya satu.
  *
  * Nama klinik adalah istilah kedokteran baku, bukan merek. Foto memakai aset

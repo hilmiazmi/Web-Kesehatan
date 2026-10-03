@@ -1,14 +1,14 @@
 import Link from "next/link";
 import PageHeader from "@/components/layout/PageHeader";
 import { PPID_SUBPAGES } from "@/data/ppid";
-import { NAV_PPID_CHILDREN } from "@/data/ppid-nav";
 
 /**
  * Halaman induk PPID.
  *
- * Daftar anak dibaca dari `PPID_SUBPAGES`, data yang sama dengan
- * `NAV_PPID_CHILDREN`. Karena keduanya tidak bisa berbeda sumber, submenu
- * navbar dan isi halaman ini selalu sinkron.
+ * Daftar anak dibaca dari `PPID_SUBPAGES`, bukan dari `NAV_PPID_CHILDREN` di
+ * `src/data/ppid-nav.ts`. Keduanya memuat 10 entri yang saling berkaitan, tapi
+ * hanya satu yang perlu benar di sini: kalau submenu navbar berubah dan data
+ * halaman tidak, isi halaman tetap harus sesuai dengan yang ditampilkan.
  */
 export default function PpidPage() {
   return (
@@ -36,7 +36,11 @@ export default function PpidPage() {
 
           <p className="klinik-panel-hours mt-4">
             <i className="bi bi-info-circle" aria-hidden="true" />
-            {NAV_PPID_CHILDREN.length} halaman tersedia.
+            {/* Angka dihitung dari daftar yang benar-benar ditampilkan di
+                atas, bukan dari submenu navigasi. Keduanya sekarang sama,
+                tapi kalau nanti submenu berubah dan daftar halaman tidak,
+                angka ini tidak ikut berbohong. */}
+            {PPID_SUBPAGES.length} halaman tersedia.
           </p>
         </div>
       </section>
