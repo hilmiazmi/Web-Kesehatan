@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import PageHeader from "@/components/layout/PageHeader";
-import { ClinicDetailBody } from "@/components/pelayanan/ClinicCardGrid";
+import { ClinicDetailBody } from "@/components/pelayanan/ClinicDetailBody";
 import { CLINIC_DETAILS } from "@/data/clinics";
 
 export const dynamicParams = false;

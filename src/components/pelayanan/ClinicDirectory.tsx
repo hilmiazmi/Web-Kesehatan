@@ -2,9 +2,17 @@
 
 import { useState } from "react";
 import Photo from "@/components/ui/Photo";
-import { ClinicCardGrid } from "@/components/pelayanan/ClinicCardGrid";
-import { CLINICS } from "@/data/clinics";
+import { ClinicCardGrid, type ClinicCard } from "@/components/pelayanan/ClinicCardGrid";
 import { GALLERY_PHOTOS, photo } from "@/data/images";
+
+/** Satu tab klinik, beserta isi panel yang tampil ketika tabnya dipilih. */
+export type ClinicTab = {
+  slug: string;
+  name: string;
+  description: string;
+  services: string[];
+  hours: string;
+};
 
 /**
  * Direktori klinik untuk halaman /pelayanan/poliklinik.
@@ -20,16 +28,27 @@ import { GALLERY_PHOTOS, photo } from "@/data/images";
  *
  * Tab memakai <button>, bukan <a>, karena yang diklik hanya mengganti panel
  * dan tidak berpindah halaman.
+ *
+ * Data dikirim dari halaman server sebagai props, bukan diimpor dari
+ * `@/data/clinics`. Modul itu memuat isi penuh 25 halaman detail klinik —
+ * deskripsi, daftar layanan, jam praktik — yang tidak pernah dirender di sini.
+ * Mengimpornya akan mengirim semuanya ke browser tanpa ada yang memakainya.
  */
-export default function ClinicDirectory() {
+export default function ClinicDirectory({
+  clinics,
+  details,
+}: {
+  clinics: ClinicTab[];
+  details: ClinicCard[];
+}) {
   const [aktif, setAktif] = useState(0);
-  const klinik = CLINICS[aktif];
+  const klinik = clinics[aktif];
 
   return (
     <div className="row g-4">
       <div className="col-md-3">
         <ul className="klinik-tab-list" role="tablist" aria-orientation="vertical">
-          {CLINICS.map((k, i) => (
+          {clinics.map((k, i) => (
             <li key={k.slug} role="presentation">
               <button
                 type="button"
@@ -87,7 +106,9 @@ export default function ClinicDirectory() {
             </div>
           </div>
 
-          <ClinicCardGrid clinicSlug={klinik.slug} />
+          <ClinicCardGrid
+            list={details.filter((d) => d.clinicSlug === klinik.slug)}
+          />
         </div>
       </div>
     </div>
