@@ -1,0 +1,89 @@
+# Gerbang kualitas. Satu berkas ini menjalankan urutan yang sama dengan yang
+# biasa dijalankan manual sebelum menyatakan selesai.
+#
+# Rahasia tidak ada di sini, dan tidak boleh ditambah. Semua langkah berjalan
+# pada mode snapshot: `DATABASE_URL` sengaja dibiarkan kosong sehingga server
+# membaca berkas JSON di `snapshot/` dan tidak pernah menyentuh database
+# sungguhan.
+#
+# Langkah yang butuh database sungguhan sengaja tidak dimasukkan:
+#
+# - `bun run cek:admin` menguji tulis-baca admin dan butuh database nyata.
+# - `bun run cek:tulis` menyentuh database sungguhan, jadi jelas tidak boleh
+#   dipakai di sini. AGENTS.md juga melarang menjalankannya pada mode snapshot.
+#
+# Keduanya masih bisa dijalankan manual di lokal lewat docker compose.
+name: Gerbang
+
+# Dipicu oleh setiap push dan setiap pull request, sesuai roadmap bagian 4
+# butir 6: gerbang berjalan pada setiap push. Konsekuensinya branch yang sudah
+# punya pull request akan diperiksa dua kali, satu untuk push dan satu untuk
+# pull request. Rananya sengaja dipisah karena `github.ref` berbeda: push
+# memakai refs/heads/nama-branch, pull request memakai refs/pull/angka/merge.
+on: [push, pull_request]
+
+# Izinkan hanya satu alur berjalan untuk satu ref. Push baru ke branch yang
+# sama membatalkan pemeriksaan lama supaya antrean tidak menumpuk.
+concurrency:
+  group: gerbang-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Batas waktu enam menit. Build produksi pada repo ini selesai sekitar dua
+# menit, jadi angka ini memberi ruang tanpa membiarkan pemeriksaan menggantung.
+timeout-minutes: 6
+
+# Repo hanya perlu dibaca. Tidak ada langkah yang menulis ke GitHub.
+permissions:
+  contents: read
+
+jobs:
+  gerbang:
+    name: Lint, tes, build
+    runs-on: ubuntu-latest
+
+    env:
+      # Kosong berarti mode snapshot. Jangan diisi dengan URL database mana pun,
+      # dan jangan pakai secret repository untuk ini.
+      DATABASE_URL: ""
+      API_MODE: snapshot
+      # `metadataBase` pada src/app/layout.tsx membaca ini. Nilai asalnya
+      # http://localhost:3000 sudah cukup, karena yang diuji adalah build-nya.
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+
+    steps:
+      - name: Ambil kode
+        uses: actions/checkout@v4
+
+      - name: Pasang bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          # Versi dikunci di packageManager. Jangan pakai `bun-version: latest`,
+          # karena angka itu ikut naik bila dependensi lain dinaikkan.
+          bun-version: 1.4.2
+
+      - name: Pasang dependensi
+        # --frozen-lockfile menolak jalan bila bun.lock tidak cocok dengan
+        # package.json. Tanpa itu, lockfile yang usang bisa lolos diam-diam.
+        run: bun install --frozen-lockfile
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Tes
+        run: bun run test
+
+      # Dua hambatan yang tidak terlihat oleh build maupun tes: snapshot yang
+      # tidak sinkur dengan route handler, sehingga fallback diam-diam selalu
+      # gagal tanpa pesan, dan teks rusak yang lolos ke halaman. Keduanya murah
+      # dicek, tidak butuh database, dan bisa gagal secara diam-diam tanpa
+      # gerbang, jadi ikut dimasukkan ke sini.
+      - name: Snapshot dan route saling cocok
+        run: bun run cek:konten
+
+      - name: Audit teks
+        run: bun run audit:teks
+
+      # Build sekaligus typecheck. Typecheck berjalan di dalam
+      # `next build`, jadi langkah terpisah tidak perlu.
+      - name: Build produksi
+        run: bun run build
