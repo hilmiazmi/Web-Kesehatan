@@ -383,7 +383,15 @@
     visibility: visible;
   }
 
-  .navmenu .dropdown > a:hover + ul {
+  /* Di panel off-canvas tidak ada hover, jadi hover tidak boleh membuka
+     submenu. Tapi begitu diklik, pointer tetap tinggal di atas tautan itu,
+     sehingga tanpa `:not(.show)` aturan ini menimpa `.show` di bawah dan
+     submenu yang baru saja dibuka langsung hilang lagi.
+
+     Spesifisitas `.navmenu .dropdown > a:hover + ul` adalah (0,3,2), sedangkan
+     `.navmenu li > ul.show` hanya (0,2,3). Tanpa `:not(.show)` aturan ini yang
+     menang, bukan karena salah ketik, tapi karena memang lebih spesifik. */
+  .navmenu .dropdown > a:hover + ul:not(.show) {
     display: none;
   }
 
