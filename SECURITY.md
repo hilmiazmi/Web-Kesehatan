@@ -134,7 +134,7 @@ Perilaku yang sudah diukur terhadap database sungguhan:
 | `POST /auth/logout` | **tetap sah** | hanya menghapus cookie di peramban |
 | Ganti password | dicabut, 401 | `session_version` naik satu |
 | Reset password `super_admin` | dicabut, 401 | `session_version` naik satu |
-| Ganti `role` atau `is_active` | dicabut, 401 | `session_version` naik satu |
+| Ganti `role` atau `is_active` | dicabut, 401 | `session_version` naik satu, tapi tidak boleh pada akun sendiri |
 | Ganti `name` atau `email` | **tetap sah** | tidak menyentuh hak akses |
 
 Tiga hal yang tetap perlu diketahui:
@@ -165,6 +165,39 @@ database — sehingga tidak ada token sesi yang bisa terbit di mode itu.
 
 ---
 
+## Tiga penjaga agar panel admin tidak melukai diri sendiri
+
+Panel admin bisa saja mengunci dirinya sendiri. Tiga penjaga di
+`src/server/admin/accounts.ts` mencegah itu. Ketiganya menolak dengan 400
+karena itu kesalahan permintaan, bukan kegagalan server.
+
+- **Peran dan status aktif akun sendiri tidak bisa diubah.** Menonaktifkan diri
+  sendiri adalah jalan mengunci diri: `session_version` naik sehingga sesi
+  langsung mati, dan `credentialsByEmail` menyaring `AND is_active` sehingga
+  login berikutnya mustahil. Satu-satunya perbaikan juga lewat `PATCH` pada
+  route yang sama, jadi tidak ada jalan keluar. Menurunkan peran sendiri tidak
+  terkunci, tetapi orangnya langsung kehilangan akses tanpa cara lain. `name`
+  dan `email` tetap boleh, karena keduanya tidak menyentuh hak akses.
+- **Super admin aktif terakhir tidak bisa diturunkan.** Menurunkan satu-satunya
+  super admin aktif berarti tidak ada yang bisa menaikkannya orang lain lagi,
+  dan tidak ada cara memulihkannya lewat panel. Buat akun lain dulu, baru
+  turunkan.
+- **Akun yang sedang dipakai tidak bisa dihapus.** Menghapus diri sendiri memutus
+  sesi tanpa memberi jalan masuk lagi.
+
+Dua hal lain yang perlu diketahui:
+
+- **Reset password tidak meminta password lama.** Route
+  `POST /admin/users/[id]/reset-password` hanya untuk `super_admin`. Password
+  lama bukan bukti di sini; izin `super_admin` yang jadi buktinya.
+- **Ganti password sendiri selalu memutus sesi sendiri.** `changePassword`
+  menaikkan `session_version` juga pada perangkat yang sedang dipakai, jadi
+  pemasuk perlu login ulang. Itu yang diharapkan, bukan kesalahan.
+
+Kalau semua super admin aktif hilang, panel tidak bisa diperbaiki lewat panel.
+Jalur pulihnya ada di luar aplikasi, di sisi database.
+
+---
 ## Untuk sesi AI agent
 
 Tiga aturan tambahan yang berlaku khusus untuk agent yang bekerja di
