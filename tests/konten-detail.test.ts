@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { CLINICS } from "@/data/clinics";
 import { DETAIL_CONTENT } from "@/data/detail-content";
 import {
   ABOUT_SECTIONS,
@@ -23,6 +24,27 @@ function slugPrioritas(): string[] {
   return PRIORITY_SERVICES.map((p) => p.slug);
 }
 
+describe("DIRECTORY klinik", () => {
+  it("memuat enam belas klinik", () => {
+    expect(CLINICS).toHaveLength(16);
+  });
+
+  it("punya slug yang unik dan berbentuk URL", () => {
+    const slug = CLINICS.map((c) => c.slug);
+    expect(new Set(slug).size).toBe(slug.length);
+    for (const s of slug) expect(s).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
+  });
+
+  it("mengisi semua kolom yang dibaca ClinicDirectory", () => {
+    for (const c of CLINICS) {
+      expect(c.name.trim()).not.toBe("");
+      expect(c.description.trim()).not.toBe("");
+      expect(c.hours.trim()).not.toBe("");
+      expect(c.services.length, `layanan ${c.slug}`).toBeGreaterThan(0);
+      for (const s of c.services) expect(s.trim()).not.toBe("");
+    }
+  });
+});
 
 describe("isi halaman detail", () => {
   const terpakai = [

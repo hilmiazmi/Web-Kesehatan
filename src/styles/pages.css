@@ -523,18 +523,7 @@
     font-size: 3.5rem;
   }
 }
-/* ---------- Daftar poliklinik ---------- */
-.poliklinik-search {
-  max-width: 480px;
-  margin-bottom: 0.75rem;
-}
-
-.poliklinik-count {
-  color: var(--rs-text-body);
-  font-size: 0.9rem;
-  margin-bottom: 1.5rem;
-}
-
+/* ---------- Ikon menu poliklinik ---------- */
 .poliklinik-icon {
   width: 48px;
   height: 48px;
@@ -546,41 +535,6 @@
   justify-content: center;
   font-size: 1.4rem;
   margin-bottom: 0.75rem;
-}
-
-.poliklinik-meta {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 16px;
-  font-size: 14px;
-  color: var(--rs-text-card-desc);
-}
-
-.poliklinik-meta li {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.25rem;
-}
-
-.poliklinik-meta i {
-  color: var(--rs-accent);
-}
-.poliklinik-meta-detail {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1.5rem;
-  margin-bottom: 2rem;
-  font-size: 15px;
-}
-
-.poliklinik-section-title {
-  font-size: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.poliklinik-back {
-  margin-top: 2rem;
 }
 
 .doctor-schedule-title {

@@ -1,16 +1,13 @@
-import type { Poliklinik } from "@/data/poliklinik";
 import type { Day, Doctor, DoctorSchedule } from "@/data/doctors";
+import type { ClinicDetail } from "@/data/clinics";
 
 /**
- * Pembantu untuk halaman poliklinik (daftar dan detail).
+ * Pembantu untuk data dokter pada halaman detail klinik.
  *
  * Dipisah dari komponen supaya bisa diuji tanpa merender (lihat
  * tests/poliklinik.test.ts). Semua fungsi menerima data lewat argumen, jadi
  * berkas ini tidak ikut membundel data ke client component.
  */
-
-/** Poliklinik beserta jumlah dokternya, siap ditampilkan. */
-export type PoliklinikItem = Poliklinik & { doctorCount: number };
 
 export const DAY_ORDER: Day[] = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat"];
 
@@ -27,36 +24,23 @@ export function countDoctors(specialty: string, doctors: Doctor[]): number {
   return doctorsForSpecialty(specialty, doctors).length;
 }
 
-/** Cari poliklinik berdasarkan slug; undefined kalau tidak ada. */
-export function findPoliklinik<T extends Poliklinik>(
-  items: T[],
-  slug: string
-): T | undefined {
-  return items.find((p) => p.slug === slug);
+/**
+ * Dokter untuk satu halaman detail klinik.
+ *
+ * Keterkaitan diambil dari `specialty` opsional pada data detail, bukan dari
+ * tabel pemetaan terpisah. Kalau klinik tidak menandai spesialisasinya, klinik
+ * itu tetap punya halaman detailnya, hanya tidak menampilkan daftar dokter.
+ */
+export function doctorsForClinic(
+  detail: Pick<ClinicDetail, "specialty">,
+  doctors: Doctor[]
+): Doctor[] {
+  return detail.specialty ? doctorsForSpecialty(detail.specialty, doctors) : [];
 }
 
 /** Urutkan jadwal Senin sampai Jumat tanpa mengubah array asli. */
 export function sortSchedule(schedule: DoctorSchedule[]): DoctorSchedule[] {
   return [...schedule].sort(
     (a, b) => DAY_ORDER.indexOf(a.day) - DAY_ORDER.indexOf(b.day)
-  );
-}
-
-/**
- * Saring poliklinik berdasarkan kata kunci.
- *
- * Mencocokkan nama, deskripsi, lokasi, dan spesialisasi tanpa membedakan
- * huruf besar/kecil. Kata kunci kosong mengembalikan semuanya.
- */
-export function filterPoliklinik<T extends Poliklinik>(
-  items: T[],
-  query: string
-): T[] {
-  const q = query.trim().toLowerCase();
-  if (!q) return items;
-  return items.filter((p) =>
-    [p.name, p.description, p.location, p.specialty].some((field) =>
-      field.toLowerCase().includes(q)
-    )
   );
 }

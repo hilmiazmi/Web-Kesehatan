@@ -1,54 +1,42 @@
 import { describe, expect, it } from "vitest";
-import { SPECIALTIES } from "@/data/home";
+import { CLINIC_DETAILS } from "@/data/clinics";
 import { DOCTORS } from "@/data/doctors";
-import { POLIKLINIK } from "@/data/poliklinik";
 import {
   countDoctors,
+  doctorsForClinic,
   doctorsForSpecialty,
-  filterPoliklinik,
-  findPoliklinik,
   sortSchedule,
 } from "@/lib/poliklinik";
 
-describe("data POLIKLINIK", () => {
+describe("data DOCTORS", () => {
   it("slug unik dan berbentuk URL", () => {
-    const slug = POLIKLINIK.map((p) => p.slug);
+    const slug = DOCTORS.map((d) => d.slug);
     expect(new Set(slug).size).toBe(slug.length);
     for (const s of slug) {
       expect(s).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
     }
   });
 
-  it("setiap spesialisasi ada di daftar SPECIALTIES", () => {
-    for (const p of POLIKLINIK) {
-      expect(SPECIALTIES).toContain(p.specialty);
-    }
+  it("setiap spesialisasi dipakai oleh minimal satu halaman detail klinik", () => {
+    // Keterkaitan klinik ke dokter diambil dari `specialty` opsional pada data
+    // detail. Kalau ada spesialis yang tidak dipakai klinik mana pun, data
+    // dokter itu tidak akan pernah tampil di mana pun.
+    const dipakai = new Set(
+      CLINIC_DETAILS.map((d) => d.specialty).filter(Boolean)
+    );
+    const tidakDipakai = [...new Set(DOCTORS.map((d) => d.specialty))].filter(
+      (s) => !dipakai.has(s)
+    );
+    expect(tidakDipakai).toEqual([]);
   });
 
-  it("semua field teks terisi", () => {
-    for (const p of POLIKLINIK) {
-      expect(p.name.trim()).not.toBe("");
-      expect(p.description.trim()).not.toBe("");
-      expect(p.location.trim()).not.toBe("");
-      expect(p.icon).toMatch(/^bi-/);
-    }
-  });
-
-  it("setiap poliklinik punya minimal satu dokter", () => {
-    for (const p of POLIKLINIK) {
-      expect(countDoctors(p.specialty, DOCTORS)).toBeGreaterThan(0);
-    }
-  });
-});
-
-describe("data DOCTORS", () => {
-  it("slug unik dan spesialisasi cocok dengan poliklinik", () => {
-    const slug = DOCTORS.map((d) => d.slug);
-    expect(new Set(slug).size).toBe(slug.length);
-    const spesialis = POLIKLINIK.map((p) => p.specialty);
-    for (const d of DOCTORS) {
-      expect(spesialis).toContain(d.specialty);
-    }
+  it("klinik yang menandai spesialis pasti punya dokter", () => {
+    // Sebaliknya: `specialty` yang tidak ada padanya berarti klinik itu
+    // menampilkan blok dokter kosong tanpa sengaja.
+    const tanpa = CLINIC_DETAILS.filter(
+      (d) => d.specialty && doctorsForClinic(d, DOCTORS).length === 0
+    ).map((d) => d.slug);
+    expect(tanpa).toEqual([]);
   });
 
   it("jadwal terisi, hari tidak ganda, jam dalam 07.30 sampai 14.00", () => {
@@ -69,23 +57,24 @@ describe("data DOCTORS", () => {
   });
 });
 
-describe("findPoliklinik", () => {
-  it("menemukan berdasarkan slug dan undefined bila tidak ada", () => {
-    expect(findPoliklinik(POLIKLINIK, "jantung")?.name).toBe(
-      "Poliklinik Jantung"
-    );
-    expect(findPoliklinik(POLIKLINIK, "tidak-ada")).toBeUndefined();
-  });
-});
-
-describe("doctorsForSpecialty dan countDoctors", () => {
+describe("doctorsForSpecialty, countDoctors, dan doctorsForClinic", () => {
   it("menyaring dokter per spesialisasi dan 0 bila tidak ada", () => {
     expect(
-      doctorsForSpecialty("Jantung", DOCTORS).every(
-        (d) => d.specialty === "Jantung"
-      )
+      doctorsForSpecialty("Jantung", DOCTORS).every((d) => d.specialty === "Jantung")
     ).toBe(true);
     expect(countDoctors("Spesialis Fiktif", DOCTORS)).toBe(0);
+  });
+
+  it("klinik tanpa spesialis mengembalikan daftar kosong", () => {
+    expect(doctorsForClinic({}, DOCTORS)).toEqual([]);
+  });
+
+  it("klinik dengan spesialis mengembalikan dokternya", () => {
+    const anak = CLINIC_DETAILS.find((d) => d.slug === "klinik-anak");
+    expect(anak?.specialty).toBe("Anak");
+    const hasil = doctorsForClinic(anak!, DOCTORS);
+    expect(hasil.length).toBeGreaterThan(0);
+    expect(hasil.every((d) => d.specialty === "Anak")).toBe(true);
   });
 });
 
@@ -97,28 +86,5 @@ describe("sortSchedule", () => {
     ];
     expect(sortSchedule(asli).map((s) => s.day)).toEqual(["Senin", "Jumat"]);
     expect(asli[0].day).toBe("Jumat");
-  });
-});
-
-describe("filterPoliklinik", () => {
-  it("kata kunci kosong atau spasi mengembalikan semuanya", () => {
-    expect(filterPoliklinik(POLIKLINIK, "")).toHaveLength(POLIKLINIK.length);
-    expect(filterPoliklinik(POLIKLINIK, "   ")).toHaveLength(POLIKLINIK.length);
-  });
-
-  it("tidak membedakan huruf besar dan kecil", () => {
-    const hasil = filterPoliklinik(POLIKLINIK, "JANTUNG");
-    expect(hasil.some((p) => p.slug === "jantung")).toBe(true);
-  });
-
-  it("mencocokkan deskripsi dan lokasi, bukan hanya nama", () => {
-    expect(
-      filterPoliklinik(POLIKLINIK, "imunisasi").map((p) => p.slug)
-    ).toContain("anak");
-    expect(filterPoliklinik(POLIKLINIK, "Gedung D").length).toBeGreaterThan(0);
-  });
-
-  it("kata kunci yang tidak ada mengembalikan array kosong", () => {
-    expect(filterPoliklinik(POLIKLINIK, "xyzzy-tidak-ada")).toEqual([]);
   });
 });

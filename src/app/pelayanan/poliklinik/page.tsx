@@ -1,35 +1,46 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import PageHeader from "@/components/layout/PageHeader";
-import PoliklinikList from "@/components/pelayanan/PoliklinikList";
-import { SITE } from "@/data/navigation";
-import { DOCTORS } from "@/data/doctors";
-import { POLIKLINIK } from "@/data/poliklinik";
-import { countDoctors } from "@/lib/poliklinik";
+import ClinicDirectory from "@/components/pelayanan/ClinicDirectory";
+import { CLINIC_DETAILS, CLINICS } from "@/data/clinics";
 
-// Judul memakai template di layout: "%s | RSUD Contoh Sehat".
 export const metadata: Metadata = {
   title: "Poliklinik",
-  description: `Daftar poliklinik rawat jalan ${SITE.name} beserta lokasi dan jumlah dokternya.`,
+  description:
+    "Daftar klinik yang tersedia di RSUD Contoh Sehat beserta layanan di setiap klinik.",
 };
 
 /**
- * Daftar poliklinik, path `/pelayanan/poliklinik` (sama dengan href di navbar).
- * Setiap kartu menuju halaman detail `/poliklinik/[slug]`.
+ * Direktori klinik.
  *
- * Route spesifik ini otomatis menang atas halaman umum `[...slug]`, jadi
- * tidak perlu mengubah `navigation.ts` maupun `nav-path.ts`.
+ * Halaman acuan `/poliklinik` di situs referensi memuat enam belas klinik
+ * dalam bentuk tab vertikal, dan jumlah itu sudah dicocokkan saat pengukuran.
+ *
+ * `ClinicDirectory` adalah komponen client, jadi data diteruskan sebagai props
+ * dari sini. Yang dikirim hanya kolom yang benar-benar dirender direktori:
+ * deskripsi, layanan, dan jam praktik untuk klinik; nama dan induknya saja
+ * untuk tiap kartu detail. Isi penuh 25 halaman detail — deskripsi, layanan,
+ * jam — tidak perlu masuk browser karena tidak dirender di halaman ini.
  */
 export default function PoliklinikPage() {
-  const items = POLIKLINIK.map((p) => ({
-    ...p,
-    doctorCount: countDoctors(p.specialty, DOCTORS),
+  const clinics = CLINICS.map(({ slug, name, description, services, hours }) => ({
+    slug,
+    name,
+    description,
+    services,
+    hours,
+  }));
+  const details = CLINIC_DETAILS.map(({ slug, name, clinicSlug }) => ({
+    slug,
+    name,
+    clinicSlug,
   }));
 
   return (
     <>
       <PageHeader
         title="Poliklinik"
-        subtitle="Pelayanan rawat jalan Senin sampai Jumat, pukul 07.30 sampai 14.00."
+        subtitle="Pilih klinik sesuai keluhan Anda. Daftar di bawah memuat enam belas klinik."
         trail={[
           { label: "Pelayanan", href: "/pelayanan" },
           { label: "Poliklinik" },
@@ -38,7 +49,16 @@ export default function PoliklinikPage() {
 
       <section className="section">
         <div className="container">
-          <PoliklinikList items={items} />
+          <ClinicDirectory clinics={clinics} details={details} />
+
+          <div className="d-flex gap-2 flex-wrap mt-5">
+            <Link href="/daftar-online" className="btn btn-primary">
+              Daftar Online
+            </Link>
+            <Link href="/pelayanan" className="btn btn-tertiary">
+              Semua Jenis Pelayanan
+            </Link>
+          </div>
         </div>
       </section>
     </>
