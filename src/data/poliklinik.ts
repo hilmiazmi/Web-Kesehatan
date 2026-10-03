@@ -6,8 +6,7 @@
  * `specialty` dan `icon` untuk kebutuhan tampilan.
  *
  * `specialty` HARUS persis sama dengan salah satu nilai `SPECIALTIES` di
- * `src/data/home.ts`; dipakai untuk menghitung jumlah dokter dari
- * `DOCTORS_BY_SPECIALTY`. Ada tes yang menjaga hal ini.
+ * `src/data/home.ts`; dipakai untuk mencocokkan dokter di `src/data/doctors.ts`.
  *
  * Saat backend siap, ganti array ini dengan pemanggilan Route Handler
  * (PRD bagian 6.4).

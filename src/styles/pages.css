@@ -311,3 +311,45 @@
 .poliklinik-meta i {
   color: var(--rs-accent);
 }
+.poliklinik-meta-detail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  margin-bottom: 2rem;
+  font-size: 15px;
+}
+
+.poliklinik-section-title {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.poliklinik-back {
+  margin-top: 2rem;
+}
+
+.doctor-schedule-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem;
+}
+
+.doctor-schedule {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 14px;
+  color: var(--rs-text-card-desc);
+}
+
+.doctor-schedule li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--rs-section-light);
+}
+
+.doctor-schedule-day {
+  font-weight: 600;
+}

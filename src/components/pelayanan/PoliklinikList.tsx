@@ -7,6 +7,7 @@ import { filterPoliklinik, type PoliklinikItem } from "@/lib/poliklinik";
 /**
  * Daftar poliklinik dengan kolom pencarian.
  *
+ * Setiap kartu menuju detail `/poliklinik/[slug]`.
  * Client component karena ada input. Hasil saringan dihitung langsung saat
  * render (state turunan), bukan lewat useEffect, sesuai aturan eslint
  * `react-hooks/set-state-in-effect` di repo ini.
@@ -59,8 +60,11 @@ export default function PoliklinikList({ items }: { items: PoliklinikItem[] }) {
                       : "Daftar dokter segera hadir"}
                   </li>
                 </ul>
-                <Link href="/#cari-dokter" className="btn btn-primary">
-                  Cari Jadwal Dokter
+                <Link
+                  href={`/poliklinik/${p.slug}`}
+                  className="btn btn-primary"
+                >
+                  Lihat Dokter dan Jadwal
                 </Link>
               </div>
             </article>

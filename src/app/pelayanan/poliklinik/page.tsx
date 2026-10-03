@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import PageHeader from "@/components/layout/PageHeader";
 import PoliklinikList from "@/components/pelayanan/PoliklinikList";
 import { SITE } from "@/data/navigation";
-import { DOCTORS_BY_SPECIALTY } from "@/data/home";
+import { DOCTORS } from "@/data/doctors";
 import { POLIKLINIK } from "@/data/poliklinik";
 import { countDoctors } from "@/lib/poliklinik";
 
@@ -14,15 +14,15 @@ export const metadata: Metadata = {
 
 /**
  * Daftar poliklinik, path `/pelayanan/poliklinik` (sama dengan href di navbar).
+ * Setiap kartu menuju halaman detail `/poliklinik/[slug]`.
  *
  * Route spesifik ini otomatis menang atas halaman umum `[...slug]`, jadi
  * tidak perlu mengubah `navigation.ts` maupun `nav-path.ts`.
- * `<main id="main-content">` sudah ada di layout, jadi tidak ditulis lagi di sini.
  */
 export default function PoliklinikPage() {
   const items = POLIKLINIK.map((p) => ({
     ...p,
-    doctorCount: countDoctors(p.specialty, DOCTORS_BY_SPECIALTY),
+    doctorCount: countDoctors(p.specialty, DOCTORS),
   }));
 
   return (
