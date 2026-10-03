@@ -22,6 +22,12 @@ import "swiper/css/pagination";
  *
  * Setiap kartu dikirim sebagai children dari komponen server, jadi isi kartu
  * tetap bisa memakai komponen server tanpa ikut menjadi client.
+ *
+ * `role="region"` wajib ada bersama `aria-label`. Tanpa role itu, `aria-label`
+ * menempel pada elemen generik yang tidak slammed boleh punya label, sehingga
+ * nama section, misalnya "Testimoni pasien", tidak pernah diumumkan
+ * pembaca layar. `tabIndex` tidak perlu: Swiper sudah menyediakan tombol navigasi asli,
+ * jadi tidak ada area yang hanya bisa digulir dengan keyboard.
  */
 export default function CardCarousel({
   children,
@@ -64,6 +70,7 @@ export default function CardCarousel({
             ? undefined
             : { 576: { slidesPerView: 2 }, 992: { slidesPerView: 4 } }
         }
+        role="region"
         aria-label={label}
       >
         {slides.map((slide, i) => (
