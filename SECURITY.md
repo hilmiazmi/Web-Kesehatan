@@ -114,32 +114,54 @@ teks screenshot, atau di dalam pesan log sering lolos.
 
 ---
 
-## Sesi admin: logout tidak mencabut token yang sudah dicuri
+## Sesi admin: logout tidak mencabut token, perubahan kredensial mencabut
 
-Cookie `rsud_session` tidak menyimpan catatan di database. Isinya adalah klaim
-yang ditandatangani dengan `AUTH_SECRET` dan punya waktu kedaluwarsa sendiri
-(`SESSION_MAX_AGE_SECONDS`, bawaan delapan jam). Server cukup memeriksa tanda
-tangannya, tanpa perlu menanyakan ke mana pun.
+Cookie `rsud_session` berisi klaim yang ditandatangani dengan `AUTH_SECRET`.
+Klaimnya menyimpan `sub`, `role`, `exp`, dan `sv` — salinan angka
+`users.session_version` pada saat token diterbitkan.
 
-Empat konsekuensi yang perlu diketahui sebelum cookie sesi ikut tersalin:
+Token itu sendiri tidak cukup. `readSession()` di
+`src/server/auth/session.ts` selalu menanyakan `session_version` dan
+`is_active` ke database, lalu menolak sesi kalau angkanya tidak cocok, akunnya
+nonaktif, atau barisnya sudah hilang. Jadi pencabutan berlaku seketika, bukan
+saat token kedaluwarsa. Biayanya satu query per permintaan admin, dan itu
+sengaja: volumenya rendah dibanding API publik.
 
-- **Keluar dari panel tidak membatalkan tokennya.** `POST /auth/logout`
-  hanya menghapus cookie di peramban. Salinan yang sudah tersalin tetap sah
-  sampai kedaluwarsa.
-- **Tidak ada "keluar dari semua perangkat"** dan tidak ada pencabutan per
-  token. Satu token bisa dicabut dengan menaikkan `TOKEN_VERSION` di
-  `src/server/auth/session.ts`, yang membatalkan seluruh sesi yang sedang
-  berjalan, termasuk yang tidak disengaja.
-- **Jendelanya adalah delapan jam.** Menyingkat `SESSION_MAX_AGE_SECONDS`
-  memperpendek masa itu tanpa mengubah kode apa pun.
+Perilaku yang sudah diukur terhadap database sungguhan:
+
+| Perubahan | Sesi lama | Cara kerja |
+| --- | --- | --- |
+| `POST /auth/logout` | **tetap sah** | hanya menghapus cookie di peramban |
+| Ganti password | dicabut, 401 | `session_version` naik satu |
+| Reset password `super_admin` | dicabut, 401 | `session_version` naik satu |
+| Ganti `role` atau `is_active` | dicabut, 401 | `session_version` naik satu |
+| Ganti `name` atau `email` | **tetap sah** | tidak menyentuh hak akses |
+
+Tiga hal yang tetap perlu diketahui:
+
+- **Keluar dari panel tidak membatalkan salinan token.** `POST /auth/logout`
+  hanya menghapus cookie. Salinan yang sudah tersalin tetap sah sampai
+  kedaluwarsa, karena logout tidak menyentuh `session_version`.
+- **Jendelanya adalah delapan jam.** `SESSION_MAX_AGE_SECONDS` bawaannya
+  `8 * 3600`. Menyingkatnya memperpendek masa token tanpa mengubah kode.
 - **Penyalahgunaan tidak kelihatan sebagai kegagalan.** Satu cookie yang
   dipakai dari alamat lain terbaca seperti permintaan biasa, bukan seperti
-  percobaan masuk. Rate limit di `POST /auth/login` tidak menutup jalur ini,
-  karena penyalahguna tidak melewati halaman login.
+  percobaan masuk. Rate limit di `POST /auth/login` tidak menutup jalur ini.
 
-Kalau sebuah cookie sesi dicuriga bocor, rotasi `AUTH_SECRET` di deployment.
-Membatalkan seluruh sesi yang sedang berjalan sekaligus membuat jelas ada yang
-berubah.
+`TOKEN_VERSION` di `src/server/auth/session.ts` bukan alat pencabutan harian.
+Angkanya naik hanya kalau skema klaim berubah; sekarang bernilai 2 sejak klaim
+`sv` ditambahkan. Menaikkannya membatalkan seluruh sesi semua orang, termasuk
+yang tidak disengaja.
+
+Kalau sebuah cookie sesi dicuriga bocor, ganti password akun itu. Itu mencabut
+seluruh sesi milik akun tersebut tanpa mengganggu admin lain. Rotasi
+`AUTH_SECRET` juga bekerja, tapi sifatnya membunuh sesi semua orang, jadi lebih
+berat dari yang sebenarnya diperlukan.
+
+Mode snapshot tidak punya database, jadi `readSession()` melewati pengecekan
+pencabutan di sana. Itu tidak membuka jalan bagi token palsu, karena
+`auth/login` menolak login di mode snapshot — verifikasi password selalu butuh
+database — sehingga tidak ada token sesi yang bisa terbit di mode itu.
 
 ---
 
