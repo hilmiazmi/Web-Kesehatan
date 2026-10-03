@@ -138,7 +138,9 @@ bukan tebakan. Rinciannya ada di `docs/design-tokens-terverifikasi.md`.
   - Batas desktop `1200px`, dengan panel off-canvas `translateX(100%)` dan
     tombol hamburger `d-xl-none` di bawahnya.
   - Font nav `15px` seragam untuk desktop, submenu dropdown, dan panel.
-  - Delapan butir nav `894px`, tidak pernah membungkus dan tidak pernah menyusut.
+  - Delapan butir nav butuh `894px`, tidak pernah membungkus dan tidak pernah
+    menyusut. Angka itu adalah lebar elemen `.navmenu` pada viewport 1920px,
+    hasil `getBoundingClientRect()`, bukan perkiraan.
 
   Yang **telah dicoba dan ditolak**, jangan diulang:
   - Batas desktop dinaikkan ke `1550px` (commit `160687e`).
@@ -147,9 +149,12 @@ bukan tebakan. Rinciannya ada di `docs/design-tokens-terverifikasi.md`.
     jadi `0px` sehingga nav sulit dibaca.
   - Nav diturunkan ke baris kedua di bawah batas, tanpa tombol hamburger.
 
-  Cacat yang **sengaja diterima** pada keadaan beku: pada lebar 1200-1499px
-  tombol "Administrasi Pasien" terpotong di tepi kanan, karena satu baris
-  membutuhkan 1496px. Akibat ini sudah dilaporkan dan dibiarkan.
+  Cacat yang **sengaja diterima** pada keadaan beku: pada lebar 1200-1495px
+  tombol "Administrasi Pasien" terpotong di tepi kanan. Satu baris membutuhkan
+  1496px, dan di 1496px tombolnya pas tanpa sisa ruang. Rentang itu hasil
+  pencarian biner di peramban, bukan perkiraan; angka 1499px yang tadinya
+  tertulis di sini keliru empat piksel. Akibat cacat ini sudah dilaporkan dan
+  dibiarkan.
 
   `tests/navbar-beku.test.ts` mengunci semua angka di atas. Tes itu gagal kalau
   navbar disentuh. Jangan dihapus atau dilonggarkan tanpa diminta.

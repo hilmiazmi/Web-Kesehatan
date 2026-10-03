@@ -178,8 +178,9 @@
 .navmenu {
   display: flex;
   align-items: center;
-  /* Menu tidak menyusut dan tidak membungkus. Delapan butir diukur membutuhkan
-     767px; kalau boleh menyusut, butir-butirnya saling tindih. */
+  /* Menu tidak menyusut dan tidak membungkus. Delapan butir butuh 894px;
+     kalau boleh menyusut, butir-butirnya saling tindih. Angka itu hasil
+     pengukuran di peramban pada lebar 1920px, bukan perkiraan. */
   flex-shrink: 0;
 }
 
