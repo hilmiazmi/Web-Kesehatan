@@ -121,10 +121,11 @@ describe("periksaKataSandi", () => {
   });
 
   it("menghitung panjang dalam karakter, bukan byte", () => {
-    // Huruf seperti "é" dua byte. Menghitung byte membuat kata sandi non-Latin
-    // dengan bentuk yang wajar ditolak.
+    // Aksen yang dua byte ditulis sebagai escape `\u00e9` supaya sumber
+    // berkasnya tetap ASCII. Menghitung byte membuat kata sandi non-Latin dengan
+    // bentuk yang wajar ditolak.
     const errors = new Errors();
-    const cukup = "é".repeat(PASSWORD_MIN);
+    const cukup = "\u00e9".repeat(PASSWORD_MIN);
 
     expect(periksaKataSandi(errors, cukup)).not.toBeNull();
     expect(errors.isEmpty).toBe(true);
