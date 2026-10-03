@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import { BROSUR_CATEGORIES, BROSURS } from "@/data/brosur";
-import { CLINICS, CLINIC_DETAILS } from "@/data/clinics";
 import { PPID_SUBPAGES } from "@/data/ppid";
 import { NAV_PPID_CHILDREN } from "@/data/ppid-nav";
 
@@ -49,27 +48,6 @@ describe("brosur digital", () => {
   });
 });
 
-describe("detail klinik", () => {
-  it("slug detail unik dan berbentuk URL", () => {
-    const slug = CLINIC_DETAILS.map((d) => d.slug);
-    expect(new Set(slug).size).toBe(slug.length);
-    for (const s of slug) {
-      expect(s).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
-    }
-  });
-
-  it("setiap entri detail menunjuk klinik induk yang ada", () => {
-    const induk = new Set(CLINICS.map((c) => c.slug));
-    const yatim = CLINIC_DETAILS.filter((d) => !induk.has(d.clinicSlug));
-    expect(yatim.map((d) => d.slug)).toEqual([]);
-  });
-
-  it("setiap klinik punya minimal satu kartu detail", () => {
-    // Tab tanpa kartu akan membuat panel /pelayanan/poliklinik terasa kosong.
-    const kosong = CLINICS.filter((c) => c.details.length === 0).map((c) => c.slug);
-    expect(kosong).toEqual([]);
-  });
-});
 
 describe("halaman PPID", () => {
   it("submenu navbar dan isi halaman memakai sumber yang sama", () => {

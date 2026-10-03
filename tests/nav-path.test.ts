@@ -14,7 +14,6 @@ import {
   NAV_ITEMS,
 } from "@/data/navigation";
 import { BROSURS } from "@/data/brosur";
-import { CLINIC_DETAILS } from "@/data/clinics";
 import { PPID_SUBPAGES } from "@/data/ppid";
 
 /**
@@ -211,9 +210,6 @@ describe("collectNavPaths", () => {
     }
     for (const p of PPID_SUBPAGES) {
       expect(slugs.has(`ppid/${p.slug}`)).toBe(false);
-    }
-    for (const d of CLINIC_DETAILS) {
-      expect(slugs.has(`pelayanan/poliklinik/${d.slug}`)).toBe(false);
     }
   });
 

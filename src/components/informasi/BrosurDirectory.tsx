@@ -18,8 +18,8 @@ export type BrosurCard = {
  * Polanya ditiru dari halaman brosur di situs referensi: empat kategori
  * menjadi tab, isi kategori terpilih tampil sebagai kartu di kanan.
  *
- * Tab memakai <button> seperti di ClinicDirectory, karena yang diklik hanya
- * mengganti panel dan tidak berpindah halaman.
+ * Tab memakai <button>, bukan <a>, karena yang diklik hanya mengganti panel
+ * dan tidak berpindah halaman.
  *
  * Hanya panel aktif yang dirender. Karena itu `aria-controls` hanya dipasang
  * pada tab yang sedang terpilih; kalau dipasang juga pada tab lain, id yang
