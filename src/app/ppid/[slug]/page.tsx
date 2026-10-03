@@ -74,16 +74,25 @@ export default async function PpidSubpage({
                   <h2 className="detail-subheading">Formulir</h2>
                   <p className="detail-lead">{page.form.note}</p>
 
-                  {/* Endpoint belum ada di repo ini, jadi form tidak dikirim. */}
+                  {/* Endpoint pendaftaran belum ada di repo ini, jadi halaman
+                      ini hanya menampilkan apa yang akan diisi. Tombolnya
+                      sengaja dimatikan: tombol yang bisa diklik tapi tidak
+                      melakukan apa pun lebih buruk daripada tidak ada. */}
                   <ul className="detail-list">
                     {page.form.fields.map((f) => (
                       <li key={f.label}>{f.label}</li>
                     ))}
                   </ul>
 
-                  <button type="button" className="btn btn-primary mt-3">
+                  <button type="button" className="btn btn-primary mt-3" disabled>
                     {page.form.submitLabel}
                   </button>
+
+                  <p className="form-footnote">
+                    <i className="bi bi-info-circle" aria-hidden="true" />
+                    Formulir belum dapat dikirim. Pengisian data PR hanya
+                    tersedia di loket.
+                  </p>
                 </section>
               ) : null}
             </article>
