@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import PageHeader from "@/components/layout/PageHeader";
 import { DetailBody, DetailLayout } from "@/components/pelayanan/DetailLayout";
+import { DetailContact, DetailVideo } from "@/components/pelayanan/DetailBlocks";
 import { PRIORITY_SERVICES } from "@/data/home";
 import { DETAIL_CONTENT, DETAIL_INTRO_TAIL } from "@/data/detail-content";
 import { PRIORITY_PHOTOS, photo } from "@/data/images";
@@ -77,6 +78,10 @@ export default async function PriorityServicePage({
               photoAlt={service.title}
               introTail={DETAIL_INTRO_TAIL}
             />
+
+            <DetailVideo title={service.title} />
+
+            <DetailContact />
 
             <div className="d-flex gap-2 flex-wrap mt-4">
               <Link href="/daftar-online" className="btn btn-primary">

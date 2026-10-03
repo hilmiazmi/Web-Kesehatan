@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import PageBlocks from "@/components/halaman/PageBlocks";
 import PageHeader from "@/components/layout/PageHeader";
+import { isiHalaman } from "@/data/halaman";
 import { CONTACT, SITE } from "@/data/navigation";
 import { collectNavPaths, humanize, resolveTrail } from "@/lib/nav-path";
 
@@ -11,9 +13,8 @@ import { collectNavPaths, humanize, resolveTrail } from "@/lib/nav-path";
  * `[...slug]`, jadi halaman ini hanya menangani sisanya. Gunanya supaya tidak
  * ada tautan mati di navbar.
  *
- * Isinya masih kerangka: judul, breadcrumb otomatis dari hierarki menu, dan
- * blok kontak. Saat backend siap, tiap halaman diisi dari Route Handler
- * sesuai PRD bagian 6.4.
+ * Isinya diambil dari `src/data/halaman/`. Seluruh path yang ada di navigasi
+ * sudah punya isi di sana; `tests/halaman.test.ts` menjaganya.
  */
 
 /**
@@ -52,6 +53,7 @@ export default async function GenericPage({
 
   // Breadcrumb dari hierarki menu; fallback ke segment terakhir.
   const navTrail = resolveTrail(path);
+  const isi = isiHalaman(path);
   const last = slug.at(-1) ?? "";
   const trail = navTrail?.map((t, i) =>
     i === navTrail.length - 1 ? { label: t.label } : t
@@ -65,16 +67,23 @@ export default async function GenericPage({
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-lg-8">
-              <div className="content-placeholder-soft">
-                <p>
-                  Halaman <strong>{trail.at(-1)?.label ?? humanize(last)}</strong>{" "}
-                  belum dilengkapi isi pada versi demo ini.
-                </p>
-                <p>
-                  Informasi kontak di bawah tetap berlaku dan bisa dipakai
-                  kapan saja.
-                </p>
-              </div>
+              {isi ? (
+                <>
+                  <p className="detail-lead">{isi.ringkas}</p>
+                  <PageBlocks blok={isi.blok} pathname={path} />
+                </>
+              ) : (
+                /* Changed Only reachable when a nav link has no content yet.
+                   tests/halaman.test.ts fails before that can happen, so this
+                   is a guard, not a normal state. */
+                <div className="content-placeholder-soft">
+                  <p>
+                    Halaman{" "}
+                    <strong>{trail.at(-1)?.label ?? humanize(last)}</strong> belum
+                    dilengkapi isi pada versi demo ini.
+                  </p>
+                </div>
+              )}
 
               <h2 className="detail-heading mt-5">Informasi Kontak</h2>
               <ul className="detail-list">

@@ -123,6 +123,7 @@ const OWN_ROUTE_SUBTREES = new Set([
   "/berita",
   "/daftar-online",
   "/informasi-publik/brosur",
+  "/jadwal-dokter",
   "/pelayanan/poliklinik",
   "/ppid",
   "/tentang-kami/manajemen",
@@ -169,6 +170,54 @@ export function hasOwnRoute(path: string): boolean {
     if (clean.startsWith(`${parent}/`)) return true;
   }
   return false;
+}
+
+/**
+ * Anak langsung dari sebuah path di pohon navigasi.
+ *
+ * Dipakai blok `tautan-anak` di `src/data/halaman/` supaya halaman induk
+ * menautkan ke subhalamannya tanpa menyalin daftar path secara manual. Kalau
+ * subhalaman ditambah atau dipindah di `src/data/navigation.ts`, tautannya
+ * ikut benar.
+ *
+ * Mengembalikan array kosong kalau path itu tidak ada di menu, atau tidak
+ * punya anak.
+ */
+export function childrenOf(pathname: string): { label: string; href: string }[] {
+  const target = pathname.replace(/\/+$/, "") || "/";
+  if (target === "/") return [];
+
+  // Cari node yang jalurnya sama dengan target, lalu kembalikan children-nya.
+  const walk = (
+    nodes: (NavItem | NavChild)[],
+    parent: string,
+  ): { label: string; href: string }[] => {
+    for (const node of nodes) {
+      const segs = segments(node.href);
+      const full = segs.length > 1 ? node.href : `${parent}/${segs[0] ?? ""}`;
+      const clean = full.replace(/\/+$/, "") || "/";
+      if (clean === target) {
+        return (node.children ?? []).map((c) => {
+          const csegs = segments(c.href);
+          return {
+            label: c.label,
+            href: csegs.length > 1 ? c.href : `${clean}/${csegs[0] ?? ""}`,
+          };
+        });
+      }
+      // Turun lebih jauh kalau target berada di bawah node ini, misalnya
+      // target "/pelayanan/mcu" dan node ini "/pelayanan".
+      if (node.children && target.startsWith(`${clean}/`)) {
+        const found = walk(node.children, clean);
+        if (found.length > 0) return found;
+      }
+    }
+    return [];
+  };
+
+  const dariMenu = walk(NAV_ITEMS, "");
+  if (dariMenu.length > 0) return dariMenu;
+  return walk(HEADER_CTAS, "");
 }
 
 /**
