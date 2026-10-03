@@ -68,43 +68,6 @@ export function dbOrNull(): Db | null {
   }
 }
 
-/**
- * Jalankan `fn` dengan koneksi database.
- *
- * Di mode snapshot, `fn` tidak pernah dipanggil dan hasilnya `null`. Bentuk
- * kembalinya jadi satu-satunya cara handler tahu apakah ia sedang membaca
- * data nyata atau snapshot.
- */
-export async function withDb<T>(
-  fn: (db: Db) => Promise<T>,
-): Promise<{ data: T; fromSnapshot: false } | { data: null; fromSnapshot: true }> {
-  const db = dbOrNull();
-  if (!db) return { data: null, fromSnapshot: true };
-
-  try {
-    return { data: await fn(db), fromSnapshot: false };
-  } catch (err) {
-    throw mapDbError(err);
-  }
-}
-
-/**
- * Pool telanjang, untuk migrasi dan seed yang tidak butuh Drizzle.
- *
- * Hanya dipakai oleh skrip di `src/server/db/cli/`, bukan oleh route handler.
- */
-export function sqlClient(): postgres.Sql {
-  const { databaseUrl, dbMaxConnections, dbAcquireTimeoutSeconds } = config();
-  return postgres(databaseUrl, {
-    max: dbMaxConnections,
-    connect_timeout: dbAcquireTimeoutSeconds,
-    // Sama seperti pool di atas: UTC, supaya migrasi dan seed menghitung
-    // tanggal dengan definisi yang sama dengan route handler.
-    connection: { TimeZone: "UTC" },
-    onnotice: () => {},
-  });
-}
-
 /** Tutup pool. Dipanggil skrip CLI sebelum keluar supaya tidak menggantung. */
 export async function closeDb(): Promise<void> {
   if (!koneksi) return;

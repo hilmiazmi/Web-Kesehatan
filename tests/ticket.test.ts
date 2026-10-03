@@ -4,7 +4,6 @@ import {
   TICKET_LENGTH,
   generateTicket,
   isTicketShapeValid,
-  ticketKindFromCode,
 } from "@/server/ticket";
 
 /**
@@ -50,29 +49,6 @@ describe("generateTicket", () => {
   });
 });
 
-describe("ticketKindFromCode", () => {
-  it("mengenali semua jenis yang ada", () => {
-    for (const jenis of Object.keys(PREFIX) as (keyof typeof PREFIX)[]) {
-      expect(ticketKindFromCode(generateTicket(jenis))).toBe(jenis);
-    }
-  });
-
-  it("menerima awalan huruf kecil", () => {
-    expect(ticketKindFromCode("ks-2345678a")).toBe("feedback");
-  });
-
-  it("menolak awalan yang tidak dikenal", () => {
-    expect(ticketKindFromCode("XX-2345678A")).toBeNull();
-    expect(ticketKindFromCode("")).toBeNull();
-  });
-
-  it("tidak salah membaca kode tanpa garis hubung", () => {
-    // Tanpa garis hubung, `indexOf` mengembalikan -1 dan `slice(0, -1)`
-    // mengambil seluruh string dikurangi satu karakter. Hasilnya harus tetap
-    // ditolak, bukan dianggap salah satu jenis yang ada.
-    expect(ticketKindFromCode("EP2345678A")).toBeNull();
-  });
-});
 
 describe("isTicketShapeValid", () => {
   it("menerima kode yang dihasilkan sendiri", () => {
@@ -98,5 +74,21 @@ describe("isTicketShapeValid", () => {
   it("menolak input kosong", () => {
     expect(isTicketShapeValid("")).toBe(false);
     expect(isTicketShapeValid("   ")).toBe(false);
+  });
+
+  it("menerima setiap kode yang bisa dihasilkan generator", () => {
+    // Ini invariants yang dipegang `looksLikeTicketCode` di inbox: kode yang
+    // ditolak padahal benar-benar ada di database membuat pengunjung yakin
+    // tiketnya hilang. Menguji 2.000 kode cukup untuk menangkap Alfabet yang
+    // salah, awalan yang kelewat panjang, atau panjang yang tidak cocok.
+    const jenis = Object.keys(PREFIX) as (keyof typeof PREFIX)[];
+    const salah: string[] = [];
+
+    for (let i = 0; i < 2000; i += 1) {
+      const kode = generateTicket(jenis[i % jenis.length]);
+      if (!isTicketShapeValid(kode)) salah.push(kode);
+    }
+
+    expect(salah).toEqual([]);
   });
 });

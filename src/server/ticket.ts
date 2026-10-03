@@ -47,16 +47,6 @@ export function generateTicket(kind: TicketKind): string {
   return `${prefix}-${suffix}`;
 }
 
-/** Cari jenis formulir dari kode tiket, atau `null` kalau tidak dikenal. */
-export function ticketKindFromCode(code: string): TicketKind | null {
-  const prefix = code.slice(0, code.indexOf("-")).toUpperCase();
-
-  for (const [kind, known] of Object.entries(PREFIX) as [TicketKind, string][]) {
-    if (known === prefix) return kind;
-  }
-  return null;
-}
-
 /**
  * Cocokkan kode tiket dengan bentuk yang diharapkan.
  *

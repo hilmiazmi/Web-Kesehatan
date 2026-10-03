@@ -21,11 +21,6 @@ export function created<T>(data: T): NextResponse {
   return NextResponse.json({ data }, { status: 201 });
 }
 
-/** Hitungan baris untuk endpoint admin. */
-export function countValue(count: number): NextResponse {
-  return ok({ count });
-}
-
 /**
  * Bungkus handler route sehingga tidak ada satu pun yang bisa gagal diam-diam.
  *

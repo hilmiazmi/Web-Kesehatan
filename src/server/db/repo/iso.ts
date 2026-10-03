@@ -17,12 +17,6 @@ export function iso(value: Date | string | null | undefined): string {
   return Number.isNaN(parsed.getTime()) ? value : parsed.toISOString();
 }
 
-/** Tanggal saja (`YYYY-MM-DD`) tanpa waktu. */
-export function isoDate(value: Date | string | null | undefined): string | null {
-  if (value === null || value === undefined) return null;
-  return iso(value).slice(0, 10);
-}
-
 /** Waktu lokal tanpa detik, mis. `09.30`. */
 export function jam(value: Date | string): string {
   const isoValue = iso(value);

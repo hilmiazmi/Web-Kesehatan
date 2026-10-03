@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import type { Db } from "../db/client";
 import { ApiError } from "../api/error";
 import { searchPattern, squash } from "../validation";
+import { isTicketShapeValid } from "../ticket";
 
 /**
  * Inbox: daftar dan perubahan status formulir yang masuk dari pengunjung.
@@ -227,26 +228,17 @@ export async function findByTicket(
 /**
  * Periksa bentuk kode tiket sebelum dipakai sebagai parameter query.
  *
- * Bentuknya sudah dijamin oleh `ticket.generate`, jadi bentuk lain tidak
- * mungkin ada di database. Memeriksa di sini membuat endpoint `/tickets/...`
- * menolak input aneh dengan pesan yang jelas, bukan mengembalikan 404 yang
- * menyesatkan.
+ * Pemeriksaan di sini membuat endpoint `/tickets/...` menolak input aneh dengan
+ * pesan yang jelas, bukan mengembalikan 404 yang menyesatkan.
+ *
+ * Aturannya tidak ditulis ulang di berkas ini. Daftar awalan dan susunan
+ * karakter sudah ada di `ticket.isTicketShapeValid`, yang juga menguji persis
+ * apa yang bisa dihasilkan `ticket.generate`. Dua daftar terpisah pasti akan
+ * berbeda begitu satu jenis formulir baru ditambahkan, dan yang tertinggal akan
+ * menolak kode yang baru tanpa memberi tanda apa pun.
  */
 export function looksLikeTicketCode(code: string): boolean {
-  const pemisah = code.indexOf("-");
-  if (pemisah < 0) return false;
-
-  const prefix = code.slice(0, pemisah);
-  const suffix = code.slice(pemisah + 1);
-
-  if (!["EP", "MCU", "KS", "WBS", "SKM"].includes(prefix)) return false;
-
-  // Bentuknya sama dengan `ticket.generate`: delapan karakter huruf besar atau
-  // angka. Pemeriksaan ini sengaja longgar soal karakter yang mana yang boleh
-  // muncul, karena tujuannya hanya menolak input yang jelas bukan kode tiket
-  // sebelum jadi parameter query. Persempitan yang lebih jauh diserahkan ke
-  // database, yang hanya menyimpan kode yang benar.
-  return suffix.length === 8 && /^[A-Z0-9]+$/.test(suffix);
+  return isTicketShapeValid(code);
 }
 
 function clamp(nilai: number, min: number, max: number): number {

@@ -5,7 +5,6 @@ import {
   boolean,
   tanggal,
   teks,
-  teksSemua,
   uuid,
 } from "@/server/api/params";
 import { ApiError } from "@/server/api/error";
@@ -51,19 +50,6 @@ describe("teks", () => {
   });
 });
 
-describe("teksSemua", () => {
-  it("mengambil seluruh nilai yang ada", () => {
-    expect(teksSemua(q("tag=a&tag=b&tag=c"), "tag")).toEqual(["a", "b", "c"]);
-  });
-
-  it("membuang nilai kosong di antara yang ada", () => {
-    expect(teksSemua(q("tag=a&tag=&tag=%20&tag=b"), "tag")).toEqual(["a", "b"]);
-  });
-
-  it("mengembalikan larik kosong saat tidak ada", () => {
-    expect(teksSemua(q(""), "tag")).toEqual([]);
-  });
-});
 
 describe("bilangan", () => {
   it("mengubah teks angka menjadi bilangan", () => {

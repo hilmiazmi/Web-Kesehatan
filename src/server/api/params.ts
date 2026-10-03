@@ -30,12 +30,6 @@ export function teks(sumber: Sumber, nama: string): string | null {
   return dipangkas === "" ? null : dipangkas;
 }
 
-/** Ambil seluruh nilai dari parameter yang boleh berulang. */
-export function teksSemua(sumber: Sumber, nama: string): string[] {
-  const mentah = bacaSemua(sumber, nama);
-  return mentah.map((v) => v.trim()).filter((v) => v !== "");
-}
-
 /**
  * Ambil parameter sebagai bilangan bulat.
  *
@@ -130,14 +124,6 @@ function baca(sumber: Sumber, nama: string): string | null {
   const nilai = sumber[nama];
   if (Array.isArray(nilai)) return nilai.length > 0 ? nilai[0] : null;
   return nilai ?? null;
-}
-
-function bacaSemua(sumber: Sumber, nama: string): string[] {
-  if (sumber instanceof URLSearchParams) return sumber.getAll(nama);
-
-  const nilai = sumber[nama];
-  if (Array.isArray(nilai)) return nilai;
-  return nilai === undefined ? [] : [nilai];
 }
 
 /** Kumpulkan galat dari beberapa sumber sekaligus, lalu lempar satu kali. */

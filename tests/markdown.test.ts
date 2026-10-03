@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
   render,
-  renderSummary,
   safeUrl,
   stripTags,
   truncateWords,
@@ -137,20 +136,6 @@ describe("render", () => {
   });
 });
 
-describe("renderSummary", () => {
-  it("tidak memasukkan heading dan tabel", () => {
-    const out = renderSummary("# Judul besar\n\nTeks ringkas.");
-
-    expect(out).not.toContain("<h1");
-    expect(out).not.toContain("<table");
-    expect(out).toContain("Teks ringkas.");
-  });
-
-  it("tetap menampilkan isi heading sebagai teks", () => {
-    // Membuang blok beserta isinya akan membuat kalimat kehilangan bagiannya.
-    expect(renderSummary("# Judul besar\n\nTeks.")).toContain("Judul besar");
-  });
-});
 
 describe("stripTags", () => {
   it("mengembalikan teks polos", () => {

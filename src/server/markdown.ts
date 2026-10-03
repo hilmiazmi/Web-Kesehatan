@@ -7,7 +7,7 @@
  *
  * Setiap karakter `<`, `>`, `&`, dan `"` di dalam teks di-escape ketika
  * menulis, dan satu-satunya tag yang keluar adalah tag yang ditulis sendiri
- * oleh renderer ini.-HTML mentah dari sumber diperlakukan sebagai teks biasa,
+ * oleh renderer ini. HTML mentah dari sumber diperlakukan sebagai teks biasa,
  * jadi `<script>` muncul sebagai tulisan yang terlihat, bukan sebagai tag.
  *
  * Yang perlu diperiksa kalau renderer ini diubah: setiap jalur baru yang
@@ -50,12 +50,6 @@ const BODY_TAGS = new Set([
   "span",
   "div",
 ]);
-
-/**
- * Tag untuk ringkasan satu paragraf: tidak ada heading, tabel, atau daftar,
- * karena isinya tampil di dalam kartu dengan tinggi terbatas.
- */
-const SUMMARY_TAGS = new Set(["p", "br", "em", "strong", "del", "code", "span"]);
 
 /** Escape teks supaya aman masuk ke badan dokumen maupun ke dalam atribut. */
 function esc(text: string): string {
@@ -286,17 +280,6 @@ export function render(source: string): string {
   return renderBlocks(source, BODY_TAGS, true);
 }
 
-/**
- * Sama seperti `render`, tapi untuk Markdown singkat seperti ringkasan paket
- * MCU atau kutipan testimoni.
- *
- * Blok yang tagnya tidak diizinkan tidak dibuang seluruh isinya, hanya
- * pembungkusnya, supaya tetap terbaca tapi tidak merusak tinggi kartu.
- */
-export function renderSummary(source: string): string {
-  return renderBlocks(source, SUMMARY_TAGS, false);
-}
-
 function renderBlocks(source: string, tags: Set<string>, tables: boolean): string {
   const baris = source.replace(/\r\n?/g, "\n").split("\n");
   const out: string[] = [];
@@ -403,7 +386,7 @@ function renderBlocks(source: string, tags: Set<string>, tables: boolean): strin
 
   // Blok terakhir juga diikuti baris baru. Tanpa itu, HTML hasil render
   // berbeda satu byte dari bentuk yang dipakai berkas snapshot, dan
-  // perbandingan keduanya selalureporting beda padahal isinya sama.
+  // perbandingan keduanya selalu menganggap berbeda padahal isinya sama.
   if (out.length === 0) return "";
   return `${out.join("\n")}\n`;
 }

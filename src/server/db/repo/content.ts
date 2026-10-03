@@ -151,17 +151,6 @@ export async function listDoctors(
   return rows.map(intoDoctor);
 }
 
-export async function findDoctor(db: Db, id: string): Promise<DoctorRow | null> {
-  const rows = await db
-    .select(DOCTOR_SELECT)
-    .from(doctors)
-    .leftJoin(specialties, eq(doctors.specialtyId, specialties.id))
-    .where(eq(doctors.id, id))
-    .limit(1);
-
-  return rows[0] ? intoDoctor(rows[0]) : null;
-}
-
 export type ScheduleRow = {
   id: string;
   doctor_id: string;

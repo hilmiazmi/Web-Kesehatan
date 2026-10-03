@@ -101,12 +101,6 @@ export async function loadBeds(db: Db): Promise<{ items: BedRow[]; summary: BedS
   return { items, summary };
 }
 
-/**
- * Simpan hasil peninjauan satu baris kapasitas bed.
- *
- * Penulisan memakai satu lingkup: `observed_at` diperbarui bersama sisanya
- * supaya angka di tabel dan waktu peninjauan tidak pernah berbeda tanggal.
- */
 /** Satu baris kapasitas yang dikirim panel untuk diperbarui. */
 export type BedUpdate = {
   ward_name: string;
@@ -149,51 +143,4 @@ export async function perbaruiTempatTidur(db: Db, updates: BedUpdate[]): Promise
 
     return berubah;
   });
-}
-
-export async function saveBed(
-  db: Db,
-  input: {
-    ward_name: string;
-    class_name: string;
-    room_code: string | null;
-    total_beds: number;
-    occupied_beds: number;
-    reserved_beds: number;
-    gender_policy: string | null;
-    note: string | null;
-  },
-): Promise<BedRow> {
-  const now = new Date();
-
-  const rows = await db
-    .update(bedCapacity)
-    .set({
-      roomCode: input.room_code,
-      totalBeds: input.total_beds,
-      occupiedBeds: input.occupied_beds,
-      reservedBeds: input.reserved_beds,
-      genderPolicy: input.gender_policy,
-      note: input.note,
-      observedAt: now,
-      updatedAt: now,
-    })
-    .where(
-      sql`${bedCapacity.wardName} = ${input.ward_name} AND ${bedCapacity.className} = ${input.class_name}`,
-    )
-    .returning({
-      ward_name: bedCapacity.wardName,
-      class_name: bedCapacity.className,
-      room_code: bedCapacity.roomCode,
-      total_beds: bedCapacity.totalBeds,
-      occupied_beds: bedCapacity.occupiedBeds,
-      reserved_beds: bedCapacity.reservedBeds,
-      available_beds: AVAILABLE,
-      gender_policy: bedCapacity.genderPolicy,
-      note: bedCapacity.note,
-      observed_at: bedCapacity.observedAt,
-    });
-
-  const found = rows[0];
-  return { ...found, observed_at: iso(found.observed_at) };
 }
