@@ -135,38 +135,8 @@ bukan tebakan. Rinciannya ada di `docs/design-tokens-terverifikasi.md`.
 - **Tombol hamburger harus di LUAR `.navmenu`.** Di mobile `.navmenu` menjadi
   panel off-canvas `translateX(100%)`, sehingga apa pun isinya tidak bisa diklik.
 - Submenu navbar: hover di desktop dan tautan induk tetap dinavigasi; accordion
-  di tablet dan mobile. Percabangan ini lewat `isDesktopNav()`.
-- **Batas navigasi desktop adalah `1360px`.** Diukur dari lebar terendah yang
-  masih memuat seluruh header: logo 237px + nav 750px + dua CTA 333px +
-  padding 24px = 1344px, ditambah sisa 16px.
-- **`1200px` seperti breakpoint Bootstrap tidak mungkin dipakai untuk batas
-  navigasi.** Kebutuhan 1344px tidak bisa ditekan ke 1200px tanpa mengecilkan
-  logo atau CTA, dan keduanya menentukan identitas visual header. Situs
-  referensi `rsudpasarminggu.jakarta.go.id` sendiri baru muat pada 1440px.
-- **Nav desktop dirapatkan di dalam `@media (min-width: 1360px)` saja:**
-  `font-size: 14px`, `padding: 2px`, `gap: 0`, dan `flex-wrap: nowrap`.
-  Angkanya dari `getComputedStyle` pada referensi. Dengan padding
-  `0.5rem 0.45rem` dan font 15px, nav memakai 878px; dengan nilai referensi
-  menjadi 750px. Aturan ini hanya untuk `.navmenu > ul > li > a`, jadi submenu
-  dropdown dan panel off-canvas tetap memakai padding penuh `.navmenu a`.
-- **`flex-wrap: wrap` pada `.navmenu > ul` itu sebab bug "Kapasitas Bed" turun
-  ke baris kedua.** Logo punya `me-auto`, jadi ruang sisa diserap jarak antara
-  logo dan nav. Karena itu nav desktop harus `nowrap`: kalau tidak, satu item
-  bisa turun ke baris kedua tepat seperti bug yang sudah pernah terjadi.
-- Nilai batas berlaku di **empat tempat** dan harus diubah bersama:
-  `@media (max-width: 1359.98px)` untuk `.navmenu`,
-  `@media (min-width: 1360px)` untuk `.mobile-nav-toggle`, `.nav-mobile`, dan
-  perataan nav, serta `BATAS_NAV_DESKTOP` di `Navbar.tsx` yang dipakai
-  `isDesktopNav()`. Salah satu tertinggal, maka di tablet tombol hamburger
-  hilang padahal panel off-canvas sedang dipakai, atau di desktop submenu
-  memakai hover padahal tidak ada hover.
-- **Tombol hamburger tidak boleh pakai `d-xl-none`.** Kelas itu berhenti di
-  1200px, sedangkan batas layout sekarang 1360px, jadi pada pita 1200-1359px
-  tombolnya akan hilang. Penyesuaiannya lewat `@media (min-width: 1360px)`.
-- **Aturan `.navmenu .dropdown > a:hover + ul` wajib memakai `:not(.show)`.**
-  Spesifisitasnya (0,3,2) dan tanpa `:not(.show)` ia menimpa
-  `.navmenu li > ul.show` yang cuma (0,2,3), sehingga submenu yang baru diklik
-  di panel off-canvas langsung tertutup lagi.
+  di mobile. Percabangan ini lewat `isDesktopNav()` dengan batas `1200px` yang
+  **harus sama** dengan media query `.navmenu` di `site.css`.
 - **`validate()` di `registration-form.tsx` sengaja di-export** supaya aturan
   validasinya bisa diuji tanpa merender komponen. Jangan dibuat lokal lagi.
 - Form dan komponen lain tidak boleh memanggil `setState` di dalam `useEffect`;

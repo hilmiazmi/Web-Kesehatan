@@ -204,8 +204,8 @@
   line-height: var(--rs-lh-nav);
   color: var(--rs-text-nav);
   text-decoration: none;
-  /* Padding penuh ini untuk submenu dropdown dan panel off-canvas. Nav desktop
-     ditimpa dengan padding 2px di dalam @media (min-width: 1360px). */
+  /* Padding ini berlaku seragam untuk nav desktop, submenu dropdown, dan
+     panel off-canvas. */
   padding: 0.5rem 0.45rem;
   white-space: nowrap;
   transition: color 0.2s ease;
@@ -306,31 +306,7 @@
 }
 
 /* ---------- Menu mobile ---------- */
-
-/*
- * Batas desktop 1360px. Angka ini diukur dari lebar terendah yang benar-benar
- * memuat semua bagian header, bukan ditebak.
- *
- * Logo 237px + nav 750px + dua CTA 333px + padding container 24px = 1344px.
- * Batas memakai 1360px supaya masih ada sisa 16px.
- *
- * Referensi rsudpasarminggu.jakarta.go.id memakai angka yang lebih besar:
- * nav-nya 937px dengan font 14px dan padding 2px, dan seluruh header baru
- * muat pada 1440px. Nav di sini sudah lebih hemat karena label-nya lebih
- * pendek, sehingga batasnya justru lebih rendah dari referensi.
- *
- * 1200px seperti breakpoint Bootstrap tidak mungkin dipakai. Total kebutuhan
- * 1344px, dan sebagian besar datang dari logo dan CTA yang tidak bisa
- * dikecilkan tanpa mengubah identitas visual header.
- *
- * Di bawah 1360px navigasi memakai panel off-canvas: logo, tombol hamburger,
- * dan dua tombol CTA tetap terlihat, sedangkan seluruh item navigasi masuk ke
- * panel. Tidak ada teks yang menggantung dan tidak ada tombol yang hilang.
- *
- * Nilai ini harus sama dengan BATAS_NAV_DESKTOP di
- * `src/components/layout/Navbar.tsx`.
- */
-@media (max-width: 1359.98px) {
+@media (max-width: 1199.98px) {
   .navmenu {
     position: fixed;
     top: 0;
@@ -413,51 +389,9 @@
   }
 }
 
-/*
- * Sisi desktop dari batas 1360px. Aturan di sini adalah kebalikan dari
- * `@media (max-width: 1359.98px)` di atas: di tablet navigasi hidup di dalam
- * panel off-canvas, jadi tombol hamburger harus tampil dan kolom navigasi kaki
- * halaman ikut disembunyikan supaya tidak ada dua salinan menu yang berbeda.
- */
-@media (min-width: 1360px) {
-  .mobile-nav-toggle {
-    display: none;
-  }
-
+@media (min-width: 1200px) {
   .nav-mobile {
     display: none;
-  }
-
-  /*
-   * Rapatkan nav desktop supaya muat di 1360px dan tidak perlu batas 1440px
-   * seperti situs referensi.
-   *
-   * Nilai di bawah diambil dari getComputedStyle pada referensi:
-   * `font-size: 14px`, `padding-left: 2px`, dan `gap: normal` pada `ul`.
-   * Dengan padding 0.5rem 0.45rem dan font 15px, nav memakai 878px; dengan
-   * nilai referensi menjadi 750px, cukup hemat 128px.
-   *
-   * `flex-wrap: nowrap` mengikuti referensi juga. Logo punya `me-auto`,
-   * jadi ruang sisa diserap jarak antara logo dan nav, bukan dengan memecah
-   * baris. Kalau `wrap` masih dipakai, satu item bisa turun ke baris kedua
-   * persis seperti bug yang sudah pernah terjadi.
-   *
-   * Aturan ini hanya untuk tautan level teratas. Submenu dropdown dan panel
-   * off-canvas tetap memakai padding penuh dari aturan `.navmenu a`, supaya
-   * ruang ketuk di dalam panel tidak ikut menyempit.
-   */
-  .navmenu > ul {
-    flex-wrap: nowrap;
-    gap: 0;
-  }
-
-  /* Angka 14px, line-height 21px, dan padding 2px dari getComputedStyle di
-     situs acuan. Dengan padding 0.5rem 0.45rem dan font 15px, nav memakai
-     878px; dengan nilai ini menjadi 750px. */
-  .navmenu > ul > li > a {
-    font-size: 14px;
-    line-height: 21px;
-    padding: 2px;
   }
 }
 

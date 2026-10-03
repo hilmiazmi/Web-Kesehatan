@@ -38,9 +38,8 @@
   /* --- Ukuran tipografi (hasil pengukuran) --- */
   --rs-fs-body: 16px; /* line-height 24px */
   --rs-lh-body: 24px;
-  /* Ukuran dasar ini untuk submenu dropdown dan panel off-canvas. Nav
-     desktop memakai 14px dan line-height 21px, angka hasil getComputedStyle
-     di situs acuan, yang ditimpa di dalam @media (min-width: 1360px). */
+  /* Ukuran dasar ini berlaku seragam untuk nav desktop, submenu dropdown,
+     dan panel off-canvas. */
   --rs-fs-nav: 15px;
   --rs-lh-nav: 22.5px;
   --rs-fs-btn: 16px; /* tombol di dalam kartu, line-height 24px */
