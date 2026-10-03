@@ -11,13 +11,12 @@
  * jalankan ulang skrip ini lalu periksa `git diff` pada berkasnya.
  *
  * Butuh database yang sudah ter-seed. Skrip ini hanya dipakai saat
- * stroked-now, tidak pernah di produksi.
+ * mengganti isi database, tidak pernah di produksi.
  */
 
-import { writeFile } from "node:fs/promises";
 import { getTableColumns } from "drizzle-orm";
 import { PgTimestamp, type PgTable } from "drizzle-orm/pg-core";
-import { closeDb, dbOrNull, type Db } from "@/server/db/client";
+import { type Db } from "@/server/db/client";
 import * as schema from "@/server/db/schema";
 
 /**

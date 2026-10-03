@@ -4,13 +4,7 @@ import { handle, ok } from "@/server/api/respond";
 import { ApiError } from "@/server/api/error";
 import { limitRequest } from "@/server/api/rate-limit";
 import { dbOrNull } from "@/server/db/client";
-import {
-  clearedSessionCookie,
-  newClaims,
-  readSession,
-  sessionCookie,
-  signSession,
-} from "@/server/auth/session";
+import { newClaims, sessionCookie, signSession } from "@/server/auth/session";
 import { verifyPassword } from "@/server/auth/password";
 import { credentialsByEmail, touchLogin } from "@/server/admin/accounts";
 import { config } from "@/server/config";

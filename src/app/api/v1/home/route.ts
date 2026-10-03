@@ -1,4 +1,3 @@
-import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { handle, ok } from "@/server/api/respond";
 import { denganSnapshot } from "@/server/api/snapshot";

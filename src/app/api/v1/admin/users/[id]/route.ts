@@ -14,7 +14,7 @@ type Konteks = { params: Promise<{ id: string }> };
 
 export async function PATCH(request: NextRequest, context: Konteks): Promise<NextResponse> {
   return handle(async () => {
-    const aktor = await requireSession(canManageUsers);
+    await requireSession(canManageUsers);
 
     const { id } = await context.params;
     const db = dbOrNull();
@@ -31,7 +31,7 @@ export async function PATCH(request: NextRequest, context: Konteks): Promise<Nex
       typeof peranDiminta === "string" && isRole(peranDiminta) ? peranDiminta : null;
 
     return ok(
-      await updateAccount(db, uuid({ id }, "id"), {
+      await updateAccount(db, uuid(id, "id"), {
         email: typeof body.email === "string" ? body.email : null,
         name: typeof body.name === "string" ? body.name : null,
         role: peran,
@@ -49,7 +49,7 @@ export async function DELETE(_request: NextRequest, context: Konteks): Promise<N
     const db = dbOrNull();
     if (db === null) throw ApiError.internal("akun butuh database");
 
-    await deleteAccount(db, uuid({ id }, "id"), aktor.sub);
+    await deleteAccount(db, uuid(id, "id"), aktor.sub);
 
     return ok({ deleted: true });
   });

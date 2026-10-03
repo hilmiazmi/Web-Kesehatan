@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { created, handle, ok } from "@/server/api/respond";
 import { ApiError } from "@/server/api/error";
-import { canManageUsers, requireSession, isRole, type Role } from "@/server/auth/session";
+import { canManageUsers, requireSession, type Role } from "@/server/auth/session";
 import { dbOrNull } from "@/server/db/client";
 import { countsByRole, createAccount, listAccounts } from "@/server/admin/accounts";
 import { Errors, choice, email as validateEmail, readJsonBody, textRequired } from "@/server/validation";

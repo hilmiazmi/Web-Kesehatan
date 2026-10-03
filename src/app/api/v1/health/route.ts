@@ -1,11 +1,9 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { handle, ok } from "@/server/api/respond";
-import { ApiError } from "@/server/api/error";
 import { API_VERSION, ROUTE_PREFIX } from "@/server/api/meta";
-import { checkDb } from "@/server/db/client";
+import { checkDb, dbOrNull } from "@/server/db/client";
 import { sql } from "drizzle-orm";
-import { dbOrNull } from "@/server/db/client";
 
 export const dynamic = "force-dynamic";
 
