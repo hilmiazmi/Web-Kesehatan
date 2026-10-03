@@ -198,6 +198,44 @@ Kalau semua super admin aktif hilang, panel tidak bisa diperbaiki lewat panel.
 Jalur pulihnya ada di luar aplikasi, di sisi database.
 
 ---
+
+## Endpoint tiket tidak punya rate limit, dan itu disengaja
+
+`GET /api/v1/tickets/{jenis}/{kode}` adalah satu-satunya endpoint baca yang
+terbuka tanpa sesi. Endpoint tulis publik semuanya melewati `jalankanForm` di
+`src/server/api/form.ts`, yang memanggil `limitRequest` sebelum apa pun yang
+lain. Endpoint tiket tidak memanggilnya, dan itu bukan kelalaian.
+
+Hitungannya: bagian acak kode tiket punya 8 posisi dari alfabet 32 karakter,
+jadi `32^8` atau sekitar 1,1 triliun kombinasi per jenis tiket. Tebakan buta
+tidak mungkin melewati batas itu, jadi rate limit di sini hanya menambah satu
+pencarian pada `Map` untuk permintaan yang memang tidak berbahaya.
+
+Yang membuat endpoint ini aman justru batasannya, bukan rate limit:
+
+- `findByTicket` di `src/server/admin/inbox.ts` hanya memilih empat kolom:
+  `ticket_code`, `status`, `created_at`, dan `updated_at`. Nama, nomor telepon,
+  surel, dan isi laporan tidak pernah masuk ke respons.
+- Bentuk kode diperiksa dulu oleh `looksLikeTicketCode`, yang memanggil
+  `isTicketShapeValid` — daftar yang sama dengan yang dipakai `generateTicket`.
+  Satu daftar itu dipakai dua arah, jadi tidak mungkin berbeda.
+
+Dua hal yang akan membuatnya tidak aman kalau berubah, jadi jangan diubah
+tanpa pengujian ulang:
+
+- Kalau `findByTicket` ditambah kolom baru, kolom itu otomatis ikut keluar.
+  Tidak ada daftar putih di lapisan route untuk menahan kolom tambahan.
+- Kalau `RANDOM_LEN` di `src/server/ticket.ts` dipendekkan, hitungan di atas
+  tidak berlaku lagi. Pada batas rate limit sekarang, panjang 5 masih berarti
+  12,8 tahun bagi satu penyerang, dan panjang 4 sudah 0,4 tahun. Jadi rate limit
+  baru berarti dibutuhkan kalau `RANDOM_LEN` turun sampai 4 atau kurang.
+
+Kode tiket sendiri bisa bocor karena penggunanya membagikannya, misalnya lewat
+tangkapan layar atau pesan grup. Itu sebabnya responsnya dibuat tipis: kode yang
+salah orang tidak boleh memberi apa pun selain fakta bahwa kode itu salah.
+
+---
+
 ## Untuk sesi AI agent
 
 Tiga aturan tambahan yang berlaku khusus untuk agent yang bekerja di
