@@ -1,5 +1,5 @@
 import { ApiError } from "./error";
-import { limitRequest } from "./rate-limit";
+import { limitRequest, resetLimit } from "./rate-limit";
 import { dbOrNull, type Db } from "../db/client";
 import { generateTicket, type TicketKind } from "../ticket";
 import { Errors, isHoneypotTrap, readJsonBody } from "../validation";
@@ -23,6 +23,19 @@ export type HoneypotAnswer = { ticket_code: string; status: "received" };
  * mendapat 400 akan belajar field mana yang membuatnya ditolak lalu berhenti
  * mengirim field itu pada percobaan berikutnya, sehingga honeypot justru
  * berhenti berguna sejak percobaan pertama.
+ *
+ * Penghitung rate limit disetel ulang hanya setelah pendaftaran benar-benar
+ * tersimpan. Alasannya praktis: batasnya lima permintaan per menit per
+ * alamat, dan satu alamat sering dipakai banyak orang sekaligus. Kantor,
+ * kampus, dan jaringan seluler berbagi satu alamat IP publik, jadi tanpa
+ * penghitung yang disetel ulang, lima orang yang mendaftar bersamaan akan
+ * membuat orang berikutnya terkunci tanpa pernah melakukan kesalahan.
+ *
+ * Penghitung tidak disentuh pada dua jalur lain. Permintaan yang gagal
+ * validasi tetap memakai haknya, supaya orang tidak bisa mendapat percobaan
+ * tak terbatas dengan mengirim data salah berulang kali. Permintaan yang
+ * tertangkap honeypot juga tidak dihitung sebagai berhasil, karena tidak ada
+ * yang tersimpan.
  */
 export async function jalankanForm<T>(
   request: Request,
@@ -45,7 +58,11 @@ export async function jalankanForm<T>(
   // kode tiket yang tidak pernah bisa dipakai untuk mengecek status.
   if (db === null) throw ApiError.readOnly();
 
-  return langkah(db, body);
+  const hasil = await langkah(db, body);
+
+  resetLimit(request.headers, namaEndpoint);
+
+  return hasil;
 }
 
 /** Baca field body sebagai teks; field yang bukan teks dianggap kosong. */
