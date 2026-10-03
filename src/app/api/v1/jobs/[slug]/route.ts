@@ -13,7 +13,7 @@ export async function GET(
 ): Promise<NextResponse> {
   return handle(async () => {
     const { slug } = await context.params;
-    const baris = await denganSnapshot((db) => findJob(db, slug), `jobs_$_slug`);
+    const baris = await denganSnapshot((db) => findJob(db, slug), `/jobs/${slug}`);
 
     if (baris === null) throw ApiError.notFound("lowongan");
     return ok(baris);

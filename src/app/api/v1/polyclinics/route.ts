@@ -6,5 +6,5 @@ import { listPolyclinics } from "@/server/db/repo/content";
 export const dynamic = "force-dynamic";
 
 export function GET(): Promise<NextResponse> {
-  return handle(async () => ok(await denganSnapshot((db) => listPolyclinics(db), "polyclinics")));
+  return handle(async () => ok(await denganSnapshot((db) => listPolyclinics(db), "/polyclinics")));
 }

@@ -59,7 +59,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         throw ApiError.internal("validasi lolos tapi data kosong");
       }
 
-      const jadwalId = uuid({ schedule_id: isi(body, "schedule_id") }, "schedule_id");
+      const jadwalId = uuid(isi(body, "schedule_id"), "schedule_id");
       const jadwal = await scheduleForBooking(db, jadwalId);
       if (jadwal === null) throw ApiError.notFound("jadwal");
 

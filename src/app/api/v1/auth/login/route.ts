@@ -40,8 +40,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
     if (!errors.isEmpty) throw errors.toApiError();
 
+    // Verifikasi kata sandi selalu butuh database. Di mode snapshot tidak ada
+    // yang bisa diverifikasi, jadi menolak dengan 503 lebih jujur daripada 500
+    // yang terlihat seperti server rusak.
     const db = dbOrNull();
-    if (db === null) throw ApiError.internal("login butuh database");
+    if (db === null) throw ApiError.readOnly();
 
     const kredensial = await credentialsByEmail(db, surel!);
     if (kredensial === null) throw ApiError.unauthorized();

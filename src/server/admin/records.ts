@@ -1,6 +1,6 @@
 import { sql, type SQL } from "drizzle-orm";
 import type { Db } from "../db/client";
-import { ApiError } from "../api/error";
+import { ApiError, kolomUnique } from "../api/error";
 import {
   Errors,
   email as validateEmail,
@@ -154,12 +154,7 @@ export async function createRecord(
     throw ApiError.badRequest("Tidak ada kolom yang bisa diisi.");
   }
 
-  const rows = await db.execute(sql`
-    INSERT INTO ${sql.raw(`"${spesifikasi.table}"`)}
-      (${sql.join(kolom.map((k) => sql`${sql.raw(`"${k}"`)}`), sql`, `)})
-    VALUES (${sql.join(kolom.map((_, i) => sql`${nilai[i]}`), sql`, `)})
-    RETURNING to_jsonb(${sql.raw(`"${spesifikasi.table}"`)}) AS row
-  `);
+  const rows = await sisipkan(db, spesifikasi, kolom, nilai);
 
   return (rows[0] as { row: unknown }).row as Record<string, unknown>;
 }
@@ -195,12 +190,17 @@ export async function updateRecord(
     ([kolom, value]) => sql`${sql.raw(`"${kolom}"`)} = ${value}`,
   );
 
-  const rows = await db.execute(sql`
-    UPDATE ${sql.raw(`"${spesifikasi.table}"`)}
-       SET ${sql.join(pasang, sql`, `)}
-     WHERE id = ${id}::uuid
-    RETURNING to_jsonb(${sql.raw(`"${spesifikasi.table}"`)}) AS row
-  `);
+  let rows: unknown[];
+  try {
+    rows = await db.execute(sql`
+      UPDATE ${sql.raw(`"${spesifikasi.table}"`)}
+         SET ${sql.join(pasang, sql`, `)}
+       WHERE id = ${id}::uuid
+      RETURNING to_jsonb(${sql.raw(`"${spesifikasi.table}"`)}) AS row
+    `);
+  } catch (err) {
+    throw tabrakanUnik(err);
+  }
 
   const found = rows[0];
   if (!found) throw ApiError.notFound("baris");
@@ -426,4 +426,42 @@ function isSafeUrl(value: string): boolean {
 function clamp(nilai: number, min: number, max: number): number {
   if (!Number.isFinite(nilai)) return min;
   return Math.min(Math.max(Math.trunc(nilai), min), max);
+}
+
+/**
+ * Jalankan satu `INSERT` dan ubah pelanggaran unique jadi galat validasi.
+ *
+ * Pelanggaran unique di sini hampir selalu salah ketik dari admin yang
+ * menulis slug atau surel yang sudah dipakai. Tanpa penerjemahan ini, admin
+ * mendapat 500 tanpa penjelasan padahal penyebabnya ada di layar mereka
+ * sendiri.
+ */
+async function sisipkan(
+  db: Db,
+  spesifikasi: TableSpec,
+  kolom: string[],
+  nilai: unknown[],
+): Promise<unknown[]> {
+  try {
+    return await db.execute(sql`
+      INSERT INTO ${sql.raw(`"${spesifikasi.table}"`)}
+        (${sql.join(kolom.map((k) => sql`${sql.raw(`"${k}"`)}`), sql`, `)})
+      VALUES (${sql.join(kolom.map((_, i) => sql`${nilai[i]}`), sql`, `)})
+      RETURNING to_jsonb(${sql.raw(`"${spesifikasi.table}"`)}) AS row
+    `);
+  } catch (err) {
+    throw tabrakanUnik(err);
+  }
+}
+
+/**
+ * Ubah pelanggaran unique menjadi galat per field, atau teruskan aslinya.
+ *
+ * Nama kolom diambil dari nama constraint supaya pesan di layar menyebut field
+ * yang salah isi, bukan kode `23505` yang tidak dibaca siapa pun.
+ */
+function tabrakanUnik(err: unknown): unknown {
+  const kolom = kolomUnique(err);
+  if (kolom === null) return err;
+  return ApiError.validation({ [kolom]: "Nilai ini sudah dipakai." });
 }

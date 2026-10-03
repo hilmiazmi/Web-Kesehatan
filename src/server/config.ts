@@ -74,7 +74,7 @@ export function config(): Config {
 
   cache = {
     databaseUrl,
-    dbMaxConnections: number("DB_MAX_CONNECTIONS", 10),
+    dbMaxConnections: number("DB_MAX_CONNECTIONS", 10, 1),
     dbAcquireTimeoutSeconds: number("DB_ACQUIRE_TIMEOUT_SECONDS", 8),
     authSecret,
     sessionMaxAgeSeconds: number("SESSION_MAX_AGE_SECONDS", 8 * 3600),
@@ -100,7 +100,15 @@ function env(name: string, fallback: string): string {
   return value === undefined || value.trim() === "" ? fallback : value.trim();
 }
 
-function number(name: string, fallback: number): number {
+/**
+ * Baca variabel environment sebagai bilangan.
+ *
+ * Nilai di bawah `min` ditolak, bukan dibulatkan atau diabaikan.
+ * `MIN_LEAD_DAYS=0` sah karena nol memang ada artinya; `DB_MAX_CONNECTIONS=0`
+ * tidak, karena kumpulan koneksi dengan nol koneksi tidak bisa melayani apa
+ * pun dan akan gagal jauh dari titik di mana salahnya terlihat.
+ */
+function number(name: string, fallback: number, min = 0): number {
   const raw = process.env[name];
   if (raw === undefined || raw.trim() === "") return fallback;
 
@@ -108,5 +116,10 @@ function number(name: string, fallback: number): number {
   if (!Number.isFinite(parsed)) {
     throw new ConfigError(`${name} harus angka, bukan "${raw}".`);
   }
+
+  if (parsed < min) {
+    throw new ConfigError(`${name} minimal ${min}, sekarang ${parsed}.`);
+  }
+
   return parsed;
 }

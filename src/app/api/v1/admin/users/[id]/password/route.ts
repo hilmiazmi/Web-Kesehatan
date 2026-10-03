@@ -19,7 +19,7 @@ export async function POST(request: NextRequest, context: Konteks): Promise<Next
 
     const { id } = await context.params;
     const db = dbOrNull();
-    if (db === null) throw ApiError.internal("akun butuh database");
+    if (db === null) throw ApiError.readOnly();
 
     const body = await readJsonBody(request);
     const errors = new Errors();
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest, context: Konteks): Promise<Next
     // sendiri. Sesi yang masih hidup membuktikan dia sudah masuk, bukan bahwa
     // dia sedang memegang keyboard itu; tanpa password lama, siapa pun yang
     // sempat menemukan cookie sesi bisa mengunci akun orang lain.
-    await changePassword(db, uuid({ id }, "id"), lama, baru);
+    await changePassword(db, uuid(id, "id"), lama, baru);
 
     return ok({ password_updated: true });
   });

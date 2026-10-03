@@ -12,6 +12,7 @@ export function GET(request: NextRequest): Promise<NextResponse> {
     const kategori = teks(request.nextUrl.searchParams, "category");
 
     return ok(
-      await denganSnapshot((db) => listMcuPackages(db, kategori), "mcu__packages"),
-    );  });
+      await denganSnapshot((db) => listMcuPackages(db, kategori), "/mcu/packages"),
+    );
+  });
 }

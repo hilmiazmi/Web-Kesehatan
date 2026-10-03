@@ -3,7 +3,7 @@ import path from "node:path";
 import type { Db } from "../db/client";
 import { dbOrNull } from "../db/client";
 import { config } from "../config";
-import { ApiError } from "./error";
+import { ApiError, dbErrorCode } from "./error";
 
 /**
  * Baca dari database, dengan snapshot sebagai cadangan.
@@ -16,9 +16,15 @@ import { ApiError } from "./error";
  * Hanya pembacaan. Endpoint yang menulis tidak pernah diam-diam melaporkan
  * berhasil tanpa menyimpan apa pun, jadi kegagalan itu harus tetap terlihat.
  *
- * `kunci` adalah nama berkas snapshot tanpa ekstensi, misalnya `mcu__packages`
- * untuk `/api/v1/mcu/packages`. `snapshotKey()` sehari-hari menghitungnya dari
- * URL, dan `scripts/db-snapshot.ts` menulis ulang seluruh berkasnya.
+ * `ruteApi` adalah path endpoint seperti yang dibaca klien, tanpa awalan
+ * `/api/v1`: `"/mcu/packages/paket-dakar-1"`. Nama berkasnya dihitung sendiri
+ * oleh `snapshotKey()`, jadi pemanggil tidak pernah menulis nama berkas secara
+ * manual.
+ *
+ *MELEWATKAN PATH, bukan nama berkas, bukan pilihan gaya. Bentuk lama
+ * (`` `pages_$_slug` ``) terlihat benar di diff dan diam-diam selalu salah,
+ * karena `$_slug` bukan interpolasi. Fallback yang selalu gagal menghasilkan
+ * 404 di mode pratinjau tanpa jejak apa pun di log.
  *
  * Isi berkas snapshot adalah muatan yang akan dibungkus `ok()`, bukan amplop
  * lengkapnya. Kalau amplop ikut disimpan, hasilnya `{ "data": { "data": ... } }`
@@ -26,8 +32,9 @@ import { ApiError } from "./error";
  */
 export async function denganSnapshot<T>(
   sumber: (db: Db) => Promise<T>,
-  kunci: string,
+  ruteApi: string,
 ): Promise<T> {
+  const kunci = snapshotKey(ruteApi);
   const db = dbOrNull();
 
   // Mode snapshot tidak punya database sama sekali. Membaca lewat jalur
@@ -45,21 +52,55 @@ export async function denganSnapshot<T>(
   } catch (err) {
     if (config().apiMode !== "live") throw err;
 
+    // Hanya database yang tidak bisa dihubungi yang boleh dialihkan ke
+    // snapshot. Galat lain harus diteruskan apa adanya.
+    //
+    // Batas ini penting. Tanpa itu, satu nilai enum yang salah ketik di
+    // parameter permintaan membuat kueri gagal, lalu database dituduh tidak
+    // hidup, lalu snapshot membalikkan seluruh daftar tanpa filter. Hasilnya 200
+    // dengan isi yang salah, dan tidak ada satu pun tanda bahwa ada yang rusak.
+    if (!bisaKonek(err)) throw err;
+
     const dariSnapshot = await baca(kunci);
     if (dariSnapshot === null) throw err;
 
     // Dicatat sebagai peringatan, bukan galat: pengguna tetap mendapat
     // jawaban, dan yang perlu diperbaiki adalah database-nya.
-    console.warn(`[api] snapshot dipakai untuk "${kunci}":`, err instanceof Error ? err.message : err);
+    console.warn(
+      `[api] database tidak menjawab, snapshot dipakai untuk "${kunci}"`,
+      err instanceof Error ? err.message : err,
+    );
 
     return dariSnapshot as T;
   }
 }
 
 /**
+ * Apakah galat ini berarti database tidak bisa dihubungi.
+ *
+ * Daftar kode di bawah adalah galat koneksi dan jaringan, bukan galat kueri. Kode
+ * `22xxx` (data exception) sengaja tidak ada di sini: `?category=kerjasama`
+ * pada enum yang tidak memuatnya adalah kesalahan permintaan, dan menjawabnya
+ * dari snapshot hanya menyembunyikan kesalahannya.
+ */
+function bisaKonek(err: unknown): boolean {
+  const kode = dbErrorCode(err);
+
+  if (kode === undefined) return false;
+
+  return (
+    kode.startsWith("08") || // connection exception
+    kode.startsWith("53") || // insufficient resources
+    kode.startsWith("57") || // operator intervention, termasuk admin shutdown
+    kode.startsWith("58") || // system error, termasuk koneksi terputus
+    kode.startsWith("99")
+  );
+}
+
+/**
  * Nama berkas snapshot untuk satu rute.
  *
- * Segmen URL disambung dengan `__`, jadi `/api/v1/mcu/packages/paket-dasar-1`
+ * Segmen URL disambung dengan `__`, jadi `/mcu/packages/paket-dasar-1`
  * menjadi `mcu__packages__paket-dasar-1`. Aturan ini harus sama persis dengan
  * yang dipakai `scripts/db-snapshot.ts`; kalau tidak, fallback diam-diam selalu
  * gagal dan tidak ada yang menyadarinya. Karena itu keduanya memanggil fungsi

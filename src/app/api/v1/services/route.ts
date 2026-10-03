@@ -16,7 +16,7 @@ export function GET(request: NextRequest): Promise<NextResponse> {
     return ok(
       await denganSnapshot(
         (db) => listServices(db, { type: jenis, section }),
-        "services",
+        "/services",
       ),
     );  });
 }

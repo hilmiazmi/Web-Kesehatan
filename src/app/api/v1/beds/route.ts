@@ -6,5 +6,5 @@ import { loadBeds } from "@/server/db/repo/beds";
 export const dynamic = "force-dynamic";
 
 export function GET(): Promise<NextResponse> {
-  return handle(async () => ok(await denganSnapshot((db) => loadBeds(db), "beds")));
+  return handle(async () => ok(await denganSnapshot((db) => loadBeds(db), "/beds")));
 }

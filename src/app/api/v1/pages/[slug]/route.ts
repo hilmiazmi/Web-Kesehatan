@@ -13,7 +13,7 @@ export async function GET(
 ): Promise<NextResponse> {
   return handle(async () => {
     const { slug } = await context.params;
-    const baris = await denganSnapshot((db) => findPage(db, slug), `pages_$_slug`);
+    const baris = await denganSnapshot((db) => findPage(db, slug), `/pages/${slug}`);
 
     if (baris === null) throw ApiError.notFound("halaman");
     return ok(baris);

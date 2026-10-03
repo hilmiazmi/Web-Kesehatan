@@ -13,7 +13,7 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
     await requireSession();
 
     const db = dbOrNull();
-    if (db === null) throw ApiError.internal("dasbor butuh database");
+    if (db === null) throw ApiError.readOnly();
 
     return ok(await surveyByUnit(db));
   });

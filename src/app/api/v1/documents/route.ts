@@ -12,6 +12,6 @@ export function GET(request: NextRequest): Promise<NextResponse> {
     const kategori = teks(request.nextUrl.searchParams, "category");
 
     return ok(
-      await denganSnapshot((db) => listDocuments(db, kategori), "documents"),
+      await denganSnapshot((db) => listDocuments(db, kategori), "/documents"),
     );  });
 }

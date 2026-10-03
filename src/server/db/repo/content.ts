@@ -1,4 +1,5 @@
-import { and, asc, desc, eq, isNull, or, sql, type SQL } from "drizzle-orm";
+import { and, asc, desc, eq, isNull, or, sql } from "drizzle-orm";
+import type { AnyColumn, SQL } from "drizzle-orm";
 import type { Db } from "../client";
 import {
   articles,
@@ -52,6 +53,22 @@ export const HOME_ARTICLE_LIMIT = 8;
 // ---------------------------------------------------------------------------
 // Katalog medis
 // ---------------------------------------------------------------------------
+
+/**
+ * Bandingkan kolom enum dengan teks dari permintaan.
+ *
+ * PostgreSQL menolak nilai yang bukan anggota enum dengan galat
+ * `invalid input value for enum`. Jadi `?category=kerjasama` pada tabel yang
+ * hanya punya `reguler` dan `health_meets_holiday` akan jadi galat 500, bukan
+ * daftar kosong seperti yang biasanya diharap orang.
+ *
+ * Kolomnya dik-cast ke `text` supaya perbandingannya tidak pernah gagal:
+ * nilai yang tidak dikenal harus menghasilkan nol baris, bukan galat. Pola ini
+ * sama dengan yang dipakai kueri SQL-mentah di backend Rust.
+ */
+function eqTeks(kolom: AnyColumn, nilai: string): SQL {
+  return sql`${kolom}::text = ${nilai}`;
+}
 
 export type SpecialtyRow = { id: string; name: string; slug: string };
 
@@ -318,7 +335,7 @@ export async function listServices(
     .where(
       and(
         eq(services.isActive, true),
-        filter.type ? eq(services.type, filter.type as never) : undefined,
+        filter.type ? eqTeks(services.type, filter.type) : undefined,
         filter.section ? eq(services.sectionKey, filter.section) : undefined,
       ),
     )
@@ -404,7 +421,7 @@ export async function listMcuPackages(
     .where(
       and(
         eq(mcuPackages.isActive, true),
-        category ? eq(mcuPackages.category, category as never) : undefined,
+        category ? eqTeks(mcuPackages.category, category) : undefined,
       ),
     )
     .orderBy(asc(mcuPackages.sortOrder), asc(mcuPackages.name));
@@ -704,7 +721,7 @@ export async function listDocuments(db: Db, category: string | null = null): Pro
     .where(
       and(
         eq(documents.isPublished, true),
-        category ? eq(documents.category, category as never) : undefined,
+        category ? eqTeks(documents.category, category) : undefined,
       ),
     )
     .orderBy(asc(documents.sortOrder), asc(documents.title));

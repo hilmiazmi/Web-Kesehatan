@@ -30,7 +30,7 @@ export async function GET(
     }
 
     const db = dbOrNull();
-    if (db === null) throw ApiError.internal("cek tiket butuh database");
+    if (db === null) throw ApiError.readOnly();
 
     const baris = await findByTicket(db, jenis, code);
     if (baris === null) throw ApiError.notFound("tiket");

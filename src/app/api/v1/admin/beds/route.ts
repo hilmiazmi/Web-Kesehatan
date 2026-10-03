@@ -29,7 +29,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     await requireSession(canEditContent);
 
     const db = dbOrNull();
-    if (db === null) throw ApiError.internal("tempat tidur butuh database");
+    if (db === null) throw ApiError.readOnly();
 
     const body = await readJsonBody(request);
     const mentah = body.items;

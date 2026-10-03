@@ -345,17 +345,27 @@ export function isHoneypotTrap(value: string): boolean {
  * jelas salah, bukan membuktikan alamat itu nyata.
  */
 function isEmail(value: string): boolean {
-  const pemisah = value.indexOf("@");
-  if (pemisah <= 0 || pemisah === value.length - 1) return false;
+  if (/\s/.test(value)) return false;
 
+  // Satu `@` saja. Dua tanda oath tidak pernah sah, dan kalau hanya yang
+  // pertama yang diperiksa, `dua@@at.com` lolos karena bagian domainnya
+  // `@at.com` masih mengandung titik.
+  if (value.split("@").length !== 2) return false;
+
+  const pemisah = value.indexOf("@");
   const local = value.slice(0, pemisah);
   const domain = value.slice(pemisah + 1);
 
-  if (local.length === 0 || local.length > 64 || domain.length === 0) return false;
-  if (/\s/.test(value)) return false;
+  if (local.length === 0 || local.length > 64 || domain.length > 255) return false;
 
-  // Butuh titik di domain, dan titik tidak boleh menutupi seluruhnya.
-  return domain.includes(".") && !domain.startsWith(".") && !domain.endsWith(".");
+  // Setiap label domain dipisah titik, dan tidak boleh kosong, tidak boleh
+  // diawali atau diakhiri tanda hubung, dan tidak boleh lebih dari 63 karakter.
+  const label = /^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$/;
+  const domainBaik = domain.split(".").every(
+    (bagian) => bagian.length > 0 && bagian.length <= 63 && label.test(bagian),
+  );
+
+  return domainBaik;
 }
 
 /**

@@ -15,7 +15,7 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
     await requireSession(canManageUsers);
 
     const db = dbOrNull();
-    if (db === null) throw ApiError.internal("akun butuh database");
+    if (db === null) throw ApiError.readOnly();
 
     return ok({
       items: await listAccounts(db),
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     await requireSession(canManageUsers);
 
     const db = dbOrNull();
-    if (db === null) throw ApiError.internal("akun butuh database");
+    if (db === null) throw ApiError.readOnly();
 
     const body = await readJsonBody(request);
     const errors = new Errors();

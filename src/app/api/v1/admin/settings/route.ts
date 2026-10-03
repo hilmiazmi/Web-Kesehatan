@@ -14,7 +14,7 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
     await requireSession(canEditContent);
 
     const db = dbOrNull();
-    if (db === null) throw ApiError.internal("pengaturan butuh database");
+    if (db === null) throw ApiError.readOnly();
 
     return ok(await loadSettings(db));
   });
@@ -25,7 +25,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     await requireSession(canEditContent);
 
     const db = dbOrNull();
-    if (db === null) throw ApiError.internal("pengaturan butuh database");
+    if (db === null) throw ApiError.readOnly();
 
     return ok(await saveSettings(db, await readJsonBody(request)));
   });

@@ -19,7 +19,7 @@ export async function POST(request: NextRequest, context: Konteks): Promise<Next
 
     const { id } = await context.params;
     const db = dbOrNull();
-    if (db === null) throw ApiError.internal("akun butuh database");
+    if (db === null) throw ApiError.readOnly();
 
     const body = await readJsonBody(request);
     const errors = new Errors();
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest, context: Konteks): Promise<Next
 
     if (!errors.isEmpty) throw errors.toApiError();
 
-    await resetPassword(db, uuid({ id }, "id"), baru);
+    await resetPassword(db, uuid(id, "id"), baru);
 
     return ok({ password_reset: true });
   });

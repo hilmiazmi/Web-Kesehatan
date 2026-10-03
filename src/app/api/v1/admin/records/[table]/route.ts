@@ -26,7 +26,7 @@ export async function GET(request: NextRequest, context: Konteks): Promise<NextR
 
     const params = request.nextUrl.searchParams;
     const db = dbOrNull();
-    if (db === null) throw ApiError.internal("panel butuh database");
+    if (db === null) throw ApiError.readOnly();
 
     return ok(
       await listRecords(db, spesifikasi, {
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest, context: Konteks): Promise<Next
     if (spesifikasi === undefined) throw ApiError.notFound("tabel");
 
     const db = dbOrNull();
-    if (db === null) throw ApiError.internal("panel butuh database");
+    if (db === null) throw ApiError.readOnly();
 
     return created(await createRecord(db, spesifikasi, await readJsonBody(request)));
   });

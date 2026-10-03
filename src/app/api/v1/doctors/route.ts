@@ -14,7 +14,7 @@ export function GET(request: NextRequest): Promise<NextResponse> {
     return ok(
       await denganSnapshot(
         (db) => listDoctors(db, { specialty: spesialis }),
-        "doctors",
+        "/doctors",
       ),
     );  });
 }

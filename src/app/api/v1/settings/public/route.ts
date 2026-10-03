@@ -6,5 +6,5 @@ import { loadSettings } from "@/server/db/repo/content";
 export const dynamic = "force-dynamic";
 
 export function GET(): Promise<NextResponse> {
-  return handle(async () => ok(await denganSnapshot((db) => loadSettings(db), "settings__public")));
+  return handle(async () => ok(await denganSnapshot((db) => loadSettings(db), "/settings/public")));
 }

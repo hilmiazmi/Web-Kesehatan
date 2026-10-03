@@ -581,6 +581,12 @@ export function writable(spesifikasi: TableSpec): readonly Field[] {
  */
 export function sortableColumns(spesifikasi: TableSpec): Set<string> {
   const set = new Set(spesifikasi.fields.map((f) => f.column));
+
+  // `id`, `created_at`, dan `updated_at` selalu ada di setiap tabel yang ada
+  // di sini, tapi tidak selalu dideklarasikan sebagai field yang bisa diisi.
+  // Tanpa tiga ini, `?sort=id` ditolak padahal `id` dipakai sebagai pengikat
+  // urutan di semua kueri daftar.
+  set.add("id");
   set.add("created_at");
   set.add("updated_at");
   return set;

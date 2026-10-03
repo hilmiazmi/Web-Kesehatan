@@ -23,7 +23,7 @@ export async function PATCH(request: NextRequest, context: Konteks): Promise<Nex
     if (jenis === undefined) throw ApiError.notFound("jenis inbox");
 
     const db = dbOrNull();
-    if (db === null) throw ApiError.internal("inbox butuh database");
+    if (db === null) throw ApiError.readOnly();
 
     const body = await readJsonBody(request);
     const errors = new Errors();
@@ -33,7 +33,7 @@ export async function PATCH(request: NextRequest, context: Konteks): Promise<Nex
 
     if (!errors.isEmpty) throw errors.toApiError();
 
-    await updateStatus(db, jenis, uuid({ id }, "id"), status!, catatan);
+    await updateStatus(db, jenis, uuid(id, "id"), status!, catatan);
 
     return ok({ status, updated: true });
   });

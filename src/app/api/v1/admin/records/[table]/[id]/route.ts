@@ -20,9 +20,9 @@ async function siapkan(context: Konteks) {
   if (spesifikasi === undefined) throw ApiError.notFound("tabel");
 
   const db = dbOrNull();
-  if (db === null) throw ApiError.internal("panel butuh database");
+  if (db === null) throw ApiError.readOnly();
 
-  return { db, spesifikasi, barisId: uuid({ id }, "id") };
+  return { db, spesifikasi, barisId: uuid(id, "id") };
 }
 
 export async function GET(_request: NextRequest, context: Konteks): Promise<NextResponse> {

@@ -23,7 +23,7 @@ export async function GET(request: NextRequest, context: Konteks): Promise<NextR
     if (jenis === undefined) throw ApiError.notFound("jenis inbox");
 
     const db = dbOrNull();
-    if (db === null) throw ApiError.internal("inbox butuh database");
+    if (db === null) throw ApiError.readOnly();
 
     const params = request.nextUrl.searchParams;
 

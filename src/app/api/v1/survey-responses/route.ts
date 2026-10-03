@@ -80,7 +80,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
  * 4,4 yang harus disimpan sebagai 4.
  */
 function bersihkanJawaban(errors: Errors, mentah: unknown): Record<string, number> {
-  if (mentah !== "object" || mentah === null || Array.isArray(mentah)) {
+  if (typeof mentah !== "object" || mentah === null || Array.isArray(mentah)) {
     errors.add("answers", "Isi jawaban harus berupa objek penilaian.");
     return {};
   }
@@ -118,8 +118,7 @@ function bersihkanJawaban(errors: Errors, mentah: unknown): Record<string, numbe
  * Rata-rata semua jawaban, dibulatkan ke bilangan bulat.
  *
  * Pembulatan ke bilangan bulat dilakukan karena kolomnya integer. 4,3 dan 4,4
- * sama-sama menjadi 4, dan itu memang yang akan dilihat sebagai responden
- * di panel.
+ * sama-sama menjadi 4, dan itulah yang akan terlihat di panel.
  */
 function rataDariJawaban(jawaban: Record<string, number>): number | null {
   const nilai = Object.values(jawaban);

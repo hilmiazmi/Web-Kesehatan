@@ -13,7 +13,7 @@ export async function GET(
 ): Promise<NextResponse> {
   return handle(async () => {
     const { id } = await context.params;
-    const dokter = uuid({ id }, "doctor");
+    const dokter = uuid(id, "doctor");
 
     // Dokter yang tidak ada dan dokter tanpa jadwal sama-sama menghasilkan
     // daftar kosong di sini. Keduanya dibedakan di `GET /doctors`, yang
@@ -21,7 +21,7 @@ export async function GET(
     return ok(
       await denganSnapshot(
         (db) => listSchedules(db, { doctorId: dokter }),
-        `doctors__${dokter}__schedules`,
+        `/doctors/${dokter}/schedules`,
       ),
     );
   });

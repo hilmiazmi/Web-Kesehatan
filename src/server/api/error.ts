@@ -16,6 +16,7 @@ export type ApiErrorCode =
   | "FORBIDDEN"
   | "RATE_LIMITED"
   | "PAYLOAD_TOO_LARGE"
+  | "READ_ONLY_MODE"
   | "DATABASE_ERROR"
   | "CONFIG_ERROR"
   | "INTERNAL_ERROR";
@@ -84,13 +85,42 @@ export class ApiError extends Error {
     return new ApiError("PAYLOAD_TOO_LARGE", 413, "Data yang dikirim terlalu besar.");
   }
 
+  /**
+   * Server sedang berjalan dalam mode baca-saja.
+   *
+   * Dipakai di `API_MODE=snapshot`, yaitu mode pratinjau yang tidak boleh
+   * menyentuh database produksi. Menolak dengan 403 akan terlihat seperti
+   * hak akses yang kurang, padahal hak aksesnya cukup; 503 lebih jujur karena
+   * yang tidak tersedia adalah kemampuan menulis, bukan izinnya.
+   */
+  static readOnly(): ApiError {
+    return new ApiError(
+      "READ_ONLY_MODE",
+      503,
+      "Server ini sedang berjalan dalam mode baca-saja, jadi formulir belum bisa dikirim.",
+    );
+  }
+
   static internal(detail: string): ApiError {
     return new ApiError("INTERNAL_ERROR", 500, "Terjadi kesalahan di server.", { detail });
   }
 }
 
-/** Bentuk galat PostgreSQL yang dipakai di sini. */
-type SqlError = { code?: string; constraint?: string; message?: string };
+/**
+ * Bentuk galat PostgreSQL yang dipakai di sini.
+ *
+ * Nama constraint dibaca dari dua kunci karena nama itu berbeda antar driver:
+ * `node-postgres` memakai `constraint`, sedangkan `postgres.js` yang dipakai
+ * di sini memakai `constraint_name`. Hanya satu yang salah baca akan membuat
+ * `kolomUnique` selalu mengembalikan `null`, dan pelanggaran unique kembali bocor
+ * sebagai 500 tanpa penjelasan.
+ */
+type SqlError = {
+  code?: string;
+  constraint?: string;
+  constraint_name?: string;
+  message?: string;
+};
 
 /**
  * Buka bungkus galat sampai ke galat PostgreSQL aslinya.
@@ -113,7 +143,7 @@ export function dbCause(err: unknown): SqlError {
 
   for (let depth = 0; depth < 4 && current; depth += 1) {
     const sqlErr = current as SqlError;
-    if (typeof sqlErr.code === "string") return sqlErr;
+    if (typeof sqlErr.code === "string") return normalkan(sqlErr);
     current = current.cause as { cause?: unknown } | undefined;
   }
 
@@ -124,10 +154,49 @@ export function dbCause(err: unknown): SqlError {
   return err as SqlError;
 }
 
+/**
+ * Samakan nama constraint ke satu kunci.
+ *
+ * Tanpa ini, setiap pembacaan `constraint` hanya benar untuk satu driver, dan
+ * penggantian driver akan diam-diam mematikan semua pesan galat yang menyebut
+ * kolom mana yang bentrok.
+ */
+function normalkan(err: SqlError): SqlError {
+  if (err.constraint !== undefined) return err;
+
+  const dariDriver = err.constraint_name;
+  if (dariDriver === undefined) return err;
+
+  return { ...err, constraint: dariDriver };
+}
+
 /** Kode SQL dari sebuah galat, atau `undefined` kalau ini bukan galat database. */
 export function dbErrorCode(err: unknown): string | undefined {
   const kode = dbCause(err).code;
   return typeof kode === "string" ? kode : undefined;
+}
+
+/**
+ * Nama kolom yang bentrok dari pelanggaran unique, atau `null`.
+ *
+ * PostgreSQL menamai constraint unik dengan pola `<tabel>_<kolom>_key`,
+ * `_unique`, atau `_pkey`, jadi nama kolomnya bisa diambil dari sana.
+ *
+ * Nilai balik `null` berarti galatnya bukan pelanggaran unique, atau nama
+ * constraint-nya tidak mengikuti pola yang dikenal.
+ *
+ * Ini dipakai lapisan admin. Pelanggaran unique di formulir publik punya
+ * arti lain: di sana yang bentrok adalah kode tiket, dan itu tabrakan pada
+ * generator yang harus dicoba ulang, bukan kesalahan yang harus dilaporkan.
+ * Satu pemetaan global untuk keduanya akan salah untuk yang satu atau yang
+ * lain, jadi keduanya dibedakan di sini.
+ */
+export function kolomUnique(err: unknown): string | null {
+  const sqlErr = dbCause(err);
+  if (sqlErr.code !== "23505" || typeof sqlErr.constraint !== "string") return null;
+
+  const cocok = /_([^_]+)_(?:key|pkey|uniq|unique|idx)$/.exec(sqlErr.constraint);
+  return cocok?.[1] ?? sqlErr.constraint;
 }
 
 /**

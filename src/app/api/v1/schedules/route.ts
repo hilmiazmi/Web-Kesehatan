@@ -22,7 +22,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   return handle(async () => {
     const params = request.nextUrl.searchParams;
 
-    const dokter = uuid({ doctor: params.get("doctor") ?? undefined }, "doctor");
+    const dokter = uuid(params.get("doctor") ?? undefined, "doctor");
 
     const diminta = tanggal(params, "date");
     const hariDipakai = diminta.ada ? diminta.nilai : formatIsoDate(new Date());

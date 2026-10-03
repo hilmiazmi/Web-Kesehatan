@@ -43,7 +43,7 @@ export async function jalankanForm<T>(
   // Endpoint formulir tidak punya jalur snapshot: menulis ke snapshot berarti
   // melaporkan berhasil tanpa menyimpan apa pun, dan pengunjung akan menyimpan
   // kode tiket yang tidak pernah bisa dipakai untuk mengecek status.
-  if (db === null) throw ApiError.internal("formulir butuh database");
+  if (db === null) throw ApiError.readOnly();
 
   return langkah(db, body);
 }

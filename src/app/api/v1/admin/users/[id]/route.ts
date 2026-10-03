@@ -18,7 +18,7 @@ export async function PATCH(request: NextRequest, context: Konteks): Promise<Nex
 
     const { id } = await context.params;
     const db = dbOrNull();
-    if (db === null) throw ApiError.internal("akun butuh database");
+    if (db === null) throw ApiError.readOnly();
 
     const body = await readJsonBody(request);
 
@@ -47,7 +47,7 @@ export async function DELETE(_request: NextRequest, context: Konteks): Promise<N
 
     const { id } = await context.params;
     const db = dbOrNull();
-    if (db === null) throw ApiError.internal("akun butuh database");
+    if (db === null) throw ApiError.readOnly();
 
     await deleteAccount(db, uuid(id, "id"), aktor.sub);
 

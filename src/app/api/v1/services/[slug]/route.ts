@@ -13,7 +13,7 @@ export async function GET(
 ): Promise<NextResponse> {
   return handle(async () => {
     const { slug } = await context.params;
-    const baris = await denganSnapshot((db) => findService(db, slug), `services_$_slug`);
+    const baris = await denganSnapshot((db) => findService(db, slug), `/services/${slug}`);
 
     if (baris === null) throw ApiError.notFound("layanan");
     return ok(baris);

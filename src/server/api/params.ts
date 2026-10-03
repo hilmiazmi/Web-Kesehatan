@@ -78,16 +78,21 @@ export function boolean(sumber: Sumber, nama: string): boolean {
 }
 
 /**
- * Baca segmen path yang berisi UUID.
+ * Periksa satu nilai sebagai UUID.
  *
- * `params` pada route handler Next.js selalu berupa objek dengan nilai
- * `string | string[] | undefined`, dan untuk segmen dinamis selalu `string`.
+ * Nilai diambil langsung, bukan lewat nama parameter. Bentuk lama menerima
+ * objek parameter plus nama field, dan dua nama itu harus sama supaya tidak
+ * salah baca; ketika tidak sama, hasilnya `undefined` yang diam-diam menjadi
+ * "Format ID tidak valid" untuk field yang bahkan tidak pernah dikirim.
+ *
  * Spasi di sekitar UUID tetap diterima supaya URL yang disalin dari peramban
  * tidak langsung ditolak karena ada spasi nyasar.
+ *
+ * Versi UUID tidak dibatasi. Seed memakai UUID v5 supaya id-nya bisa dihitung,
+ * dan menolak v5 akan membuat seluruh isi seed tidak bisa dijangkau lewat API.
  */
-export function uuid(params: Record<string, string | string[] | undefined>, nama: string): string {
-  const mentah = baca(params, nama);
-  const dipangkas = (mentah ?? "").trim();
+export function uuid(nilai: string | string[] | undefined, nama: string): string {
+  const dipangkas = (Array.isArray(nilai) ? nilai[0] : nilai)?.trim() ?? "";
 
   if (!UUID_PATTERN.test(dipangkas)) {
     throw ApiError.validation({ [nama]: "Format ID tidak valid." });

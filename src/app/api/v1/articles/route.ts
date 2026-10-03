@@ -29,7 +29,7 @@ export function GET(request: NextRequest): Promise<NextResponse> {
           offset: (halaman - 1) * ukuran,
           category: kategori,
         }),
-      "articles",
+      "/articles",
     );
 
     const total = hasil.total;
