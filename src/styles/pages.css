@@ -562,3 +562,200 @@
 .doctor-schedule-day {
   font-weight: 600;
 }
+
+/* ---------- Isi halaman generik ----------
+   Bentuk blok di src/data/halaman/ dirender oleh PageBlocks. Semua kelas di
+   bawah ini hanya dipakai oleh komponen itu, jadi tidak ada risiko bentrok
+   dengan halaman yang sudah ada. */
+.halaman-isi {
+  color: var(--rs-text-body);
+}
+
+.halaman-teks {
+  line-height: 1.75;
+  margin-bottom: 1rem;
+  max-width: 70ch;
+}
+
+.halaman-sub {
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--rs-text-heading);
+  margin: 2rem 0 0.75rem;
+}
+
+.halaman-sub-kecil {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--rs-text-heading);
+  margin: 1.5rem 0 0.6rem;
+}
+
+.halaman-daftar {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+  max-width: 70ch;
+}
+
+.halaman-daftar li {
+  position: relative;
+  padding-left: 1.15rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.7;
+}
+
+.halaman-daftar li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.7em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--rs-accent);
+}
+
+.halaman-daftar a {
+  color: var(--rs-accent);
+}
+
+.halaman-daftar-ikon li::before {
+  display: none;
+}
+
+.halaman-daftar-ikon li {
+  padding-left: 0;
+}
+
+.halaman-langkah {
+  padding-left: 1.35rem;
+  margin: 0 0 1rem;
+  max-width: 70ch;
+}
+
+.halaman-langkah li {
+  margin-bottom: 0.55rem;
+  line-height: 1.7;
+}
+
+.halaman-blok {
+  margin-bottom: 1.5rem;
+}
+
+.halaman-keterangan {
+  font-size: 0.85rem;
+  color: var(--rs-text-nav);
+  margin-top: 0.5rem;
+}
+
+/* Tabel dibungkus supaya bisa digeser di layar sempit, bukan memaksa
+   halaman melebar. */
+.halaman-tabel-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--rs-gray-300);
+  border-radius: var(--rs-radius-card);
+}
+
+.halaman-tabel {
+  margin-bottom: 0;
+  min-width: 32rem;
+}
+
+.halaman-tabel thead th {
+  background-color: var(--rs-section-light);
+  color: var(--rs-text-heading);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.halaman-tabel td,
+.halaman-tabel th {
+  vertical-align: top;
+}
+
+/* Kotak angka ringkasan. Warna, radius, dan padding mengikuti .info-box di
+   situs referensi yang sudah diukur lewat getComputedStyle. */
+.halaman-statistik {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.halaman-stat {
+  min-width: 120px;
+  background-color: var(--rs-accent);
+  border-radius: 0.375rem;
+  padding: 12px;
+  text-align: center;
+  color: var(--rs-white);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.halaman-stat-nilai {
+  font-size: 1.6rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.halaman-stat-label {
+  font-size: 0.78rem;
+  opacity: 0.9;
+}
+
+.halaman-kartu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.halaman-kartu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 1.15rem;
+  border: 1px solid var(--rs-gray-300);
+  border-radius: var(--rs-radius-card);
+  background-color: var(--rs-white);
+  text-decoration: none;
+  color: inherit;
+}
+
+a.halaman-kartu:hover,
+a.halaman-kartu:focus-visible {
+  border-color: var(--rs-accent);
+}
+
+.halaman-kartu-ikon {
+  font-size: 1.35rem;
+  color: var(--rs-accent);
+}
+
+.halaman-kartu-judul {
+  font-weight: 600;
+  color: var(--rs-text-card-title);
+}
+
+.halaman-kartu-isi {
+  font-size: 0.9rem;
+  color: var(--rs-text-card-desc);
+  line-height: 1.6;
+}
+
+.halaman-galeri {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.halaman-catatan {
+  border-left: 4px solid var(--rs-accent);
+  background-color: var(--rs-section-light);
+  border-radius: 0 var(--rs-radius-card) var(--rs-radius-card) 0;
+  padding: 0.9rem 1.1rem;
+  margin: 1.5rem 0;
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
