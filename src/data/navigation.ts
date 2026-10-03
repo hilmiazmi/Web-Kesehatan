@@ -123,11 +123,14 @@ export const NAV_ITEMS: NavItem[] = [
       { label: "Standar Pelayanan", href: "/dokumen/standar-pelayanan" },
       { label: "Kompensasi Pelayanan", href: "/dokumen/kompensasi-pelayanan" },
       { label: "Pengaduan Masyarakat", href: "/informasi-publik/pengaduan" },
-      {
-        label: "Fasilitas",
-        href: "/informasi-publik/fasilitas",
-        children: [{ label: "Aula", href: "/informasi-publik/aula" }],
-      },
+      { label: "Fasilitas", href: "/informasi-publik/fasilitas" },
+      // Aula bukan salah satu unit fasilitas, melainkan tempat pemeriksaan
+      // dokumen. Di situs acuan keduanya saudara di bawah Informasi Publik.
+      // Semula Aula dipasang sebagai anak Fasilitas, dan itu membuat
+      // childrenOf("/informasi-publik/fasilitas") mengembalikan Aula
+      // sehingga blok tautan-anak di halaman Fasilitas tidak menampilkan
+      // daftar fasilitas sama sekali.
+      { label: "Aula", href: "/informasi-publik/aula" },
       { label: "Karir", href: "/informasi-publik/karir" },
       { label: "Brosur Digital", href: "/informasi-publik/brosur" },
       { label: "Budaya Keselamatan", href: "/informasi-publik/budaya-keselamatan" },
