@@ -759,3 +759,12 @@ a.halaman-kartu:focus-visible {
   font-size: 0.92rem;
   line-height: 1.65;
 }
+
+/* Catatan kecil di bawah isi profil. */
+.detail-note {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rs-gray-300);
+  font-size: 0.82rem;
+  color: var(--rs-text-nav);
+}

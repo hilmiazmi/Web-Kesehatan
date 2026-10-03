@@ -671,3 +671,38 @@
   max-width: 70ch;
   color: var(--rs-text-body);
 }
+/* Kartu yang seluruhnya jadi tautan, dipakai kisi pimpinan. Area kliknya jadi
+   satu kartu penuh, bukan cuma baris judul. */
+.kartu-tautan {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.kartu-tautan:hover,
+.kartu-tautan:focus-visible {
+  border-color: var(--rs-accent);
+  color: inherit;
+  transform: translateY(-2px);
+}
+
+.kartu-tautan:focus-visible {
+  outline: 3px solid rgba(var(--rs-accent-rgb), 0.4);
+  outline-offset: 3px;
+}
+
+/* Penanda bahwa kartu bisa diklik. Dipasang di bawah isi kartu, bukan di atas
+   judul, supaya penanda tidak menentukan di mana mata berhenti lebih dulu. */
+.kartu-baca {
+  margin-top: auto;
+  padding-top: 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--rs-accent);
+}
+
+.kartu-baca::after {
+  content: " \2192";
+}

@@ -74,28 +74,6 @@ export const ABOUT_SECTIONS: AboutSection[] = [
   },
 ];
 
-export type Manager = {
-  name: string;
-  /** Jabatan, tanpa gelar akademis. */
-  role: string;
-};
-
-/**
- * Susunan pimpinan. Sepenuhnya fiktif: nama, jabatan, dan urutan dibuat
- * sendiri untuk mengisi tata letak kisi, bukan menyalin data rumah sakit
- * asli (PRD bagian 12 dan 13).
- */
-export const MANAGEMENT: Manager[] = [
-  { name: "dr. Anita Prameswari", role: "Direktur" },
-  { name: "dr. Bimo Santoso", role: "Wakil Direktur" },
-  { name: "dr. Citra Ningrum", role: "Kepala Bagian Pelayanan" },
-  { name: "dr. Deni Kurniawan", role: "Kepala Bagian Keuangan" },
-  { name: "dr. Eka Mahendra", role: "Kepala Bagian Sumber Daya Manusia" },
-  { name: "dr. Farida Ramadhani", role: "Kepala Instalasi Gawat Darurat" },
-  { name: "dr. Gilang Permana", role: "Kepala Instalasi Laboratorium" },
-  { name: "dr. Hana Puspita", role: "Kepala Instalasi Radiologi" },
-];
-
 export type DiagnosticGroup = {
   /** Nama alat atau kelompok pemeriksaan. */
   name: string;
