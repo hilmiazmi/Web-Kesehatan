@@ -36,7 +36,9 @@ const LINGKUNGAN = {
 const ASLI = { ...process.env };
 
 beforeEach(() => {
-  process.env = { ...LINGKUNGAN, API_MODE: "snapshot" };
+  // `Object.assign` bukan penugasan ke `process.env`, jadi tipe `ProcessEnv`
+  // yang mewajibkan `NODE_ENV` tidak ikut diperiksa di sini.
+  Object.assign(process.env, LINGKUNGAN, { API_MODE: "snapshot" });
   resetConfigCache();
   keadaan.database = null;
 });
@@ -100,7 +102,7 @@ describe("denganSnapshot saat database gagal", () => {
   };
 
   it("mengalihkan ke snapshot untuk galat koneksi", async () => {
-    process.env = { ...LINGKUNGAN, API_MODE: "live" };
+    Object.assign(process.env, { API_MODE: "live" });
     resetConfigCache();
     keadaan.database = { execute: async () => [] };
 
@@ -112,7 +114,7 @@ describe("denganSnapshot saat database gagal", () => {
     // `22P02` adalah invalid_text_representation, misal nilai enum di luar
     // daftar. Ini kesalahan permintaan, dan menjawabnya dari snapshot akan
     // menyembunyikan kesalahan itu dengan daftar yang tidak difilter.
-    process.env = { ...LINGKUNGAN, API_MODE: "live" };
+    Object.assign(process.env, { API_MODE: "live" });
     resetConfigCache();
     keadaan.database = { execute: async () => [] };
 
@@ -122,7 +124,7 @@ describe("denganSnapshot saat database gagal", () => {
   });
 
   it("tidak mengalihkan untuk galat tanpa kode PostgreSQL", async () => {
-    process.env = { ...LINGKUNGAN, API_MODE: "live" };
+    Object.assign(process.env, { API_MODE: "live" });
     resetConfigCache();
     keadaan.database = { execute: async () => [] };
 
