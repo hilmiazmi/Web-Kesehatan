@@ -47,8 +47,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# --- Rust API (berada di api/) ---
+# --- Backend Rust yang sudah diarsipkan (archive/rust-api/) ---
 # Artefak kompilasi dan cache cargo. Tanpa baris ini, `git add -A` ikut
-# meng-commit api/target/ yang ratusan megabyte.
-/api/target/
+# meng-commit target/ yang ratusan megabyte.
+/archive/rust-api/target/
 **/*.rs.bk
