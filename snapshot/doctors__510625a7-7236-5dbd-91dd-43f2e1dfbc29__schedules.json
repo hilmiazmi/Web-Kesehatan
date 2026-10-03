@@ -1,0 +1,26 @@
+[
+ {
+  "id": "9056c589-3ec4-47fb-9720-fabdeb1537e1",
+  "doctor_id": "510625a7-7236-5dbd-91dd-43f2e1dfbc29",
+  "doctor_name": "Putri Anggraini",
+  "polyclinic": "Poliklinik Umum",
+  "day_of_week": 1,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "A1-04",
+  "quota": 45,
+  "note": null
+ },
+ {
+  "id": "7048af44-b104-4ccf-a80f-fc1caab45e51",
+  "doctor_id": "510625a7-7236-5dbd-91dd-43f2e1dfbc29",
+  "doctor_name": "Putri Anggraini",
+  "polyclinic": "Poliklinik Umum",
+  "day_of_week": 2,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "A1-04",
+  "quota": 45,
+  "note": null
+ }
+]

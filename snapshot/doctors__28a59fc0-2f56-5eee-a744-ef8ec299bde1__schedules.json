@@ -1,0 +1,50 @@
+[
+ {
+  "id": "40bb3d62-3dce-4ac9-9213-61ddf10aaac0",
+  "doctor_id": "28a59fc0-2f56-5eee-a744-ef8ec299bde1",
+  "doctor_name": "Endah Permata",
+  "polyclinic": "Poliklinik Ibu dan Anak",
+  "day_of_week": 1,
+  "start_time": "09:00:00",
+  "end_time": "13:00:00",
+  "room": "C1-05",
+  "quota": 35,
+  "note": null
+ },
+ {
+  "id": "4735ebdf-0137-4176-908b-ee49a2b5ffa7",
+  "doctor_id": "28a59fc0-2f56-5eee-a744-ef8ec299bde1",
+  "doctor_name": "Endah Permata",
+  "polyclinic": "Poliklinik Ibu dan Anak",
+  "day_of_week": 2,
+  "start_time": "09:00:00",
+  "end_time": "13:00:00",
+  "room": "C1-05",
+  "quota": 35,
+  "note": null
+ },
+ {
+  "id": "7fc7aa89-1522-4602-91da-109c5e925d04",
+  "doctor_id": "28a59fc0-2f56-5eee-a744-ef8ec299bde1",
+  "doctor_name": "Endah Permata",
+  "polyclinic": "Poliklinik Ibu dan Anak",
+  "day_of_week": 4,
+  "start_time": "09:00:00",
+  "end_time": "13:00:00",
+  "room": "C1-05",
+  "quota": 35,
+  "note": null
+ },
+ {
+  "id": "4118d2c0-841d-4a43-9358-6bd2ed092fa7",
+  "doctor_id": "28a59fc0-2f56-5eee-a744-ef8ec299bde1",
+  "doctor_name": "Endah Permata",
+  "polyclinic": "Poliklinik Ibu dan Anak",
+  "day_of_week": 6,
+  "start_time": "08:00:00",
+  "end_time": "11:00:00",
+  "room": "C1-05",
+  "quota": 20,
+  "note": null
+ }
+]

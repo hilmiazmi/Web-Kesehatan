@@ -1,0 +1,121 @@
+{
+ "summary": {
+  "total_beds": 96,
+  "occupied_beds": 66,
+  "reserved_beds": 10,
+  "available_beds": 20,
+  "occupancy_percent": 68.8,
+  "observed_at": "2026-10-03T02:19:48.980Z",
+  "room_count": 9
+ },
+ "items": [
+  {
+   "ward_name": "Anggrek",
+   "class_name": "Kelas 2",
+   "room_code": "A-201",
+   "total_beds": 12,
+   "occupied_beds": 9,
+   "reserved_beds": 1,
+   "available_beds": 2,
+   "gender_policy": "Campuran",
+   "note": null,
+   "observed_at": "2026-10-03T02:19:48.980Z"
+  },
+  {
+   "ward_name": "Anggrek 2",
+   "class_name": "Kelas 1",
+   "room_code": "B-101",
+   "total_beds": 8,
+   "occupied_beds": 6,
+   "reserved_beds": 0,
+   "available_beds": 2,
+   "gender_policy": "Perempuan",
+   "note": null,
+   "observed_at": "2026-10-03T02:19:48.980Z"
+  },
+  {
+   "ward_name": "Cendana",
+   "class_name": "Kelas 2",
+   "room_code": "A-202",
+   "total_beds": 12,
+   "occupied_beds": 7,
+   "reserved_beds": 2,
+   "available_beds": 3,
+   "gender_policy": "Campuran",
+   "note": null,
+   "observed_at": "2026-10-03T02:19:48.980Z"
+  },
+  {
+   "ward_name": "Damar",
+   "class_name": "Kelas 1",
+   "room_code": "B-102",
+   "total_beds": 8,
+   "occupied_beds": 5,
+   "reserved_beds": 1,
+   "available_beds": 2,
+   "gender_policy": "Laki-laki",
+   "note": null,
+   "observed_at": "2026-10-03T02:19:48.980Z"
+  },
+  {
+   "ward_name": "Intensive Care Unit",
+   "class_name": "Kelas Khusus",
+   "room_code": "ICU-01",
+   "total_beds": 8,
+   "occupied_beds": 6,
+   "reserved_beds": 1,
+   "available_beds": 1,
+   "gender_policy": "Campuran",
+   "note": null,
+   "observed_at": "2026-10-03T02:19:48.980Z"
+  },
+  {
+   "ward_name": "Kamar Bougenville",
+   "class_name": "Kelas VIP",
+   "room_code": "VIP-01",
+   "total_beds": 6,
+   "occupied_beds": 4,
+   "reserved_beds": 0,
+   "available_beds": 2,
+   "gender_policy": "Campuran",
+   "note": null,
+   "observed_at": "2026-10-03T02:19:48.980Z"
+  },
+  {
+   "ward_name": "Mawar",
+   "class_name": "Kelas 3",
+   "room_code": "A-301",
+   "total_beds": 18,
+   "occupied_beds": 15,
+   "reserved_beds": 1,
+   "available_beds": 2,
+   "gender_policy": "Campuran",
+   "note": null,
+   "observed_at": "2026-10-03T02:19:48.980Z"
+  },
+  {
+   "ward_name": "Melati",
+   "class_name": "Kelas 3",
+   "room_code": "A-302",
+   "total_beds": 18,
+   "occupied_beds": 11,
+   "reserved_beds": 3,
+   "available_beds": 4,
+   "gender_policy": "Campuran",
+   "note": null,
+   "observed_at": "2026-10-03T02:19:48.980Z"
+  },
+  {
+   "ward_name": "Ruang Neonatal",
+   "class_name": "Kelas Khusus",
+   "room_code": "NICU-01",
+   "total_beds": 6,
+   "occupied_beds": 3,
+   "reserved_beds": 1,
+   "available_beds": 2,
+   "gender_policy": "Campuran",
+   "note": null,
+   "observed_at": "2026-10-03T02:19:48.980Z"
+  }
+ ]
+}

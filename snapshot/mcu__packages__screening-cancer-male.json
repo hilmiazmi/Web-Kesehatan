@@ -1,0 +1,27 @@
+{
+ "slug": "screening-cancer-male",
+ "name": "Skrining Kanker Pria",
+ "category": "health_meets_holiday",
+ "summary": "Skrining kanker prostat pada pria berusia 40 tahun atau lebih.",
+ "image_url": "https://picsum.photos/seed/screening-cancer-male/960/640",
+ "price": 150000,
+ "description_html": "<p>Program skrining untuk pria dengan usia 40 tahun atau lebih.</p>\n",
+ "items": [
+  {
+   "group_name": "Wawancara",
+   "item_name": "Riwayat keluarga dan gaya hidup"
+  },
+  {
+   "group_name": "Prostat",
+   "item_name": "Pemeriksaan prostat"
+  },
+  {
+   "group_name": "Ultrasound",
+   "item_name": "Ultrasonografi prostat"
+  },
+  {
+   "group_name": "Laboratorium",
+   "item_name": "PSA total"
+  }
+ ]
+}

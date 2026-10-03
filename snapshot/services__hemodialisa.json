@@ -1,0 +1,10 @@
+{
+ "id": "a7f776c9-5bd5-4d0d-89aa-fe9d1cdfa119",
+ "type": "facility",
+ "slug": "hemodialisa",
+ "title": "Hemodialisa",
+ "tagline": "Layanan cuci darah dengan mesin dan tenaga terlatih",
+ "summary": "Layanan hemodialisa untuk pasien dengan gangguan fungsi ginjal kronis.",
+ "body_html": "<p>Sesi dialysis tiga kali seminggu untuk pasien dengan jadwal tetap. Perubahan jadwal dikoordinasikan dengan dokter.</p>\n",
+ "image_url": "https://picsum.photos/seed/fasilitas-hemodialisa/960/640"
+}

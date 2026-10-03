@@ -124,6 +124,26 @@ bukan tebakan. Rinciannya ada di `docs/design-tokens-terverifikasi.md`.
 - Font Sizes, warna, dan radii untuk section beranda sudah diverifikasi satu per
   satu terhadap situs rujukan; jangan mengarang angka baru tanpa pengukuran.
 
+## Rahasia
+
+[`SECURITY.md`](SECURITY.md) adalah rujukan lengkap dan wajib dibaca
+sebelum menyentuh kredensial apa pun. Ringkasnya:
+
+- **Tidak boleh** masuk commit, push, issue, PR, komentar review,
+  screenshot, atau chat: `DATABASE_URL` lengkap, `AUTH_SECRET`, token
+  API, kunci privat, password, isi cookie sesi, IP VPS/rumah/kantor, dan
+  data pasien.
+- Kalau tidak yakin sebuah nilai itu rahasia, perlakukan sebagai rahasia.
+- **Jangan pernah** mencetak nilai `.env*` ke terminal. Ambil nama
+  variabelnya saja; untuk tahu apakah ada yang terisi pakai `grep -c`.
+- **Jangan pernah** `git add -A` tanpa membaca outputnya, dan jangan
+  menulis nilai rahasia di commit message.
+- Kredensial yang terlanjur masuk history harus dirotasi, bukan hanya
+  di-revert. Menghapus commit tidak menghapusnya dari fork atau cache.
+- Baris `!.env.example` di `.gitignore` itu wajib ada. Tanpa itu,
+  `.env.example` ikut ter-ignore dan satu-satunya dokumentasi konfigurasi
+  backend hilang dari repo.
+
 ## Batasan
 
 - `archive/legacy-v1/` adalah kode versi lama yang read-only dan sudah

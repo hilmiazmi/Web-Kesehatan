@@ -1,0 +1,37 @@
+[
+ {
+  "id": "4876d57c-0105-4c86-b9c6-620e99426f5e",
+  "name": "Poliklinik Umum",
+  "slug": "poliklinik-umum",
+  "description": "Layanan dasar untuk pasien yang datang sendiri tanpa rujukan.",
+  "location": "Gedung A Lantai 1"
+ },
+ {
+  "id": "3c267ab5-9373-42b0-98e6-bdbf7cab1c56",
+  "name": "Poliklinik Spesialis",
+  "slug": "poliklinik-spesialis",
+  "description": "Konsultasi dengan dokter spesialis tanpa perlu rujukan dari poli umum.",
+  "location": "Gedung B Lantai 2"
+ },
+ {
+  "id": "c98364c5-fca1-4901-9564-bd1bb30862cc",
+  "name": "Poliklinik Ibu dan Anak",
+  "slug": "poliklinik-ibu-anak",
+  "description": "Pemeriksaan kehamilan, tumbuh kembang anak, dan konsultasi psikologi anak.",
+  "location": "Gedung C Lantai 1"
+ },
+ {
+  "id": "c24e1cb5-464f-49e2-a968-067b3f150238",
+  "name": "Poliklinik Penyakit Dalam",
+  "slug": "poliklinik-penyakit-dalam",
+  "description": "Perawatan penyakit kronis dan pemeriksaan rutin pasien dewasa.",
+  "location": "Gedung B Lantai 3"
+ },
+ {
+  "id": "2dfa5136-c2be-4dfd-b25e-de2f35f00015",
+  "name": "Instalasi Gawat Darurat",
+  "slug": "igd",
+  "description": "Layanan kegawatdaruratan 24 jam setiap hari, termasuk hari libur.",
+  "location": "Gedung A Lantai 1"
+ }
+]

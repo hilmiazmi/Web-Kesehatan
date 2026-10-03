@@ -1,0 +1,113 @@
+[package]
+name = "rsud-api"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.82"
+description = "REST API untuk website RSUD Contoh Sehat"
+publish = false
+
+[[bin]]
+name = "rsud-api"
+path = "src/main.rs"
+
+# Binary terpisah untuk operasional database. Dipisah dari server supaya
+# `db:migrate` dan `db:seed` tidak ikut ter-cache di image produksi.
+[[bin]]
+name = "rsud-db"
+path = "src/bin/db.rs"
+
+[dependencies]
+# --- HTTP ---
+axum = { version = "0.8", default-features = false, features = [
+  "http1",
+  "json",
+  "tokio",
+  "query",
+  "matched-path",
+] }
+tower = { version = "0.5", default-features = false, features = ["util", "timeout"] }
+tower-http = { version = "0.6", default-features = false, features = [
+  "trace",
+  "request-id",
+  "limit",
+  "cors",
+] }
+http = "1"
+http-body-util = "0.1"
+
+# --- Async runtime ---
+tokio = { version = "1", features = [
+  "rt-multi-thread",
+  "macros",
+  "net",
+  "signal",
+  "time",
+] }
+
+# --- Database ---
+# sqlx tanpa fitur `tls-rustls` bawaan: koneksi ke PostgreSQL lokal (VPS) dan
+# ke jaringan privat tidak perlu TLS. Kalau nanti DB dipindah ke provider
+# terkelola yang mewajibkan TLS, tambahkan fitur `tls-rustls` di sini.
+sqlx = { version = "0.8", default-features = false, features = [
+  "runtime-tokio",
+  "postgres",
+  "macros",
+  "uuid",
+  "chrono",
+  "json",
+  "migrate",
+] }
+
+# --- Serialisasi ---
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# --- Waktu & identitas ---
+chrono = { version = "0.4", default-features = false, features = [
+  "std",
+  "clock",
+  "serde",
+] }
+uuid = { version = "1", features = ["v4", "serde"] }
+
+# --- Keamanan ---
+# argon2 pure-Rust: tidak butuh gcc/libc di image runtime.
+argon2 = { version = "0.5", default-features = false, features = ["std"] }
+password-hash = { version = "0.5", features = ["std"] }
+hmac = "0.12"
+sha2 = "0.10"
+base64 = "0.22"
+subtle = "2"
+rand = "0.9"
+
+# --- Markdown ---
+# Markdown di-render dan disanitasi di sisi server, bukan di frontend.
+# Alasannya: sanitasi jadi mustahil dilewati. Kalau filter HTML ada di sisi
+# klien, satu form yang lupa memanggilnya berarti stored XSS.
+# pulldown-cmark = parser Markdown, ammonia = whitelist tag/atribut HTML.
+# Fitur "html" pada pulldown-cmark hanya mengaktifkan fungsi untuk menulis
+# output HTML; ia tidak mengaktifkan lolosnya HTML mentah dari input.
+pulldown-cmark = { version = "0.13", default-features = false, features = ["html"] }
+ammonia = "4"
+
+# --- Observability (ringan, tanpa tracing-subscriber yang berat) ---
+tracing = "0.1"
+
+# --- Error ---
+thiserror = "2"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter", "fmt"] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "time"] }
+
+# Binary `rsud-db` dan test tidak butuh TLS maupun HTTP stack.
+[profile.release]
+opt-level = "z"
+lto = "thin"
+codegen-units = 1
+strip = true
+panic = "abort"
+
+[profile.dev]
+opt-level = 0
+debug = 1

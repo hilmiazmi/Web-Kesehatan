@@ -1,0 +1,26 @@
+[
+ {
+  "id": "48456b19-1d3d-40b2-a799-3b78a4910e86",
+  "doctor_id": "2391238a-4eed-5a5f-af72-a9622a9bd820",
+  "doctor_name": "Hendra Kusuma",
+  "polyclinic": "Poliklinik Penyakit Dalam",
+  "day_of_week": 2,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "B3-06",
+  "quota": 50,
+  "note": null
+ },
+ {
+  "id": "3911f083-68a4-4cb5-8e2a-f898c79a96eb",
+  "doctor_id": "2391238a-4eed-5a5f-af72-a9622a9bd820",
+  "doctor_name": "Hendra Kusuma",
+  "polyclinic": "Poliklinik Penyakit Dalam",
+  "day_of_week": 4,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "B3-06",
+  "quota": 50,
+  "note": null
+ }
+]

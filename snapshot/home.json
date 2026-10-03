@@ -1,0 +1,555 @@
+{
+ "hero_slides": [
+  {
+   "title": "Pelayanan Terpadu",
+   "subtitle": "Satu tempat untuk memeriksa kesehatan keluarga",
+   "image_url": "https://picsum.photos/seed/slide-1/1600/700",
+   "link_url": "/pelayanan",
+   "alt_text": "banner layanan terpadu"
+  },
+  {
+   "title": "Daftar Online",
+   "subtitle": "Ambil nomor antrean tanpa datang lebih awal",
+   "image_url": "https://picsum.photos/seed/slide-2/1600/700",
+   "link_url": "/daftar-online",
+   "alt_text": "banner daftar online"
+  },
+  {
+   "title": "Gawat Darurat 24 Jam",
+   "subtitle": "Buka setiap hari, termasuk hari libur",
+   "image_url": "https://picsum.photos/seed/slide-3/1600/700",
+   "link_url": "/pelayanan/medis/instalasi-gawat-darurat",
+   "alt_text": "banner gawat darurat"
+  },
+  {
+   "title": "Medical Check Up",
+   "subtitle": "Pemeriksaan kesehatan berkala untuk pekerja",
+   "image_url": "https://picsum.photos/seed/slide-4/1600/700",
+   "link_url": "/pelayanan/prioritas/medical-check-up",
+   "alt_text": "banner medical check up"
+  }
+ ],
+ "priority_services": [
+  {
+   "id": "735c68ea-ce9f-4d6e-88bc-18a2105a1931",
+   "type": "priority",
+   "slug": "jantung-terpadu",
+   "title": "Layanan Jantung Terpadu",
+   "tagline": "Diagnosis dan penanganan penyakit jantung dalam satu alur",
+   "summary": "Pemeriksaan jantung, rekam listrik jantung, dan dokter spesialis jantung yang bekerja sebagai satu tim.",
+   "body_html": "<h2>Alur pemeriksaan</h2>\n<ol>\n<li>Pendaftaran di loket rawat jalan.</li>\n<li>Rekam listrik jantung.</li>\n<li>Konsultasi dengan dokter spesialis jantung.</li>\n</ol>\n<h2>Waktu layanan</h2>\n<p>Senin sampai Jumat, pukul 08.00 sampai 12.00.</p>\n",
+   "image_url": "https://picsum.photos/seed/layanan-jantung/960/640"
+  },
+  {
+   "id": "5980d98d-ebdf-4456-9f16-824bb1c92996",
+   "type": "priority",
+   "slug": "stroke-terpadu",
+   "title": "Layanan Stroke Terpadu",
+   "tagline": "Penanganan darurat stroke dalam waktu kurang dari satu jam",
+   "summary": "Tim khusus yang menangani pasien stroke sejak masuk gawat darurat sampai rencana perawatan.",
+   "body_html": "<p>Layanan ini menerima pasien suspected stroke tanpa perlu rujukan. Segera datang ke gawat darurat untuk pemeriksaan awal.</p>\n",
+   "image_url": "https://picsum.photos/seed/layanan-stroke/960/640"
+  },
+  {
+   "id": "d68ce9e3-8342-4c85-a8a3-4bc97489ad52",
+   "type": "priority",
+   "slug": "maternal-center",
+   "title": "Maternal Center",
+   "tagline": "Perawatan kehamilan dan persalinan dengan tim terpadu",
+   "summary": "Pemeriksaan kehamilan, persalinan, dan perawatan nifas dalam satu gedung.",
+   "body_html": "<h2>Layanan</h2>\n<ul>\n<li>Pemeriksaan kehamilan rutin</li>\n<li>Persalinan</li>\n<li>Perawatan nifas</li>\n</ul>\n<p>Pendaftaran boleh dilakukan sejak usia kehamilan 12 minggu.</p>\n",
+   "image_url": "https://picsum.photos/seed/layanan-maternal/960/640"
+  },
+  {
+   "id": "82dac720-a9c3-4257-a908-b9964efef5e7",
+   "type": "priority",
+   "slug": "kanker-terpadu",
+   "title": "Layanan Kanker Terpadu",
+   "tagline": "Skrining, diagnosis, dan terapi kanker dalam satu alur",
+   "summary": "Layanan skrining untuk umum dan terapi tumor langsung dari dokter spesialis onkologi.",
+   "body_html": "<p>Skrining dilakukan bagi kelompok berisiko tinggi. Jadwal pemeriksaan bisa dilihat di halaman daftar online.</p>\n",
+   "image_url": "https://picsum.photos/seed/layanan-kanker/960/640"
+  },
+  {
+   "id": "e82a3def-d7a6-477f-a5f6-06c3c9c3ca74",
+   "type": "priority",
+   "slug": "uro-nefrologi",
+   "title": "Layanan Uro dan Nefrologi",
+   "tagline": "Penanganan penyakit ginjal dan saluran kemih",
+   "summary": "Konsultasi dengan dokter spesialis ginjal dan saluran kemih, termasuk layanan hemodialisa.",
+   "body_html": "<p>Layanan mencakup pemeriksaan fungsi ginjal, batu saluran kemih, dan terapi hemodialisa.</p>\n",
+   "image_url": "https://picsum.photos/seed/layanan-uro/960/640"
+  },
+  {
+   "id": "d38ddcdc-973a-4be5-aa8e-d0551d7b3c0f",
+   "type": "priority",
+   "slug": "medical-check-up",
+   "title": "Medical Check Up",
+   "tagline": "Pemeriksaan kesehatan berkala untuk pekerja",
+   "summary": "Pemeriksaan kesehatan terencana dengan waktu hasil yang jelas dan bisa diprediksi.",
+   "body_html": "<p>Paket medical check up bisa dipilih per kelompok usia dan per kelompok pekerjaan. Daftar paket ada di halaman medical check up.</p>\n",
+   "image_url": "https://picsum.photos/seed/layanan-mcu/960/640"
+  }
+ ],
+ "facilities": [
+  {
+   "id": "60d3a942-6952-42c6-b6ce-e8edb20c435d",
+   "type": "facility",
+   "slug": "rawat-jalan",
+   "title": "Rawat Jalan",
+   "tagline": "Pelayanan poliklinik dan spesialis tanpa perlu rawat inap",
+   "summary": "Konsultasi dokter umum, dokter spesialis, dan poli khusus dengan sistem antrean daring.",
+   "body_html": "<p>Rawat jalan dibuka Senin sampai Jumat. Pendaftaran bisa dilakukan secara daring tanpa datang lebih awal.</p>\n",
+   "image_url": "https://picsum.photos/seed/fasilitas-rawat-jalan/960/640"
+  },
+  {
+   "id": "09dd2dfa-d277-47c9-81c5-f302c09504a7",
+   "type": "facility",
+   "slug": "rawat-inap",
+   "title": "Rawat Inap",
+   "tagline": "Perawatan inap dengan beberapa pilihan kelas",
+   "summary": "Kamar inap reguler dengan pemantauan harian oleh tim perawat.",
+   "body_html": "<p>Ruang inap terdiri dari kelas 1 sampai kelas 3. Kapasitas tersedia dapat dilihat di halaman kapasitas tempat tidur.</p>\n",
+   "image_url": "https://picsum.photos/seed/fasilitas-rawat-inap/960/640"
+  },
+  {
+   "id": "90c7360c-3d0a-44a6-8725-02b5d8fddd30",
+   "type": "facility",
+   "slug": "rawat-inap-khusus",
+   "title": "Rawat Inap Khusus",
+   "tagline": "Ruang perawatan intensif untuk pasien yang butuh perhatian khusus",
+   "summary": "Ruang perawatan intensif dengan rasio perawat lebih tinggi.",
+   "body_html": "<p>Ruang diberikan berdasarkan catatan dokter yang memutuskan. Waktu kunjungan dibatasi agar pasien tetap pulih.</p>\n",
+   "image_url": "https://picsum.photos/seed/fasilitas-rawat-inap-khusus/960/640"
+  },
+  {
+   "id": "7de70181-cccb-4aa4-ad43-595cf89c75a4",
+   "type": "facility",
+   "slug": "instalasi-gawat-darurat",
+   "title": "Instalasi Gawat Darurat",
+   "tagline": "Layanan kegawatdaruratan 24 jam setiap hari",
+   "summary": "Penerimaan pasien gawat darurat 24 jam, termasuk hari libur.",
+   "body_html": "<p>Gawat darurat tidak memerlukan rujukan dan menerima pasien semua usia.</p>\n",
+   "image_url": "https://picsum.photos/seed/fasilitas-igd/960/640"
+  },
+  {
+   "id": "cd47659a-323a-49f6-a064-bb84d56a505c",
+   "type": "facility",
+   "slug": "poliklinik",
+   "title": "Poliklinik",
+   "tagline": "Konsultasi dokter umum dan dokter spesialis di satu tempat",
+   "summary": "Poliklinik umum, poliklinik spesialis, serta poliklinik ibu dan anak.",
+   "body_html": "<p>Jadwal dokter tersedia di halaman pencarian dokter. Pendaftaran memakai sistem nomor antrean.</p>\n",
+   "image_url": "https://picsum.photos/seed/fasilitas-poliklinik/960/640"
+  },
+  {
+   "id": "a7f776c9-5bd5-4d0d-89aa-fe9d1cdfa119",
+   "type": "facility",
+   "slug": "hemodialisa",
+   "title": "Hemodialisa",
+   "tagline": "Layanan cuci darah dengan mesin dan tenaga terlatih",
+   "summary": "Layanan hemodialisa untuk pasien dengan gangguan fungsi ginjal kronis.",
+   "body_html": "<p>Sesi dialysis tiga kali seminggu untuk pasien dengan jadwal tetap. Perubahan jadwal dikoordinasikan dengan dokter.</p>\n",
+   "image_url": "https://picsum.photos/seed/fasilitas-hemodialisa/960/640"
+  },
+  {
+   "id": "467e0906-f00d-428c-ad06-352f7ffd08ac",
+   "type": "facility",
+   "slug": "rehabilitasi-medis",
+   "title": "Rehabilitasi Medis",
+   "tagline": "Pemulihan fungsi gerak setelah cedera atau penyakit",
+   "summary": "Fisioterapi, terapi okupasi, dan latihan gerak untuk membantu pasien kembali bergerak.",
+   "body_html": "<p>Program rehabilitasi ditentukan oleh dokter rehabilitasi setelah pemeriksaan awal.</p>\n",
+   "image_url": "https://picsum.photos/seed/fasilitas-rehabilitasi/960/640"
+  }
+ ],
+ "mcu_packages": [
+  {
+   "slug": "paket-dasar-1",
+   "name": "MCU Paket Dasar 1",
+   "category": "reguler",
+   "summary": "Pemeriksaan darah dasar dan pemeriksaan fisik.",
+   "image_url": "https://picsum.photos/seed/paket-dasar-1/960/640",
+   "price": 350000,
+   "description_html": "<p>Paket paling ringkas untuk pemeriksaan kesehatan dasar.</p>\n"
+  },
+  {
+   "slug": "paket-dasar-2",
+   "name": "MCU Paket Dasar 2",
+   "category": "reguler",
+   "summary": "Pemeriksaan dasar ditambah rekam jantung dan foto toraks.",
+   "image_url": "https://picsum.photos/seed/paket-dasar-2/960/640",
+   "price": 550000,
+   "description_html": "<p>Perluasan dari paket dasar dengan pemeriksaan tambahan jantung.</p>\n"
+  },
+  {
+   "slug": "paket-calon-karyawan-pria",
+   "name": "MCU Paket Calon Karyawan Pria",
+   "category": "reguler",
+   "summary": "Pemeriksaan untuk calon pekerja yang akan mulai bekerja.",
+   "image_url": "https://picsum.photos/seed/paket-calon-karyawan-pria/960/640",
+   "price": 475000,
+   "description_html": "<p>Paket yang umum dipakai perusahaan sebelum mempekerjakan tenaga baru.</p>\n"
+  },
+  {
+   "slug": "paket-calon-karyawan-wanita",
+   "name": "MCU Paket Calon Karyawan Wanita",
+   "category": "reguler",
+   "summary": "Pemeriksaan untuk calon pekerja dengan tambahan pemeriksaan khusus.",
+   "image_url": "https://picsum.photos/seed/paket-calon-karyawan-wanita/960/640",
+   "price": 525000,
+   "description_html": "<p>Sama dengan paket calon karyawan pria, ditambah pemeriksaan untuk perempuan.</p>\n"
+  },
+  {
+   "slug": "paket-eksekutif-pria",
+   "name": "MCU Paket Eksekutif Pria",
+   "category": "reguler",
+   "summary": "Pemeriksaan menyeluruh untuk signifyingessional kedikte.",
+   "image_url": "https://picsum.photos/seed/paket-eksekutif-pria/960/640",
+   "price": 1250000,
+   "description_html": "<p>Paket lanjutan dengan lebih banyak parameter penunjang.</p>\n"
+  },
+  {
+   "slug": "paket-eksekutif-wanita",
+   "name": "MCU Paket Eksekutif Wanita",
+   "category": "reguler",
+   "summary": "Pemeriksaan menyeluruh dengan pemeriksaan khusus perempuan.",
+   "image_url": "https://picsum.photos/seed/paket-eksekutif-wanita/960/640",
+   "price": 1450000,
+   "description_html": "<p>Sama dengan paket eksekutif pria, ditambah mammografi dan pemeriksaan ginekologi.</p>\n"
+  },
+  {
+   "slug": "paket-pemeriksaan-bebas-narkotik",
+   "name": "MCU Pemeriksaan Bebas Narkotik",
+   "category": "reguler",
+   "summary": "Pemeriksaan untuk keperluan administratif dan tester kerja.",
+   "image_url": "https://picsum.photos/seed/paket-pemeriksaan-bebas-narkotik/960/640",
+   "price": 300000,
+   "description_html": "<p>Digunakan untuk keperluan pengajuan kerja dan pemeriksaan tambahan.</p>\n"
+  }
+ ],
+ "articles": [
+  {
+   "slug": "jam-layanan-dalam-purna",
+   "title": "Jam Layanan Dalam Purna Tetap Buka",
+   "category": "pelayanan",
+   "excerpt": "Gawat darurat dan layanan penunjang tetap buka 24 jam, termasuk hari libur.",
+   "cover_url": "https://picsum.photos/seed/berita-jam-layanan/960/540",
+   "author": "Humas RSUD Contoh Sehat",
+   "published_at": "2026-10-01T02:19:48.980Z"
+  },
+  {
+   "slug": "pendaftaran-online-tersedia",
+   "title": "Pendaftaran Online Sudah Tersedia",
+   "category": "pelayanan",
+   "excerpt": "Pasien bisa memesan nomor antrean tanpa datang lebih awal ke rumah sakit.",
+   "cover_url": "https://picsum.photos/seed/berita-pendaftaran/960/540",
+   "author": "Humas RSUD Contoh Sehat",
+   "published_at": "2026-09-28T02:19:48.980Z"
+  },
+  {
+   "slug": "skrining-kanker-wanita-diperluas",
+   "title": "Skrining Kanker Wanita Diperluas",
+   "category": "pelayanan",
+   "excerpt": "Layanan skrining kini mencakup rentang usia yang lebih luas dengan harga bersubsidi.",
+   "cover_url": "https://picsum.photos/seed/berita-skrining/960/540",
+   "author": "Humas RSUD Contoh Sehat",
+   "published_at": "2026-09-25T02:19:48.980Z"
+  },
+  {
+   "slug": "kelas-pelatihan-tenaga-kesehatan",
+   "title": "Kelas Pelatihan Tenaga Kesehatan",
+   "category": "kegiatan",
+   "excerpt": "Pelatihan tiga hari untuk tenaga kesehatan yang akanutherland bekerja di sini.",
+   "cover_url": "https://picsum.photos/seed/berita-pelatihan/960/540",
+   "author": "Humas RSUD Contoh Sehat",
+   "published_at": "2026-09-22T02:19:48.980Z"
+  },
+  {
+   "slug": "kerja-sama-layanan-rujukan",
+   "title": "Kerja Sama Layanan Rujukan",
+   "category": "kegiatan",
+   "excerpt": "Fasilitas rujukan kegawatdaruratan kini terhubung dengan tiga puskesmas terdekat.",
+   "cover_url": "https://picsum.photos/seed/berita-kerja-sama/960/540",
+   "author": "Humas RSUD Contoh Sehat",
+   "published_at": "2026-09-19T02:19:48.980Z"
+  },
+  {
+   "slug": "program-pencegahan-stunting",
+   "title": "Program Pencegahan Stunting",
+   "category": "program",
+   "excerpt": "Pemantauan tumbuh kembang anak dilakukan sejak awal kehamilan.",
+   "cover_url": "https://picsum.photos/seed/berita-stunting/960/540",
+   "author": "Humas RSUD Contoh Sehat",
+   "published_at": "2026-09-16T02:19:48.980Z"
+  },
+  {
+   "slug": "peresmian-ruang-perawatan-baru",
+   "title": "Peresmian Ruang Perawatan Baru",
+   "category": "kegiatan",
+   "excerpt": "Dua puluh tempat tidur baru dibuka untuk mengurangi waktu tunggu.",
+   "cover_url": "https://picsum.photos/seed/berita-ruang-baru/960/540",
+   "author": "Humas RSUD Contoh Sehat",
+   "published_at": "2026-09-13T02:19:48.980Z"
+  },
+  {
+   "slug": "sosialisasi-program-zona-integritas",
+   "title": "Sosialisasi Program Zona Integritas",
+   "category": "program",
+   "excerpt": "Sosialisasi dilakukan bersama seluruh pegawai dan mitra.",
+   "cover_url": "https://picsum.photos/seed/berita-zona-integritas/960/540",
+   "author": "Humas RSUD Contoh Sehat",
+   "published_at": "2026-09-10T02:19:48.980Z"
+  }
+ ],
+ "awards": [
+  {
+   "title": "Penghargaan Pelayanan Kesehatan",
+   "issuer": "Kementerian Kesehatan RI",
+   "year": 2024,
+   "image_url": "https://picsum.photos/seed/penghargaan-pelayanan/480/480"
+  },
+  {
+   "title": "Penghargaan Inovasi Layanan",
+   "issuer": "Pemerintah Provinsi",
+   "year": 2023,
+   "image_url": "https://picsum.photos/seed/penghargaan-inovasi/480/480"
+  },
+  {
+   "title": "Sertifikat Akreditasi",
+   "issuer": "Badan Akreditasi Nasional",
+   "year": 2025,
+   "image_url": "https://picsum.photos/seed/akreditasi/480/480"
+  },
+  {
+   "title": "Penghargaan Kebersihan",
+   "issuer": "Pemerintah Kabupaten",
+   "year": 2023,
+   "image_url": "https://picsum.photos/seed/penghargaan-kebersihan/480/480"
+  }
+ ],
+ "gallery": [
+  {
+   "title": "Gedung Poliklinik",
+   "caption": "Tampak depan gedung poliklinik.",
+   "image_url": "https://picsum.photos/seed/gedung-poliklinik/960/720",
+   "category": "gedung"
+  },
+  {
+   "title": "Ruang Perawatan",
+   "caption": "Ruang perawatan kelas dua.",
+   "image_url": "https://picsum.photos/seed/ruang-perawatan/960/720",
+   "category": "perawatan"
+  },
+  {
+   "title": "Laboratorium",
+   "caption": "Ruang pemeriksaan laboratorium.",
+   "image_url": "https://picsum.photos/seed/lab/960/720",
+   "category": "penunjang"
+  },
+  {
+   "title": "Gawat Darurat",
+   "caption": "Pintu masuk gawat darurat.",
+   "image_url": "https://picsum.photos/seed/igd/960/720",
+   "category": "gedung"
+  },
+  {
+   "title": "Ruang Tunggu",
+   "caption": "Ruang tunggu rawat jalan.",
+   "image_url": "https://picsum.photos/seed/ruang-tunggu/960/720",
+   "category": "fasilitas"
+  },
+  {
+   "title": "Apotek",
+   "caption": "Layanan apotek.",
+   "image_url": "https://picsum.photos/seed/apotek/960/720",
+   "category": "penunjang"
+  }
+ ],
+ "testimonials": [
+  {
+   "display_name": "Warga Sekitar",
+   "role_label": "Warga sekitar sini",
+   "quote": "Pelayanan di loket cepat dan petugasnya jelas. Saya tidak bingung harus ke mana.",
+   "photo_url": "https://picsum.photos/seed/testimoni-1/200/200"
+  },
+  {
+   "display_name": "Pasien Rawat Jalan",
+   "role_label": "Pasien rawat jalan",
+   "quote": "Pendaftaran daring bekerja dengan baik, waktu tunggu jadi lebih singkat.",
+   "photo_url": "https://picsum.photos/seed/testimoni-2/200/200"
+  },
+  {
+   "display_name": "Orang Tua Pasien",
+   "role_label": "Orang tua pasien",
+   "quote": "Penjelasan dokter mudah dipahami dan tidak terburu-buru.",
+   "photo_url": "https://picsum.photos/seed/testimoni-3/200/200"
+  }
+ ],
+ "insurance_partners": [
+  {
+   "name": "BPJS Kesehatan",
+   "logo_url": "https://picsum.photos/seed/bpjs/240/120",
+   "website_url": "https://bpjs-kesehatan.go.id"
+  },
+  {
+   "name": "Asuransi Amanah",
+   "logo_url": "https://picsum.photos/seed/asuransi-amanah/240/120",
+   "website_url": "https://contoh.test/amanah"
+  },
+  {
+   "name": "Asuransi Prima",
+   "logo_url": "https://picsum.photos/seed/asurans-prima/240/120",
+   "website_url": "https://contoh.test/prima"
+  },
+  {
+   "name": "Asuransi Sejahtera",
+   "logo_url": "https://picsum.photos/seed/sejahtera/240/120",
+   "website_url": "https://contoh.test/sejahtera"
+  }
+ ],
+ "faqs": [
+  {
+   "question": "Bagaimana cara mendaftar secara daring?",
+   "answer": "Pilih menu daftar online, isi data diri, lalu pilih dokter dan tanggal yang tersedia. Nomor antrean dikirim setelah pendaftaran berhasil."
+  },
+  {
+   "question": "Apakah perlu membawa rujukan dokter?",
+   "answer": "Untuk layanan rawat jalan tidak perlu rujukan. Beberapa layanan spesialis tertentu memerlukan rujukan sesuai ketentuan yang berlaku."
+  },
+  {
+   "question": "Apakah ada biaya pendaftaran?",
+   "answer": "Tidak ada biaya pendaftaran. Biaya hanya berlaku untuk layanan yang memang dikenakan tarif."
+  },
+  {
+   "question": "Jam berapa layanan rawat jalan dibuka?",
+   "answer": "Senin sampai Jumat, pukul 07.30 sampai 14.00. Sabtu dan hari libur dilayani di poli khusus dengan jadwal yang berbeda."
+  },
+  {
+   "question": "Bagaimana cara menyampaikan pengaduan?",
+   "answer": "Pengaduan bisa disampaikan melalui layanan kritik dan saran atau layanan pengaduan khusus. Semua pengaduan diberi kode tiket."
+  }
+ ],
+ "specialties": [
+  {
+   "id": "5d8f1dae-dc8b-4090-9fda-19f350dc1fa9",
+   "name": "Jantung dan Pembuluh Darah",
+   "slug": "jantung"
+  },
+  {
+   "id": "896074b7-d00f-49f2-9182-ffd06ad79bcc",
+   "name": "Saraf dan Otak",
+   "slug": "saraf"
+  },
+  {
+   "id": "9974eca7-bd1b-44cd-a40f-6d7a6a8df361",
+   "name": "Mata",
+   "slug": "mata"
+  },
+  {
+   "id": "b6fc3f3f-ea0e-45ac-955c-4c44004eeab6",
+   "name": "Penyakit Dalam",
+   "slug": "penyakit-dalam"
+  },
+  {
+   "id": "79743e42-fcc2-4005-bbe8-5aa94a272bc0",
+   "name": "Anak",
+   "slug": "anak"
+  },
+  {
+   "id": "0417e76f-c38f-4199-82b3-3f90421f888b",
+   "name": "Kebidanian dan Kandungan",
+   "slug": "kandungan"
+  },
+  {
+   "id": "859d9614-dde8-4214-bee1-6548705dc1c7",
+   "name": "Bedah Umum",
+   "slug": "bedah"
+  },
+  {
+   "id": "8a594d85-1690-4bc0-b791-3cfe39ced8f0",
+   "name": "Ortopedi dan Trauma",
+   "slug": "ortopedi"
+  },
+  {
+   "id": "092ea863-8fbb-4fab-b4cd-d81472e633a9",
+   "name": "Penyakit Gigi dan Mulut",
+   "slug": "gigi"
+  },
+  {
+   "id": "31439639-c833-4838-b445-6d2c5bbdd43d",
+   "name": "Kulit dan Kelamin",
+   "slug": "kulit"
+  },
+  {
+   "id": "d58bb4e8-dc6f-406b-a007-1a0be6c160f2",
+   "name": "Telinga Hidung Tenggorok",
+   "slug": "ent"
+  },
+  {
+   "id": "d1c84381-3b52-4498-a7aa-ae39f8f5d575",
+   "name": "Paru-paru",
+   "slug": "paru"
+  },
+  {
+   "id": "756c5ff8-0a7e-4ccd-a2d3-0fc95516be0b",
+   "name": "Ginekologi",
+   "slug": "ginekologi"
+  },
+  {
+   "id": "168c0cd9-65e7-484e-b23e-885ab4315f5e",
+   "name": "Hemodialisa",
+   "slug": "hemodialisa"
+  },
+  {
+   "id": "40afa449-c522-46a3-a375-cc1469d52277",
+   "name": "Tumor dan Kanker",
+   "slug": "onkologi"
+  },
+  {
+   "id": "8a21d01d-1b1a-4cec-8cd8-49b166735fa3",
+   "name": "Rehabilitasi Medis",
+   "slug": "rehabilitasi"
+  },
+  {
+   "id": "7b87dacf-4dbc-4828-b827-16f23f6d152a",
+   "name": "Nutrisi Klinik",
+   "slug": "nutrisi"
+  },
+  {
+   "id": "d4ddbcf2-b14f-49da-8c23-9b9a926c9ecd",
+   "name": "Toksikologi",
+   "slug": "toksikologi"
+  }
+ ],
+ "settings": {
+  "hospital_name": "RSUD Contoh Sehat",
+  "tagline": "Layanan Kesehatan Terpadu untuk Semua",
+  "hospital_type": "Rumah Sakit Umum Daerah Tipe B",
+  "address": "Jalan Contoh Sehat Nomor 1, Jakarta Selatan",
+  "phone": "(021) 5000 0000",
+  "whatsapp": "+6280000000000",
+  "email": "info@contoh-sehat.test",
+  "outpatient_hours": "Senin sampai Jumat, 07.30 sampai 14.00",
+  "emergency_note": "Instalasi gawat darurat buka 24 jam",
+  "map_embed_url": "https://www.openstreetmap.org/export/embed.html?bbox=0%2C0%2C0%2C0",
+  "social_links": [
+   {
+    "network": "instagram",
+    "url": "https://www.instagram.com/contoh-sehat",
+    "label": "Instagram"
+   },
+   {
+    "network": "facebook",
+    "url": "https://www.facebook.com/contoh-sehat",
+    "label": "Facebook"
+   },
+   {
+    "network": "youtube",
+    "url": "https://www.youtube.com/@contoh-sehat",
+    "label": "YouTube"
+   }
+  ],
+  "footer_note": "Situs demo untuk keperluan portofolio. Nama, kontak, foto, dan seluruh isi bersifat fiktif."
+ }
+}

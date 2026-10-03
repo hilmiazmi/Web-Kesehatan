@@ -1,0 +1,10 @@
+{
+ "id": "e0cbb61d-3159-4844-b070-70471220d47e",
+ "type": "diagnostic",
+ "slug": "radiologi",
+ "title": "Radiologi",
+ "tagline": "Pemeriksaan citra dengan pemeriksaan oleh tim radiografer",
+ "summary": "Rontgen, tomografi komputer, dan resonansi magnetik.",
+ "body_html": "<p>Pemeriksaan radiologi memerlukan rujukan dokter atau dokter spesialis.</p>\n",
+ "image_url": "https://picsum.photos/seed/diagnostik-radiologi/960/640"
+}

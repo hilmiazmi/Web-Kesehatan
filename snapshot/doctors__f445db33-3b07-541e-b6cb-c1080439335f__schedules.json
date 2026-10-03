@@ -1,0 +1,26 @@
+[
+ {
+  "id": "475fcbf6-162f-4c7f-85a7-ed22a66c29dd",
+  "doctor_id": "f445db33-3b07-541e-b6cb-c1080439335f",
+  "doctor_name": "Nining Rahmawati",
+  "polyclinic": "Poliklinik Umum",
+  "day_of_week": 1,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "C2-03",
+  "quota": 30,
+  "note": null
+ },
+ {
+  "id": "b19a80ec-fe91-4608-ad2e-7940718928c7",
+  "doctor_id": "f445db33-3b07-541e-b6cb-c1080439335f",
+  "doctor_name": "Nining Rahmawati",
+  "polyclinic": "Poliklinik Umum",
+  "day_of_week": 3,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "C2-03",
+  "quota": 30,
+  "note": null
+ }
+]

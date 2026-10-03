@@ -1,0 +1,39 @@
+{
+ "slug": "paket-dasar-1",
+ "name": "MCU Paket Dasar 1",
+ "category": "reguler",
+ "summary": "Pemeriksaan darah dasar dan pemeriksaan fisik.",
+ "image_url": "https://picsum.photos/seed/paket-dasar-1/960/640",
+ "price": 350000,
+ "description_html": "<p>Paket paling ringkas untuk pemeriksaan kesehatan dasar.</p>\n",
+ "items": [
+  {
+   "group_name": "Pemeriksaan fisik",
+   "item_name": "Tinggi, berat, lingkar pinggang"
+  },
+  {
+   "group_name": "Darah",
+   "item_name": "Hemoglobin, leukosit, trombosit"
+  },
+  {
+   "group_name": "Gula darah",
+   "item_name": "Glukosa Puasa"
+  },
+  {
+   "group_name": "Fungsi ginjal",
+   "item_name": "Ureum dan kreatinin"
+  },
+  {
+   "group_name": "Fungsi hati",
+   "item_name": "SGOT dan SGPT"
+  },
+  {
+   "group_name": "Lemak darah",
+   "item_name": "Kolesterol total, HDL, LDL, trigliserida"
+  },
+  {
+   "group_name": "Air urine",
+   "item_name": "Urine rutin"
+  }
+ ]
+}

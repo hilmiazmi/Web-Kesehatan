@@ -1,0 +1,62 @@
+[
+ {
+  "id": "8dcdce3a-84e5-45d0-ba30-ea87455c3ec5",
+  "doctor_id": "d6fc647a-3239-5d09-8901-9c6c79388c91",
+  "doctor_name": "Rizky Ramadhan",
+  "polyclinic": "Instalasi Gawat Darurat",
+  "day_of_week": 1,
+  "start_time": "08:00:00",
+  "end_time": "14:00:00",
+  "room": "A1-01",
+  "quota": 30,
+  "note": null
+ },
+ {
+  "id": "407b4aa8-b35d-447c-b7f6-e72bf42d107f",
+  "doctor_id": "d6fc647a-3239-5d09-8901-9c6c79388c91",
+  "doctor_name": "Rizky Ramadhan",
+  "polyclinic": "Instalasi Gawat Darurat",
+  "day_of_week": 2,
+  "start_time": "08:00:00",
+  "end_time": "14:00:00",
+  "room": "A1-01",
+  "quota": 30,
+  "note": null
+ },
+ {
+  "id": "06a13494-bdac-481d-9ec5-b001226949fb",
+  "doctor_id": "d6fc647a-3239-5d09-8901-9c6c79388c91",
+  "doctor_name": "Rizky Ramadhan",
+  "polyclinic": "Instalasi Gawat Darurat",
+  "day_of_week": 3,
+  "start_time": "08:00:00",
+  "end_time": "14:00:00",
+  "room": "A1-01",
+  "quota": 30,
+  "note": null
+ },
+ {
+  "id": "46d0272f-775b-472f-be42-d9ed6b791a0e",
+  "doctor_id": "d6fc647a-3239-5d09-8901-9c6c79388c91",
+  "doctor_name": "Rizky Ramadhan",
+  "polyclinic": "Instalasi Gawat Darurat",
+  "day_of_week": 4,
+  "start_time": "08:00:00",
+  "end_time": "14:00:00",
+  "room": "A1-01",
+  "quota": 30,
+  "note": null
+ },
+ {
+  "id": "944bd211-0497-4865-b120-f3a635c5ea20",
+  "doctor_id": "d6fc647a-3239-5d09-8901-9c6c79388c91",
+  "doctor_name": "Rizky Ramadhan",
+  "polyclinic": "Instalasi Gawat Darurat",
+  "day_of_week": 5,
+  "start_time": "08:00:00",
+  "end_time": "14:00:00",
+  "room": "A1-01",
+  "quota": 30,
+  "note": null
+ }
+]

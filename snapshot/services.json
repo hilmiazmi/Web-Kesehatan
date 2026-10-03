@@ -1,0 +1,172 @@
+[
+ {
+  "id": "735c68ea-ce9f-4d6e-88bc-18a2105a1931",
+  "type": "priority",
+  "slug": "jantung-terpadu",
+  "title": "Layanan Jantung Terpadu",
+  "tagline": "Diagnosis dan penanganan penyakit jantung dalam satu alur",
+  "summary": "Pemeriksaan jantung, rekam listrik jantung, dan dokter spesialis jantung yang bekerja sebagai satu tim.",
+  "body_html": "<h2>Alur pemeriksaan</h2>\n<ol>\n<li>Pendaftaran di loket rawat jalan.</li>\n<li>Rekam listrik jantung.</li>\n<li>Konsultasi dengan dokter spesialis jantung.</li>\n</ol>\n<h2>Waktu layanan</h2>\n<p>Senin sampai Jumat, pukul 08.00 sampai 12.00.</p>\n",
+  "image_url": "https://picsum.photos/seed/layanan-jantung/960/640"
+ },
+ {
+  "id": "5980d98d-ebdf-4456-9f16-824bb1c92996",
+  "type": "priority",
+  "slug": "stroke-terpadu",
+  "title": "Layanan Stroke Terpadu",
+  "tagline": "Penanganan darurat stroke dalam waktu kurang dari satu jam",
+  "summary": "Tim khusus yang menangani pasien stroke sejak masuk gawat darurat sampai rencana perawatan.",
+  "body_html": "<p>Layanan ini menerima pasien suspected stroke tanpa perlu rujukan. Segera datang ke gawat darurat untuk pemeriksaan awal.</p>\n",
+  "image_url": "https://picsum.photos/seed/layanan-stroke/960/640"
+ },
+ {
+  "id": "d68ce9e3-8342-4c85-a8a3-4bc97489ad52",
+  "type": "priority",
+  "slug": "maternal-center",
+  "title": "Maternal Center",
+  "tagline": "Perawatan kehamilan dan persalinan dengan tim terpadu",
+  "summary": "Pemeriksaan kehamilan, persalinan, dan perawatan nifas dalam satu gedung.",
+  "body_html": "<h2>Layanan</h2>\n<ul>\n<li>Pemeriksaan kehamilan rutin</li>\n<li>Persalinan</li>\n<li>Perawatan nifas</li>\n</ul>\n<p>Pendaftaran boleh dilakukan sejak usia kehamilan 12 minggu.</p>\n",
+  "image_url": "https://picsum.photos/seed/layanan-maternal/960/640"
+ },
+ {
+  "id": "82dac720-a9c3-4257-a908-b9964efef5e7",
+  "type": "priority",
+  "slug": "kanker-terpadu",
+  "title": "Layanan Kanker Terpadu",
+  "tagline": "Skrining, diagnosis, dan terapi kanker dalam satu alur",
+  "summary": "Layanan skrining untuk umum dan terapi tumor langsung dari dokter spesialis onkologi.",
+  "body_html": "<p>Skrining dilakukan bagi kelompok berisiko tinggi. Jadwal pemeriksaan bisa dilihat di halaman daftar online.</p>\n",
+  "image_url": "https://picsum.photos/seed/layanan-kanker/960/640"
+ },
+ {
+  "id": "e82a3def-d7a6-477f-a5f6-06c3c9c3ca74",
+  "type": "priority",
+  "slug": "uro-nefrologi",
+  "title": "Layanan Uro dan Nefrologi",
+  "tagline": "Penanganan penyakit ginjal dan saluran kemih",
+  "summary": "Konsultasi dengan dokter spesialis ginjal dan saluran kemih, termasuk layanan hemodialisa.",
+  "body_html": "<p>Layanan mencakup pemeriksaan fungsi ginjal, batu saluran kemih, dan terapi hemodialisa.</p>\n",
+  "image_url": "https://picsum.photos/seed/layanan-uro/960/640"
+ },
+ {
+  "id": "d38ddcdc-973a-4be5-aa8e-d0551d7b3c0f",
+  "type": "priority",
+  "slug": "medical-check-up",
+  "title": "Medical Check Up",
+  "tagline": "Pemeriksaan kesehatan berkala untuk pekerja",
+  "summary": "Pemeriksaan kesehatan terencana dengan waktu hasil yang jelas dan bisa diprediksi.",
+  "body_html": "<p>Paket medical check up bisa dipilih per kelompok usia dan per kelompok pekerjaan. Daftar paket ada di halaman medical check up.</p>\n",
+  "image_url": "https://picsum.photos/seed/layanan-mcu/960/640"
+ },
+ {
+  "id": "60d3a942-6952-42c6-b6ce-e8edb20c435d",
+  "type": "facility",
+  "slug": "rawat-jalan",
+  "title": "Rawat Jalan",
+  "tagline": "Pelayanan poliklinik dan spesialis tanpa perlu rawat inap",
+  "summary": "Konsultasi dokter umum, dokter spesialis, dan poli khusus dengan sistem antrean daring.",
+  "body_html": "<p>Rawat jalan dibuka Senin sampai Jumat. Pendaftaran bisa dilakukan secara daring tanpa datang lebih awal.</p>\n",
+  "image_url": "https://picsum.photos/seed/fasilitas-rawat-jalan/960/640"
+ },
+ {
+  "id": "09dd2dfa-d277-47c9-81c5-f302c09504a7",
+  "type": "facility",
+  "slug": "rawat-inap",
+  "title": "Rawat Inap",
+  "tagline": "Perawatan inap dengan beberapa pilihan kelas",
+  "summary": "Kamar inap reguler dengan pemantauan harian oleh tim perawat.",
+  "body_html": "<p>Ruang inap terdiri dari kelas 1 sampai kelas 3. Kapasitas tersedia dapat dilihat di halaman kapasitas tempat tidur.</p>\n",
+  "image_url": "https://picsum.photos/seed/fasilitas-rawat-inap/960/640"
+ },
+ {
+  "id": "90c7360c-3d0a-44a6-8725-02b5d8fddd30",
+  "type": "facility",
+  "slug": "rawat-inap-khusus",
+  "title": "Rawat Inap Khusus",
+  "tagline": "Ruang perawatan intensif untuk pasien yang butuh perhatian khusus",
+  "summary": "Ruang perawatan intensif dengan rasio perawat lebih tinggi.",
+  "body_html": "<p>Ruang diberikan berdasarkan catatan dokter yang memutuskan. Waktu kunjungan dibatasi agar pasien tetap pulih.</p>\n",
+  "image_url": "https://picsum.photos/seed/fasilitas-rawat-inap-khusus/960/640"
+ },
+ {
+  "id": "7de70181-cccb-4aa4-ad43-595cf89c75a4",
+  "type": "facility",
+  "slug": "instalasi-gawat-darurat",
+  "title": "Instalasi Gawat Darurat",
+  "tagline": "Layanan kegawatdaruratan 24 jam setiap hari",
+  "summary": "Penerimaan pasien gawat darurat 24 jam, termasuk hari libur.",
+  "body_html": "<p>Gawat darurat tidak memerlukan rujukan dan menerima pasien semua usia.</p>\n",
+  "image_url": "https://picsum.photos/seed/fasilitas-igd/960/640"
+ },
+ {
+  "id": "cd47659a-323a-49f6-a064-bb84d56a505c",
+  "type": "facility",
+  "slug": "poliklinik",
+  "title": "Poliklinik",
+  "tagline": "Konsultasi dokter umum dan dokter spesialis di satu tempat",
+  "summary": "Poliklinik umum, poliklinik spesialis, serta poliklinik ibu dan anak.",
+  "body_html": "<p>Jadwal dokter tersedia di halaman pencarian dokter. Pendaftaran memakai sistem nomor antrean.</p>\n",
+  "image_url": "https://picsum.photos/seed/fasilitas-poliklinik/960/640"
+ },
+ {
+  "id": "a7f776c9-5bd5-4d0d-89aa-fe9d1cdfa119",
+  "type": "facility",
+  "slug": "hemodialisa",
+  "title": "Hemodialisa",
+  "tagline": "Layanan cuci darah dengan mesin dan tenaga terlatih",
+  "summary": "Layanan hemodialisa untuk pasien dengan gangguan fungsi ginjal kronis.",
+  "body_html": "<p>Sesi dialysis tiga kali seminggu untuk pasien dengan jadwal tetap. Perubahan jadwal dikoordinasikan dengan dokter.</p>\n",
+  "image_url": "https://picsum.photos/seed/fasilitas-hemodialisa/960/640"
+ },
+ {
+  "id": "467e0906-f00d-428c-ad06-352f7ffd08ac",
+  "type": "facility",
+  "slug": "rehabilitasi-medis",
+  "title": "Rehabilitasi Medis",
+  "tagline": "Pemulihan fungsi gerak setelah cedera atau penyakit",
+  "summary": "Fisioterapi, terapi okupasi, dan latihan gerak untuk membantu pasien kembali bergerak.",
+  "body_html": "<p>Program rehabilitasi ditentukan oleh dokter rehabilitasi setelah pemeriksaan awal.</p>\n",
+  "image_url": "https://picsum.photos/seed/fasilitas-rehabilitasi/960/640"
+ },
+ {
+  "id": "7d202afd-f68b-4804-8d18-d8caac3a91b3",
+  "type": "diagnostic",
+  "slug": "laboratorium",
+  "title": "Laboratorium",
+  "tagline": "Pemeriksaan laboratorium dengan hasil pada hari yang sama",
+  "summary": "Laboratorium klinik untuk pemeriksaan darah, urine, dan pemeriksaan penunjang lain.",
+  "body_html": "<p>Pemeriksaan laboratorium umum tidak memerlukan preparation khusus. Sampel darah diambil pagi hari.</p>\n",
+  "image_url": "https://picsum.photos/seed/fasilitas-laboratorium/960/640"
+ },
+ {
+  "id": "e0cbb61d-3159-4844-b070-70471220d47e",
+  "type": "diagnostic",
+  "slug": "radiologi",
+  "title": "Radiologi",
+  "tagline": "Pemeriksaan citra dengan pemeriksaan oleh tim radiografer",
+  "summary": "Rontgen, tomografi komputer, dan resonansi magnetik.",
+  "body_html": "<p>Pemeriksaan radiologi memerlukan rujukan dokter atau dokter spesialis.</p>\n",
+  "image_url": "https://picsum.photos/seed/diagnostik-radiologi/960/640"
+ },
+ {
+  "id": "2f17967f-bd0f-4f11-8a7e-c8e9712938e3",
+  "type": "diagnostic",
+  "slug": "elektrokardiogram",
+  "title": "Elektrokardiogram",
+  "tagline": "Pemeriksaan aktivitas listrik jantung",
+  "summary": "Rekam listrik jantung untuk membantu diagnosis gangguan irama.",
+  "body_html": "<p>Pemeriksaan memerlukan sekitar lima belas menit dan tidak memerlukan persiapan khusus.</p>\n",
+  "image_url": "https://picsum.photos/seed/diagnostik-ekg/960/640"
+ },
+ {
+  "id": "5dbc7d42-3ead-44e1-a6c7-1817fa947fcd",
+  "type": "diagnostic",
+  "slug": "spirometri",
+  "title": "Spirometri",
+  "tagline": "Pemeriksaan fungsi paru",
+  "summary": "Pengukuran volume dan aliran udara paru untuk menilai fungsi pernapasan.",
+  "body_html": "<p>Pasien diminta menghindari asap rokok dan obat tertentu sebelum pemeriksaan sesuai anjuran dokter.</p>\n",
+  "image_url": "https://picsum.photos/seed/diagnostik-spirometri/960/640"
+ }
+]

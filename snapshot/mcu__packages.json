@@ -1,0 +1,92 @@
+[
+ {
+  "slug": "paket-dasar-1",
+  "name": "MCU Paket Dasar 1",
+  "category": "reguler",
+  "summary": "Pemeriksaan darah dasar dan pemeriksaan fisik.",
+  "image_url": "https://picsum.photos/seed/paket-dasar-1/960/640",
+  "price": 350000,
+  "description_html": "<p>Paket paling ringkas untuk pemeriksaan kesehatan dasar.</p>\n"
+ },
+ {
+  "slug": "paket-dasar-2",
+  "name": "MCU Paket Dasar 2",
+  "category": "reguler",
+  "summary": "Pemeriksaan dasar ditambah rekam jantung dan foto toraks.",
+  "image_url": "https://picsum.photos/seed/paket-dasar-2/960/640",
+  "price": 550000,
+  "description_html": "<p>Perluasan dari paket dasar dengan pemeriksaan tambahan jantung.</p>\n"
+ },
+ {
+  "slug": "paket-calon-karyawan-pria",
+  "name": "MCU Paket Calon Karyawan Pria",
+  "category": "reguler",
+  "summary": "Pemeriksaan untuk calon pekerja yang akan mulai bekerja.",
+  "image_url": "https://picsum.photos/seed/paket-calon-karyawan-pria/960/640",
+  "price": 475000,
+  "description_html": "<p>Paket yang umum dipakai perusahaan sebelum mempekerjakan tenaga baru.</p>\n"
+ },
+ {
+  "slug": "paket-calon-karyawan-wanita",
+  "name": "MCU Paket Calon Karyawan Wanita",
+  "category": "reguler",
+  "summary": "Pemeriksaan untuk calon pekerja dengan tambahan pemeriksaan khusus.",
+  "image_url": "https://picsum.photos/seed/paket-calon-karyawan-wanita/960/640",
+  "price": 525000,
+  "description_html": "<p>Sama dengan paket calon karyawan pria, ditambah pemeriksaan untuk perempuan.</p>\n"
+ },
+ {
+  "slug": "paket-eksekutif-pria",
+  "name": "MCU Paket Eksekutif Pria",
+  "category": "reguler",
+  "summary": "Pemeriksaan menyeluruh untuk signifyingessional kedikte.",
+  "image_url": "https://picsum.photos/seed/paket-eksekutif-pria/960/640",
+  "price": 1250000,
+  "description_html": "<p>Paket lanjutan dengan lebih banyak parameter penunjang.</p>\n"
+ },
+ {
+  "slug": "paket-eksekutif-wanita",
+  "name": "MCU Paket Eksekutif Wanita",
+  "category": "reguler",
+  "summary": "Pemeriksaan menyeluruh dengan pemeriksaan khusus perempuan.",
+  "image_url": "https://picsum.photos/seed/paket-eksekutif-wanita/960/640",
+  "price": 1450000,
+  "description_html": "<p>Sama dengan paket eksekutif pria, ditambah mammografi dan pemeriksaan ginekologi.</p>\n"
+ },
+ {
+  "slug": "paket-pemeriksaan-bebas-narkotik",
+  "name": "MCU Pemeriksaan Bebas Narkotik",
+  "category": "reguler",
+  "summary": "Pemeriksaan untuk keperluan administratif dan tester kerja.",
+  "image_url": "https://picsum.photos/seed/paket-pemeriksaan-bebas-narkotik/960/640",
+  "price": 300000,
+  "description_html": "<p>Digunakan untuk keperluan pengajuan kerja dan pemeriksaan tambahan.</p>\n"
+ },
+ {
+  "slug": "anak-sekolah-basic",
+  "name": "MCU Anak Sekolah Basic",
+  "category": "health_meets_holiday",
+  "summary": "Pemeriksaan kesehatan yang mudah dilakukan pada hari sekolah.",
+  "image_url": "https://picsum.photos/seed/anak-sekolah-basic/960/640",
+  "price": 50000,
+  "description_html": "<p>Program pemeriksaan anak sekolah dengan metode yang cepat.</p>\n"
+ },
+ {
+  "slug": "anak-sekolah-medical",
+  "name": "MCU Anak Sekolah Medical",
+  "category": "health_meets_holiday",
+  "summary": "Pemeriksaan kesehatan anak sekolah dengan pemeriksaan darah.",
+  "image_url": "https://picsum.photos/seed/anak-sekolah-medical/960/640",
+  "price": 95000,
+  "description_html": "<p>Program pemeriksaan anak sekolah yang sudah termasuk pemeriksaan darah.</p>\n"
+ },
+ {
+  "slug": "screening-cancer-male",
+  "name": "Skrining Kanker Pria",
+  "category": "health_meets_holiday",
+  "summary": "Skrining kanker prostat pada pria berusia 40 tahun atau lebih.",
+  "image_url": "https://picsum.photos/seed/screening-cancer-male/960/640",
+  "price": 150000,
+  "description_html": "<p>Program skrining untuk pria dengan usia 40 tahun atau lebih.</p>\n"
+ }
+]

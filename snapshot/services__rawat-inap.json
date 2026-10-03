@@ -1,0 +1,10 @@
+{
+ "id": "09dd2dfa-d277-47c9-81c5-f302c09504a7",
+ "type": "facility",
+ "slug": "rawat-inap",
+ "title": "Rawat Inap",
+ "tagline": "Perawatan inap dengan beberapa pilihan kelas",
+ "summary": "Kamar inap reguler dengan pemantauan harian oleh tim perawat.",
+ "body_html": "<p>Ruang inap terdiri dari kelas 1 sampai kelas 3. Kapasitas tersedia dapat dilihat di halaman kapasitas tempat tidur.</p>\n",
+ "image_url": "https://picsum.photos/seed/fasilitas-rawat-inap/960/640"
+}

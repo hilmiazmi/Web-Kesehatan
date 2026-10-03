@@ -1,0 +1,9 @@
+# Artefak build Rust tidak pernah masuk image. Tanpa ini, `docker build`
+# mengirim ratusan megabyte `target/` ke daemon.
+target/
+**/*.rs.bk
+
+# Berkas yang tidak dibutuhkan di image.
+Dockerfile
+.dockerignore
+Makefile

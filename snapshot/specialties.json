@@ -1,0 +1,92 @@
+[
+ {
+  "id": "5d8f1dae-dc8b-4090-9fda-19f350dc1fa9",
+  "name": "Jantung dan Pembuluh Darah",
+  "slug": "jantung"
+ },
+ {
+  "id": "896074b7-d00f-49f2-9182-ffd06ad79bcc",
+  "name": "Saraf dan Otak",
+  "slug": "saraf"
+ },
+ {
+  "id": "9974eca7-bd1b-44cd-a40f-6d7a6a8df361",
+  "name": "Mata",
+  "slug": "mata"
+ },
+ {
+  "id": "b6fc3f3f-ea0e-45ac-955c-4c44004eeab6",
+  "name": "Penyakit Dalam",
+  "slug": "penyakit-dalam"
+ },
+ {
+  "id": "79743e42-fcc2-4005-bbe8-5aa94a272bc0",
+  "name": "Anak",
+  "slug": "anak"
+ },
+ {
+  "id": "0417e76f-c38f-4199-82b3-3f90421f888b",
+  "name": "Kebidanian dan Kandungan",
+  "slug": "kandungan"
+ },
+ {
+  "id": "859d9614-dde8-4214-bee1-6548705dc1c7",
+  "name": "Bedah Umum",
+  "slug": "bedah"
+ },
+ {
+  "id": "8a594d85-1690-4bc0-b791-3cfe39ced8f0",
+  "name": "Ortopedi dan Trauma",
+  "slug": "ortopedi"
+ },
+ {
+  "id": "092ea863-8fbb-4fab-b4cd-d81472e633a9",
+  "name": "Penyakit Gigi dan Mulut",
+  "slug": "gigi"
+ },
+ {
+  "id": "31439639-c833-4838-b445-6d2c5bbdd43d",
+  "name": "Kulit dan Kelamin",
+  "slug": "kulit"
+ },
+ {
+  "id": "d58bb4e8-dc6f-406b-a007-1a0be6c160f2",
+  "name": "Telinga Hidung Tenggorok",
+  "slug": "ent"
+ },
+ {
+  "id": "d1c84381-3b52-4498-a7aa-ae39f8f5d575",
+  "name": "Paru-paru",
+  "slug": "paru"
+ },
+ {
+  "id": "756c5ff8-0a7e-4ccd-a2d3-0fc95516be0b",
+  "name": "Ginekologi",
+  "slug": "ginekologi"
+ },
+ {
+  "id": "168c0cd9-65e7-484e-b23e-885ab4315f5e",
+  "name": "Hemodialisa",
+  "slug": "hemodialisa"
+ },
+ {
+  "id": "40afa449-c522-46a3-a375-cc1469d52277",
+  "name": "Tumor dan Kanker",
+  "slug": "onkologi"
+ },
+ {
+  "id": "8a21d01d-1b1a-4cec-8cd8-49b166735fa3",
+  "name": "Rehabilitasi Medis",
+  "slug": "rehabilitasi"
+ },
+ {
+  "id": "7b87dacf-4dbc-4828-b827-16f23f6d152a",
+  "name": "Nutrisi Klinik",
+  "slug": "nutrisi"
+ },
+ {
+  "id": "d4ddbcf2-b14f-49da-8c23-9b9a926c9ecd",
+  "name": "Toksikologi",
+  "slug": "toksikologi"
+ }
+]

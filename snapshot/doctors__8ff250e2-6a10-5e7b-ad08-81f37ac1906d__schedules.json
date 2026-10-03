@@ -1,0 +1,26 @@
+[
+ {
+  "id": "dc3836a4-b6c1-40c1-8ca5-0d3b5f335af1",
+  "doctor_id": "8ff250e2-6a10-5e7b-ad08-81f37ac1906d",
+  "doctor_name": "Kartika Dewi",
+  "polyclinic": "Poliklinik Umum",
+  "day_of_week": 2,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "B2-03",
+  "quota": 35,
+  "note": null
+ },
+ {
+  "id": "3efbc44b-29fc-4582-87a7-5f6787ebc1bb",
+  "doctor_id": "8ff250e2-6a10-5e7b-ad08-81f37ac1906d",
+  "doctor_name": "Kartika Dewi",
+  "polyclinic": "Poliklinik Umum",
+  "day_of_week": 4,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "B2-03",
+  "quota": 35,
+  "note": null
+ }
+]

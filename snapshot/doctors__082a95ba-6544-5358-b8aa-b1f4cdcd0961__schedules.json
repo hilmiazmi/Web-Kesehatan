@@ -1,0 +1,38 @@
+[
+ {
+  "id": "3f0790ba-8ad3-4ee5-9fb0-cce7ed181e81",
+  "doctor_id": "082a95ba-6544-5358-b8aa-b1f4cdcd0961",
+  "doctor_name": "Gita Maharani",
+  "polyclinic": "Poliklinik Penyakit Dalam",
+  "day_of_week": 1,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "B3-04",
+  "quota": 50,
+  "note": null
+ },
+ {
+  "id": "193d14d7-7983-4ce7-be1a-ebc8620f59cd",
+  "doctor_id": "082a95ba-6544-5358-b8aa-b1f4cdcd0961",
+  "doctor_name": "Gita Maharani",
+  "polyclinic": "Poliklinik Penyakit Dalam",
+  "day_of_week": 3,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "B3-04",
+  "quota": 50,
+  "note": null
+ },
+ {
+  "id": "3c5a40c5-ba98-4c73-b9a4-1c1bc522731b",
+  "doctor_id": "082a95ba-6544-5358-b8aa-b1f4cdcd0961",
+  "doctor_name": "Gita Maharani",
+  "polyclinic": "Poliklinik Penyakit Dalam",
+  "day_of_week": 5,
+  "start_time": "08:00:00",
+  "end_time": "11:00:00",
+  "room": "B3-04",
+  "quota": 35,
+  "note": null
+ }
+]

@@ -1,0 +1,55 @@
+{
+ "slug": "paket-calon-karyawan-pria",
+ "name": "MCU Paket Calon Karyawan Pria",
+ "category": "reguler",
+ "summary": "Pemeriksaan untuk calon pekerja yang akan mulai bekerja.",
+ "image_url": "https://picsum.photos/seed/paket-calon-karyawan-pria/960/640",
+ "price": 475000,
+ "description_html": "<p>Paket yang umum dipakai perusahaan sebelum mempekerjakan tenaga baru.</p>\n",
+ "items": [
+  {
+   "group_name": "Pemeriksaan fisik",
+   "item_name": "Tinggi, berat, lingkar pinggang"
+  },
+  {
+   "group_name": "Darah",
+   "item_name": "Hemoglobin, leukosit, trombosit"
+  },
+  {
+   "group_name": "Gula darah",
+   "item_name": "Glukosa Puasa"
+  },
+  {
+   "group_name": "Fungsi ginjal",
+   "item_name": "Ureum dan kreatinin"
+  },
+  {
+   "group_name": "Fungsi hati",
+   "item_name": "SGOT dan SGPT"
+  },
+  {
+   "group_name": "Lemak darah",
+   "item_name": "Kolesterol total, HDL, LDL, trigliserida"
+  },
+  {
+   "group_name": "Air urine",
+   "item_name": "Urine rutin"
+  },
+  {
+   "group_name": "Jantung",
+   "item_name": "Rekam listrik jantung"
+  },
+  {
+   "group_name": "Toraks",
+   "item_name": "Foto rontgen toraks"
+  },
+  {
+   "group_name": "Penglihatan",
+   "item_name": "Tes ketajaman penglihatan"
+  },
+  {
+   "group_name": "Pendengaran",
+   "item_name": "Tes pendengaran"
+  }
+ ]
+}

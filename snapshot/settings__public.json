@@ -1,0 +1,30 @@
+{
+ "hospital_name": "RSUD Contoh Sehat",
+ "tagline": "Layanan Kesehatan Terpadu untuk Semua",
+ "hospital_type": "Rumah Sakit Umum Daerah Tipe B",
+ "address": "Jalan Contoh Sehat Nomor 1, Jakarta Selatan",
+ "phone": "(021) 5000 0000",
+ "whatsapp": "+6280000000000",
+ "email": "info@contoh-sehat.test",
+ "outpatient_hours": "Senin sampai Jumat, 07.30 sampai 14.00",
+ "emergency_note": "Instalasi gawat darurat buka 24 jam",
+ "map_embed_url": "https://www.openstreetmap.org/export/embed.html?bbox=0%2C0%2C0%2C0",
+ "social_links": [
+  {
+   "network": "instagram",
+   "url": "https://www.instagram.com/contoh-sehat",
+   "label": "Instagram"
+  },
+  {
+   "network": "facebook",
+   "url": "https://www.facebook.com/contoh-sehat",
+   "label": "Facebook"
+  },
+  {
+   "network": "youtube",
+   "url": "https://www.youtube.com/@contoh-sehat",
+   "label": "YouTube"
+  }
+ ],
+ "footer_note": "Situs demo untuk keperluan portofolio. Nama, kontak, foto, dan seluruh isi bersifat fiktif."
+}

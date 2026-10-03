@@ -1,0 +1,31 @@
+{
+ "slug": "jam-layanan-dalam-purna",
+ "title": "Jam Layanan Dalam Purna Tetap Buka",
+ "category": "pelayanan",
+ "excerpt": "Gawat darurat dan layanan penunjang tetap buka 24 jam, termasuk hari libur.",
+ "cover_url": "https://picsum.photos/seed/berita-jam-layanan/960/540",
+ "author": "Humas RSUD Contoh Sehat",
+ "published_at": "2026-10-01T02:19:48.980Z",
+ "body_html": "<h2>Jam layanan</h2>\n<p>Gawat darurat buka 24 jam setiap hari tanpa hari libur.</p>\n<h2>Layanan yang tetap buka</h2>\n<ul>\n<li>Instalasi gawat darurat</li>\n<li>Laboratorium gawat darurat</li>\n<li>Apotek gawat darurat</li>\n</ul>\n",
+ "meta_description": "Gawat darurat dan layanan penunjang tetap buka 24 jam, termasuk hari libur.",
+ "related": [
+  {
+   "slug": "pendaftaran-online-tersedia",
+   "title": "Pendaftaran Online Sudah Tersedia",
+   "category": "pelayanan",
+   "excerpt": "Pasien bisa memesan nomor antrean tanpa datang lebih awal ke rumah sakit.",
+   "cover_url": "https://picsum.photos/seed/berita-pendaftaran/960/540",
+   "author": "Humas RSUD Contoh Sehat",
+   "published_at": "2026-09-28T02:19:48.980Z"
+  },
+  {
+   "slug": "skrining-kanker-wanita-diperluas",
+   "title": "Skrining Kanker Wanita Diperluas",
+   "category": "pelayanan",
+   "excerpt": "Layanan skrining kini mencakup rentang usia yang lebih luas dengan harga bersubsidi.",
+   "cover_url": "https://picsum.photos/seed/berita-skrining/960/540",
+   "author": "Humas RSUD Contoh Sehat",
+   "published_at": "2026-09-25T02:19:48.980Z"
+  }
+ ]
+}

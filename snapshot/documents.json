@@ -1,0 +1,47 @@
+[
+ {
+  "slug": "standar-pelayanan",
+  "title": "Standar Pelayanan",
+  "category": "standar_pelayanan",
+  "description": "Standar pelayanan yang berlaku di seluruh unit.",
+  "file_url": "/dokumen/standar-pelayanan/standar-pelayanan.pdf",
+  "file_size": 850000,
+  "year": 2025
+ },
+ {
+  "slug": "kompensasi-pelayanan",
+  "title": "Kompensasi Pelayanan",
+  "category": "kompensasi_pelayanan",
+  "description": "Mekanisme kompensasi bagi pasien yang kurang puas.",
+  "file_url": "/dokumen/kompensasi-pelayanan/kompensasi-pelayanan.pdf",
+  "file_size": 320000,
+  "year": 2025
+ },
+ {
+  "slug": "regulasi-zona-integritas",
+  "title": "Regulasi Zona Integritas",
+  "category": "regulasi_zona_integritas",
+  "description": "Peraturan yang mengatur program zona integritas.",
+  "file_url": "/dokumen/regulasi-zona-integritas/regulasi-zona-integritas.pdf",
+  "file_size": 410000,
+  "year": 2025
+ },
+ {
+  "slug": "ppid",
+  "title": "Prosedur Informasi Publik",
+  "category": "ppid",
+  "description": "Prosedur permintaan informasi publik.",
+  "file_url": "/dokumen/ppid/prosedur-ppid.pdf",
+  "file_size": 260000,
+  "year": 2025
+ },
+ {
+  "slug": "brosur-layanan",
+  "title": "Brosur Layanan",
+  "category": "brosur",
+  "description": "Brosur layanan rumah sakit.",
+  "file_url": "/dokumen/brosur-layanan/brosur-layanan.pdf",
+  "file_size": 1200000,
+  "year": 2025
+ }
+]

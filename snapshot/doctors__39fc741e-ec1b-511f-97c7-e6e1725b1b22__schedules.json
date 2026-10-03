@@ -1,0 +1,26 @@
+[
+ {
+  "id": "96b5a7a9-38a5-47d4-846c-11b746b71c2b",
+  "doctor_id": "39fc741e-ec1b-511f-97c7-e6e1725b1b22",
+  "doctor_name": "Dimas Nugroho",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 1,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "A1-01",
+  "quota": 30,
+  "note": null
+ },
+ {
+  "id": "80aab50a-4ce6-4abe-9d73-d29d6f3fb4f1",
+  "doctor_id": "39fc741e-ec1b-511f-97c7-e6e1725b1b22",
+  "doctor_name": "Dimas Nugroho",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 3,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "A1-01",
+  "quota": 30,
+  "note": null
+ }
+]

@@ -1,0 +1,134 @@
+[
+ {
+  "id": "34c4cf92-5522-56f9-af90-c16b9eaf1e43",
+  "full_name": "Fajar Setiawan",
+  "title": "dr. Sp.A",
+  "photo_url": "https://picsum.photos/seed/dokter-fajar-setiawan/480/600",
+  "specialty": "Anak",
+  "specialty_slug": "anak"
+ },
+ {
+  "id": "39fc741e-ec1b-511f-97c7-e6e1725b1b22",
+  "full_name": "Dimas Nugroho",
+  "title": "dr. Sp.B",
+  "photo_url": "https://picsum.photos/seed/dokter-dimas-nugroho/480/600",
+  "specialty": "Bedah Umum",
+  "specialty_slug": "bedah"
+ },
+ {
+  "id": "57474606-867c-5d7b-be2b-46a43327c04c",
+  "full_name": "Oki Prasetyo",
+  "title": "dr. Sp.OG",
+  "photo_url": "https://picsum.photos/seed/dokter-oki-prasetyo/480/600",
+  "specialty": "Ginekologi",
+  "specialty_slug": "ginekologi"
+ },
+ {
+  "id": "2207cc2f-fde8-55bc-b2d7-bfa3e9c5e312",
+  "full_name": "Ayu Lestari",
+  "title": "dr. Sp.JK",
+  "photo_url": "https://picsum.photos/seed/dokter-ayu-lestari/480/600",
+  "specialty": "Jantung dan Pembuluh Darah",
+  "specialty_slug": "jantung"
+ },
+ {
+  "id": "28a59fc0-2f56-5eee-a744-ef8ec299bde1",
+  "full_name": "Endah Permata",
+  "title": "dr. Sp.OG",
+  "photo_url": "https://picsum.photos/seed/dokter-endah-permata/480/600",
+  "specialty": "Kebidanian dan Kandungan",
+  "specialty_slug": "kandungan"
+ },
+ {
+  "id": "ca12d06b-c5e1-5217-9cc7-7e56505d68ff",
+  "full_name": "Lina Marlina",
+  "title": "dr. Sp.KK",
+  "photo_url": "https://picsum.photos/seed/dokter-lina-marlina/480/600",
+  "specialty": "Kulit dan Kelamin",
+  "specialty_slug": "kulit"
+ },
+ {
+  "id": "cdb6c52f-85e7-5889-a24a-441c8c83257c",
+  "full_name": "Citra Wulandari",
+  "title": "dr. Sp.M",
+  "photo_url": "https://picsum.photos/seed/dokter-citra-wulandari/480/600",
+  "specialty": "Mata",
+  "specialty_slug": "mata"
+ },
+ {
+  "id": "7656676d-06bb-55f3-bad9-dfe67f349aba",
+  "full_name": "Indah Safitri",
+  "title": "dr. Sp.Orth",
+  "photo_url": "https://picsum.photos/seed/dokter-indah-safitri/480/600",
+  "specialty": "Ortopedi dan Trauma",
+  "specialty_slug": "ortopedi"
+ },
+ {
+  "id": "082a95ba-6544-5358-b8aa-b1f4cdcd0961",
+  "full_name": "Gita Maharani",
+  "title": "dr. Sp.PD",
+  "photo_url": "https://picsum.photos/seed/dokter-gita-maharani/480/600",
+  "specialty": "Penyakit Dalam",
+  "specialty_slug": "penyakit-dalam"
+ },
+ {
+  "id": "2391238a-4eed-5a5f-af72-a9622a9bd820",
+  "full_name": "Hendra Kusuma",
+  "title": "dr. Sp.PD",
+  "photo_url": "https://picsum.photos/seed/dokter-hendra-kusuma/480/600",
+  "specialty": "Penyakit Dalam",
+  "specialty_slug": "penyakit-dalam"
+ },
+ {
+  "id": "e458d6b7-5bd2-524a-90e7-3f4fe7972c98",
+  "full_name": "Joko Santoso",
+  "title": "dr. Sp.BM",
+  "photo_url": "https://picsum.photos/seed/dokter-joko-santoso/480/600",
+  "specialty": "Penyakit Gigi dan Mulut",
+  "specialty_slug": "gigi"
+ },
+ {
+  "id": "f445db33-3b07-541e-b6cb-c1080439335f",
+  "full_name": "Nining Rahmawati",
+  "title": "dr. Sp.REH",
+  "photo_url": "https://picsum.photos/seed/dokter-nining-rahmawati/480/600",
+  "specialty": "Rehabilitasi Medis",
+  "specialty_slug": "rehabilitasi"
+ },
+ {
+  "id": "0acdc5c3-9f16-518c-a831-6f4ac4e4f45d",
+  "full_name": "Bagus Prakoso",
+  "title": "dr. Sp.N",
+  "photo_url": "https://picsum.photos/seed/dokter-bagus-prakoso/480/600",
+  "specialty": "Saraf dan Otak",
+  "specialty_slug": "saraf"
+ },
+ {
+  "id": "8ff250e2-6a10-5e7b-ad08-81f37ac1906d",
+  "full_name": "Kartika Dewi",
+  "title": "dr. Sp.THT-KL",
+  "photo_url": "https://picsum.photos/seed/dokter-kartika-dewi/480/600",
+  "specialty": "Telinga Hidung Tenggorok",
+  "specialty_slug": "ent"
+ },
+ {
+  "id": "3cdbd28d-b37e-5d34-92e6-0b573f73a165",
+  "full_name": "Mahendra Yoga",
+  "title": "dr. Sp.Onk",
+  "photo_url": "https://picsum.photos/seed/dokter-mahendra-yoga/480/600",
+  "specialty": "Tumor dan Kanker",
+  "specialty_slug": "onkologi"
+ },
+ {
+  "id": "510625a7-7236-5dbd-91dd-43f2e1dfbc29",
+  "full_name": "Putri Anggraini",
+  "title": "dr.",
+  "photo_url": "https://picsum.photos/seed/dokter-putri-anggraini/480/600"
+ },
+ {
+  "id": "d6fc647a-3239-5d09-8901-9c6c79388c91",
+  "full_name": "Rizky Ramadhan",
+  "title": "dr.",
+  "photo_url": "https://picsum.photos/seed/dokter-rizky-ramadhan/480/600"
+ }
+]

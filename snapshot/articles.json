@@ -1,0 +1,98 @@
+{
+ "items": [
+  {
+   "slug": "jam-layanan-dalam-purna",
+   "title": "Jam Layanan Dalam Purna Tetap Buka",
+   "category": "pelayanan",
+   "excerpt": "Gawat darurat dan layanan penunjang tetap buka 24 jam, termasuk hari libur.",
+   "cover_url": "https://picsum.photos/seed/berita-jam-layanan/960/540",
+   "author": "Humas RSUD Contoh Sehat",
+   "published_at": "2026-10-01T02:19:48.980Z"
+  },
+  {
+   "slug": "pendaftaran-online-tersedia",
+   "title": "Pendaftaran Online Sudah Tersedia",
+   "category": "pelayanan",
+   "excerpt": "Pasien bisa memesan nomor antrean tanpa datang lebih awal ke rumah sakit.",
+   "cover_url": "https://picsum.photos/seed/berita-pendaftaran/960/540",
+   "author": "Humas RSUD Contoh Sehat",
+   "published_at": "2026-09-28T02:19:48.980Z"
+  },
+  {
+   "slug": "skrining-kanker-wanita-diperluas",
+   "title": "Skrining Kanker Wanita Diperluas",
+   "category": "pelayanan",
+   "excerpt": "Layanan skrining kini mencakup rentang usia yang lebih luas dengan harga bersubsidi.",
+   "cover_url": "https://picsum.photos/seed/berita-skrining/960/540",
+   "author": "Humas RSUD Contoh Sehat",
+   "published_at": "2026-09-25T02:19:48.980Z"
+  },
+  {
+   "slug": "kelas-pelatihan-tenaga-kesehatan",
+   "title": "Kelas Pelatihan Tenaga Kesehatan",
+   "category": "kegiatan",
+   "excerpt": "Pelatihan tiga hari untuk tenaga kesehatan yang akanutherland bekerja di sini.",
+   "cover_url": "https://picsum.photos/seed/berita-pelatihan/960/540",
+   "author": "Humas RSUD Contoh Sehat",
+   "published_at": "2026-09-22T02:19:48.980Z"
+  },
+  {
+   "slug": "kerja-sama-layanan-rujukan",
+   "title": "Kerja Sama Layanan Rujukan",
+   "category": "kegiatan",
+   "excerpt": "Fasilitas rujukan kegawatdaruratan kini terhubung dengan tiga puskesmas terdekat.",
+   "cover_url": "https://picsum.photos/seed/berita-kerja-sama/960/540",
+   "author": "Humas RSUD Contoh Sehat",
+   "published_at": "2026-09-19T02:19:48.980Z"
+  },
+  {
+   "slug": "program-pencegahan-stunting",
+   "title": "Program Pencegahan Stunting",
+   "category": "program",
+   "excerpt": "Pemantauan tumbuh kembang anak dilakukan sejak awal kehamilan.",
+   "cover_url": "https://picsum.photos/seed/berita-stunting/960/540",
+   "author": "Humas RSUD Contoh Sehat",
+   "published_at": "2026-09-16T02:19:48.980Z"
+  },
+  {
+   "slug": "peresmian-ruang-perawatan-baru",
+   "title": "Peresmian Ruang Perawatan Baru",
+   "category": "kegiatan",
+   "excerpt": "Dua puluh tempat tidur baru dibuka untuk mengurangi waktu tunggu.",
+   "cover_url": "https://picsum.photos/seed/berita-ruang-baru/960/540",
+   "author": "Humas RSUD Contoh Sehat",
+   "published_at": "2026-09-13T02:19:48.980Z"
+  },
+  {
+   "slug": "sosialisasi-program-zona-integritas",
+   "title": "Sosialisasi Program Zona Integritas",
+   "category": "program",
+   "excerpt": "Sosialisasi dilakukan bersama seluruh pegawai dan mitra.",
+   "cover_url": "https://picsum.photos/seed/berita-zona-integritas/960/540",
+   "author": "Humas RSUD Contoh Sehat",
+   "published_at": "2026-09-10T02:19:48.980Z"
+  },
+  {
+   "slug": "pemeriksaan-kesehatan-gratis",
+   "title": "Pemeriksaan Kesehatan Gratis untuk Warga",
+   "category": "program",
+   "excerpt": "Pemeriksaan kesehatan dasar gratis setiap satu tahun sekali.",
+   "cover_url": "https://picsum.photos/seed/berita-pemeriksaan-gratis/960/540",
+   "author": "Humas RSUD Contoh Sehat",
+   "published_at": "2026-09-07T02:19:48.980Z"
+  },
+  {
+   "slug": "pelatihan-manajemen-keselamatan",
+   "title": "Pelatihan Manajemen Keselamatan",
+   "category": "kegiatan",
+   "excerpt": "Petugas diberi pelatihan tanggap darurat dan pencegahan kebakaran.",
+   "cover_url": "https://picsum.photos/seed/berita-manajemen-keselamatan/960/540",
+   "author": "Humas RSUD Contoh Sehat",
+   "published_at": "2026-09-04T02:19:48.980Z"
+  }
+ ],
+ "total": "10",
+ "page": 1,
+ "page_size": 100,
+ "pages": 1
+}

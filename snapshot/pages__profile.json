@@ -1,0 +1,10 @@
+{
+ "slug": "profile",
+ "title": "Profil Rumah Sakit",
+ "eyebrow": null,
+ "summary": "Visi, misi, dan tata kelola rumah sakit.",
+ "body_html": "<h2>Visi</h2>\n<p>Menjadi rumah sakit pilihan yang melayani seluruh lapisan masyarakat.</p>\n<h2>Misi</h2>\n<ol>\n<li>Menyediakan pelayanan kesehatan yang terjangkau.</li>\n<li>Meningkatkan mutu dan keselamatan pasien.</li>\n<li>Meningkatkan kompetensi tenaga kesehatan.</li>\n</ol>\n",
+ "hero_image_url": null,
+ "meta_description": "Visi, misi, dan tata kelola rumah sakit.",
+ "meta_keywords": null
+}
