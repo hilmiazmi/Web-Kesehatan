@@ -6,13 +6,10 @@
 # membaca berkas JSON di `snapshot/` dan tidak pernah menyentuh database
 # sungguhan.
 #
-# Langkah yang butuh database sungguhan sengaja tidak dimasukkan:
-#
-# - `bun run cek:admin` menguji tulis-baca admin dan butuh database nyata.
-# - `bun run cek:tulis` menyentuh database sungguhan, jadi jelas tidak boleh
-#   dipakai di sini. AGENTS.md juga melarang menjalankannya pada mode snapshot.
-#
-# Keduanya masih bisa dijalankan manual di lokal lewat docker compose.
+# Langkah yang butuh PostgreSQL sungguhan sengaja tidak dimasukkan. `cek:admin`
+# jelas butuh itu, dan `cek:tulis` menyentuh database sungguhan. `cek:konten`
+# juga, kalau `DATABASE_URL` diisi. Ketiganya masih bisa dijalankan manual di
+# lokal lewat docker compose.
 name: Gerbang
 
 # Dipicu oleh setiap push dan setiap pull request, sesuai roadmap bagian 4
@@ -74,9 +71,12 @@ jobs:
 
       # Dua hambatan yang tidak terlihat oleh build maupun tes: snapshot yang
       # tidak sinkur dengan route handler, sehingga fallback diam-diam selalu
-      # gagal tanpa pesan, dan teks rusak yang lolos ke halaman. Keduanya murah
-      # dicek, tidak butuh database, dan bisa gagal secara diam-diam tanpa
-      # gerbang, jadi ikut dimasukkan ke sini.
+      # gagal tanpa pesan, dan teks rusak yang lolos ke halaman.
+      #
+      # `cek:konten` bukan "tidak butuh database", melainkan "butuh mode
+      # snapshot". Di mode live ia ikut menghitung isi tabel seed lewat
+      # PostgreSQL, dan di sini itu akan gagal. Karena `DATABASE_URL` di atas
+      # dikosongkan, ia membaca berkas JSON dan tidak pernah membuka soket.
       - name: Snapshot dan route saling cocok
         run: bun run cek:konten
 
