@@ -15,7 +15,7 @@
   --rs-accent: #1977cc;
   --rs-accent-theme-color: #1a77cc;
   /* Aksen khusus untuk teks tautan yang berdiri di atas `--rs-section-light`.
-     Alasannya diukur, bukanirasional: `#1977cc` di atas `#f1f7fc` hanya
+     Alasannya diukur, bukan irasional: `#1977cc` di atas `#f1f7fc` hanya
      4.27:1, sedangkan teks kecil butuh 4.5:1 pada WCAG 1.4.3. Nilai di bawah
      adalah `#1977cc` yang digelapkan 6.4 persen dan menghasilkan 4.79:1.
      Jangan pakai untuk tombol, latar, atau garis: di sana `#1977cc` yang
@@ -27,8 +27,8 @@
   --rs-text-heading: #000000;
   --rs-text-nav: #2c4964; /* rgb(44,73,100) */
   --rs-section-light: #f1f7fc; /* rgb(241,247,252) */
-  /* Teks redup: catatan kaki, ringkasan galat, keterangan kecil. likewise
-     nilainya diukur: `#6b7280` di atas `#f1f7fc` hanya 4.48:1, jadi
+  /* Teks redup: catatan kaki, ringkasan galat, keterangan kecil.
+     Nilainya juga diukur: `#6b7280` di atas `#f1f7fc` hanya 4.48:1, jadi
      digelapkan sedikit sampai 4.75:1. */
   --rs-text-lembut: #676e7b;
   --rs-gray-100: #f4f4f4;

@@ -57,6 +57,7 @@ const POLA_DINAMIS: readonly [string, RegExp][] = [
   ["pages", /^pages__[^/]+$/],
   ["mcu/packages", /^mcu__packages__[^/]+$/],
   ["jobs", /^jobs__[^/]+$/],
+  ["documents", /^documents__[^/]+$/],
   ["doctors/{id}/schedules", /^doctors__[^/]+__schedules$/],
 ];
 

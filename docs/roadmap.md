@@ -17,12 +17,12 @@ bukan sebagai perkiraan.
 |---|---|---|
 | Halaman ter-prerender | 154 | `routes` di `.next/prerender-manifest.json` |
 | Pola rute dinamis | 11 | `dynamicRoutes` di `.next/prerender-manifest.json` |
-| Berkas tes | 33 | `bun run test` |
-| Jumlah tes | 471 | `bun run test` |
-| Rute internal unik | 63 | `collectNavPaths()` di `src/data/navigation.ts` |
+| Berkas tes | 36 | `ls tests/*.test.ts \| wc -l` |
+| Jumlah tes | 482 | `bun run test` |
+| Rute dari catch-all | 30 | `collectNavPaths()` di `src/lib/nav-path.ts` |
 | Tabel terkelola di panel admin | 17 | `src/server/admin/registry.ts` |
 | Tabel di skema database | 27 | `pgTable` di `src/server/db/schema.ts` |
-| Route handler API | 42 | `src/app/api/v1/**/route.ts`, tidak termasuk catcher 404 |
+| Route handler API | 43 | `src/app/api/v1/**/route.ts`, tidak termasuk catcher 404 |
 | Butir navigasi tingkat atas | 8 | `NAV_ITEMS` |
 
 Jumlah "halaman ter-prerender" sebelumnya ditulis 160. Angka itu adalah jumlah
@@ -30,8 +30,16 @@ baris yang dicetak build, termasuk `/_global-error` dan `/_not-found` yang bukan
 halaman untuk pengunjung. Angka 154 di sini dihitung dari kunci `routes`, dan 11 pola
 dinamis dihitung terpisah karena tiap pola menghasilkan banyak URL.
 
+
+"Rute dari catch-all" 30 bukan 63 seperti tertulis sebelumnya. Angka 30 diukur
+langsung dari `collectNavPaths()`, dan itulah yang dihitung: hanya path
+yang dilayani `src/app/[...slug]/page.tsx`. Daun `/pelayanan/prioritas/*` dan
+`/pelayanan/medis/*` sengaja tidak ikut karena sudah dilayani folder `[slug]`
+masing-masing, dan sebelas pola dinamis dihitung terpisah di baris di atasnya.
+Jadi 154 halaman tidak bisa dijumlahkan dari 30.
+
 Gerbang kualitas terakhir: typecheck bersih, `bun run lint` bersih,
-`bun run test` 471 tes lulus, `bun run cek:konten` dan `bun run audit:teks`
+`bun run test` 482 tes lulus, `bun run cek:konten` dan `bun run audit:teks`
 lulus, `bun run build` sukses.
 
 Alur CI sudah ada di `.github/workflows/gerbang.yml`. Ia menjalankan lint, tes,
@@ -46,9 +54,9 @@ dengan `DATABASE_URL` dikosongkan agar semuanya berjalan pada mode snapshot.
 
 | # | Butir PRD | Status | Bukti |
 |---|---|---|---|
-| 1 | Layout global: topbar, navbar, footer, back-to-top | sebagian | topbar, navbar, dan footer ada. Tombol kembali ke atas tidak ada. Lihat 3.8 |
+| 1 | Layout global: topbar, navbar, footer, back-to-top | sebagian | topbar, navbar, dan footer ada. Tombol kembali ke atas tidak ada. Lihat 3.10 |
 | 2 | Beranda dengan seluruh section | selesai | 13 section di `src/app/page.tsx`, urutannya sama dengan PRD 8.3 |
-| 3 | Halaman konten dari tabel `pages` | selesai | 160 halaman hasil build |
+| 3 | Halaman konten dari tabel `pages` | selesai | 154 halaman, lihat catatan di bagian 1 |
 | 4 | Halaman detail template | selesai | layanan prioritas, fasilitas, MCU, berita |
 | 5 | Galeri dengan lightbox | selesai | `src/components/ui/GalleryLightbox.tsx`, PR #25 |
 
@@ -252,6 +260,47 @@ Bagian 2 menuliskannya sebagai "selesai" selama ini, padahal tidak ada.
 Jadi ini masih perlu dibuat. Butuh komponen kecil plus aturan CSS, dan tidak
 ada rujukan visual di situs acuan untuk diambil.
 
+### 3.11 Bilah aksi cepat juga tidak pernah dibuat
+
+`QuickActionBar` di PRD 8.4 tidak ada, sama seperti `BackToTop` di 3.10.
+Layout hanya merender `Topbar`, `Navbar`, dan `Footer`, dan tidak ada kelas
+CSS untuk bilah aksi cepat.
+
+Inilah satu-satunya Acceptance Criteria yang gagal, yaitu butir 4 di bagian 6.
+Back-to-top di 3.10 membuat butir 1 di bagian 2 hanya "sebagian", sedangkan
+bilah aksi cepat membuat butir 4 gagal seluruhnya.
+
+Isi bilah aksi cepat tidak bisa ditebak. Kandidat yang paling masuk akal
+mengambil isinya dari `HEADER_CTAS` ditambah WhatsApp, tapi itu masih
+perkiraan, dan belum ada rujukan visual di situs acuan untuk diambil.
+
+### 3.12 Tautan mati yang sudah diperbaiki, dan penjaganya
+
+Ditemukan lewat crawl 160 tautan internal dari HTML hasil build: 157 membalas
+200, satu membalas 404. Dua sisanya berkas `_next/static/chunks` yang basi
+karena build diulang di tengah penelusuran, bukan tautan.
+
+Tautan yang 404 itu tombol "Daftar Online" di `/radiologi` dan
+`/laboratorium`, yang menunjuk `/register`. Halaman itu tidak ada. Sembilan
+tempat lain sudah memakai `/daftar-online`.
+
+Penyebabnya celah tes, bukan salah ketik. `tests/nav-path.test.ts` hanya
+membaca tautan di `src/data/navigation.ts`, sedangkan `href` yang ditulis
+langsung di komponen tidak ikut dibaca. Karena itu `tests/tautan-internal.test.ts`
+sekarang menjaga dua arah: setiap literal `href` di `.tsx` harus punya halaman,
+dan tidak boleh menunjuk `/api/`.
+
+Pola yang sama berlaku untuk warna theme-color. PRD, bagian 8.2,
+`docs/design-tokens-terverifikasi.md`, dan `AGENTS.md` sama-sama menautkan
+`#1A77CC` ke `<meta name="theme-color">`, padahal meta itu tidak pernah ada di
+HTML hasil build dan `--rs-accent-theme-color` adalah token mati. Penyebabnya
+`themeColor` di `metadata` sudah deprecated sejak Next.js 14 dan dibuang tanpa
+peringatan: tetap lolos typecheck, tapi tagnya tidak pernah muncul. Sekarang
+dipakai lewat export `viewport`, dan `tests/theme-color.test.ts` menjaga token
+CSS dengan meta itu tidak berbeda. Hasilnya 151 dari 152 halaman
+ter-prerender memakai tag itu; sisanya `_global-error.html` yang memang
+menggantikan root layout.
+
 ---
 
 ## 4. Langkah berikutnya
@@ -327,14 +376,14 @@ dinilai lulus karena "sepertinya sudah ada".
 | 1 | Urutan section Home sama dengan tabel 8.3 | Lulus | `src/app/page.tsx` merender 13 section. Urutannya dibandingkan satu per satu dengan tabel PRD 8.3: hero, cari jadwal, layanan prioritas, fasilitas, paket MCU, berita, penghargaan, galeri, pendaftaran, sosial media, testimoni, asuransi, FAQ. Cocok semua. |
 | 2 | Navbar punya 3 tingkat dropdown dan berfungsi di desktop serta mobile | Lulus | `nav-path.ts` menelusuri tiga tingkat `children`. Dropdown diukur di peramban pada 1200, 1440, dan 1920px tanpa overflow. Panel off-canvas di mobile memakai batas 1200px yang sama. |
 | 3 | Warna utama, font, ukuran, dan jarak dicocokkan dari pengukuran DevTools | Sebagian | Font, ukuran, dan jarak memang hasil pengukuran, tercatat di `docs/design-tokens-terverifikasi.md`. Tapi warna yang tertulis di butir ini `#1A77CC` berbeda dari warna yang dipakai kode `#1977cc`. Yang dipakai kode adalah hasil pengukuran; angka di butir ini keliru. Butirnya tidak ditulis lulus karena bunyinya tidak cocok dengan implementasi. |
-| 4 | Topbar kontak, dua tombol CTA header, dan bilah aksi cepat ada | Sebagian | Topbar kontak ada. Dua tombol CTA header ada, `HEADER_CTAS` berisi "Daftar Online" dan "Administrasi Pasien". Bilah aksi cepat tidak ada; `QuickActionBar` di PRD 8.4 tidak pernah dibuat. Lihat 3.10. |
+| 4 | Topbar kontak, dua tombol CTA header, dan bilah aksi cepat ada | Sebagian | Topbar kontak ada. Dua tombol CTA header ada, `HEADER_CTAS` berisi "Daftar Online" dan "Administrasi Pasien". Bilah aksi cepat tidak ada; `QuickActionBar` di PRD 8.4 tidak pernah dibuat. Lihat 3.11. |
 
 ### Fungsional
 
 | # | Butir | Verdict | Bukti atau sebab gagal |
 |---|---|---|---|
 | 5 | Memilih spesialis memfilter dropdown dokter; hasil jadwal tampil dengan status memuat | Lulus | `DoctorSearchCard` punya tiga state: spesialis, dokter, hari. Memilih spesialis mengisi daftar dokter. Dipakai `<select>` bawaan, bukan `react-select` seperti PRD 8.3 menulis, karena `react-select` memang terpasang tetapi belum dipakai. Perbedaan komponen, bukan perbedaan fungsi. |
-| 6 | Semua halaman bisa dijangkau lewat link; tidak ada halaman yatim dan tidak ada link mati | Sebagian | Link mati nol dari 134 halaman yang dikropl. Link masuk juga ada untuk semua yang ditemukan. Tapi 18 halaman brosur dan 2 URL ganda tidak punya tautan masuk. Lihat 3.8. |
+| 6 | Semua halaman bisa dijangkau lewat link; tidak ada halaman yatim dan tidak ada link mati | Sebagian | Link mati nol dari 134 halaman yang dikropl. Link masuk juga ada untuk semua yang ditemukan. Tapi 18 halaman brosur dan 2 URL ganda tidak punya tautan masuk. Lihat 3.8. Tautan mati yang pernah ada sudah diperbaiki dan sekarang dijaga `tests/tautan-internal.test.ts`, lihat 3.12. |
 | 7 | Pendaftaran E-Pasien menghasilkan nomor antrean dan tersimpan di DB | Gagal | Endpoint-nya benar-benar ada dan benar-benar menyimpan: `POST /api/v1/appointments` memvalidasi tujuh field, menghasilkan `ticket_code`, dan menulis ke database. Tapi formulir di `/daftar-online` tidak pernah memanggilnya. `handleSubmit` berhenti di pemberitahuan, dan berkasnya sendiri menjelaskan alasannya. Dari sisi pengunjung tidak ada yang tersimpan. |
 | 8 | Form menolak input tidak valid di sisi server dan tahan terhadap spam sederhana | Sebagian | Sisi server sudah lengkap: `src/server/validation.ts` dipakai route appointments, honeypot dan rate limit dijalankan `src/server/api/form.ts` sebelum validasi. Yang belum ada adalah formulir yang mengirim datanya, jadi dua aturan itu belum pernah teruji dari jalur yang dipakai pengunjung. Butir 7 menjelaskan kenapa. |
 | 9 | Admin dapat menambah, mengubah, dan menghapus berita, dan perubahannya tampil di situs publik | Gagal | Tujuh belas tabel punya CRUD di panel admin, termasuk berita. Tapi tidak satu pun halaman publik membaca dari API atau database; semuanya membaca modul di `src/data/`. Admin bisa mengubah baris di database dan halaman publik tetap menampilkan isi modul. Perubahan yang dilakukan admin tidak pernah terlihat pengunjung. |
