@@ -8,9 +8,16 @@ export const dynamic = "force-dynamic";
 /**
  * Periksa sesi yang sedang berjalan.
  *
- * Mengembalikan 401 kalau cookie tidak ada, sudah kedaluwarsa, atau
- * tandatangannya tidak cocok. Panel admin memakai ini untuk menentukan apakah
- * masih perlu menampilkan tombol "Masuk".
+ * Selalu membalas 200 dengan isi sesi, atau 200 dengan semua kolom bernilai
+ * `null` kalau tidak ada sesi yang berlaku. Sengaja tidak 401: panel admin
+ * memakai endpoint ini untuk memutuskan masih perlu tidaknya menampilkan
+ * tombol "Masuk", jadi "tidak masuk" adalah jawaban yang wajar, bukan galat.
+ * Endpoint yang benar-benar butuh otorisasi, seperti `/admin/stats`, yang
+ * menjawab 401.
+ *
+ * Sesi dianggap tidak berlaku dalam empat hal: cookie tidak ada, tanda
+ * tangannya tidak cocok, sudah kedaluwarsa, atau sudah dicabut karena akunnya
+ * berubah. Yang terakhir hanya ketahuan lewat pemeriksaan di `readSession()`.
  */
 export async function GET(_request: NextRequest): Promise<NextResponse> {
   return handle(async () => {

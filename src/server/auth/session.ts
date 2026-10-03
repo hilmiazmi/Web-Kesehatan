@@ -1,7 +1,9 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { sql } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { config } from "../config";
 import { ApiError } from "../api/error";
+import { dbOrNull } from "../db/client";
 
 /**
  * Token sesi admin: `payload.signature`, ditandatangani HMAC-SHA256.
@@ -51,11 +53,27 @@ export type SessionClaims = {
   exp: number;
   /** Waktu token dibuat, detik sejak Epoch. */
   iat: number;
+  /**
+   * Salinan `users.session_version` saat token dibuat.
+   *
+   * Inilah yang membuat token bisa dicabut tanpa menunggu kedaluwarsa: begitu
+   * password, peran, atau status aktif berubah, angka di database naik dan
+   * token ini tidak lagi cocok, jadi `readSession()` menolaknya.
+   */
+  sv: number;
   /** Versi token. Dinaikkan kalau skema klaim berubah. */
   v: number;
 };
 
-const TOKEN_VERSION = 1;
+/**
+ * Versi skema klaim.
+ *
+ * Dinaikkan ke 2 saat klaim `sv` ditambahkan. Token versi 1 tidak punya angka
+ * pencabutan sama sekali, jadi seluruhnya ditolak dan setiap pemasuk harus
+ * login ulang. Itu disengaja: token yang tidak bisa dicabut tidak boleh tetap
+ * berlaku hanya demi menghemat satu kali login.
+ */
+const TOKEN_VERSION = 2;
 
 /**
  * Nama cookie sesi.
@@ -132,6 +150,7 @@ export function verifySession(
   if (claims.v !== TOKEN_VERSION) return null;
   if (!isRole(claims.role)) return null;
   if (typeof claims.exp !== "number" || claims.exp <= nowSeconds) return null;
+  if (typeof claims.sv !== "number") return null;
 
   return claims;
 }
@@ -142,6 +161,8 @@ export function newClaims(user: {
   email: string;
   name: string;
   role: Role;
+  /** Nilai `users.session_version` untuk akun ini. */
+  sessionVersion: number;
 }): SessionClaims {
   const now = Math.floor(Date.now() / 1000);
   return {
@@ -151,6 +172,7 @@ export function newClaims(user: {
     role: user.role,
     iat: now,
     exp: now + config().sessionMaxAgeSeconds,
+    sv: user.sessionVersion,
     v: TOKEN_VERSION,
   };
 }
@@ -194,12 +216,50 @@ export function clearedSessionCookie(): {
   };
 }
 
-/** Sesi dari request yang sedang berjalan, atau `null` kalau tidak ada. */
+/**
+ * Sesi dari request yang sedang berjalan, atau `null` kalau tidak ada.
+ *
+ * Selain memeriksa tanda tangan dan masa kedaluwarsa, baris akunnya juga
+ * dibandingkan. Token bersifat stateless sehingga tidak bisa dihapus seperti
+ * catatan di database; yang bisa dilakukan adalah menolak token yang sudah tidak
+ * lagi cocok dengan akunnya. Tanpa itu, mengganti password, menurunkan peran,
+ * atau menonaktifkan akun baru benar-benar berlaku setelah
+ * `SESSION_MAX_AGE_SECONDS` — delapan jam secara bawaan.
+ *
+ * Biayanya satu query per permintaan admin. Itu tradeoff yang sepadan dengan
+ * akun yang dicabut berlaku seketika, dan volumenya rendah dibanding API publik.
+ */
 export async function readSession(): Promise<SessionClaims | null> {
   const store = await cookies();
   const token = store.get(COOKIE_NAME)?.value;
   if (!token) return null;
-  return verifySession(token, config().authSecret);
+
+  const claims = verifySession(token, config().authSecret);
+  if (!claims) return null;
+
+  const db = dbOrNull();
+  // Mode snapshot tidak punya database, dan `auth/login` menolak login di mode
+  // itu karena verifikasi password selalu butuh database. Jadi tidak ada token
+  // sesi yang bisa terbit di mode snapshot dan tidak ada yang perlu dicabut.
+  // Melewati pengecekan di sini tidak membuka jalan bagi token palsu.
+  if (db === null) return claims;
+
+  const rows = await db.execute(
+    sql`SELECT session_version, is_active FROM users WHERE id = ${claims.sub}::uuid`,
+  );
+  const baris = rows[0] as
+    | { session_version: number; is_active: boolean }
+    | undefined;
+
+  // Baris yang hilang berarti akunnya sudah dihapus.
+  if (!baris) return null;
+  // Akun yang dinonaktifkan tidak boleh memakai sesi yang masih berlaku.
+  if (!baris.is_active) return null;
+  // Angka tidak cocok berarti kredensial atau hak aksesnya berubah sejak token
+  // ini diterbitkan.
+  if (baris.session_version !== claims.sv) return null;
+
+  return claims;
 }
 
 /**
