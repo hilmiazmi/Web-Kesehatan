@@ -38,8 +38,12 @@
   /* --- Ukuran tipografi (hasil pengukuran) --- */
   --rs-fs-body: 16px; /* line-height 24px */
   --rs-lh-body: 24px;
-  --rs-fs-nav: 15px; /* line-height 22.5px, weight 700 */
-  --rs-lh-nav: 22.5px;
+  /* Navbar desktop. Angka 14px dan line-height 21px diukur lewat
+     getComputedStyle di situs acuan, bukan 15px seperti dugaan awal.
+     Lebar nav menentukan apakah semua delapan item muat dalam satu baris,
+     jadi satu piksel di sini menentukan apakah menu membungkus. */
+  --rs-fs-nav: 14px;
+  --rs-lh-nav: 21px;
   --rs-fs-btn: 16px; /* tombol di dalam kartu, line-height 24px */
   --rs-lh-btn: 24px;
   --rs-fs-btn-cta: 14px; /* tombol CTA header, line-height 21px */

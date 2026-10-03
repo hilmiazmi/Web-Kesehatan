@@ -100,6 +100,11 @@
 .logo {
   text-decoration: none;
   gap: 0.65rem;
+  /* Tidak boleh menyusut. Tanpa ini, pada lebar 1200 sampai 1400 piksel logo
+     ikut terjejit sampai teksnya pecah jadi empat baris, sementara navbar
+     tetap nowrap. Situs acuan juga menahan logo pada lebar tetap: 219px di
+     bawah 1440 dan 261px di atasnya, tidak pernah lebih kecil. */
+  flex-shrink: 0;
 }
 
 .logo-mark {
@@ -173,11 +178,16 @@
 .navmenu {
   display: flex;
   align-items: center;
+  /* Menu tidak menyusut dan tidak membungkus. Delapan butir diukur membutuhkan
+     767px; kalau boleh menyusut, butir-butirnya saling tindih. */
+  flex-shrink: 0;
 }
 
 .navmenu > ul {
   display: flex;
-  flex-wrap: wrap;
+  /* nowrap, bukan wrap. Patio acuan juga nowrap, dan wrap membuat "Kapasitas
+     Bed" turun ke baris kedua sehingga navbar terlihat dua lapis. */
+  flex-wrap: nowrap;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -197,7 +207,10 @@
   line-height: var(--rs-lh-nav);
   color: var(--rs-text-nav);
   text-decoration: none;
-  padding: 0.5rem 0.45rem;
+  /* Padding atas dan bawah nol, kiri dan kanan 2px: hasil getComputedStyle
+     di situs acuan. Padding 0.5rem 0.45rem yang sebelumnya dipakai menambah
+     10 piksel lebar per item, cukup untuk membuat seluruh menu membungkus. */
+  padding: 0 2px;
   white-space: nowrap;
   transition: color 0.2s ease;
 }
@@ -296,8 +309,31 @@
   line-height: 1;
 }
 
-/* ---------- Menu mobile ---------- */
-@media (max-width: 1199.98px) {
+/* Hamburger disembunyikan hanya di layout desktop penuh, yaitu 1550px ke atas.
+   Dulu kelasnya d-xl-none dari Bootstrap, yang berhenti di 1200px. Setelah
+   batas layout jadi 1550px, kelas itu akan membuat tombolnya hilang pada
+   pita 1200 sampai 1549px persis di saat panel off-canvas sedang dipakai. */
+@media (min-width: 1550px) {
+  .mobile-nav-toggle {
+    display: none;
+  }
+}
+
+/* ---------- Menu tablet dan mobile ----------
+   Batasnya 1550px. Delapan item navigasi diukur membutuhkan 767px yang tidak
+   bisa menyusut, logo 237px, dan dua tombol CTA 353px termasuk margin kirinya.
+   Totalnya 1381px ditambah padding wadah 24px menjadi 1405px, jadi di bawah
+   angka itu tidak ada ruang cukup untuk menampilkan semuanya dalam satu
+   baris. Memaksanya tetap satu baris membuat "Kapasitas Bed" terlempar ke
+   baris kedua atau tombol CTA terpotong di tepi layar. Karena itu di bawah
+   1550px dipakai panel off-canvas, sama seperti di ponsel, dan batasnya
+   diberi sisa 145px agar tidak pernah pas-pasan.
+
+   Nilai ini harus sama dengan min-width 1550px di .mobile-nav-toggle dan
+   .nav-mobile, serta dengan BATAS_NAV_DESKTOP di Navbar.tsx. Kalau satu
+   tempat tertinggal, di tablet tombol hamburger hilang padahal panelnya sedang
+   dipakai. */
+@media (max-width: 1549.98px) {
   .navmenu {
     position: fixed;
     top: 0;
@@ -372,7 +408,7 @@
   }
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 1550px) {
   .nav-mobile {
     display: none;
   }

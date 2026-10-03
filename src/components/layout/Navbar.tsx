@@ -70,7 +70,7 @@ export default function Navbar() {
             isinya otomatis tidak bisa diklik. */}
         <button
           type="button"
-          className="mobile-nav-toggle d-xl-none bi bi-list"
+          className="mobile-nav-toggle bi bi-list"
           aria-label={mobileOpen ? "Tutup menu" : "Buka menu"}
           aria-expanded={mobileOpen}
           onClick={() => setMobileOpen((v) => !v)}
@@ -93,15 +93,28 @@ export default function Navbar() {
 }
 
 /**
+ * Batas navigasi desktop, dalam piksel.
+ *
+ * Nilainya harus sama dengan media query `.navmenu`, `.mobile-nav-toggle`,
+ * dan `.nav-mobile` di `site.css`. Semuanya 1550px.
+ *
+ * Angka ini hasil hitung, bukan tebakan. Delapan item navigasi memakai 767px
+ * yang tidak bisa menyusut, logo 237px, dan dua tombol CTA 353px termasuk
+ * margin kirinya. Totalnya 1357px, ditambah padding wadah 24px menjadi
+ * 1381px. Dengan batas lama 1200px, pita 1200 sampai 1499px tidak cukup ruang:
+ * "Kapasitas Bed" terlempar ke baris kedua, logo ikut terjejit, dan tombol
+ * kedua terpotong di tepi layar.
+ */
+const BATAS_NAV_DESKTOP = 1550;
+
+/**
  * True kalau navigasi sedang dalam mode desktop.
  *
- * Batasnya harus sama dengan media query `.navmenu` di `site.css`
- * (max-width: 1199.98px). Di desktop submenu memakai hover sehingga tautan
- * induk harus bisa diklik; di mobile tidak ada hover, jadi klik diubah jadi
- * pembuka accordion.
+ * Di desktop submenu memakai hover sehingga tautan induk harus bisa diklik.
+ * Di tablet dan mobile tidak ada hover, jadi klik diubah jadi pembuka accordion.
  */
 function isDesktopNav(): boolean {
-  return window.matchMedia("(min-width: 1200px)").matches;
+  return window.matchMedia(`(min-width: ${BATAS_NAV_DESKTOP}px)`).matches;
 }
 
 /** Satu item menu beserta turunannya, rekursif sampai kedalaman berapa pun. */
