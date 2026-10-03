@@ -1,0 +1,394 @@
+/*
+ * Panel admin.
+ *
+ * Tidak ada rujukan visual untuk panel ini, jadi tidak ada angka baru yang
+ * dikarang di sini. Semua warna, radius, dan ukuran huruf memakai token yang
+ * sudah dipakai halaman publik, sehingga panel terasa bagian dari situs yang
+ * sama dan tidak terlihat seperti aplikasi yang ditempelkan.
+ *
+ * Bootstrap sudah menyediakan tabel, form, tombol, dan badge, jadi file ini
+ * hanya menambah apa yang tidak ada di Bootstrap: kerangka dua kolom, tabel
+ * data yang padat, dan baris untuk suntingan.
+ */
+
+/*
+ * Topbar, navbar, dan footer situs publik disembunyikan hanya di halaman
+ * admin.
+ *
+ * Layout root selalu merender ketiganya, dan memindahkannya ke route group
+ * berarti memindahkan seluruh halaman publik ke folder lain: perubahan besar
+ * yang bersinggungan dengan pekerjaan lain di branch mana pun. Selector
+ * `:has()` bawaan CSS bisa membaca susunan ini tanpa memindahkan berkas apa
+ * pun, dan tetap bekerja tanpa JavaScript.
+ *
+ * Selector-nya memakai kelas yang paling luar dari tiap komponen, yaitu
+ * `.skip-link`, `.topbar`, `.branding` untuk navbar, dan `.footer`. Kalau
+ * nama kelas itu diubah di `site.css`, aturan ini ikut mati dan navbar
+ * muncul kembali di halaman admin; `tests/admin-panel.test.ts` memeriksa
+ * keempatnya supaya perubahan itu tidak lolos tanpa terlihat.
+ *
+ * `!important` di bawah bukan kebiasaan, tapi keharusan: Bootstrap menulis
+ * `.d-flex` sebagai `display: flex !important`, dan topbar serta navbar
+ * memakai kelas itu. Tanpa `!important`, aturan ini kalah dan chrome publik
+ * tetap terlihat di halaman admin.
+ */
+body:has(#admin-halaman) > .skip-link,
+body:has(#admin-halaman) > .topbar,
+body:has(#admin-halaman) > .branding,
+body:has(#admin-halaman) > .footer {
+  display: none !important;
+}
+
+body:has(#admin-halaman) {
+  background: var(--rs-gray-100);
+}
+
+body:has(#admin-halaman) > #main-content {
+  min-height: 100vh;
+}
+
+/* ---------------------------------------------------------------- kerangka */
+
+.admin-shell {
+  display: flex;
+  min-height: 100vh;
+  align-items: stretch;
+}
+
+.admin-side {
+  width: 264px;
+  flex: 0 0 264px;
+  background: #10243a;
+  color: #e8eef5;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-brand {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.admin-brand strong {
+  display: block;
+  color: var(--rs-white);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 22px;
+}
+
+.admin-brand span {
+  display: block;
+  font-size: 13px;
+  line-height: 19px;
+  color: #a9bed4;
+}
+
+.admin-nav {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 12px 0 24px;
+}
+
+.admin-nav-group {
+  padding: 14px 20px 6px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #8fa8c2;
+}
+
+.admin-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 20px;
+  color: #d7e2ee;
+  font-size: 15px;
+  line-height: 21px;
+  text-decoration: none;
+}
+
+.admin-nav-link:hover,
+.admin-nav-link:focus {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--rs-white);
+}
+
+.admin-nav-link[aria-current="page"] {
+  background: var(--rs-accent);
+  color: var(--rs-white);
+  font-weight: 500;
+}
+
+.admin-nav-link .bi {
+  font-size: 15px;
+  width: 18px;
+  text-align: center;
+}
+
+.admin-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 24px;
+  background: var(--rs-white);
+  border-bottom: 1px solid var(--rs-gray-300);
+}
+
+.admin-top h1 {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 28px;
+  margin: 0;
+  color: var(--rs-text-heading);
+}
+
+.admin-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--rs-text-body);
+}
+
+.admin-user .admin-role {
+  background: var(--rs-section-light);
+  border-radius: var(--rs-radius-btn);
+  padding: 3px 10px;
+  font-size: 13px;
+  color: var(--rs-accent-teks);
+}
+
+.admin-body {
+  padding: 24px;
+  flex: 1 1 auto;
+}
+
+/* ------------------------------------------------------------------ dasbor */
+
+.admin-stat {
+  background: var(--rs-white);
+  border: 1px solid var(--rs-border-card);
+  border-radius: var(--rs-radius-card);
+  padding: 18px 20px;
+  height: 100%;
+}
+
+.admin-stat dt {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--rs-text-lembut);
+  margin-bottom: 6px;
+}
+
+.admin-stat dd {
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 36px;
+  margin: 0;
+  color: var(--rs-accent-teks);
+}
+
+.admin-panel {
+  background: var(--rs-white);
+  border: 1px solid var(--rs-border-card);
+  border-radius: var(--rs-radius-card);
+  padding: 20px;
+}
+
+.admin-panel > h2 {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 26px;
+  margin: 0 0 14px;
+  color: var(--rs-text-heading);
+}
+
+/* ------------------------------------------------------------------- tabel */
+
+.admin-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+  background: var(--rs-white);
+  border: 1px solid var(--rs-border-card);
+  border-radius: var(--rs-radius-card);
+}
+
+.admin-table {
+  width: 100%;
+  margin: 0;
+  font-size: 14px;
+}
+
+.admin-table th {
+  white-space: nowrap;
+  background: var(--rs-section-light);
+  color: var(--rs-text-nav);
+  font-weight: 600;
+  border-bottom: 1px solid var(--rs-gray-300);
+  padding: 10px 12px;
+}
+
+.admin-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid #eceff3;
+  color: var(--rs-text-body);
+  vertical-align: middle;
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.admin-table th button {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-weight: 600;
+  color: inherit;
+  cursor: pointer;
+}
+
+.admin-sort {
+  margin-left: 6px;
+  font-size: 12px;
+  color: var(--rs-accent-teks);
+}
+
+.admin-empty {
+  padding: 28px 16px;
+  text-align: center;
+  color: var(--rs-text-lembut);
+}
+
+.admin-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+  font-size: 14px;
+  color: var(--rs-text-lembut);
+  flex-wrap: wrap;
+}
+
+/* -------------------------------------------------------------------- form */
+
+.admin-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.admin-form-grid .admin-span-2 {
+  grid-column: 1 / -1;
+}
+
+.admin-form label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--rs-text-body);
+}
+
+.admin-required {
+  color: #b02a37;
+}
+
+.admin-readonly {
+  font-size: 13px;
+  color: var(--rs-text-lembut);
+}
+
+.admin-alert {
+  border-radius: var(--rs-radius-btn);
+  padding: 12px 16px;
+  font-size: 14px;
+  border: 1px solid transparent;
+}
+
+.admin-alert-gagal {
+  background: #fdf1f2;
+  border-color: #f3c2c7;
+  color: #8a1c26;
+}
+
+.admin-alert-sukses {
+  background: #eef7f1;
+  border-color: #b7ddc5;
+  color: #1c5233;
+}
+
+.admin-alert-info {
+  background: var(--rs-section-light);
+  border-color: #cfe3f4;
+  color: var(--rs-accent-teks);
+}
+
+/* ------------------------------------------------------------------ login */
+
+.admin-login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--rs-section-light);
+}
+
+.admin-login-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--rs-white);
+  border: 1px solid var(--rs-border-card);
+  border-radius: var(--rs-radius-card);
+  padding: 28px;
+}
+
+.admin-login-card h1 {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--rs-text-heading);
+  margin-bottom: 4px;
+}
+
+/* ------------------------------------------------------------- responsif */
+
+@media (max-width: 991.98px) {
+  .admin-shell {
+    flex-direction: column;
+  }
+
+  .admin-side {
+    width: auto;
+    flex: 0 0 auto;
+  }
+
+  .admin-nav {
+    max-height: 320px;
+  }
+
+  .admin-form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
