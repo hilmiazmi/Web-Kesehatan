@@ -1,10 +1,9 @@
 import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
+import type { NextResponse } from "next/server";
 import { handle, ok } from "@/server/api/respond";
 import { API_VERSION, ROUTE_PREFIX } from "@/server/api/meta";
 import { checkDb, dbOrNull } from "@/server/db/client";
 import { config } from "@/server/config";
-import { sql } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
@@ -21,9 +20,9 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
     const database = await checkDb();
 
     if (!database.ok) {
-      // Sengaja tanpa melepas detail galat. Isinya bisa memuat nama host,
-      // nama pengguna, dan potongan kredensial, dan health check memang dibaca
-      // oleh siapa pun yang bisa menjangkau port-nya.
+      // Sengaja tanpa melepas `database.detail`. Isinya bisa memuat nama host,
+      // nama pengguna, dan potongan kredensial, sementara health check dibaca
+      // oleh siapa pun yang bisa menjangkau portnya.
       throw new Error("database tidak menjawab");
     }
 
@@ -34,21 +33,28 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
       time: new Date().toISOString(),
     };
 
-    // Di mode snapshot tidak ada koneksi yang bisa ditanyakan versinya, dan
-    // endpoint ini tetap harus menjawab. Health check dibaca platform secara
-    // otomatis, jadi membalas 500 di build pratinjau akan membuat pratinjau
-    // ditandai tidak sehat lalu dibunuh, padahal tidak ada apa pun yang rusak:
-    // snapshot memang tidak pernah punya database.
+    // Di mode snapshot tidak ada koneksi sama sekali, dan endpoint ini tetap
+    // harus menjawab. Health check dibaca platform secara otomatis, jadi
+    // membalas 500 di build pratinjau akan membuat pratinjau ditandai tidak
+    // sehat lalu dibunuh, padahal tidak ada apa pun yang rusak: snapshot memang
+    // tidak pernah punya database.
     if (db === null) {
       return ok({ ...dasar, database: "tidak terhubung", mode: config().apiMode });
     }
 
-    const baris = await db.execute(sql`SELECT version() AS v`);
-    const penuh = String((baris[0] as { v: string }).v);
-
+    // Yang ditulis di sini bukan hasil kueri, melainkan nama konstanta.
+    //
+    // Sebelumnya respons ini berisi hasil `SELECT version()`, yaitu versi
+    // PostgreSQL lengkap beserta kompilasi dan sistem operasi. `/health` terbuka
+    // tanpa sesi, dan nomor versi itulah yang dipakai penyerang untuk
+    // mencocokkan kerentanan yang sudah diketahui. Pemeriksaan kesehatan tidak
+    // butuh presisi sebesar itu.
+    //
+    // `checkDb()` di atas sudah menjalankan `SELECT 1` pada koneksi yang sama,
+    // jadi menjawab "ok" di sini tidak butuh kueri kedua.
     return ok({
       ...dasar,
-      database: penuh.split(",")[0]?.trim() ?? "PostgreSQL",
+      database: "PostgreSQL",
       mode: config().apiMode,
     });
   });
