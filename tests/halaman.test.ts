@@ -32,6 +32,57 @@ describe("cakupan isi halaman", () => {
   });
 });
 
+describe("gambar di data halaman", () => {
+  /**
+   * Susunlah `src`/`href` yang akhiriannya URL gambar, termasuk yang di dalam
+   * `butir` bertingkat. Mengembalikan [{ path, nilai }].
+   */
+  const kumpulkan = (path: string, nilai: unknown, kunci = ""): { path: string; nilai: string }[] => {
+    if (typeof nilai === "string") {
+      return kunci === "src" || kunci === "href" || kunci === "foto"
+        ? [{ path, nilai }]
+        : [];
+    }
+    if (Array.isArray(nilai)) {
+      return nilai.flatMap((v) => kumpulkan(path, v, kunci));
+    }
+    if (nilai && typeof nilai === "object") {
+      return Object.entries(nilai as Record<string, unknown>).flatMap(([k, v]) =>
+        kumpulkan(path, v, k)
+      );
+    }
+    return [];
+  };
+
+  it("tidak ada ID Unsplash telanjang yang lolos ke src", () => {
+    // photo-1587854692152-cbe660dbde88 adalah ID mentah, bukan URL
+    // next/image menerimanya sebagai path lokal, lalu optimizer membalas 400.
+    // Gejalanya tidak terlihat di tes lain: halaman tetap 200 dan markup-nya
+    // tetap lengkap, hanya gambar yang tidak termuat.
+    const salah: string[] = [];
+    for (const [path, isi] of Object.entries(HALAMAN)) {
+      for (const { nilai } of kumpulkan(path, isi)) {
+        if (/^photo-\d/i.test(nilai)) salah.push(`${path} -> ${nilai}`);
+      }
+    }
+    expect(salah).toEqual([]);
+  });
+
+  it("setiap foto galeri memakai URL absolut", () => {
+    const salah: string[] = [];
+    for (const [path, isi] of Object.entries(HALAMAN)) {
+      for (const blok of isi.blok) {
+        if (blok.jenis !== "galeri") continue;
+        blok.foto.forEach((f, i) => {
+          if (!/^https:\/\//.test(f.src)) salah.push(`${path} galeri[${i}] ${f.src}`);
+          if (!f.alt.trim()) salah.push(`${path} galeri[${i}] alt kosong`);
+        });
+      }
+    }
+    expect(salah).toEqual([]);
+  });
+});
+
 describe("isiHalaman", () => {
   it("menerima path dengan dan tanpa garis miring", () => {
     expect(isiHalaman("/kontak")).toBeDefined();
