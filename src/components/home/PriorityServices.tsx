@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Photo from "@/components/ui/Photo";
+import CardCarousel from "@/components/ui/CardCarousel";
 import { PRIORITY_SERVICES } from "@/data/home";
 import { PRIORITY_PHOTOS, photo } from "@/data/images";
 
@@ -8,6 +9,10 @@ import { PRIORITY_PHOTOS, photo } from "@/data/images";
  *
  * 6 kartu, jumlah dan urutan sesuai situs referensi yang sudah diverifikasi.
  * Foto memakai aset stok Unsplash, bukan foto asli situs referensi.
+ *
+ * Di situs referensi keenam kartu berada di dalam carousel yang hanya
+ * menampilkan 4 sekaligus, jadi tinggi section tidak mengikuti jumlah kartu.
+ * Struktur dan pembagian kolomnya ditiru; hanya fotonya yang diganti aset stok.
  */
 export default function PriorityServices() {
   return (
@@ -17,36 +22,29 @@ export default function PriorityServices() {
         <p>&quot;Layanan Terbaik Untuk Kesehatan Anda&quot;</p>
       </div>
 
-      <div className="container">
-        <div className="row gy-4 gx-4">
-          {PRIORITY_SERVICES.map((s, i) => (
-            <div className="col-md-6 col-lg-4" key={s.slug}>
-              <div className="card card-layanan">
-                <div className="image-content">
-                    <Photo
-                      src={photo(PRIORITY_PHOTOS[i % PRIORITY_PHOTOS.length], 600, 400)}
-                      alt={s.title}
-                      sizes="(max-width: 768px) 100vw, 360px"
-                      height={190}
-                      radius="top"
-                    />
-                </div>
-
-                <div className="card-content">
-                  <h3 className="card-title">{s.title}</h3>
-                  <p className="card-description">{s.description}</p>
-                  <Link
-                    href={`/pelayanan/prioritas/${s.slug}`}
-                    className="btn btn-primary"
-                  >
-                    Detail
-                  </Link>
-                </div>
-              </div>
+      <CardCarousel label="Layanan unggulan dan prioritas">
+        {PRIORITY_SERVICES.map((s, i) => (
+          <div className="card" key={s.slug}>
+            <div className="image-content">
+              <Photo
+                src={photo(PRIORITY_PHOTOS[i % PRIORITY_PHOTOS.length], 600, 400)}
+                alt={s.title}
+                sizes="(max-width: 576px) 100vw, (max-width: 992px) 50vw, 360px"
+                height={190}
+                radius="top"
+              />
             </div>
-          ))}
-        </div>
-      </div>
+
+            <div className="card-content">
+              <h3 className="card-title">{s.title}</h3>
+              <p className="card-description">{s.description}</p>
+              <Link href={`/pelayanan/prioritas/${s.slug}`} className="btn btn-primary">
+                Detail
+              </Link>
+            </div>
+          </div>
+        ))}
+      </CardCarousel>
     </section>
   );
 }

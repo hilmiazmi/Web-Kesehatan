@@ -68,13 +68,11 @@ export default async function GenericPage({
               <div className="content-placeholder-soft">
                 <p>
                   Halaman <strong>{trail.at(-1)?.label ?? humanize(last)}</strong>{" "}
-                  sedang disiapkan. Sementara ini yang tampil baru kerangka
-                  halaman beserta informasi kontak di bawah.
+                  belum dilengkapi isi pada versi demo ini.
                 </p>
                 <p>
-                  Isi lengkap halaman ini akan diisi dari basis data saat
-                  backend PostgreSQL selesai dibangun, mengikuti skema pada PRD
-                  bagian 7.
+                  Informasi kontak di bawah tetap berlaku dan bisa dipakai
+                  kapan saja.
                 </p>
               </div>
 

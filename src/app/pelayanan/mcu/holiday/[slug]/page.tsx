@@ -5,14 +5,14 @@ import {
   McuPackageDetail,
   FACILITY_PHOTOS,
 } from "@/components/pelayanan/McuPackageDetail";
-import { MCU_PACKAGES } from "@/data/home";
+import { MCU_HOLIDAY_PACKAGES } from "@/data/home";
 import { formatIDR } from "@/lib/format";
 
-const BASE = "/pelayanan/mcu/reguler";
+const BASE = "/pelayanan/mcu/holiday";
 
-/** Prerender semua paket MCU reguler saat build. */
+/** Prerender semua paket holiday saat build. */
 export function generateStaticParams() {
-  return MCU_PACKAGES.map((p) => ({ slug: p.slug }));
+  return MCU_HOLIDAY_PACKAGES.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({
@@ -21,7 +21,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const pkg = MCU_PACKAGES.find((p) => p.slug === slug);
+  const pkg = MCU_HOLIDAY_PACKAGES.find((p) => p.slug === slug);
   if (!pkg) return { title: "Paket Tidak Ditemukan" };
   return {
     title: pkg.title,
@@ -30,18 +30,18 @@ export async function generateMetadata({
 }
 
 /**
- * Halaman detail satu paket MCU reguler.
+ * Halaman detail satu paket Health Meets Holiday.
  *
- * Daftar paket lain diletakkan di kolom kiri, mengikuti halaman detail paket
- * di situs referensi.
+ * Tata letaknya sama dengan paket reguler; yang berbeda hanya sumber data dan
+ * remah roti.
  */
-export default async function McuPackagePage({
+export default async function McuHolidayPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const index = MCU_PACKAGES.findIndex((p) => p.slug === slug);
+  const index = MCU_HOLIDAY_PACKAGES.findIndex((p) => p.slug === slug);
   if (index === -1) notFound();
 
   return (
@@ -50,17 +50,17 @@ export default async function McuPackagePage({
         trail={[
           { label: "Pelayanan", href: "/pelayanan" },
           { label: "MCU", href: "/pelayanan/mcu" },
-          { label: "Paket Reguler", href: BASE },
-          { label: MCU_PACKAGES[index].title },
+          { label: "Paket Health Meets Holiday", href: BASE },
+          { label: MCU_HOLIDAY_PACKAGES[index].title },
         ]}
       />
 
       <section className="section">
         <div className="container">
           <McuPackageDetail
-            pkg={MCU_PACKAGES[index]}
+            pkg={MCU_HOLIDAY_PACKAGES[index]}
             index={index}
-            siblings={MCU_PACKAGES}
+            siblings={MCU_HOLIDAY_PACKAGES}
             basePath={BASE}
             photos={FACILITY_PHOTOS}
           />

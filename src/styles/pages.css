@@ -172,6 +172,261 @@
   margin-bottom: 0;
 }
 
+/* ---------- Judul halaman detail ----------
+   Di situs referensi judul halaman detail memakai font 40px weight 500
+   dengan margin bawah 8px, berbeda dari judul section beranda yang 42px
+   dan halaman umum yang lebih kecil. */
+.detail-title {
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+
+.detail-body-photo {
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 767.98px) {
+  .detail-title {
+    font-size: 1.9rem;
+  }
+}
+
+/* ---------- Sidebar halaman detail ----------
+   Kolom kiri berisi daftar halaman saudara di kategori yang sama.
+
+   Semua angka di blok ini hasil getComputedStyle() dari halaman detail
+   layanan prioritas, fasilitas, dan MCU di situs referensi:
+     kotak       border 1px #ddd, radius 8px, latar putih,
+     tiap item   padding 10px, garis bawah 1px #ddd, jarak atas 8px,
+     tautan      font 14px weight 500 warna #1977cc, jarak kiri 10px.
+
+   Kotak memakai lebar penuh kolom, bukan lebar tetap, supaya tetap rapi
+   pada lebar kolom Bootstrap yang berbeda. */
+.detail-sidebar {
+  background-color: var(--rs-white);
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 8px 0;
+}
+
+.detail-sidebar-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.detail-sidebar-item {
+  border-bottom: 1px solid #ddd;
+  padding: 10px;
+}
+
+.detail-sidebar-item:last-child {
+  border-bottom: 0;
+}
+
+.detail-sidebar-link {
+  display: block;
+  padding-left: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 23px;
+  color: var(--rs-accent);
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.detail-sidebar-link:hover {
+  opacity: 0.75;
+}
+
+/* ---------- Direktori klinik (/pelayanan/poliklinik) ----------
+
+   Di situs referensi, daftar klinik berupa tab vertikal di kolom kiri dan
+   isi klinik terpilih di kolom kanan. Angka di bawah hasil pengukuran:
+     tombol       229 x 38px, latar #f2f7fc, teks #444, radius 5px,
+                  font 12px, padding 10px 20px, margin 6px 3px,
+     tombol aktif latar #1977cc dengan teks putih,
+     foto di panel 177 x 180px dengan radius 5px.
+
+   Latar tab sengaja #f2f7fc, bukan --rs-section-light yang bernilai
+   #f1f7fc; angka di sini mengikuti hasil pengukuran, bukan token umum. */
+.klinik-tab-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.klinik-tab {
+  display: block;
+  width: 100%;
+  margin: 6px 3px;
+  padding: 10px 20px;
+  background-color: #f2f7fc;
+  border: 0;
+  border-radius: var(--rs-radius-btn);
+  color: var(--rs-text-body);
+  font-family: var(--rs-font-body);
+  font-size: 12px;
+  line-height: 18px;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.klinik-tab:hover {
+  background-color: #e4eefa;
+}
+
+.klinik-tab.aktif {
+  background-color: var(--rs-accent);
+  color: var(--rs-white);
+}
+
+.klinik-panel {
+  background-color: var(--rs-white);
+  border: 1px solid var(--rs-gray-300);
+  border-radius: var(--rs-radius-card);
+  padding: 1.75rem;
+  min-height: 320px;
+}
+
+.klinik-panel-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.klinik-panel-desc {
+  color: var(--rs-text-body);
+  line-height: 1.7;
+  margin-bottom: 1.25rem;
+}
+
+.klinik-panel-sub {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.klinik-panel-hours {
+  color: var(--rs-text-body);
+  font-size: 0.88rem;
+  margin: 1.25rem 0 0;
+}
+
+.klinik-panel-hours i {
+  color: var(--rs-accent);
+  margin-right: 0.4rem;
+}
+
+/* ---------- Kartu brosur ----------
+   Kartu ini bukan hasil ukur dari situs acuan. Yang diukur dan dipakai ulang
+   hanya tombol tab dan panel dari .klinik-tab / .klinik-panel, karena di acuan
+   susunan brosur juga memakai tab yang sama. Sisanya mengikuti skala kartu
+   yang sudah dipakai di halaman ini. */
+.brosur-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-top: 1rem;
+}
+
+.brosur-kartu {
+  display: block;
+  padding: 18px 20px;
+  border: var(--rs-border-card);
+  border-radius: 5px;
+  color: var(--rs-text-body);
+  text-decoration: none;
+  transition: border-color 0.15s ease;
+}
+
+.brosur-kartu:hover {
+  border-color: var(--rs-accent);
+}
+
+.brosur-kartu-judul {
+  display: block;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  color: var(--rs-accent);
+}
+
+.brosur-kartu-lead {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.brosur-kartu-baca {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.75rem;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--rs-accent);
+}
+
+@media (max-width: 768px) {
+  .brosur-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Kartu klinik di bawah tab ----------
+   Angka di sini hasil getComputedStyle() pada halaman /poliklinik di situs
+   acuan, bukan tebakan:
+     grid 4 kolom fixed 187px, gap 15px, padding 10px;
+     kartu 187 x 250px tanpa border dan tanpa box-shadow;
+     foto 177 x 180px, radius 5px, object-fit cover;
+     teks 16px, line-height 24px, weight 400, warna #1977cc. */
+.clinic-card-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 187px);
+  gap: 15px;
+  padding: 10px;
+  margin-top: 1.5rem;
+}
+
+.clinic-card {
+  display: block;
+  width: 187px;
+  color: var(--rs-accent);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+  text-decoration: none;
+}
+
+/* Kartu tidak punya border di acuan, jadi hover cukup memberi garis bawah
+   tipis supaya tetap terbaca sebagai tautan. */
+.clinic-card:hover .clinic-card-title {
+  text-decoration: underline;
+}
+
+.clinic-card-title {
+  display: block;
+  margin: 0.5rem 0 0;
+}
+
+/* Di bawah empat kolom, grid menyusut ke dua lalu satu kolom. */
+@media (max-width: 992px) {
+  .clinic-card-grid {
+    grid-template-columns: repeat(2, 187px);
+  }
+}
+
+@media (max-width: 448px) {
+  .clinic-card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ---------- 404 ---------- */
 .not-found-code {
   font-size: 5rem;
