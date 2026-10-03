@@ -34,6 +34,30 @@
   font-weight: 700;
 }
 
+/* Tautan kontak topbar setinggi 21px di semua lebar, karena isinya hanya
+   satu baris teks tanpa padding. Lebarnya sudah adequate di atas 768px karena
+   nomornya ikut tampil, jadi yang kurang hanya tinggi. 32px muat di dalam
+   topbar 40px tanpa mengubah tingginya, dan 24px adalah minimal WCAG 2.5.8. */
+.topbar .contact-info a.phone,
+.topbar .contact-info a.hp,
+.topbar .contact-info a.email {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+}
+
+/* Ikon sosial media 33 x 21px. Lebarnya sudah cukup karena ikonnya besar,
+   tapi tingginya 21px masih di bawah minimal 24px WCAG 2.5.8. Tombol ini
+   baru muncul dari 768px ke atas karena `d-none d-md-flex`, jadi di HP
+   tidak ada sama sekali. 32px masih muat di dalam topbar 40px. */
+.social-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  min-height: 32px;
+}
+
 .topbar a {
   text-decoration: none;
 }
@@ -500,7 +524,9 @@
 }
 
 .footer-contact li {
-  margin-bottom: 0.55rem;
+  /* Setelah tautannya dapat padding vertikal, margin 0.55rem jadi
+     berlebihan. */
+  margin-bottom: 0.15rem;
   color: var(--rs-text-body);
   font-size: 0.9rem;
 }
@@ -513,6 +539,18 @@
 .footer-contact a:hover {
   color: var(--rs-accent);
   text-decoration: underline;
+}
+
+/* Tautan footer diukur 19 sampai 23px di semua lebar, karena isinya hanya
+   satu baris teks tanpa padding. Semuanya tautan navigasi, jadi di bawah
+   24px itu melanggar WCAG 2.5.8.
+   `display: inline-block` diperlukan supaya padding vertikal menambah tinggi
+   sebenarnya, bukan hanya ruang di dalam kotak sebaris. */
+.footer-contact a,
+.footer-utility a {
+  display: inline-block;
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
 }
 
 .footer-map-placeholder {
@@ -561,6 +599,66 @@
 .footer-utility a:hover {
   color: var(--rs-accent);
   text-decoration: underline;
+}
+
+/* ---------- Target sentuh di layar sentuh ----------
+
+ * Batasnya 768px, bukan 767.98px, karena aturan topbar yang menyembunyikan
+ * teks nomor dan surel juga memakai `max-width: 768px`. Kalau batas di sini
+ * lebih kecil, maka pada 768px teksnya sudah hilang tapi ikonnya masih
+ * 14 x 21px persis seperti yang seharusnya diperbaiki.
+ *
+ * Diukur pada 390px dengan getBoundingClientRect. Hasilnya:
+ *
+ *   ikon kontak topbar      14 x 21px   di 20 halaman
+ *   tautan footer           19 x 20px   di 21 halaman
+ *   kotak link terkait      52px tinggi, huruf 11.52px
+ *   `.form-check-input`     16 x 16px
+ *
+ * Semua itu jauh di bawah 44px yang jadi acuan Material, dan 14px serta 16px
+ * juga di bawah minimal 24px pada WCAG 2.5.8.
+ *
+ * Aturan di sini hanya berlaku di bawah 768px. Tampilan desktop sudah
+ * diverifikasi satu per satu terhadap situs acuan dan tidak boleh berubah
+ * hanya karena target sentuh diperbesar.
+ *
+ * Navbar tidak ikut disentuh. Tombol hamburger-nya 46 x 32px, masih di bawah
+ * 40px, tetapi navbar dibekukan oleh pemilik repo dan angka itu tercatat
+ * sebagai cacat yang diterima di AGENTS.md. */
+@media (max-width: 768px) {
+  /* Ikon kontak topbar. Di lebar ini teks nomor dan surel sudah
+     disembunyikan, jadi yang tersisa hanya ikon 14 x 21px. Area sentuhnya
+     diperbesar tanpa mengubah ukuran ikonnya.
+     `m-2` dari Bootstrap memakai `!important`, jadi penindasnya juga
+     `!important`. Topbar dinaikkan dari 40px ke 48px supaya area 44px itu
+     benar-benar muat dan tidak meluber keluar latar biru. */
+  .topbar {
+    min-height: 48px;
+  }
+
+  .topbar .contact-info a.phone,
+  .topbar .contact-info a.hp,
+  .topbar .contact-info a.email {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    margin: 0 !important;
+  }
+
+  /* Tiga ikon 44px berjumlah 132px, ditambah "Kontak Kami" sekitar 90px,
+     masih muat dalam 366px yang tersedia pada 390px. */
+  .topbar .contact-info {
+    gap: 0.15rem;
+  }
+
+  /* 0.72rem adalah 11.52px. Di bawah 12px sulit dibaca di layar HP,
+     dan ini tautan navigasi, bukan dekorasi. Kotaknya sudah 52px jadi
+     target sentuhnya tidak bermasalah; yang diperbaiki hanya ukuran huruf. */
+  .related-tile {
+    font-size: 0.8rem;
+  }
 }
 
 /* ---------- Kotak foto (dikelola komponen Photo) ----------
@@ -668,6 +766,14 @@
 }
 
 .breadcrumb a {
+  /* Butir breadcrumb diukur 42 x 20px. `display: inline-block` diperlukan
+     supaya padding vertikal menambah tinggi sebenarnya, dan 0.3rem di atas dan
+     bawah membuatnya dari 20px menjadi sekitar 30px sehingga melewati
+     minimal 24px pada WCAG 2.5.8 tanpa membuat baris breadcrumb terlihat
+     besar. */
+  display: inline-block;
+  padding-top: 0.3rem;
+  padding-bottom: 0.3rem;
   color: var(--rs-accent);
   text-decoration: none;
 }

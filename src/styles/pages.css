@@ -74,6 +74,10 @@
 }
 
 .detail-list a {
+  /* Sama seperti daftar berikon: 23px menjadi sekitar 27px. */
+  display: inline-block;
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
   color: var(--rs-accent);
 }
 
@@ -483,6 +487,32 @@
   box-shadow: 0 0 0 0.2rem rgba(var(--rs-accent-rgb), 0.15);
 }
 
+/* Target sentuh kotak centang dan radio di layar sentuh.
+ *
+ * Diukur pada 390px: `.form-check-input` hanya 16 x 16px. Label-nya memang
+ * bisa diklik karena memakai pasangan `id` dan `htmlFor`, jadi bukan tautan
+ * mati, tapi kotak 16px sendiri tetap jauh di bawah 24px minimal pada
+ * WCAG 2.5.8.
+ *
+ * Di bawah 768px kotaknya jadi 22.4px dan barisnya minimal 44px. Di atas
+ * 768px apa pun tidak berubah karena tampilan desktop sudah diverifikasi
+ * terhadap situs acuan. */
+/* Batasnya 768px, sama dengan batas topbar, karena di 768px teks kontak
+ * sudah disembunyikan dan hanya ikon yang tersisa. */
+@media (max-width: 768px) {
+  .form-check {
+    min-height: 44px;
+    padding-left: 2.4rem;
+  }
+
+  .form-check .form-check-input {
+    width: 1.4rem;
+    height: 1.4rem;
+    margin-top: 0.7rem;
+    margin-left: -2.15rem;
+  }
+}
+
 .error-digest {
   font-size: 0.85rem;
   color: #6b7280;
@@ -626,6 +656,16 @@
 
 .halaman-daftar-ikon li {
   padding-left: 0;
+}
+
+/* Tautan di daftar ini 23px, satu piksel di bawah minimal 24px pada
+   WCAG 2.5.8. `display: inline-block` supaya padding vertikal menambah
+   tinggi sebenarnya, dan 0.2rem cukup untuk melewati 24px tanpa membuat
+   jarak antar butir terlihat longgar. */
+.halaman-daftar-ikon a {
+  display: inline-block;
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
 }
 
 .halaman-langkah {
