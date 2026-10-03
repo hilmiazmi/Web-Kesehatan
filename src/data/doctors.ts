@@ -2,9 +2,15 @@
  * Data dokter beserta jadwal praktik.
  *
  * SEMUA ISI DI SINI FIKTIF (PRD bagian 9). `specialty` HARUS sama persis
- * dengan `specialty` di `src/data/poliklinik.ts` (dijaga oleh tes).
+ * dengan `specialty` di `src/data/clinics.ts` (dijaga oleh tes
+ * `tests/poliklinik.test.ts`).
  * Jadwal berada dalam jam pelayanan rawat jalan: Senin sampai Jumat,
  * 07.30 sampai 14.00.
+ *
+ * Ini satu-satunya sumber nama dokter di repo. Beranda pun menurunkannya lewat
+ * `DOCTORS_BY_SPECIALTY` di bawah, bukan menyimpan daftarnya sendiri, karena
+ * sebelumnya ada dua daftar terpisah dan spesialis "Anak" punya nama berbeda
+ * tergantung halaman yang sedang dibuka.
  *
  * Saat backend siap, ganti dengan Route Handler (PRD bagian 6.4).
  */
@@ -88,3 +94,26 @@ export const DOCTORS: Doctor[] = [
   { slug: "dr-yoga-prasetyo-spgk", name: "dr. Yoga Prasetyo, Sp.GK", specialty: "Gizi Klinik",
     schedule: [j("Senin", "08.00–12.00"), j("Rabu", "08.00–12.00")] },
 ];
+
+/**
+ * Nama dokter dikelompokkan menurut spesialisasinya.
+ *
+ * Diturunkan dari `DOCTORS`, bukan ditulis tangan. Widget "Cari Jadwal Dokter"
+ * di beranda butuh bentuk ini — daftar nama untuk satu spesialisasi — dan
+ * sebelumnya membacanya dari daftar terpisah yang tidak pernah sama dengan
+ * `DOCTORS`. Spesialis "Anak" karena itu punya nama berbeda tergantung halaman
+ * yang sedang dibuka: tiga nama di beranda, dua nama di halaman dokter.
+ *
+ * Menurunkan dari sini menutup celah itu: daftar kedua tidak bisa dibuat
+ * tanpa sengaja mengambil data ini, dan `tests/data.test.ts` menjaga supaya
+ * setiap nama yang muncul benar-benar ada di `DOCTORS`.
+ *
+ * Urutan SPECIALTIES di `src/data/home.ts` tidak ikut di sini; kuncinya hanya
+ * berisi spesialisasi yang benar-benar punya dokter.
+ */
+export const DOCTORS_BY_SPECIALTY: Record<string, string[]> = DOCTORS.reduce<
+  Record<string, string[]>
+>((kelompok, dokter) => {
+  (kelompok[dokter.specialty] ??= []).push(dokter.name);
+  return kelompok;
+}, {});

@@ -2,15 +2,16 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { DOCTORS_BY_SPECIALTY, SPECIALTIES } from "@/data/home";
+import { SPECIALTIES } from "@/data/home";
+import { DOCTORS_BY_SPECIALTY } from "@/data/doctors";
 
 /**
  * Widget "Cari Jadwal Dokter" (section 2).
  *
  * Alur sesuai PRD bagian 5.1: pilih spesialisasi, lalu dropdown dokter terisi
- * sesuai spesialisasi itu, lalu pilih hari. Sumber data saat ini masih data
- * lokal di `src/data/home.ts`; saat backend PostgreSQL siap, bagian
- * `useEffect` ini diganti pemanggilan Route Handler `/api/schedules`
+ * sesuai spesialisasi itu, lalu pilih hari. Daftar dokter diturunkan dari
+ * `src/data/doctors.ts` supaya namanya sama dengan halaman dokter; saat backend
+ * PostgreSQL siap, pemanggilan Route Handler `/api/schedules` menggantikannya
  * (rencana di PRD bagian 6.4).
  */
 export default function DoctorSearchCard() {
