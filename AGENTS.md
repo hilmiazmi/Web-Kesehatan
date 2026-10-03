@@ -135,8 +135,23 @@ bukan tebakan. Rinciannya ada di `docs/design-tokens-terverifikasi.md`.
 - **Tombol hamburger harus di LUAR `.navmenu`.** Di mobile `.navmenu` menjadi
   panel off-canvas `translateX(100%)`, sehingga apa pun isinya tidak bisa diklik.
 - Submenu navbar: hover di desktop dan tautan induk tetap dinavigasi; accordion
-  di mobile. Percabangan ini lewat `isDesktopNav()` dengan batas `1200px` yang
-  **harus sama** dengan media query `.navmenu` di `site.css`.
+  di tablet dan mobile. Percabangan ini lewat `isDesktopNav()`.
+- **Batas navigasi desktop adalah `1550px`, bukan `1200px`.** Delapan item
+  navigasi membutuhkan 894px yang tidak bisa menyusut, dan dua tombol CTA
+  memakai 353px, jadi ruang yang tersisa tidak cukup lagi di bawah 1500px.
+  Dengan batas lama, pita 1200-1499px memakai `flex-wrap: wrap` dan
+  "Kapasitas Bed" terlempar ke baris kedua. Angka ini diukur, bukan ditebak;
+  rinciannya ada di komentar `@media` di `site.css`.
+- Nilai batas itu berlaku di **empat tempat** dan harus diubah bersama:
+  `@media (max-width: 1549.98px)` untuk `.navmenu`,
+  `@media (min-width: 1550px)` untuk `.mobile-nav-toggle` dan `.nav-mobile`,
+  serta `BATAS_NAV_DESKTOP` di `Navbar.tsx` yang dipakai `isDesktopNav()`.
+  Salah satu tertinggal, maka di tablet tombol hamburger hilang padahal panel
+  off-canvas sedang dipakai, atau di desktop submenu memakai hover padahal
+  tidak ada hover.
+- **Tombol hamburger tidak boleh pakai `d-xl-none`.** Kelas itu berhenti di
+  1200px, sedangkan batas layout sekarang 1550px, jadi pada pita 1200-1549px
+  tombolnya akan hilang. Penyesuaiannya lewat `@media (min-width: 1550px)`.
 - **`validate()` di `registration-form.tsx` sengaja di-export** supaya aturan
   validasinya bisa diuji tanpa merender komponen. Jangan dibuat lokal lagi.
 - Form dan komponen lain tidak boleh memanggil `setState` di dalam `useEffect`;

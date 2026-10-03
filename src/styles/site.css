@@ -297,7 +297,32 @@
 }
 
 /* ---------- Menu mobile ---------- */
-@media (max-width: 1199.98px) {
+
+/*
+ * Batas desktop 1550px, bukan 1200px seperti breakpoint Bootstrap.
+ *
+ * Diukur dengan getComputedStyle, bukan ditebak. Delapan item navigasi
+ * membutuhkan 894px dan tidak bisa menyusut, karena `white-space: nowrap` pada
+ * `.navmenu a` membuat tiap item punya lebar tetap. Dua tombol CTA (353px),
+ * logo, dan padding container menghabiskan sisa ruangnya, sehingga ruang yang
+ * tersedia untuk menu di bawah 1500px tidak cukup lagi:
+ *
+ *   1600px  tersedia 987px  (longgar 93px)
+ *   1500px  tersedia 888px  (kurang 6px)
+ *   1200px  tersedia 651px  (kurang 243px)
+ *
+ * Dengan batas lama 1200px, pita 1200-1499px memakai `flex-wrap: wrap` dan
+ * "Kapasitas Bed" terlempar ke baris kedua, menggantung di bawah "Home".
+ *
+ * Memindahkan batas ke 1550px membuat pita itu memakai tata letak tablet yang
+ * sudah ada: logo, tombol hamburger, dan dua tombol CTA tetap terlihat di
+ * header, sedangkan seluruh item navigasi masuk ke panel off-canvas. Tidak ada
+ * teks yang menggantung dan tidak ada tombol yang hilang.
+ *
+ * Nilai ini harus sama dengan BATAS_NAV_DESKTOP di
+ * `src/components/layout/Navbar.tsx`.
+ */
+@media (max-width: 1549.98px) {
   .navmenu {
     position: fixed;
     top: 0;
@@ -372,7 +397,17 @@
   }
 }
 
-@media (min-width: 1200px) {
+/*
+ * Sisi desktop dari batas 1550px. Kedua aturan di sini adalah kebalikan dari
+ * `@media (max-width: 1549.98px)` di atas: di tablet navigasi hidup di dalam
+ * panel off-canvas, jadi tombol hamburger harus tampil dan kolom navigasi kaki
+ * halaman ikut disembunyikan supaya tidak ada dua salinan menu yang berbeda.
+ */
+@media (min-width: 1550px) {
+  .mobile-nav-toggle {
+    display: none;
+  }
+
   .nav-mobile {
     display: none;
   }

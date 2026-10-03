@@ -65,12 +65,18 @@ export default function Navbar() {
 
           </nav>
 
-        {/* Tombol hamburger harus DI LUAR .navmenu: di mobile .navmenu
-            menjadi panel off-canvas yang digeser ke kanan, sehingga apa pun
-            isinya otomatis tidak bisa diklik. */}
+        {/* Tombol hamburger harus DI LUAR .navmenu: di tablet dan mobile
+            .navmenu menjadi panel off-canvas yang digeser ke kanan, sehingga
+            apa pun isinya otomatis tidak bisa diklik.
+
+            Tombol ini disembunyikan lewat CSS `@media (min-width: 1550px)`,
+            bukan kelas utilitas `d-xl-none`. Batas layout sudah 1550px, dan
+            `d-xl-none` masih berhenti di 1200px, jadi pada pita 1200-1549px
+            tombolnya akan hilang padahal panel off-canvas justru sedang
+            dipakai. */}
         <button
           type="button"
-          className="mobile-nav-toggle d-xl-none bi bi-list"
+          className="mobile-nav-toggle bi bi-list"
           aria-label={mobileOpen ? "Tutup menu" : "Buka menu"}
           aria-expanded={mobileOpen}
           onClick={() => setMobileOpen((v) => !v)}
@@ -93,15 +99,29 @@ export default function Navbar() {
 }
 
 /**
+ * Lebar piksel tempat navigasi berhenti jadi panel off-canvas.
+ *
+ * Harus sama dengan `@media (max-width: 1549.98px)` untuk `.navmenu` dan
+ * `@media (min-width: 1550px)` di `site.css`. Kalau ketiganya berbeda, satu
+ * dari dua hal terjadi: di tablet tombol hamburger disembunyikan padahal
+ * tidak ada navigasi yang bisa dibuka, atau di desktop submenu memakai hover
+ * padahal tidak ada hover.
+ *
+ * Angka 1550px berasal dari pengukuran, bukan tebakan. Delapan item navigasi
+ * membutuhkan 894px yang tidak bisa menyusut, dan dua tombol CTA memakai 353px,
+ * jadi ruang yang tersisa tidak cukup lagi di bawah 1500px. Rincian
+ * perhitungannya ada di komentar `@media` di `site.css`.
+ */
+const BATAS_NAV_DESKTOP = 1550;
+
+/**
  * True kalau navigasi sedang dalam mode desktop.
  *
- * Batasnya harus sama dengan media query `.navmenu` di `site.css`
- * (max-width: 1199.98px). Di desktop submenu memakai hover sehingga tautan
- * induk harus bisa diklik; di mobile tidak ada hover, jadi klik diubah jadi
- * pembuka accordion.
+ * Di desktop submenu memakai hover sehingga tautan induk harus bisa diklik;
+ * di tablet dan mobile tidak ada hover, jadi klik diubah jadi pembuka accordion.
  */
 function isDesktopNav(): boolean {
-  return window.matchMedia("(min-width: 1200px)").matches;
+  return window.matchMedia(`(min-width: ${BATAS_NAV_DESKTOP}px)`).matches;
 }
 
 /** Satu item menu beserta turunannya, rekursif sampai kedalaman berapa pun. */
