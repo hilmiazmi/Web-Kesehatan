@@ -38,7 +38,10 @@
   /* --- Ukuran tipografi (hasil pengukuran) --- */
   --rs-fs-body: 16px; /* line-height 24px */
   --rs-lh-body: 24px;
-  --rs-fs-nav: 15px; /* line-height 22.5px, weight 700 */
+  /* Ukuran dasar ini untuk submenu dropdown dan panel off-canvas. Nav
+     desktop memakai 14px dan line-height 21px, angka hasil getComputedStyle
+     di situs acuan, yang ditimpa di dalam @media (min-width: 1360px). */
+  --rs-fs-nav: 15px;
   --rs-lh-nav: 22.5px;
   --rs-fs-btn: 16px; /* tombol di dalam kartu, line-height 24px */
   --rs-lh-btn: 24px;
@@ -242,4 +245,15 @@ select:focus-visible {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+/* Pembungkus halaman dalam, dipakai halaman profil.
+   Halaman acuan /about mengukur padding-top 48px dan padding-bottom 60px.
+
+   Angka ditulis langsung, bukan memakai --rs-padding-section, karena token itu
+   bernilai shorthand "60px 0". Padding-bottom: var(--rs-padding-section)
+   mengambil komponen bawah dari shorthand itu, yaitu 0. */
+.inner-page {
+  background-color: var(--rs-white);
+  padding-top: 48px;
+  padding-bottom: 60px;
 }

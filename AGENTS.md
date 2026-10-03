@@ -260,6 +260,63 @@ makna, bukan karakter.
 - `browser_take_screenshot` menolak selektor yang cocok lebih dari satu elemen.
   Tambahkan `>> nth=0` atau `.first()`.
 
+### Jebakan `github` MCP di dalam `execute`
+
+Tiga kesalahan berturut-turut yang memakan waktu. Semuanya karena menebak
+bentuk pemanggilan, bukan karena GitHub-nya bermasalah.
+
+- **Nama tool-nya `list_pull_requests`, bukan `list_pulls`.** `list_pulls`
+  tidak ada sama sekali. Katalog di dalam `execute` parsial, jadi panggil
+  `search({ query: "github list pull requests" })` dulu dan pakai `path` yang
+  dikembalikan.
+- **`owner` dan `repo` adalah parameter wajib**, bukan opsional. Tanpa keduanya
+  tool menolak dengan `owner: Missing key`.
+- **Nilai enum `state` huruf kecil semua**: `"open"`, `"closed"`, `"all"`.
+  `"ALL"` ditolak, dan pesan errornya hanya menyebut tiga nilai yang diterima
+  tanpa menyebutkan bentuk yang diminta.
+
+Bentuk yang benar:
+
+```js
+const r = await tools.github.list_pull_requests({
+  owner: "hilmiazmi",
+  repo: "Web-Kesehatan",
+  state: "all",
+  per_page: 20,
+});
+const list = Array.isArray(r) ? r : (r?.pull_requests ?? r?.items ?? []);
+```
+
+Hasilnya tidak selalu berupa array. Cek `Array.isArray` dulu sebelum
+memakai `.filter` atau `.map`.
+
+### Hydration mismatch di `/daftar-online` bukan bug kode
+
+Muncul di terminal sebagai:
+
+```
+[browser] Uncaught Error: Hydration failed ...
+-  style={{background-size:"auto, 25px...", background-image:"none, url(..."}}
+-  <button type="button" style={{border-top-width:"0px", ...}}>
+```
+
+Penyebabnya ekstensi browser, biasanya password manager. Form ini bahkan
+tidak punya `type="password"`, tetapi ekstensi tetap menyuntik ikon ke field
+email karena di situlah discreet orang menyimpan login.
+
+Cara membuktikannya, dan kenapa ini tidak bisa diperbaiki di kode:
+
+- Baris `style` itu muncul sebagai pengurangan di diff React. Artinya atribut
+  itu ADA di DOM klien dan TIDAK ADA di HTML hasil server. Kode kita tidak
+  mungkin menghasilkannya.
+- `suppressHydrationWarning` hanya menutup satu lapis. Ia bisa menutup
+  selisih `style`, tapi tidak bisa menutup `<button>` yang disuntik sebagai
+  elemen baru, karena itu selisih struktural pada anak elemen.
+- Menempel flag itu ke input hanya akan menyembunyikan setengah masalah dan
+  ikut menutupi selisih yang benar-benar penting. Jangan.
+
+Kalau lihat pesan ini, abaikan. Jangan membenarkannya di kode.
+
 ### Mengukur situs rujukan
 
 Angka di CSS ini hasil `getComputedStyle()`, bukan tebakan. Bentuk yang dipakai

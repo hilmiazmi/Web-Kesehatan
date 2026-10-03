@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { CLINICS } from "@/data/clinics";
+import { MANAGEMENT } from "@/data/manajemen";
+import { PROFIL_MANAJEMEN } from "@/data/manajemen-profil";
 import { DETAIL_CONTENT } from "@/data/detail-content";
 import {
   ABOUT_SECTIONS,
   DIAGNOSTIC_SERVICES,
-  MANAGEMENT,
 } from "@/data/informasi";
 import { FACILITIES, PRIORITY_SERVICES } from "@/data/home";
 
@@ -162,10 +163,47 @@ describe("manajemen", () => {
     expect(new Set(nama).size).toBe(nama.length);
   });
 
-  it("mengisi nama dan jabatan", () => {
+  it("mengisi nama, jabatan, dan ringkasan profil", () => {
     for (const m of MANAGEMENT) {
-      expect(m.name.trim()).not.toBe("");
-      expect(m.role.trim()).not.toBe("");
+      expect(m.name.trim(), m.slug).not.toBe("");
+      expect(m.role.trim(), m.slug).not.toBe("");
+      expect(m.ringkas.length, m.slug).toBeGreaterThan(20);
+    }
+  });
+
+  it("slug aman dipakai di URL dan tidak kembar", () => {
+    const slug = MANAGEMENT.map((m) => m.slug);
+    expect(new Set(slug).size).toBe(slug.length);
+    for (const s of slug) {
+      expect(s, s).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
+    }
+  });
+
+  it("setiap pimpinan punya profil, dan tidak ada profil tanpa pimpinan", () => {
+    const punyaProfil = MANAGEMENT.map((m) => m.slug).filter(
+      (s) => PROFIL_MANAJEMEN[s],
+    );
+    expect(punyaProfil).toEqual(MANAGEMENT.map((m) => m.slug));
+
+    const slugAsing = Object.keys(PROFIL_MANAJEMEN).filter(
+      (s) => !MANAGEMENT.some((m) => m.slug === s),
+    );
+    expect(slugAsing).toEqual([]);
+  });
+
+  it("tiap daftar di profil punya isi dan tidak kembar", () => {
+    for (const [slug, profil] of Object.entries(PROFIL_MANAJEMEN)) {
+      expect(profil.pendidikan.length, slug).toBeGreaterThan(0);
+      expect(profil.riwayat.length, slug).toBeGreaterThan(0);
+      expect(profil.fokus.length, slug).toBeGreaterThan(0);
+      for (const daftar of [
+        profil.pendidikan,
+        profil.riwayat,
+        profil.fokus,
+      ]) {
+        expect(new Set(daftar).size, slug).toBe(daftar.length);
+        for (const butir of daftar) expect(butir.trim(), slug).not.toBe("");
+      }
     }
   });
 });

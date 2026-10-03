@@ -40,7 +40,14 @@ export default function HeroSlider() {
                   alt={slide.title}
                   fill
                   sizes="100vw"
-                  preload={i === 0}
+                  /* Dua slide pertama diprioritaskan, bukan hanya slide
+                     pertama. Swiper memakai loop dan autoplay 5 detik, jadi
+                     slide kedua sudah tampil di viewport sebelum LCP diukur.
+                     Hanya slide pertama yang diprioritaskan membuat slide
+                     kedua dilaporkan sebagai LCP oleh next/image.
+                     Slide ke-3 dan seterusnya dibiarkan lazy supaya tidak
+                     jadi preload yang menumpuk. */
+                  preload={i < 2}
                   className="slide-img"
                 />
                 <div className="slide-overlay">

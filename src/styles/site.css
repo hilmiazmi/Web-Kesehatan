@@ -100,6 +100,11 @@
 .logo {
   text-decoration: none;
   gap: 0.65rem;
+  /* Tidak boleh menyusut. Tanpa ini, pada lebar 1200 sampai 1400 piksel logo
+     ikut terjejit sampai teksnya pecah jadi empat baris, sementara navbar
+     tetap nowrap. Situs acuan juga menahan logo pada lebar tetap: 219px di
+     bawah 1440 dan 261px di atasnya, tidak pernah lebih kecil. */
+  flex-shrink: 0;
 }
 
 .logo-mark {
@@ -173,11 +178,13 @@
 .navmenu {
   display: flex;
   align-items: center;
+  /* Menu tidak menyusut dan tidak membungkus. Delapan butir diukur membutuhkan
+     767px; kalau boleh menyusut, butir-butirnya saling tindih. */
+  flex-shrink: 0;
 }
 
 .navmenu > ul {
   display: flex;
-  flex-wrap: wrap;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -197,6 +204,8 @@
   line-height: var(--rs-lh-nav);
   color: var(--rs-text-nav);
   text-decoration: none;
+  /* Padding penuh ini untuk submenu dropdown dan panel off-canvas. Nav desktop
+     ditimpa dengan padding 2px di dalam @media (min-width: 1360px). */
   padding: 0.5rem 0.45rem;
   white-space: nowrap;
   transition: color 0.2s ease;
@@ -305,7 +314,7 @@
  * Logo 237px + nav 750px + dua CTA 333px + padding container 24px = 1344px.
  * Batas memakai 1360px supaya masih ada sisa 16px.
  *
- *.Reference rsudpasarminggu.jakarta.go.id memakai angka yang lebih besar:
+ * Referensi rsudpasarminggu.jakarta.go.id memakai angka yang lebih besar:
  * nav-nya 937px dengan font 14px dan padding 2px, dan seluruh header baru
  * muat pada 1440px. Nav di sini sudah lebih hemat karena label-nya lebih
  * pendek, sehingga batasnya justru lebih rendah dari referensi.
@@ -442,6 +451,9 @@
     gap: 0;
   }
 
+  /* Angka 14px, line-height 21px, dan padding 2px dari getComputedStyle di
+     situs acuan. Dengan padding 0.5rem 0.45rem dan font 15px, nav memakai
+     878px; dengan nilai ini menjadi 750px. */
   .navmenu > ul > li > a {
     font-size: 14px;
     line-height: 21px;
@@ -486,6 +498,12 @@
   font-size: 0.9rem;
 }
 
+/* Alamat ditulis sebagai daftar baris di FOOTER_ADDRESS. Tanpa ini setiap
+   span menempel ke baris sebelumnya karena span bersifat inline. */
+.footer-address span {
+  display: block;
+}
+
 .logo-mark-footer {
   width: 52px;
   height: 52px;
@@ -507,11 +525,14 @@
   gap: 0.6rem;
 }
 
-/* Placeholder link terkait: situs asli memakai logo instansi resmi. */
-.related-logo-placeholder {
+/* Kotak link terkait. Situs asli memakai logo instansi resmi di sini; logo
+   resmi tidak disalin (PRD bagian 12), jadi tempatnya diisi label yang bisa
+   diklik. Gridnya sudah dua kolom, sama seperti kolom-6 di situs referensi. */
+.related-tile {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.4rem;
   min-height: 52px;
   padding: 0.5rem;
   border: 1px solid var(--rs-gray-300);
@@ -521,6 +542,26 @@
   text-align: center;
   color: var(--rs-text-nav);
   background-color: var(--rs-white);
+  text-decoration: none;
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.related-tile:hover,
+.related-tile:focus-visible {
+  border-color: var(--rs-accent);
+  color: var(--rs-accent);
+}
+
+.related-tile:focus-visible {
+  outline: 3px solid rgba(var(--rs-accent-rgb), 0.4);
+  outline-offset: 2px;
+}
+
+/* Satu isinya untuk "Media Pengaduan"; sisanya tetap dua kolom. */
+.footer-related-single {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .footer-contact li {
@@ -712,4 +753,90 @@
 .content-placeholder p {
   max-width: 70ch;
   color: var(--rs-text-body);
+}
+/* Kartu yang seluruhnya jadi tautan, dipakai kisi pimpinan. Area kliknya jadi
+   satu kartu penuh, bukan cuma baris judul. */
+.kartu-tautan {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.kartu-tautan:hover,
+.kartu-tautan:focus-visible {
+  border-color: var(--rs-accent);
+  color: inherit;
+  transform: translateY(-2px);
+}
+
+.kartu-tautan:focus-visible {
+  outline: 3px solid rgba(var(--rs-accent-rgb), 0.4);
+  outline-offset: 3px;
+}
+
+/* Penanda bahwa kartu bisa diklik. Dipasang di bawah isi kartu, bukan di atas
+   judul, supaya penanda tidak menentukan di mana mata berhenti lebih dulu. */
+.kartu-baca {
+  margin-top: auto;
+  padding-top: 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--rs-accent);
+}
+
+.kartu-baca::after {
+  content: " \2192";
+}
+
+/* ---------- Tab vertikal (daftar di kiri, panel di kanan) ----------
+   Dipakai dua halaman: beranda lewat FacilityTabs, dan profil rumah sakit
+   lewat ProfileTabs. Aturannya harus di sini, bukan di home.css, karena
+   home.css hanya diimpor src/app/page.tsx. Satu aturan di home.css pernah
+   membuat gambar halaman lain keluar kotak. */
+.facility-tabs,
+.profil-tabs {
+  border: none;
+  gap: 0.15rem;
+}
+
+.facility-tabs .nav-link,
+.profil-tabs .nav-link {
+  border: none;
+  background: transparent;
+  border-radius: var(--rs-radius-card);
+  color: var(--rs-text-nav);
+  font-size: 0.92rem;
+  font-weight: 600;
+  padding: 0.6rem 0.85rem;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.facility-tabs .nav-link:hover,
+.profil-tabs .nav-link:hover {
+  background-color: var(--rs-white);
+}
+
+.facility-tabs .nav-link.active,
+.profil-tabs .nav-link.active {
+  background-color: var(--rs-accent);
+  color: var(--rs-white);
+}
+
+.facility-tabs .nav-link:focus-visible,
+.profil-tabs .nav-link:focus-visible {
+  outline: 3px solid rgba(var(--rs-accent-rgb), 0.4);
+  outline-offset: 2px;
+}
+
+/* Judul panel profil.
+   Halaman acuan /about mengukur judul panel 40px, weight 500, line-height
+   48px, margin-bottom 8px. Angkanya bukan tebakan. */
+.detail-title h2 {
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 48px;
+  color: var(--rs-text-heading);
+  margin: 0 0 8px;
 }
