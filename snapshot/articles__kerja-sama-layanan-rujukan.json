@@ -1,0 +1,40 @@
+{
+ "slug": "kerja-sama-layanan-rujukan",
+ "title": "Kerja Sama Layanan Rujukan",
+ "category": "kegiatan",
+ "excerpt": "Fasilitas rujukan kegawatdaruratan kini terhubung dengan tiga puskesmas terdekat.",
+ "cover_url": "https://picsum.photos/seed/berita-kerja-sama/960/540",
+ "author": "Humas RSUD Contoh Sehat",
+ "published_at": "2026-09-19T02:19:48.980Z",
+ "body_html": "<p>Kerja sama ini membuat rujukan lebih cepat tercatat dan pasien yang memerlukan rujukan tidak perlu menulis ulang riwayat.</p>\n",
+ "meta_description": "Fasilitas rujukan kegawatdaruratan kini terhubung dengan tiga puskesmas terdekat.",
+ "related": [
+  {
+   "slug": "kelas-pelatihan-tenaga-kesehatan",
+   "title": "Kelas Pelatihan Tenaga Kesehatan",
+   "category": "kegiatan",
+   "excerpt": "Pelatihan tiga hari untuk tenaga kesehatan yang akanutherland bekerja di sini.",
+   "cover_url": "https://picsum.photos/seed/berita-pelatihan/960/540",
+   "author": "Humas RSUD Contoh Sehat",
+   "published_at": "2026-09-22T02:19:48.980Z"
+  },
+  {
+   "slug": "peresmian-ruang-perawatan-baru",
+   "title": "Peresmian Ruang Perawatan Baru",
+   "category": "kegiatan",
+   "excerpt": "Dua puluh tempat tidur baru dibuka untuk mengurangi waktu tunggu.",
+   "cover_url": "https://picsum.photos/seed/berita-ruang-baru/960/540",
+   "author": "Humas RSUD Contoh Sehat",
+   "published_at": "2026-09-13T02:19:48.980Z"
+  },
+  {
+   "slug": "pelatihan-manajemen-keselamatan",
+   "title": "Pelatihan Manajemen Keselamatan",
+   "category": "kegiatan",
+   "excerpt": "Petugas diberi pelatihan tanggap darurat dan pencegahan kebakaran.",
+   "cover_url": "https://picsum.photos/seed/berita-manajemen-keselamatan/960/540",
+   "author": "Humas RSUD Contoh Sehat",
+   "published_at": "2026-09-04T02:19:48.980Z"
+  }
+ ]
+}

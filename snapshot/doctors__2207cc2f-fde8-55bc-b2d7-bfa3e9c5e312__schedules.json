@@ -1,0 +1,38 @@
+[
+ {
+  "id": "9e88c48b-d078-4e4e-a33b-40290b7c9ba9",
+  "doctor_id": "2207cc2f-fde8-55bc-b2d7-bfa3e9c5e312",
+  "doctor_name": "Ayu Lestari",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 1,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "B2-01",
+  "quota": 40,
+  "note": null
+ },
+ {
+  "id": "836c29e7-2676-4ad6-9c65-0cdb8823bbdd",
+  "doctor_id": "2207cc2f-fde8-55bc-b2d7-bfa3e9c5e312",
+  "doctor_name": "Ayu Lestari",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 3,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "B2-01",
+  "quota": 40,
+  "note": null
+ },
+ {
+  "id": "88eac925-0362-49d0-b674-7a801b76cd2b",
+  "doctor_id": "2207cc2f-fde8-55bc-b2d7-bfa3e9c5e312",
+  "doctor_name": "Ayu Lestari",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 5,
+  "start_time": "08:00:00",
+  "end_time": "11:00:00",
+  "room": "B2-01",
+  "quota": 25,
+  "note": null
+ }
+]

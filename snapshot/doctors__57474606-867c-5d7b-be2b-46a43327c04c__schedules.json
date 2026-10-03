@@ -1,0 +1,26 @@
+[
+ {
+  "id": "d56b30e3-9d90-48cf-a702-b916b2bb6307",
+  "doctor_id": "57474606-867c-5d7b-be2b-46a43327c04c",
+  "doctor_name": "Oki Prasetyo",
+  "polyclinic": "Poliklinik Ibu dan Anak",
+  "day_of_week": 2,
+  "start_time": "09:00:00",
+  "end_time": "13:00:00",
+  "room": "C1-07",
+  "quota": 30,
+  "note": null
+ },
+ {
+  "id": "d6e127a4-9fa9-4b42-b30a-d1c96690e536",
+  "doctor_id": "57474606-867c-5d7b-be2b-46a43327c04c",
+  "doctor_name": "Oki Prasetyo",
+  "polyclinic": "Poliklinik Ibu dan Anak",
+  "day_of_week": 4,
+  "start_time": "09:00:00",
+  "end_time": "13:00:00",
+  "room": "C1-07",
+  "quota": 30,
+  "note": null
+ }
+]

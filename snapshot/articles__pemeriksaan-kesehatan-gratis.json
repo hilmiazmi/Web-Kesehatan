@@ -1,0 +1,31 @@
+{
+ "slug": "pemeriksaan-kesehatan-gratis",
+ "title": "Pemeriksaan Kesehatan Gratis untuk Warga",
+ "category": "program",
+ "excerpt": "Pemeriksaan kesehatan dasar gratis setiap satu tahun sekali.",
+ "cover_url": "https://picsum.photos/seed/berita-pemeriksaan-gratis/960/540",
+ "author": "Humas RSUD Contoh Sehat",
+ "published_at": "2026-09-07T02:19:48.980Z",
+ "body_html": "<p>Warga bisa mengikuti pemeriksaan dasar tanpa biaya setelah mendaftar lebih dulu.</p>\n",
+ "meta_description": "Pemeriksaan kesehatan dasar gratis setiap satu tahun sekali.",
+ "related": [
+  {
+   "slug": "program-pencegahan-stunting",
+   "title": "Program Pencegahan Stunting",
+   "category": "program",
+   "excerpt": "Pemantauan tumbuh kembang anak dilakukan sejak awal kehamilan.",
+   "cover_url": "https://picsum.photos/seed/berita-stunting/960/540",
+   "author": "Humas RSUD Contoh Sehat",
+   "published_at": "2026-09-16T02:19:48.980Z"
+  },
+  {
+   "slug": "sosialisasi-program-zona-integritas",
+   "title": "Sosialisasi Program Zona Integritas",
+   "category": "program",
+   "excerpt": "Sosialisasi dilakukan bersama seluruh pegawai dan mitra.",
+   "cover_url": "https://picsum.photos/seed/berita-zona-integritas/960/540",
+   "author": "Humas RSUD Contoh Sehat",
+   "published_at": "2026-09-10T02:19:48.980Z"
+  }
+ ]
+}

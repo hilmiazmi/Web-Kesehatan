@@ -1,0 +1,10 @@
+{
+ "id": "735c68ea-ce9f-4d6e-88bc-18a2105a1931",
+ "type": "priority",
+ "slug": "jantung-terpadu",
+ "title": "Layanan Jantung Terpadu",
+ "tagline": "Diagnosis dan penanganan penyakit jantung dalam satu alur",
+ "summary": "Pemeriksaan jantung, rekam listrik jantung, dan dokter spesialis jantung yang bekerja sebagai satu tim.",
+ "body_html": "<h2>Alur pemeriksaan</h2>\n<ol>\n<li>Pendaftaran di loket rawat jalan.</li>\n<li>Rekam listrik jantung.</li>\n<li>Konsultasi dengan dokter spesialis jantung.</li>\n</ol>\n<h2>Waktu layanan</h2>\n<p>Senin sampai Jumat, pukul 08.00 sampai 12.00.</p>\n",
+ "image_url": "https://picsum.photos/seed/layanan-jantung/960/640"
+}

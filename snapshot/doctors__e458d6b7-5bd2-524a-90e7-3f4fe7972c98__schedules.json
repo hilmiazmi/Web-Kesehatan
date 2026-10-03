@@ -1,0 +1,38 @@
+[
+ {
+  "id": "080dc2a5-1863-4747-b760-c0afc08550ee",
+  "doctor_id": "e458d6b7-5bd2-524a-90e7-3f4fe7972c98",
+  "doctor_name": "Joko Santoso",
+  "polyclinic": "Poliklinik Umum",
+  "day_of_week": 1,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "C2-01",
+  "quota": 40,
+  "note": null
+ },
+ {
+  "id": "b627777e-09eb-4487-86fb-7e2ac10ad7cd",
+  "doctor_id": "e458d6b7-5bd2-524a-90e7-3f4fe7972c98",
+  "doctor_name": "Joko Santoso",
+  "polyclinic": "Poliklinik Umum",
+  "day_of_week": 3,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "C2-01",
+  "quota": 40,
+  "note": null
+ },
+ {
+  "id": "43507755-7ae6-4549-a73f-56d91701f67f",
+  "doctor_id": "e458d6b7-5bd2-524a-90e7-3f4fe7972c98",
+  "doctor_name": "Joko Santoso",
+  "polyclinic": "Poliklinik Umum",
+  "day_of_week": 5,
+  "start_time": "08:00:00",
+  "end_time": "11:00:00",
+  "room": "C2-01",
+  "quota": 30,
+  "note": null
+ }
+]

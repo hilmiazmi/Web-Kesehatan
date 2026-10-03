@@ -1,0 +1,10 @@
+{
+ "id": "d38ddcdc-973a-4be5-aa8e-d0551d7b3c0f",
+ "type": "priority",
+ "slug": "medical-check-up",
+ "title": "Medical Check Up",
+ "tagline": "Pemeriksaan kesehatan berkala untuk pekerja",
+ "summary": "Pemeriksaan kesehatan terencana dengan waktu hasil yang jelas dan bisa diprediksi.",
+ "body_html": "<p>Paket medical check up bisa dipilih per kelompok usia dan per kelompok pekerjaan. Daftar paket ada di halaman medical check up.</p>\n",
+ "image_url": "https://picsum.photos/seed/layanan-mcu/960/640"
+}

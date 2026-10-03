@@ -1,0 +1,10 @@
+{
+ "id": "2f17967f-bd0f-4f11-8a7e-c8e9712938e3",
+ "type": "diagnostic",
+ "slug": "elektrokardiogram",
+ "title": "Elektrokardiogram",
+ "tagline": "Pemeriksaan aktivitas listrik jantung",
+ "summary": "Rekam listrik jantung untuk membantu diagnosis gangguan irama.",
+ "body_html": "<p>Pemeriksaan memerlukan sekitar lima belas menit dan tidak memerlukan persiapan khusus.</p>\n",
+ "image_url": "https://picsum.photos/seed/diagnostik-ekg/960/640"
+}

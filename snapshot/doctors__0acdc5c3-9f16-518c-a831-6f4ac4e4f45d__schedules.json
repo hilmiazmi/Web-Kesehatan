@@ -1,0 +1,26 @@
+[
+ {
+  "id": "070a36aa-a85e-430b-b6bd-49c1fe646c63",
+  "doctor_id": "0acdc5c3-9f16-518c-a831-6f4ac4e4f45d",
+  "doctor_name": "Bagus Prakoso",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 2,
+  "start_time": "09:00:00",
+  "end_time": "13:00:00",
+  "room": "B3-02",
+  "quota": 35,
+  "note": null
+ },
+ {
+  "id": "4e4a0a47-ed54-4c06-b462-debbda10d30b",
+  "doctor_id": "0acdc5c3-9f16-518c-a831-6f4ac4e4f45d",
+  "doctor_name": "Bagus Prakoso",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 4,
+  "start_time": "09:00:00",
+  "end_time": "13:00:00",
+  "room": "B3-02",
+  "quota": 35,
+  "note": null
+ }
+]

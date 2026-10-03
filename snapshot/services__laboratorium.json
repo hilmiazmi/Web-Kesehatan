@@ -1,0 +1,10 @@
+{
+ "id": "7d202afd-f68b-4804-8d18-d8caac3a91b3",
+ "type": "diagnostic",
+ "slug": "laboratorium",
+ "title": "Laboratorium",
+ "tagline": "Pemeriksaan laboratorium dengan hasil pada hari yang sama",
+ "summary": "Laboratorium klinik untuk pemeriksaan darah, urine, dan pemeriksaan penunjang lain.",
+ "body_html": "<p>Pemeriksaan laboratorium umum tidak memerlukan preparation khusus. Sampel darah diambil pagi hari.</p>\n",
+ "image_url": "https://picsum.photos/seed/fasilitas-laboratorium/960/640"
+}

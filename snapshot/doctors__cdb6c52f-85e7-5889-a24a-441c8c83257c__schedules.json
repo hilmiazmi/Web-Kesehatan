@@ -1,0 +1,38 @@
+[
+ {
+  "id": "f0c265ce-3d56-48be-866d-b2caecb900f1",
+  "doctor_id": "cdb6c52f-85e7-5889-a24a-441c8c83257c",
+  "doctor_name": "Citra Wulandari",
+  "polyclinic": "Poliklinik Umum",
+  "day_of_week": 1,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "C1-03",
+  "quota": 45,
+  "note": null
+ },
+ {
+  "id": "e24be298-a295-4ab9-99d0-1405f9626607",
+  "doctor_id": "cdb6c52f-85e7-5889-a24a-441c8c83257c",
+  "doctor_name": "Citra Wulandari",
+  "polyclinic": "Poliklinik Umum",
+  "day_of_week": 2,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "C1-03",
+  "quota": 45,
+  "note": null
+ },
+ {
+  "id": "dc51b758-358f-4f97-817f-683b59f15140",
+  "doctor_id": "cdb6c52f-85e7-5889-a24a-441c8c83257c",
+  "doctor_name": "Citra Wulandari",
+  "polyclinic": "Poliklinik Umum",
+  "day_of_week": 4,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "C1-03",
+  "quota": 45,
+  "note": null
+ }
+]

@@ -1,0 +1,10 @@
+{
+ "id": "82dac720-a9c3-4257-a908-b9964efef5e7",
+ "type": "priority",
+ "slug": "kanker-terpadu",
+ "title": "Layanan Kanker Terpadu",
+ "tagline": "Skrining, diagnosis, dan terapi kanker dalam satu alur",
+ "summary": "Layanan skrining untuk umum dan terapi tumor langsung dari dokter spesialis onkologi.",
+ "body_html": "<p>Skrining dilakukan bagi kelompok berisiko tinggi. Jadwal pemeriksaan bisa dilihat di halaman daftar online.</p>\n",
+ "image_url": "https://picsum.photos/seed/layanan-kanker/960/640"
+}

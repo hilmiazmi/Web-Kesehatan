@@ -1,0 +1,19 @@
+{
+ "slug": "paket-pemeriksaan-bebas-narkotik",
+ "name": "MCU Pemeriksaan Bebas Narkotik",
+ "category": "reguler",
+ "summary": "Pemeriksaan untuk keperluan administratif dan tester kerja.",
+ "image_url": "https://picsum.photos/seed/paket-pemeriksaan-bebas-narkotik/960/640",
+ "price": 300000,
+ "description_html": "<p>Digunakan untuk keperluan pengajuan kerja dan pemeriksaan tambahan.</p>\n",
+ "items": [
+  {
+   "group_name": "Wawancara",
+   "item_name": "Wawancara dengan petugas kesehatan"
+  },
+  {
+   "group_name": "Air urine",
+   "item_name": "Tes metamfetamin dan marijuana"
+  }
+ ]
+}

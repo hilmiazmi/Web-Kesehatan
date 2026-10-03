@@ -1,0 +1,26 @@
+[
+ {
+  "slug": "dokter-umum",
+  "title": "Dokter Umum",
+  "department": "Bidang Pelayanan",
+  "employment_type": "Penuh waktu",
+  "quota": 2,
+  "deadline": null
+ },
+ {
+  "slug": "perawat-klinis",
+  "title": "Perawat Klinis",
+  "department": "Bidang Pelayanan",
+  "employment_type": "Penuh waktu",
+  "quota": 3,
+  "deadline": null
+ },
+ {
+  "slug": "petugas-rekam-medis",
+  "title": "Petugas Rekam Medis",
+  "department": "Bidang Pelayanan",
+  "employment_type": "Penuh waktu",
+  "quota": 1,
+  "deadline": null
+ }
+]

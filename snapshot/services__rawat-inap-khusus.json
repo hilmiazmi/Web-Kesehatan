@@ -1,0 +1,10 @@
+{
+ "id": "90c7360c-3d0a-44a6-8725-02b5d8fddd30",
+ "type": "facility",
+ "slug": "rawat-inap-khusus",
+ "title": "Rawat Inap Khusus",
+ "tagline": "Ruang perawatan intensif untuk pasien yang butuh perhatian khusus",
+ "summary": "Ruang perawatan intensif dengan rasio perawat lebih tinggi.",
+ "body_html": "<p>Ruang diberikan berdasarkan catatan dokter yang memutuskan. Waktu kunjungan dibatasi agar pasien tetap pulih.</p>\n",
+ "image_url": "https://picsum.photos/seed/fasilitas-rawat-inap-khusus/960/640"
+}

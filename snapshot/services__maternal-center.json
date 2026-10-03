@@ -1,0 +1,10 @@
+{
+ "id": "d68ce9e3-8342-4c85-a8a3-4bc97489ad52",
+ "type": "priority",
+ "slug": "maternal-center",
+ "title": "Maternal Center",
+ "tagline": "Perawatan kehamilan dan persalinan dengan tim terpadu",
+ "summary": "Pemeriksaan kehamilan, persalinan, dan perawatan nifas dalam satu gedung.",
+ "body_html": "<h2>Layanan</h2>\n<ul>\n<li>Pemeriksaan kehamilan rutin</li>\n<li>Persalinan</li>\n<li>Perawatan nifas</li>\n</ul>\n<p>Pendaftaran boleh dilakukan sejak usia kehamilan 12 minggu.</p>\n",
+ "image_url": "https://picsum.photos/seed/layanan-maternal/960/640"
+}

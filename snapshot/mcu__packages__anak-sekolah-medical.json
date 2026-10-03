@@ -1,0 +1,31 @@
+{
+ "slug": "anak-sekolah-medical",
+ "name": "MCU Anak Sekolah Medical",
+ "category": "health_meets_holiday",
+ "summary": "Pemeriksaan kesehatan anak sekolah dengan pemeriksaan darah.",
+ "image_url": "https://picsum.photos/seed/anak-sekolah-medical/960/640",
+ "price": 95000,
+ "description_html": "<p>Program pemeriksaan anak sekolah yang sudah termasuk pemeriksaan darah.</p>\n",
+ "items": [
+  {
+   "group_name": "Tinggi dan berat",
+   "item_name": "Pengukuran tinggi dan berat badan"
+  },
+  {
+   "group_name": "Penglihatan",
+   "item_name": "Tes ketajaman penglihatan"
+  },
+  {
+   "group_name": "Pendengaran",
+   "item_name": "Tes pendengaran"
+  },
+  {
+   "group_name": "Gigi",
+   "item_name": "Pemeriksaan gigi"
+  },
+  {
+   "group_name": "Darah",
+   "item_name": "Hemoglobin"
+  }
+ ]
+}

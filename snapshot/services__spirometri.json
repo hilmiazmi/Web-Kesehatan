@@ -1,0 +1,10 @@
+{
+ "id": "5dbc7d42-3ead-44e1-a6c7-1817fa947fcd",
+ "type": "diagnostic",
+ "slug": "spirometri",
+ "title": "Spirometri",
+ "tagline": "Pemeriksaan fungsi paru",
+ "summary": "Pengukuran volume dan aliran udara paru untuk menilai fungsi pernapasan.",
+ "body_html": "<p>Pasien diminta menghindari asap rokok dan obat tertentu sebelum pemeriksaan sesuai anjuran dokter.</p>\n",
+ "image_url": "https://picsum.photos/seed/diagnostik-spirometri/960/640"
+}

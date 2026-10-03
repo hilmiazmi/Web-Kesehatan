@@ -1,0 +1,10 @@
+{
+ "slug": "kontak",
+ "title": "Kontak",
+ "eyebrow": null,
+ "summary": "Alamat dan nomor telepon rumah sakit.",
+ "body_html": "<h2>Alamat</h2>\n<p>Jalan Contoh Sehat Nomor 1, Jakarta Selatan.</p>\n<h2>Telepon</h2>\n<p>(021) 5000 0000</p>\n<h2>Jam layanan</h2>\n<p>Senin sampai Jumat untuk rawat jalan, 24 jam untuk gawat darurat.</p>\n",
+ "hero_image_url": null,
+ "meta_description": "Alamat, nomor telepon, dan jam layanan rumah sakit.",
+ "meta_keywords": null
+}

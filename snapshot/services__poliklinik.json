@@ -1,0 +1,10 @@
+{
+ "id": "cd47659a-323a-49f6-a064-bb84d56a505c",
+ "type": "facility",
+ "slug": "poliklinik",
+ "title": "Poliklinik",
+ "tagline": "Konsultasi dokter umum dan dokter spesialis di satu tempat",
+ "summary": "Poliklinik umum, poliklinik spesialis, serta poliklinik ibu dan anak.",
+ "body_html": "<p>Jadwal dokter tersedia di halaman pencarian dokter. Pendaftaran memakai sistem nomor antrean.</p>\n",
+ "image_url": "https://picsum.photos/seed/fasilitas-poliklinik/960/640"
+}

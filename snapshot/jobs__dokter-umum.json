@@ -1,0 +1,10 @@
+{
+ "slug": "dokter-umum",
+ "title": "Dokter Umum",
+ "department": "Bidang Pelayanan",
+ "employment_type": "Penuh waktu",
+ "quota": 2,
+ "deadline": null,
+ "requirements": "Gelar dokter umum dengan Surat Tanda Registrasi aktif.",
+ "responsibilities": "Melakukan pemeriksaan pasien di poli umum."
+}

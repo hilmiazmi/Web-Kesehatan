@@ -1,0 +1,59 @@
+{
+ "slug": "paket-eksekutif-wanita",
+ "name": "MCU Paket Eksekutif Wanita",
+ "category": "reguler",
+ "summary": "Pemeriksaan menyeluruh dengan pemeriksaan khusus perempuan.",
+ "image_url": "https://picsum.photos/seed/paket-eksekutif-wanita/960/640",
+ "price": 1450000,
+ "description_html": "<p>Sama dengan paket eksekutif pria, ditambah mammografi dan pemeriksaan ginekologi.</p>\n",
+ "items": [
+  {
+   "group_name": "Pemeriksaan fisik",
+   "item_name": "Tinggi, berat, lingkar pinggang, indeks massa tubuh"
+  },
+  {
+   "group_name": "Darah",
+   "item_name": "Darah lengkap"
+  },
+  {
+   "group_name": "Gula darah",
+   "item_name": "Glukosa Puasa dan dua jam setelah makan"
+  },
+  {
+   "group_name": "Lemak darah",
+   "item_name": "Profil lemak lengkap"
+  },
+  {
+   "group_name": "Fungsi ginjal",
+   "item_name": "Ureum, kreatinin, asam urat"
+  },
+  {
+   "group_name": "Fungsi hati",
+   "item_name": "SGOT, SGPT, bilirubin"
+  },
+  {
+   "group_name": "Tiroid",
+   "item_name": "TSH, FT3, FT4"
+  },
+  {
+   "group_name": "Hepatitis",
+   "item_name": "HBsAg dan anti HBs"
+  },
+  {
+   "group_name": "Jantung",
+   "item_name": "Rekam listrik jantung dan echocardiogram"
+  },
+  {
+   "group_name": "Toraks",
+   "item_name": "Foto rontgen toraks"
+  },
+  {
+   "group_name": "Paru",
+   "item_name": "Spirometri"
+  },
+  {
+   "group_name": "Perempuan",
+   "item_name": "Mammografi, ginekologi, dan pap smear"
+  }
+ ]
+}

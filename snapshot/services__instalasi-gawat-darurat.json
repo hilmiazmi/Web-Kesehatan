@@ -1,0 +1,10 @@
+{
+ "id": "7de70181-cccb-4aa4-ad43-595cf89c75a4",
+ "type": "facility",
+ "slug": "instalasi-gawat-darurat",
+ "title": "Instalasi Gawat Darurat",
+ "tagline": "Layanan kegawatdaruratan 24 jam setiap hari",
+ "summary": "Penerimaan pasien gawat darurat 24 jam, termasuk hari libur.",
+ "body_html": "<p>Gawat darurat tidak memerlukan rujukan dan menerima pasien semua usia.</p>\n",
+ "image_url": "https://picsum.photos/seed/fasilitas-igd/960/640"
+}

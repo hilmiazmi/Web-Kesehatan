@@ -1,0 +1,10 @@
+{
+ "id": "5980d98d-ebdf-4456-9f16-824bb1c92996",
+ "type": "priority",
+ "slug": "stroke-terpadu",
+ "title": "Layanan Stroke Terpadu",
+ "tagline": "Penanganan darurat stroke dalam waktu kurang dari satu jam",
+ "summary": "Tim khusus yang menangani pasien stroke sejak masuk gawat darurat sampai rencana perawatan.",
+ "body_html": "<p>Layanan ini menerima pasien suspected stroke tanpa perlu rujukan. Segera datang ke gawat darurat untuk pemeriksaan awal.</p>\n",
+ "image_url": "https://picsum.photos/seed/layanan-stroke/960/640"
+}
