@@ -104,29 +104,69 @@ export function humanize(segment: string): string {
 }
 
 /**
- * Path yang punya route sendiri di `src/app`, jadi tidak boleh didaftarkan
- * lagi oleh catch-all.
+ * Path yang punya `page.tsx` sendiri di `src/app`.
  *
- * `/ppid` punya subtree di `src/app/ppid`, jadi hanya leaf-nya yang dilewati
- * dan halaman induknya tetap terdaftar. `/informasi-publik/brosur` tidak punya
- * anak di menu, jadi path-nya sendiri yang dilewati karena `src/app/informasi-publik/brosur`
- * sudah menangani induk dan detailnya.
+ * Setiap entri adalah *prefix*: bukan hanya path itu sendiri, tetapi seluruh
+ * subtree di bawahnya juga dilayani route khusus. `/ppid`, misalnya, punya
+ * `page.tsx` sendiri sekaligus `src/app/ppid/[slug]` untuk artikelnnya.
+ *
+ * Kalau ada yang kelewat, path-nya terdaftar dua kali: `[...slug]` ikut
+ * meng-prerender halaman generik untuk URL yang sebenarnya sudah punya route
+ * sendiri. Dampaknya tidak langsung terlihat — route yang lebih spesifik tetap
+ * menang — tapi begitu route spesifiknya dihapus, URL itu diam-diam membalas
+ * 200 dengan halaman kosong, bukan 404.
+ *
+ * `tests/nav-path.test.ts` membaca daftar folder di `src/app` dan gagal kalau
+ * ada `page.tsx` statis yang tidak tercakup di sini.
  */
-const OWN_ROUTE_SUBTREES = new Set(["/ppid", "/informasi-publik/brosur"]);
+const OWN_ROUTE_SUBTREES = new Set([
+  "/berita",
+  "/daftar-online",
+  "/informasi-publik/brosur",
+  "/pelayanan/poliklinik",
+  "/ppid",
+  "/tentang-kami/manajemen",
+  "/tentang-kami/profile",
+]);
+
+/**
+ * Path yang **tidak** punya halaman sendiri, tetapi anak-anaknya dilayani
+ * folder `[slug]` di `src/app`.
+ *
+ * Bedanya penting. `/pelayanan/medis` tidak punya `page.tsx`, hanya
+ * `src/app/pelayanan/medis/[slug]/page.tsx`. Kalau path itu ikut masuk
+ * `OWN_ROUTE_SUBTREES`, `/pelayanan/medis` dihapus dari catch-all dan tidak ada
+ * route lain yang melayani, sehingga jawabannya 404. Induknya karena itu wajib
+ * tetap terdaftar; hanya daunnya yang dilewati.
+ *
+ * Daun yang dilewati masih terdaftar dua kali. Itu sisa pekerjaan yang belum
+ * dirapikan, bukan keputusan yang diambil di sini.
+ */
+const DETAIL_ROUTE_PARENTS = new Set([
+  "/pelayanan/diagnostik",
+  "/pelayanan/mcu/holiday",
+  "/pelayanan/mcu/reguler",
+  "/pelayanan/medis",
+  "/pelayanan/prioritas",
+]);
 
 /**
  * Apakah path ini dilayani route khusus di `src/app`, bukan catch-all?
  *
- * Seluruh subtree di bawah satu path juga dianggap route khusus: `/ppid/...`
- * dan `/informasi-publik/brosur/...` punya foldernya masing-masing.
+ * Untuk `OWN_ROUTE_SUBTREES`, path itu sendiri dan seluruh subtree-nya ikut
+ * benar. Untuk `DETAIL_ROUTE_PARENTS`, hanya path yang benar-benar lebih dalam
+ * dari induknya, karena induknya sendiri masih butuh catch-all.
  *
- * Dipakai tes navigasi supaya daftar yang dikecualikan di sini dan di
+ * Dipakai tes navigasi supaya daftar yang dikecualikan di sini dan yang dipakai
  * `collectNavPaths()` tidak bisa berbeda sumber.
  */
 export function hasOwnRoute(path: string): boolean {
   const clean = path.replace(/\/+$/, "") || "/";
   for (const prefix of OWN_ROUTE_SUBTREES) {
     if (clean === prefix || clean.startsWith(`${prefix}/`)) return true;
+  }
+  for (const parent of DETAIL_ROUTE_PARENTS) {
+    if (clean.startsWith(`${parent}/`)) return true;
   }
   return false;
 }
