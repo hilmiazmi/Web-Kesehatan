@@ -162,6 +162,7 @@ export const HEADER_CTAS = [
  * didaftarkan oleh `collectNavPaths()` dan tidak berakhir jadi tautan mati.
  */
 export const FOOTER_LINKS = [
+  { label: "Jadwal Dokter", href: "/jadwal-dokter" },
   { label: "Peta Situs", href: "/sitemap" },
   { label: "Kontak", href: "/kontak" },
 ];

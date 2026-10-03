@@ -843,3 +843,97 @@ a.halaman-kartu:focus-visible {
 .detail-contact a:hover {
   text-decoration: underline;
 }
+
+/* ---------- Jadwal dokter ----------
+   Kartu "Cari Dokter" memakai gaya kartu yang sudah ada di situs: radius
+   25px, garis tepi 1px, tanpa bayangan. Jarak antar kolom mengikuti
+   Bootstrap, dan label memakai gaya form bawaan. */
+.jadwal-card {
+  border-radius: var(--rs-radius-card);
+  box-shadow: none;
+  border: 1px solid var(--rs-gray-300);
+}
+
+.jadwal-card-header {
+  background-color: transparent;
+  border-bottom: 1px solid var(--rs-gray-300);
+  padding: 0.9rem 1.25rem;
+}
+
+.jadwal-hasil {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rs-gray-300);
+}
+
+.jadwal-hasil-nama {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 0.15rem;
+}
+
+.jadwal-hasil-spesialisasi {
+  font-size: 0.85rem;
+  color: var(--rs-text-nav);
+  margin-bottom: 0.75rem;
+}
+
+.jadwal-hasil-kosong {
+  font-size: 0.9rem;
+  color: var(--rs-text-nav);
+  margin: 0;
+}
+
+.jadwal-daftar {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.jadwal-daftar li {
+  display: flex;
+  gap: 0.6rem;
+  font-size: 0.9rem;
+  padding: 0.35rem 0.7rem;
+  background-color: var(--rs-gray-100);
+  border-radius: var(--rs-radius-card);
+}
+
+.jadwal-daftar li span:first-child {
+  font-weight: 600;
+  color: var(--rs-accent);
+}
+
+.jadwal-subjudul {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 2.25rem 0 1rem;
+}
+
+.jadwal-tabel-wrap {
+  overflow-x: auto;
+}
+
+.jadwal-tabel {
+  margin-bottom: 0;
+  /* Lebar kolom mengikuti isinya, bukan dibagi rata seluruh lebar wadah.
+     Dengan width 100% kolom "Dokter" melar dan hari praktik terdorong ke
+     kanan, jadi jarak antar kolom terasa rusak. min-width 100% tetap dipakai
+     supaya tabel tidak menyempit di layar sempit. */
+  width: auto;
+  min-width: 100%;
+}
+
+.jadwal-tabel-dokter {
+  white-space: nowrap;
+}
+
+.jadwal-tabel-judul {
+  caption-side: top;
+  font-size: 0.85rem;
+  color: var(--rs-text-nav);
+  padding-bottom: 0.75rem;
+}
