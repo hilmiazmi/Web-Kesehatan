@@ -15,7 +15,7 @@ import {
 } from "@/server/validation";
 import { insertWbsReport } from "@/server/db/repo/submissions";
 
-/** Tingkat keparavensan laporan, sesuai enum `wbs_severity`. */
+/** Tingkat keparahan laporan, sesuai enum `wbs_severity`. */
 const TINGKAT = ["low", "medium", "high"] as const;
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
