@@ -132,6 +132,27 @@ bukan tebakan. Rinciannya ada di `docs/design-tokens-terverifikasi.md`.
   `next/image` menolak SVG kecuali `dangerouslyAllowSVG` diaktifkan, dan
   mengaktifkannya melemahkan keamanan seluruh situs. Bentuknya dihasilkan oleh
   `/tmp/opencode/gen-avatar.py` supaya dapat dibangun ulang.
+- **NAVBAR BEKU. Jangan diubah tanpa diminta pemilik repo.**
+  Permintaan pemilik repo: navbar harus tetap seperti aslinya dan tidak boleh
+  diubah lagi. Keadaan yang dibekukan ada di commit `a9b5fd5`.
+  - Batas desktop `1200px`, dengan panel off-canvas `translateX(100%)` dan
+    tombol hamburger `d-xl-none` di bawahnya.
+  - Font nav `15px` seragam untuk desktop, submenu dropdown, dan panel.
+  - Delapan butir nav `894px`, tidak pernah membungkus dan tidak pernah menyusut.
+
+  Yang **telah dicoba dan ditolak**, jangan diulang:
+  - Batas desktop dinaikkan ke `1550px` (commit `160687e`).
+  - Batas desktop diturunkan ke `1360px` (commit `27ff149`).
+  - Nav desktop dirapatkan ke `14px` dengan padding `2px`. Jarak antar butir
+    jadi `0px` sehingga nav sulit dibaca.
+  - Nav diturunkan ke baris kedua di bawah batas, tanpa tombol hamburger.
+
+  Cacat yang **sengaja diterima** pada keadaan beku: pada lebar 1200-1499px
+  tombol "Administrasi Pasien" terpotong di tepi kanan, karena satu baris
+  membutuhkan 1496px. Akibat ini sudah dilaporkan dan dibiarkan.
+
+  `tests/navbar-beku.test.ts` mengunci semua angka di atas. Tes itu gagal kalau
+  navbar disentuh. Jangan dihapus atau dilonggarkan tanpa diminta.
 - **Tombol hamburger harus di LUAR `.navmenu`.** Di mobile `.navmenu` menjadi
   panel off-canvas `translateX(100%)`, sehingga apa pun isinya tidak bisa diklik.
 - Submenu navbar: hover di desktop dan tautan induk tetap dinavigasi; accordion
