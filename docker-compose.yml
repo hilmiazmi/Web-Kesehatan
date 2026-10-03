@@ -1,0 +1,53 @@
+# PostgreSQL untuk development lokal.
+#
+# Hanya database. Backend Rust dijalankan di luar Docker dengan `bun run api`
+# supaya pesan error dan log tetap terlihat langsung di terminal.
+#
+# Satu-satunya aturan yang tidak boleh dilanggar: nama service, user, kata
+# sandi, dan nama database di sini harus sama persis dengan `DATABASE_URL`
+# di `.env.local`. Kalau salah satu berubah, keduanya harus berubah bersama.
+#
+# Perintah:
+#   docker compose up -d postgres   menyalakan database
+#   docker compose ps               melihat status
+#   docker compose down             mematikan (data tetap aman di volume)
+#   docker compose down -v          menghapus juga datanya
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: rsud-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: rsud
+      POSTGRES_PASSWORD: rsud_dev_password
+      POSTGRES_DB: rsud_contoh_sehat
+      # Initdb membuat cluster dengan locale yang benar sekali saja, saat
+      # volume masih kosong. Menyetelnya di sini membuat `volume` yang sudah
+      # terlanjur berisi data lama tidak ikut berubah diam-diam.
+      POSTGRES_INITDB_ARGS: "--locale=C.UTF-8"
+
+    ports:
+      # Diikat ke 127.0.0.1, bukan 0.0.0.0. Port PostgreSQL yang terbuka ke
+      # jaringan LAN adalah hal yang tidak perlu terjadi di laptop.
+      - "127.0.0.1:5432:5432"
+
+    volumes:
+      # Volume bernama, bukan bind mount ke folder repo. Data database bukan
+      # aset repository dan tidak boleh ikut ter-commit atau terhapus saat
+      # folder kerja dibersihkan.
+      - rsud-pgdata:/var/lib/postgresql/data
+
+    healthcheck:
+      # `pg_isready` hanya berarti proses PostgreSQL mau menerima koneksi.
+      # Migrasi dan seed menunggu status `healthy`, bukan sekadar container
+      # yang sudah dibuat, supaya tidak ada race saat start pertama kali.
+      test: ["CMD-SHELL", "pg_isready -U rsud -d rsud_contoh_sehat"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+volumes:
+  rsud-pgdata:
