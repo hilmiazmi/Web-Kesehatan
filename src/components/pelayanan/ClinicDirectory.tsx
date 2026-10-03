@@ -1,8 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Photo from "@/components/ui/Photo";
-import { ClinicCardGrid, type ClinicCard } from "@/components/pelayanan/ClinicCardGrid";
+import {
+  ClinicCardGrid,
+  type ClinicCard,
+} from "@/components/pelayanan/ClinicCardGrid";
 import { GALLERY_PHOTOS, photo } from "@/data/images";
 
 /** Satu tab klinik, beserta isi panel yang tampil ketika tabnya dipilih. */
@@ -29,6 +32,10 @@ export type ClinicTab = {
  * Tab memakai <button>, bukan <a>, karena yang diklik hanya mengganti panel
  * dan tidak berpindah halaman.
  *
+ * Hanya panel aktif yang dirender. Karena itu `aria-controls` hanya dipasang
+ * pada tab yang sedang terpilih; kalau dipasang juga pada tab lain, id yang
+ * ditunjuknya tidak ada di DOM dan pembaca layar akan diam.
+ *
  * Data dikirim dari halaman server sebagai props, bukan diimpor dari
  * `@/data/clinics`. Modul itu memuat isi penuh 25 halaman detail klinik —
  * deskripsi, daftar layanan, jam praktik — yang tidak pernah dirender di sini.
@@ -42,7 +49,15 @@ export default function ClinicDirectory({
   details: ClinicCard[];
 }) {
   const [aktif, setAktif] = useState(0);
+  const daftarTab = useRef<(HTMLButtonElement | null)[]>([]);
   const klinik = clinics[aktif];
+
+  /** Panah atas dan bawah memindahkan tab, sesuai pola tablist vertikal. */
+  const geser = (arah: 1 | -1) => {
+    const berikut = (aktif + arah + clinics.length) % clinics.length;
+    setAktif(berikut);
+    daftarTab.current[berikut]?.focus();
+  };
 
   return (
     <div className="row g-4">
@@ -55,9 +70,26 @@ export default function ClinicDirectory({
                 role="tab"
                 id={`klinik-tab-${k.slug}`}
                 aria-selected={i === aktif}
-                aria-controls={`klinik-panel-${k.slug}`}
+                aria-controls={
+                  i === aktif ? `klinik-panel-${k.slug}` : undefined
+                }
+                // Roving tabindex: hanya tab terpilih yang bisa difokuskan,
+                // supaya penfocusan tidak berhenti di 16 tab satu per satu.
+                tabIndex={i === aktif ? 0 : -1}
+                ref={(el) => {
+                  daftarTab.current[i] = el;
+                }}
                 className={`klinik-tab${i === aktif ? " aktif" : ""}`}
                 onClick={() => setAktif(i)}
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowDown") {
+                    e.preventDefault();
+                    geser(1);
+                  } else if (e.key === "ArrowUp") {
+                    e.preventDefault();
+                    geser(-1);
+                  }
+                }}
               >
                 {k.name}
               </button>
