@@ -1,5 +1,25 @@
 import { FACILITIES } from "@/data/home";
+import { DIAGNOSTIC_SERVICES } from "@/data/informasi";
 import type { IsiHalaman } from "./types";
+
+/**
+ * Ikon per unit. `FACILITIES` dan `DIAGNOSTIC_SERVICES` tidak menyimpan ikon,
+ * jadi pemetaannya ada di sini. Semua ikon di sini perlu benar-benar ada di
+ * bootstrap-icons; kalau salah nama, kartu akan tampil tanpa ikon karena
+ * `<i>` tidak pernah gagal diam-diam.
+ */
+const IKON_FASILITAS: Record<string, string> = {
+  "instalasi-gawat-darurat": "bi-activity",
+  "rawat-jalan": "bi-door-open",
+  "rawat-inap": "bi-hospital",
+  "rawat-inap-khusus": "bi-heart-pulse",
+  "diagnostic-center": "bi-clipboard2-pulse",
+  eswl: "bi-droplet",
+  mri: "bi-bounding-box",
+  "klinik-eksekutif": "bi-person-badge",
+  laboratorium: "bi-eyedropper",
+  radiologi: "bi-bounding-box-circles",
+};
 
 /** Halaman induk "Informasi Publik" dan halaman "Fasilitas". */
 export const INFORMASI_INDUK: Record<string, IsiHalaman> = {
@@ -18,7 +38,7 @@ export const INFORMASI_INDUK: Record<string, IsiHalaman> = {
 
   "informasi-publik/fasilitas": {
     ringkas:
-      "Delapan unit dan fasilitas pendukung yang tersedia di rumah sakit ini.",
+      "Sepuluh unit dan fasilitas pendukung yang tersedia di rumah sakit ini.",
     blok: [
       {
         jenis: "paragraf",
@@ -26,11 +46,28 @@ export const INFORMASI_INDUK: Record<string, IsiHalaman> = {
           "Fasilitas dibagi menurut cara pasien memakainya, supaya mudah dicari saat dibutuhkan.",
       },
       {
-        jenis: "daftar",
-        ikon: "bi-building",
-        butir: FACILITIES.map((f) => `${f.title}. ${f.description}`),
+        // Kartu, bukan blok `daftar`. Blok `daftar` hanya menghasilkan teks
+        // tanpa tautan, jadi daftar unit di sini pernah tampil sebagai
+        // paragraf murni tanpa satu pun pintu masuk ke halaman detailnya.
+        // `tautan-anak` juga tidak bisa dipakai karena halaman ini tidak punya
+        // anak di pohon navigasi.
+        jenis: "kartu",
+        judul: "Semua unit",
+        butir: [
+          ...FACILITIES.map((f) => ({
+            ikon: IKON_FASILITAS[f.slug] ?? "bi-building",
+            judul: f.title,
+            isi: f.description,
+            href: `/pelayanan/medis/${f.slug}`,
+          })),
+          ...DIAGNOSTIC_SERVICES.map((d) => ({
+            ikon: IKON_FASILITAS[d.slug] ?? "bi-building",
+            judul: d.title,
+            isi: d.description,
+            href: `/pelayanan/diagnostik/${d.slug}`,
+          })),
+        ],
       },
-      { jenis: "tautan-anak" },
     ],
   },
 };

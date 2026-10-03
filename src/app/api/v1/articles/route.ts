@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { handle, ok } from "@/server/api/respond";
 import { denganSnapshot } from "@/server/api/snapshot";
 import { bilangan, bilanganTerbatas, teks } from "@/server/api/params";
+import { satuHalaman } from "@/server/api/snapshot-query";
 import { listArticles } from "@/server/db/repo/content";
 
 export const dynamic = "force-dynamic";
@@ -22,14 +23,15 @@ export function GET(request: NextRequest): Promise<NextResponse> {
     const ukuran = bilanganTerbatas(params, "limit", 9, 1, UKURAN_MAKS);
     const kategori = teks(params, "category");
 
+    const posisi = { limit: ukuran, offset: (halaman - 1) * ukuran };
+
     const hasil = await denganSnapshot(
-      (db) =>
-        listArticles(db, {
-          limit: ukuran,
-          offset: (halaman - 1) * ukuran,
-          category: kategori,
-        }),
+      (db) => listArticles(db, { ...posisi, category: kategori }),
       "/articles",
+      // Snapshot menyimpan seluruh artikel, jadi penyaringan dan pemotongan
+      // halaman harus diulang di sini. Tanpa ini `?page=2` mencytak ulang isi
+      // `?page=1`, dan `?category=` diabaikan sama sekali.
+      (muatan) => satuHalaman(muatan, { category: kategori }, posisi),
     );
 
     const total = hasil.total;

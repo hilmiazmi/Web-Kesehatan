@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { HALAMAN, isiHalaman } from "@/data/halaman";
+import { FACILITIES } from "@/data/home";
+import { DIAGNOSTIC_SERVICES } from "@/data/informasi";
 import { RUANG_RAWAT } from "@/data/kapasitas-bed";
 import { FOOTER_RELATED } from "@/data/navigation";
 import { childrenOf, collectNavPaths } from "@/lib/nav-path";
@@ -27,6 +29,57 @@ describe("cakupan isi halaman", () => {
 
   it("jumlah halaman sama dengan jumlah path dari navigasi", () => {
     expect(Object.keys(HALAMAN).length).toBe(pathDariNav.length);
+  });
+});
+
+describe("gambar di data halaman", () => {
+  /**
+   * Susunlah `src`/`href` yang akhiriannya URL gambar, termasuk yang di dalam
+   * `butir` bertingkat. Mengembalikan [{ path, nilai }].
+   */
+  const kumpulkan = (path: string, nilai: unknown, kunci = ""): { path: string; nilai: string }[] => {
+    if (typeof nilai === "string") {
+      return kunci === "src" || kunci === "href" || kunci === "foto"
+        ? [{ path, nilai }]
+        : [];
+    }
+    if (Array.isArray(nilai)) {
+      return nilai.flatMap((v) => kumpulkan(path, v, kunci));
+    }
+    if (nilai && typeof nilai === "object") {
+      return Object.entries(nilai as Record<string, unknown>).flatMap(([k, v]) =>
+        kumpulkan(path, v, k)
+      );
+    }
+    return [];
+  };
+
+  it("tidak ada ID Unsplash telanjang yang lolos ke src", () => {
+    // photo-1587854692152-cbe660dbde88 adalah ID mentah, bukan URL
+    // next/image menerimanya sebagai path lokal, lalu optimizer membalas 400.
+    // Gejalanya tidak terlihat di tes lain: halaman tetap 200 dan markup-nya
+    // tetap lengkap, hanya gambar yang tidak termuat.
+    const salah: string[] = [];
+    for (const [path, isi] of Object.entries(HALAMAN)) {
+      for (const { nilai } of kumpulkan(path, isi)) {
+        if (/^photo-\d/i.test(nilai)) salah.push(`${path} -> ${nilai}`);
+      }
+    }
+    expect(salah).toEqual([]);
+  });
+
+  it("setiap foto galeri memakai URL absolut", () => {
+    const salah: string[] = [];
+    for (const [path, isi] of Object.entries(HALAMAN)) {
+      for (const blok of isi.blok) {
+        if (blok.jenis !== "galeri") continue;
+        blok.foto.forEach((f, i) => {
+          if (!/^https:\/\//.test(f.src)) salah.push(`${path} galeri[${i}] ${f.src}`);
+          if (!f.alt.trim()) salah.push(`${path} galeri[${i}] alt kosong`);
+        });
+      }
+    }
+    expect(salah).toEqual([]);
   });
 });
 
@@ -120,10 +173,38 @@ describe("isi yang diturunkan, bukan disalin", () => {
 
   it("fasilitas memakai daftar FASILITAS yang sama", () => {
     const infoFasilitas = HALAMAN["informasi-publik/fasilitas"];
-    const daftar = infoFasilitas.blok.find((b) => b.jenis === "daftar");
-    if (daftar?.jenis !== "daftar") throw new Error("daftar tidak ditemukan");
-    expect(daftar.butir.length).toBeGreaterThan(0);
-    for (const butir of daftar.butir) expect(butir.length).toBeGreaterThan(20);
+    // Bentuknya kartu, bukan daftar. Blok `daftar` hanya menghasilkan teks
+    // tanpa tautan, jadi halaman ini pernah menampilkan seluruh unit sebagai
+    // paragraf murni tanpa pintu masuk ke halaman detailnya.
+    const kartu = infoFasilitas.blok.find((b) => b.jenis === "kartu");
+    if (kartu?.jenis !== "kartu") throw new Error("kartu tidak ditemukan");
+
+    // Diturunkan dari FACILITIES, bukan menyalin teksnya sendiri.
+    const dariData = new Set([
+      ...FACILITIES.map((f) => `/pelayanan/medis/${f.slug}`),
+      ...DIAGNOSTIC_SERVICES.map((d) => `/pelayanan/diagnostik/${d.slug}`),
+    ]);
+    expect(kartu.butir.map((k) => k.href)).toEqual([...dariData]);
+
+    // Setiap butir harus punya tautan dan deskripsi, kalau tidak daftar ini
+    // cuma teks yang malaria.
+    for (const butir of kartu.butir) {
+      expect(butir.href, butir.judul).toBeTruthy();
+      expect(butir.isi.length, butir.judul).toBeGreaterThan(20);
+      expect(butir.ikon, butir.judul).toBeTruthy();
+    }
+  });
+
+  it("Aula adalah saudara Fasilitas, bukan anaknya", () => {
+    // Aula adalah tempat pemeriksaan dokumen, bukan unit fasilitas. Kalau
+    // dipasang sebagai anak Fasilitas, childrenOf("/informasi-publik/fasilitas")
+    // mengembalikan Aula sehingga blok tautan-anak di halaman Fasilitas
+    // menampilkan Aula dan tidak menampilkan daftar unit sama sekali.
+    expect(childrenOf("/informasi-publik/fasilitas")).toEqual([]);
+    expect(childrenOf("/informasi-publik/aula")).toEqual([]);
+    const info = childrenOf("/informasi-publik").map((c) => c.href);
+    expect(info).toContain("/informasi-publik/fasilitas");
+    expect(info).toContain("/informasi-publik/aula");
   });
 });
 

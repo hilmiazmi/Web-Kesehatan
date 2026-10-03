@@ -25,7 +25,7 @@ export const PELAYANAN_MEDIS: Record<string, IsiHalaman> = {
 
   "pelayanan/medis": {
     ringkas:
-      "Empat unit pelayanan medis, dari gawat darurat sampai ruang inap khusus.",
+      "Delapan unit pelayanan medis, dari gawat darurat sampai ruang inap khusus.",
     blok: [
       {
         jenis: "daftar",
@@ -63,6 +63,52 @@ export const PELAYANAN_MEDIS: Record<string, IsiHalaman> = {
         butir: [
           "Kamar dengan isolasi untuk pasien yang perlu dipisahkan.",
           "Kamar dengan monitor khusus untuk pasien yang butuh pemantauan terus-menerus.",
+        ],
+      },
+      // Empat unit di bawah ini urutannya sama dengan FACILITIES di
+      // src/data/home.ts, bukan dengan urutan alfabet. Halaman indeks memakai
+      // urutan data supaya daftar di sini dan di beranda tidak berbeda.
+      {
+        jenis: "daftar",
+        ikon: "bi-clipboard2-pulse",
+        judul: "Diagnostic Center",
+        butir: [
+          "Laboratorium klinik, radiologi, dan pencitraan.",
+          "Kardiologi dan elektrokardiogram.",
+          "Fisioterapi dan pemeriksaan fungsi tubuh.",
+          "Konsultasi hasil pemeriksaan dengan dokter pemeriksa.",
+        ],
+      },
+      {
+        jenis: "daftar",
+        ikon: "bi-droplet",
+        judul: "ESWL",
+        butir: [
+          "Penanganan batu saluran kemih dengan gelombang kejut.",
+          "Tanpa pembedahan, sehingga masa pemulihannya lebih singkat.",
+          "Didampingi konsultasi dokter spesialis dan persiapan tindakan lebih dulu.",
+          "Dilanjuti pemeriksaan ulang dan perawatan setelah tindakan.",
+        ],
+      },
+      {
+        jenis: "daftar",
+        ikon: "bi-bounding-box",
+        judul: "MRI",
+        butir: [
+          "Pemeriksaan otak, tulang dan sendi, tulang belakang, serta perut.",
+          "Pemeriksaan dengan atau tanpa bahan kontras, menyesuaikan kebutuhan dokter pemeriksa.",
+          "Hasil diinterpretasikan oleh radiologis.",
+        ],
+      },
+      {
+        jenis: "daftar",
+        ikon: "bi-person-badge",
+        judul: "Klinik Eksekutif",
+        butir: [
+          "Konsultasi langsung dengan dokter spesialis.",
+          "Jadwal yang lebih fleksibel dibanding poliklinik reguler.",
+          "Ruang tunggu terpisah dari pasien lain.",
+          "Laporan hasil diserahkan langsung kepada pasien.",
         ],
       },
       { jenis: "tautan-anak" },
