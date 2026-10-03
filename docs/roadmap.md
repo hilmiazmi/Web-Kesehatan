@@ -17,15 +17,15 @@ bukan sebagai perkiraan.
 |---|---|---|
 | Halaman ter-prerender | 160 | `bun run build` |
 | Berkas tes | 31 | `bun run test` |
-| Jumlah tes | 429 | `bun run test` |
+| Jumlah tes | 431 | `bun run test` |
 | Rute internal unik | 63 | `collectNavPaths()` di `src/data/navigation.ts` |
 | Tabel terkelola di panel admin | 17 | `src/server/admin/registry.ts` |
 | Tabel di skema database | 27 | `pgTable` di `src/server/db/schema.ts` |
-| Route handler API | 42 | `src/app/api/v1/**/route.ts` |
+| Route handler API | 42 | `src/app/api/v1/**/route.ts`, tidak termasuk catcher 404 |
 | Butir navigasi tingkat atas | 8 | `NAV_ITEMS` |
 
 Gerbang kualitas terakhir: `npx tsc --noEmit` bersih, `bun run lint` bersih,
-`bun run test` 429 tes lulus, `bun run build` sukses.
+`bun run test` 431 tes lulus, `bun run build` sukses.
 
 Belum ada alur CI. Gerbang itu masih dijalankan manual, jadi bisa terlewat.
 Lihat bagian 4.
