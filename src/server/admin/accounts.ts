@@ -55,6 +55,8 @@ export type Credentials = {
   name: string;
   email: string;
   role: Role;
+  /** Disalin ke klaim `sv` supaya token bisa dicabut saat akun berubah. */
+  session_version: number;
 };
 
 /**
@@ -69,13 +71,15 @@ export async function credentialsByEmail(
   email: string,
 ): Promise<Credentials | null> {
   const rows = await db.execute(sql`
-    SELECT id, email, password_hash, name, role::text AS role
+    SELECT id, email, password_hash, name, role::text AS role, session_version
       FROM users
      WHERE lower(email) = lower(${email})
        AND is_active
   `);
 
-  const row = rows[0] as { id: string; email: string; password_hash: string; name: string; role: string } | undefined;
+  const row = rows[0] as
+    | { id: string; email: string; password_hash: string; name: string; role: string; session_version: number }
+    | undefined;
   if (!row || !isRole(row.role)) return null;
 
   return {
@@ -84,6 +88,7 @@ export async function credentialsByEmail(
     name: row.name,
     email: row.email,
     role: row.role,
+    session_version: row.session_version,
   };
 }
 
@@ -180,6 +185,11 @@ export async function updateAccount(
   const nama = patch.name == null ? null : textRequired(errors, "name", patch.name, 3, 160);
   if (!errors.isEmpty) throw errors.toApiError();
 
+  // Sesi dicabut kalau peran atau status aktif berubah, karena keduanya
+  // menentukan boleh-tidaknya orang itu masuk. Mengubah nama atau surel tidak
+  // mengubah hak akses, jadi tidak memutus sesi yang sedang berjalan.
+  const hakAksesBerubah = patch.role != null || patch.is_active != null;
+
   let rows;
   try {
     rows = await db.execute(sql`
@@ -187,7 +197,8 @@ export async function updateAccount(
          SET email     = coalesce(${surel}, email),
              name      = coalesce(${nama}, name),
              role      = coalesce(${patch.role ?? null}, role),
-             is_active = coalesce(${patch.is_active ?? null}, is_active)
+             is_active = coalesce(${patch.is_active ?? null}, is_active),
+             session_version = session_version + ${hakAksesBerubah ? 1 : 0}
        WHERE id = ${id}::uuid
       RETURNING id
     `);
@@ -225,8 +236,14 @@ export async function changePassword(
     throw ApiError.unauthorized();
   }
 
+  // Menaikkan `session_version` memutus sesi di perangkat lain. Sesi di
+  // perangkat ini juga ikut putus, jadi pemasuk perlu login ulang — itu yang
+  // diharapkan dari penggantian kata sandi.
   await db.execute(
-    sql`UPDATE users SET password_hash = ${await hashPassword(newPassword)} WHERE id = ${id}::uuid`,
+    sql`UPDATE users
+           SET password_hash    = ${await hashPassword(newPassword)},
+               session_version = session_version + 1
+         WHERE id = ${id}::uuid`,
   );
 }
 
@@ -235,7 +252,10 @@ export async function resetPassword(db: Db, id: string, newPassword: string): Pr
   const hash = await hashPassword(newPassword);
 
   const rows = await db.execute(sql`
-    UPDATE users SET password_hash = ${hash} WHERE id = ${id}::uuid
+    UPDATE users
+       SET password_hash    = ${hash},
+           session_version = session_version + 1
+     WHERE id = ${id}::uuid
     RETURNING id
   `);
 

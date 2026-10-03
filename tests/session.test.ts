@@ -50,7 +50,8 @@ function klaim(ubah: Partial<SessionClaims> = {}): SessionClaims {
     role: "super_admin",
     iat: sekarang,
     exp: sekarang + 3600,
-    v: 1,
+    sv: 0,
+    v: 2,
     ...ubah,
   };
 }
@@ -137,8 +138,28 @@ describe("signSession dan verifySession", () => {
 
   it("menolak versi token yang tidak dikenal", () => {
     // Versi dinaikkan kalau skema klaim berubah. Token versi lama harus
-    // berhenti berlaku, bukan dibaca dengan asumsi-field-hilang.
-    const token = signSession(klaim({ v: 2 }), RAHASIA);
+    // berhenti berlaku, bukan dibaca dengan asumsi field hilang.
+    const token = signSession(klaim({ v: 3 }), RAHASIA);
+    expect(verifySession(token, RAHASIA)).toBeNull();
+  });
+
+  it("menolak token versi lama yang tidak punya angka pencabutan", () => {
+    // Token yang terbit sebelum klaim `sv` ada tidak menyimpan salinan
+    // `users.session_version`, jadi tidak ada yang bisa dicabut darinya.
+    // Semuanya ditolak dan pemasuk harus login ulang.
+    const { sv: _buang, ...tanpaSv } = klaim();
+    const token = signSession(
+      { ...tanpaSv, v: 1 } as SessionClaims,
+      RAHASIA,
+    );
+    expect(verifySession(token, RAHASIA)).toBeNull();
+  });
+
+  it("menolak klaim yang kehilangan angka pencabutan", () => {
+    // Tanpa `sv`, `readSession()` tidak punya yang dibandingkan dengan
+    // database, sehingga pencabutan akan lolos tanpa disadari.
+    const { sv: _buang, ...tanpaSv } = klaim();
+    const token = signSession(tanpaSv as SessionClaims, RAHASIA);
     expect(verifySession(token, RAHASIA)).toBeNull();
   });
 
@@ -174,12 +195,27 @@ describe("newClaims", () => {
       email: "admin@contoh.test",
       name: "Admin Uji",
       role: "editor",
+      sessionVersion: 0,
     });
 
     const sekarang = Math.floor(Date.now() / 1000);
     expect(dibuat.exp - dibuat.iat).toBeGreaterThan(0);
     expect(dibuat.exp).toBeGreaterThan(sekarang);
-    expect(dibuat.v).toBe(1);
+    expect(dibuat.v).toBe(2);
+  });
+
+  it("menyalin angka pencabutan ke klaim", () => {
+    // Angka ini yang dibandingkan `readSession()` dengan baris di database.
+    // Kalau tidak ikut tersalin, pencabutan tidak pernah berlaku.
+    const dibuat = newClaims({
+      id: "8a21b750-ab52-4c3b-94ce-ad623031c75b",
+      email: "admin@contoh.test",
+      name: "Admin Uji",
+      role: "editor",
+      sessionVersion: 7,
+    });
+
+    expect(dibuat.sv).toBe(7);
   });
 });
 

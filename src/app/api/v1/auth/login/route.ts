@@ -63,6 +63,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       email: kredensial.email,
       name: kredensial.name,
       role: kredensial.role,
+      sessionVersion: kredensial.session_version,
     });
 
     const cookie = sessionCookie(signSession(claims, config().authSecret));

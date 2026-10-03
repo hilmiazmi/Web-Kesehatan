@@ -174,6 +174,20 @@ export const users = pgTable(
     name: varchar("name", { length: 160 }).notNull(),
     role: userRole("role").notNull().default("front_office"),
     isActive: boolean("is_active").notNull().default(true),
+    /**
+     * Dinaikkan setiap kali kredensial atau hak akses berubah.
+     *
+     * Nilainya ikut tersalin ke dalam token sesi sebagai klaim `sv`.
+     * Mengganti password, mengubah peran, menonaktifkan akun, atau menghapus
+     * akun menaikkan angka ini, dan `requireSession()` menolak token yang
+     * angkanya sudah tidak cocok dengan baris di database.
+     *
+     * Tanpa kolom ini, token stateless hanya bisa dicabut lewat masa
+     * kedaluwarsa, jadi akun yang baru dinonaktifkan masih bisa memakai sesi
+     * lamanya sampai `SESSION_MAX_AGE_SECONDS` habis — delapan jam secara
+     * bawaan.
+     */
+    sessionVersion: integer("session_version").notNull().default(0),
     lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
     createdAt,
     updatedAt,
