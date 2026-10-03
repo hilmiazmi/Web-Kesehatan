@@ -17,6 +17,34 @@ Folder ini read-only. Jangan diperbaiki, jangan dipindahkan.
 
 Jadi ini bukan kode setengah jadi. Kode ini bekerja, hanya tidak lagi dipakai.
 
+## Keterbatasan yang diketahui
+
+Satu bug yang sudah teridentifikasi tapi sengaja tidak diperbaiki di sini,
+karena folder ini read-only dan backend aktif sudah tidak memakai kode ini.
+
+**Pencarian panel admin tidak meng-escape wildcard SQL.** `admin/records.rs`
+dan `admin/inbox.rs` menyusun `ILIKE` dengan `%{search}%` apa adanya, jadi
+`%` dan `_` di dalam kata yang diketik pengguna tetap punya arti wildcard:
+
+| Yang diketik di panel | Yang sebenarnya dicocokkan |
+|---|---|
+| `%` | seluruh isi tabel |
+| `_` | satu karakter apa pun |
+| `100%` | yang diawali `100` |
+
+Akibatnya satu `%` saja mengembalikan setiap baris, dan `100%` mengembalikan
+baris yang tidak ada hubungannya. Ini bukan celah kebocoran data, karena
+panel sudah butuh sesi admin, tapi hasil pencariannya tidak dapat dipercaya.
+
+Perbaikannya sudah ada di backend aktif: `searchPattern()` di
+`src/server/validation.ts` meng-escape `\`, `%`, dan `_` sebelum menambahkan
+Wildcard, dan ada tesnya di `tests/validation.test.ts`.
+
+Kalau folder ini nanti dihidupkan kembali, dua berkas itu adalah tempat
+pertama yang perlu diperiksa. Menjalankan `cargo test` untuk memastikan tidak
+ada regresi lain membutuhkan build ulang dari nol, karena `target/` tidak
+disimpan di Git.
+
 ## Kenapa diarsipkan, bukan dihapus
 
 Masalahnya bukan kualitas, tapi jumlah runtime. Backend Rust menuntut
@@ -55,7 +83,7 @@ Total sekitar 11.700 baris Rust plus 4 berkas migrasi.
 
 ## Isi yang masih layak dibaca
 
-Beberapa bagian di sini lebih matang daripadapadanannya di backend
+Beberapa bagian di sini lebih matang daripada padanannya di backend
 sekarang, dan layak dipakai sebagai rujukan kalau ada yang perlu
 diperbaiki nanti:
 
