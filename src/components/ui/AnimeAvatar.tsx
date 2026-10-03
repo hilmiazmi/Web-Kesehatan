@@ -20,9 +20,6 @@ import type { CSSProperties, ReactNode } from "react";
  * Bangun ulang bila perlu: python3 /tmp/opencode/gen-avatar.py
  */
 
-/** Jumlah varian avatar yang tersedia. */
-export const AVATAR_COUNT = 8;
-
 /**
  * Satu elemen per varian.
  *
@@ -299,14 +296,18 @@ export default function AnimeAvatar({
   className?: string;
   style?: CSSProperties;
 }) {
-  const i = ((variant % 8) + 8) % 8;
+  // Pakai panjang array, bukan angka literal, supaya menambah avatar
+  // tidak diam-diam membuat indeks meluber.
+  const i = ((variant % AVATARS.length) + AVATARS.length) % AVATARS.length;
 
   return (
     <svg
       viewBox="0 0 200 200"
       className={className}
       style={{ width: "100%", height: "100%", objectFit: "cover", ...style }}
-      role="img"
+      // Avatar ini dekoratif. `aria-hidden` dipakai tanpa `role="img"`,
+      // karena yang kedua menimpa yang pertama dan hasilnya role
+      // generik yang tidak pernah diumumkan pembaca layar.
       aria-hidden="true"
       focusable="false"
       preserveAspectRatio="xMidYMid slice"
