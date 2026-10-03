@@ -29,13 +29,26 @@ import { ApiError, dbErrorCode } from "./error";
  * Isi berkas snapshot adalah muatan yang akan dibungkus `ok()`, bukan amplop
  * lengkapnya. Kalau amplop ikut disimpan, hasilnya `{ "data": { "data": ... } }`
  * dan setiap klien harus membongkar dua lapis.
+ *
+ * `sesuaikan` menutup satu celah: snapshot menyimpan hasil satu kueri dengan
+ * parameter tertentu, sedangkan rute bisa dipanggil dengan parameter lain.
+ *Tanpa callback ini, `?category=kerjasama` dijawab dengan seluruh isi
+ * snapshot dan status 200, sehingga tidak ada yang bisa membedakan jawaban
+ * benar dari jawaban salah. Rute yang tidak menyaring tidak perlu mengisinya.
+ * Mekanismenya ada di `snapshot-query.ts`.
  */
 export async function denganSnapshot<T>(
   sumber: (db: Db) => Promise<T>,
   ruteApi: string,
+  sesuaikan?: (muatan: unknown) => T,
 ): Promise<T> {
   const kunci = snapshotKey(ruteApi);
   const db = dbOrNull();
+
+  // Callback ini hanya menyentuh muatan snapshot, bukan hasil kueri. Hasil
+  // kueri sudah disaring dan dipotong oleh SQL-nya sendiri.
+  const terapkan = (muatan: unknown): T =>
+    sesuaikan ? sesuaikan(muatan) : (muatan as T);
 
   // Mode snapshot tidak punya database sama sekali. Membaca lewat jalur
   // database hanya akan menghasilkan koneksi yang ditolak.
@@ -44,7 +57,7 @@ export async function denganSnapshot<T>(
     if (dariSnapshot === null) {
       throw ApiError.notFound("data");
     }
-    return dariSnapshot as T;
+    return terapkan(dariSnapshot);
   }
 
   try {
@@ -71,7 +84,7 @@ export async function denganSnapshot<T>(
       err instanceof Error ? err.message : err,
     );
 
-    return dariSnapshot as T;
+    return terapkan(dariSnapshot);
   }
 }
 

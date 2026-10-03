@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { handle, ok } from "@/server/api/respond";
 import { denganSnapshot } from "@/server/api/snapshot";
 import { teks } from "@/server/api/params";
+import { saring } from "@/server/api/snapshot-query";
+import type { DocumentRow } from "@/server/db/repo/content";
 import { listDocuments } from "@/server/db/repo/content";
 
 export const dynamic = "force-dynamic";
@@ -12,6 +14,11 @@ export function GET(request: NextRequest): Promise<NextResponse> {
     const kategori = teks(request.nextUrl.searchParams, "category");
 
     return ok(
-      await denganSnapshot((db) => listDocuments(db, kategori), "/documents"),
-    );  });
+      await denganSnapshot(
+        (db) => listDocuments(db, kategori),
+        "/documents",
+        (muatan) => saring<DocumentRow>(muatan, { category: kategori }),
+      ),
+    );
+  });
 }
