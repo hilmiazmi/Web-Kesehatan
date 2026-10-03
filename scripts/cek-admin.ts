@@ -280,8 +280,52 @@ await lapis("catat login", async () => {
   return row;
 });
 
+const akunLain = await lapis("buat akun pemanggil lain", () =>
+  createAccount(db, {
+    email: `uji-pemanggil-${Date.now()}@contoh.test`,
+    name: "Pemanggil Uji",
+    role: "super_admin",
+    password: "SandiUji123!",
+  }),
+);
+
 await lapis("ubah profil", async () => {
-  const row = await updateAccount(db, (akun as { id: string }).id, { name: "Akun Uji Diubah" });
+  const row = await updateAccount(
+    db,
+    (akun as { id: string }).id,
+    (akunLain as { id: string }).id,
+    { name: "Akun Uji Diubah" },
+  );
+  if (row.name !== "Akun Uji Diubah") throw new Error("nama tidak berubah");
+  return row;
+});
+
+// Menonaktifkan akun sendiri adalah jalan mengunci diri sendiri: sesi ikut
+// mati pada saat yang sama, dan `credentialsByEmail` menyaring `AND is_active`
+// sehingga login berikutnya mustahil. Peran sendiri punya masalah serupa.
+await harusGagal(
+  "menonaktifkan akun sendiri",
+  () =>
+    updateAccount(db, (akun as { id: string }).id, (akun as { id: string }).id, {
+      is_active: false,
+    }),
+  "Peran dan status aktif akun sendiri tidak bisa diubah dari sini.",
+);
+
+await harusGagal(
+  "menurunkan peran sendiri",
+  () =>
+    updateAccount(db, (akun as { id: string }).id, (akun as { id: string }).id, {
+      role: "front_office",
+    }),
+  "Peran dan status aktif akun sendiri tidak bisa diubah dari sini.",
+);
+
+// Mengubah nama sendiri tetap boleh, karena tidak menyentuh hak akses.
+await lapis("ubah nama akun sendiri tetap boleh", async () => {
+  const row = await updateAccount(db, (akun as { id: string }).id, (akun as { id: string }).id, {
+    name: "Akun Uji Diubah",
+  });
   if (row.name !== "Akun Uji Diubah") throw new Error("nama tidak berubah");
   return row;
 });

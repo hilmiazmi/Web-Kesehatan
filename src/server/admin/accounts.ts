@@ -169,14 +169,52 @@ export type AccountPatch = {
 };
 
 /**
+ * Apakah patch ini mengubah hak akses akun pemanggil sendiri.
+ *
+ * Fungsi ini murni supaya bisa diuji tanpa database, dan supaya aturan yang
+ * sama bisa dipakai di route tanpa mengulangnya.
+ *
+ * Kenapa `role` dan `is_active` tidak boleh disentuh pada akun sendiri:
+ * keduanya menaikkan `session_version`, jadi sesi yang sedang dipakai langsung
+ * mati pada saat yang sama. Setelah `is_active` false, `credentialsByEmail`
+ * menyaring `AND is_active` sehingga login berikutnya mustahil, dan karena
+ * satu-satunya perbaikan juga lewat `PATCH` pada route yang sama, akun itu
+ * terkunci permanen. Menurunkan peran sendiri tidak terkunci, tetapi orangnya
+ * langsung kehilangan aksesnya tanpa jalan keluar selain login lagi.
+ *
+ * `name` dan `email` tetap boleh: keduanya tidak menyentuh hak akses, jadi
+ * tidak memutus sesi.
+ *
+ * Perbandingan id dilakukan huruf-kecil semua. `uuid()` di
+ * `src/server/api/params.ts` hanya memvalidasi pola dan mengembalikan string
+ * apa adanya, sedangkan `sub` pada token berasal dari baris database yang
+ * selalu huruf kecil. Tanpa normalisasi, panel yang mengirim UUID huruf besar
+ * akan melewati penjaga ini lalu tetap mengenai baris yang sama, karena
+ * PostgreSQL tidak membedakan huruf besar dan kecil pada uuid.
+ */
+export function hakAksesDiriSendiri(
+  patch: AccountPatch,
+  targetId: string,
+  actingUser: string,
+): boolean {
+  if (targetId.toLowerCase() !== actingUser.toLowerCase()) return false;
+  return patch.role != null || patch.is_active != null;
+}
+
+/**
  * Ubah profil akun.
  *
  * Kolom yang tidak disebut di `patch` tidak disentuh, jadi panel bisa mengirim
  * hanya bagian yang berubah.
+ *
+ * `actingUser` dipakai untuk dua penjaga: perubahan hak akses pada akun sendiri
+ * ditolak, dan menurunkan satu-satunya super admin aktif ditolak. Keduanya
+ * ditolak dengan 400 karena itu kesalahan permintaan, bukan kegagalan server.
  */
 export async function updateAccount(
   db: Db,
   id: string,
+  actingUser: string,
   patch: AccountPatch,
 ): Promise<Account> {
   const errors = new Errors();
@@ -184,6 +222,14 @@ export async function updateAccount(
   const surel = patch.email == null ? null : validateEmail(errors, "email", patch.email, true);
   const nama = patch.name == null ? null : textRequired(errors, "name", patch.name, 3, 160);
   if (!errors.isEmpty) throw errors.toApiError();
+
+  if (hakAksesDiriSendiri(patch, id, actingUser)) {
+    throw ApiError.badRequest(
+      "Peran dan status aktif akun sendiri tidak bisa diubah dari sini.",
+    );
+  }
+
+  await jagaSuperAdminAktif(db, id, patch.role ?? null);
 
   // Sesi dicabut kalau peran atau status aktif berubah, karena keduanya
   // menentukan boleh-tidaknya orang itu masuk. Mengubah nama atau surel tidak
@@ -211,6 +257,43 @@ export async function updateAccount(
   const akun = await findAccount(db, id);
   if (!akun) throw ApiError.internal("akun hilang setelah pembaruan");
   return akun;
+}
+
+/**
+ * Tolak penurunan peran kalau target adalah satu-satunya super admin aktif.
+ *
+ * `deleteAccount` sudah punya penjaga serupa. Soal yang sama berlaku kalau
+ * peran diturunkan alih-alih dihapus: satu-satunya super admin aktif yang
+ * diturunkan berarti tidak ada yang bisa menaikkannya orang lain lagi, dan
+ * tidak ada jalan memulihkannya lewat panel.
+ *
+ * Hanya diperiksa saat peran memang berubah. Menaikkan peran tidak pernah
+ * diperhatikan, dan `null` berarti panel tidak mengirim peran sama sekali.
+ */
+async function jagaSuperAdminAktif(db: Db, id: string, peranBaru: Role | null): Promise<void> {
+  if (peranBaru === null) return;
+
+  const baris = await db.execute(
+    sql`SELECT role::text AS role, is_active FROM users WHERE id = ${id}::uuid`,
+  );
+  const sekarang = baris[0] as { role: string; is_active: boolean } | undefined;
+  if (!sekarang) throw ApiError.notFound("akun");
+
+  // Hanya relevan kalau akun sedang jadi super admin aktif lalu turun.
+  if (sekarang.role !== "super_admin" || !sekarang.is_active) return;
+  if (peranBaru === "super_admin") return;
+
+  const sisa = await db.execute(sql`
+    SELECT count(*)::int AS total
+      FROM users
+     WHERE role = 'super_admin' AND is_active AND id <> ${id}::uuid
+  `);
+
+  if (Number((sisa[0] as { total: number }).total) === 0) {
+    throw ApiError.badRequest(
+      "Ini satu-satunya akun super admin aktif. Buat akun lain dulu sebelum menurunkan perannya.",
+    );
+  }
 }
 
 /**
@@ -270,7 +353,10 @@ export async function resetPassword(db: Db, id: string, newPassword: string): Pr
  * satu, penghapusan akan membuat tidak ada yang bisa mengelola akun lagi.
  */
 export async function deleteAccount(db: Db, id: string, actingUser: string): Promise<void> {
-  if (id === actingUser) {
+  // Huruf-kecil semua, dengan alasan yang sama seperti di
+  // `hakAksesDiriSendiri`: `uuid()` mempertahankan huruf besar dari URL,
+  // sedangkan `sub` selalu huruf kecil dari database.
+  if (id.toLowerCase() === actingUser.toLowerCase()) {
     throw ApiError.badRequest("Akun yang sedang dipakai tidak bisa dihapus.");
   }
 
