@@ -139,6 +139,13 @@ type SqlError = {
  * `TransactionRollbackError`, yang `cause`-nya lagi `ApiError`.
  */
 export function dbCause(err: unknown): SqlError {
+  // `throw undefined` dan `throw null` adalah kegagalan yang nyata terjadi,
+  // dan kalau diteruskan apa adanya, pembaca `.code` di bawah ikut melempar.
+  // Galat itu dibungkus supaya bentuknya sama dengan galat lain.
+  if (err === null || typeof err !== "object") {
+    return { message: String(err) };
+  }
+
   let current = err as { cause?: unknown } | undefined;
 
   for (let depth = 0; depth < 4 && current; depth += 1) {
