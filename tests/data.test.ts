@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest";
-import {
-  ARTICLES,
-  DOCTORS_BY_SPECIALTY,
-  MCU_PACKAGES,
-  PRIORITY_SERVICES,
-  SPECIALTIES,
-} from "@/data/home";
+import { ARTICLES, MCU_PACKAGES, PRIORITY_SERVICES, SPECIALTIES } from "@/data/home";
+import { DOCTORS, DOCTORS_BY_SPECIALTY } from "@/data/doctors";
 import { NEWS_PHOTOS, photo } from "@/data/images";
 
 /**
@@ -103,5 +98,33 @@ describe("dokter per spesialisasi", () => {
     // pengingat ini bisa dihapus.
     const tanpa = SPECIALTIES.filter((s) => !DOCTORS_BY_SPECIALTY[s]);
     expect(tanpa.length).toBeGreaterThan(0);
+  });
+
+  it("tidak memuat nama dokter yang tidak ada di DOCTORS", () => {
+    // Inilah penjaga supaya daftar beranda tidak pernah jadi daftar kedua.
+    // Kalau suatu saat ada nama yang ditambahkan langsung ke
+    // DOCTORS_BY_SPECIALTY tanpa diturunkan dari DOCTORS, tes ini gagal.
+    const dikenal = new Set(DOCTORS.map((d) => d.name));
+    const asing: string[] = [];
+    for (const daftar of Object.values(DOCTORS_BY_SPECIALTY)) {
+      for (const nama of daftar) if (!dikenal.has(nama)) asing.push(nama);
+    }
+    expect(asing).toEqual([]);
+  });
+
+  it("menutup semua dokter yang punya jadwal", () => {
+    // Kalau ada dokter yang somehow tidak masuk ke mana pun, widget beranda
+    // akan menampilkan spesialis itu tanpa dropdown padahal halamannya punya
+    // dokter. Jumlahnya harus sama.
+    const diWidget = new Set(Object.values(DOCTORS_BY_SPECIALTY).flat());
+    const hilang = DOCTORS.filter((d) => !diWidget.has(d.name)).map((d) => d.slug);
+    expect(hilang).toEqual([]);
+  });
+
+  it("menaruh setiap dokter di bawah spesialisnya sendiri", () => {
+    for (const dokter of DOCTORS) {
+      const daftar = DOCTORS_BY_SPECIALTY[dokter.specialty] ?? [];
+      expect(daftar, dokter.slug).toContain(dokter.name);
+    }
   });
 });

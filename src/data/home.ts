@@ -1,7 +1,7 @@
 /**
  * Data konten Home.
  *
- * SEMUA ISI DI SINI ADALAH FIKTIF dan dibuat specifically untuk proyek demo,
+ * SEMUA ISI DI SINI ADALAH FIKTIF dan dibuat khusus untuk proyek demo,
  * sesuai PRD bagian 9. Tidak ada foto, nama dokter, testimoni, nomor kontak,
  * atau logo asli dari situs referensi. Lihat docs/design-tokens-terverifikasi.md
  * bagian 6 untuk daftar aset yang tidak disalin dan alasannya.
@@ -411,12 +411,17 @@ export const REGISTRATION_OPTIONS = [
   { title: "E-Pasien", description: "RSUD Contoh Sehat", icon: "bi-hospital", href: "/daftar-online" },
 ];
 
-/** Nama dokter fiktif, dibuat dengan pola gelar seperti PRD bagian 9. */
-export const DOCTORS_BY_SPECIALTY: Record<string, string[]> = {
-  Anak: ["dr. Rina Kartika, Sp.A", "dr. Bayu Nugroho, Sp.A", "dr. Maya Puspita, Sp.A"],
-  Jantung: ["dr. Fajar Ramadhan, Sp.JP", "dr. Nadia Kurnia, Sp.JP"],
-  "Penyakit Dalam": ["dr. Agus Salim, Sp.PD", "dr. Gita Larasati, Sp.PD"],
-  "Kebidanan dan Kandungan": ["dr. Siti Aminah, Sp.OG", "dr. Ratna Dewi, Sp.OG"],
-  Mata: ["dr. Indra Wijaya, Sp.M", "dr. Melati Anggraini, Sp.M"],
-  THT: ["dr. Yuni Shara, Sp.THT-KL", "dr. Gilang Perkasa, Sp.THT-KL"],
-};
+/*
+ * Catatan: daftar dokter per spesialisasi tidak lagi ada di berkas ini.
+ *
+ * Semula `DOCTORS_BY_SPECIALTY` ditulis tangan di sini, terpisah dari
+ * `src/data/doctors.ts`, lalu dipakai widget "Cari Jadwal Dokter" di beranda.
+ * Dua daftar itu tidak pernah sama: spesialis "Anak" punya tiga nama berbeda di
+ * beranda dan dua nama berbeda lagi di halaman dokter, padahal keduanya
+ * menjelaskan rumah sakit yang sama.
+ *
+ * Sekarang widget itu memakai `DOCTORS_BY_SPECIALTY` dari
+ * `src/data/doctors.ts`, sehingga tidak ada lagi nama dokter yang bisa berbeda
+ * antar halaman. `SPECIALTIES` di atas tetap menjadi daftar sendiri karena
+ * isinya klinik yang punya layanan dokter, bukan daftar dokter yang ada.
+ */
