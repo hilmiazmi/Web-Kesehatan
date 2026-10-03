@@ -20,7 +20,13 @@ export type Config = {
   authSecret: string;
   /** Umur maksimum sesi dalam detik. Bawaan delapan jam, satu shift kerja. */
   sessionMaxAgeSeconds: number;
-  /** Origin yang boleh memanggil endpoint admin. Dipakai CORS. */
+  /**
+   * Origin panel admin.
+   *
+   * Dipakai untuk menentukan apakah cookie sesi diberi atribut `Secure`: begitu
+   * nilainya diawali `https://`, cookie hanya ikut lewat HTTPS. Tidak ada peran
+   * CORS; panel disajikan dari origin yang sama dengan API.
+   */
   adminOrigin: string;
   /** Jendela rate limit dalam detik. */
   rateLimitWindowSeconds: number;
