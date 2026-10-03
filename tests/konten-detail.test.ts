@@ -46,6 +46,68 @@ describe("DIRECTORY klinik", () => {
   });
 });
 
+/**
+ * Bentuk teks klinik yang sampai ke layar.
+ *
+ * `scripts/audit-teks.ts` menangkap karakter asing dan huruf kapital di tengah
+ * kata, tapi tidak menangkap kelas yang paling sering merusak data klinik:
+ * kata bahasa Inggris yang lolos karena memang huruf Latin (`Spirometry`,
+ * `Biopsy`), `Terapi_family`, kalimat tanpa titik akhir, dan butir layanan
+ * yang mengulang diri. Semuanya lolos pemeriksaan tipe dan audit teks, lalu
+ * tampil apa adanya di halaman. Bentuknya deshalb diuji di sini.
+ */
+describe("teks klinik yang tampil di layar", () => {
+  const deskripsi = CLINICS.flatMap((c) => [
+    { asal: c.slug, teks: c.description },
+    ...c.details.map((d) => ({ asal: d.slug, teks: d.description })),
+  ]);
+  const jam = CLINICS.flatMap((c) => [
+    { asal: c.slug, teks: c.hours },
+    ...c.details.map((d) => ({ asal: d.slug, teks: d.hours })),
+  ]);
+  const layanan = CLINICS.flatMap((c) => [
+    ...c.services.map((s) => ({ asal: c.slug, teks: s })),
+    ...c.details.flatMap((d) =>
+      d.services.map((s) => ({ asal: d.slug, teks: s }))
+    ),
+  ]);
+
+  it("tidak ada underscore di teks yang dirender", () => {
+    const rusak = [...deskripsi, ...jam, ...layanan].filter((x) =>
+      x.teks.includes("_")
+    );
+    expect(rusak.map((x) => `${x.asal}: ${x.teks}`)).toEqual([]);
+  });
+
+  it("deskripsi diakhiri titik", () => {
+    const rusak = deskripsi.filter((x) => !x.teks.endsWith("."));
+    expect(rusak.map((x) => `${x.asal}: ${x.teks}`)).toEqual([]);
+  });
+
+  it("jam praktik memakai pola 'Hari sampai Hari, 07.00 sampai 20.00'", () => {
+    const pola = new RegExp(
+      "^(Senin|Selasa|Rabu|Kamis|Jumat|Sabtu|Minggu) sampai " +
+        "(Senin|Selasa|Rabu|Kamis|Jumat|Sabtu|Minggu), " +
+        "[0-9]{2}[.][0-9]{2} sampai [0-9]{2}[.][0-9]{2}$"
+    );
+    const rusak = jam.filter((x) => !pola.test(x.teks));
+    expect(rusak.map((x) => `${x.asal}: ${x.teks}`)).toEqual([]);
+  });
+
+  it("butir layanan tidak ada yang berulang dan tidak berujung titik", () => {
+    for (const c of CLINICS) {
+      expect(new Set(c.services).size, `tab ${c.slug}`).toBe(c.services.length);
+      for (const d of c.details) {
+        expect(new Set(d.services).size, `detail ${d.slug}`).toBe(
+          d.services.length
+        );
+      }
+    }
+    const bertitik = layanan.filter((x) => x.teks.endsWith("."));
+    expect(bertitik.map((x) => `${x.asal}: ${x.teks}`)).toEqual([]);
+  });
+});
+
 describe("isi halaman detail", () => {
   const terpakai = [
     ...slugPrioritas(),
