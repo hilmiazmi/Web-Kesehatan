@@ -9,6 +9,8 @@
  * Aset, nama dokter, dan kontak asli situs referensi tidak disalin.
  */
 
+import { NAV_PPID_CHILDREN } from "./ppid-nav";
+
 export type NavChild = {
   label: string;
   href: string;
@@ -84,15 +86,18 @@ export const NAV_ITEMS: NavItem[] = [
               { label: "Paket Eksekutif Pria", href: "/pelayanan/mcu/reguler/paket-eksekutif-pria" },
               { label: "Paket Eksekutif Wanita", href: "/pelayanan/mcu/reguler/paket-eksekutif-wanita" },
               { label: "Paket Pemeriksaan Bebas Narkoba", href: "/pelayanan/mcu/reguler/paket-pemeriksaan-bebas-narkoba" },
+              { label: "Paket Pemeriksaan Sehat Rohani", href: "/pelayanan/mcu/reguler/paket-pemeriksaan-sehat-rohani" },
             ],
           },
           {
             label: "Paket Health Meets Holiday",
             href: "/pelayanan/mcu/holiday",
             children: [
-              { label: "Paket Anak Sekolah - Basic", href: "/pelayanan/mcu/holiday/anak-sekolah-basic" },
-              { label: "Paket Anak Sekolah - Medical", href: "/pelayanan/mcu/holiday/anak-sekolah-medical" },
+              { label: "Paket Anak Sekolah - Basic: Health & Fun", href: "/pelayanan/mcu/holiday/anak-sekolah-basic-health-fun" },
+              { label: "Paket Anak Sekolah - Medical & Explore", href: "/pelayanan/mcu/holiday/anak-sekolah-medical-explore" },
+              { label: "Paket Anak Sekolah - Fun & Talent", href: "/pelayanan/mcu/holiday/anak-sekolah-fun-talent" },
               { label: "Paket Screening Cancer Male", href: "/pelayanan/mcu/holiday/screening-cancer-male" },
+              { label: "Paket Screening Cancer Female", href: "/pelayanan/mcu/holiday/screening-cancer-female" },
             ],
           },
         ],
@@ -127,7 +132,11 @@ export const NAV_ITEMS: NavItem[] = [
       { label: "Foto Kegiatan", href: "/zona-integritas/foto-kegiatan" },
     ],
   },
-  { label: "PPID", href: "/ppid" },
+  {
+    label: "PPID",
+    href: "/ppid",
+    children: NAV_PPID_CHILDREN,
+  },
   {
     label: "Diklat",
     href: "/diklat",
