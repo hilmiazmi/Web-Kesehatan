@@ -774,3 +774,134 @@
   color: var(--rs-text-heading);
   margin: 0 0 8px;
 }
+
+/* ---------- Galeri dengan lightbox (dikelola komponen GalleryLightbox) ----------
+   Aturan ini global, bukan di home.css, karena komponennya dipakai di dua
+   tempat: section Gallery di beranda dan blok `galeri` di halaman generik.
+   Yang di home.css hanya akan berlaku di beranda, sehingga blok galeri di
+   halaman lain akan kehilangan pemicunya. */
+
+/* Pemicunya tombol, jadi bentuk bawaan browser harus dibuang. Border 1px
+   sengaja dipertahankan supaya tombolnya kelihatan saat navigasi keyboard,
+   bukan hanya ketika kursor lewat. */
+.galeri-pemicu {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--rs-radius-card);
+  background: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.galeri-pemicu:hover,
+.galeri-pemicu:focus-visible {
+  border-color: var(--rs-accent);
+  transform: translateY(-2px);
+}
+
+.galeri-pemicu:focus-visible {
+  outline: 3px solid rgba(var(--rs-accent-rgb), 0.4);
+  outline-offset: 2px;
+}
+
+.galeri-keterangan {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.82rem;
+  color: var(--rs-text-body);
+}
+
+/* Overlay. Angkanya 10000, bukan 1050 seperti modal Bootstrap, karena panel
+   navigasi off-canvas memakai 1200 dan tombol kembali ke atas memakai 9999.
+   Kalau lightboxnya lebih rendah, keduanya masih bisa diklik menembus overlay
+   yang seharusnya sudah menutup halaman. */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background-color: rgba(0, 0, 0, 0.82);
+}
+
+.lightbox-kotak {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 1200px;
+}
+
+.lightbox-gambar {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  text-align: center;
+}
+
+.lightbox-gambar img {
+  max-width: 100%;
+  height: auto;
+  max-height: 78vh;
+  border-radius: var(--rs-radius-card);
+}
+
+.lightbox-keterangan {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--rs-white);
+}
+
+.lightbox-posisi {
+  display: block;
+  font-size: 0.8rem;
+  opacity: 0.75;
+}
+
+.lightbox-tutup,
+.lightbox-navigasi {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: var(--rs-radius-pill);
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--rs-white);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.lightbox-tutup:hover,
+.lightbox-navigasi:hover {
+  background-color: rgba(255, 255, 255, 0.25);
+}
+
+.lightbox-tutup:focus-visible,
+.lightbox-navigasi:focus-visible {
+  outline: 3px solid var(--rs-white);
+  outline-offset: 2px;
+}
+
+.lightbox-tutup {
+  position: absolute;
+  top: -0.5rem;
+  right: 0;
+  z-index: 1;
+}
+
+/* Navigasi disembunyikan di layar kecil. Dua tombol itu menambah 88px dari lebar
+   gambar, dan di bawah 576px tambahan itu membuat gambar terpotong. */
+@media (max-width: 575.98px) {
+  .lightbox-navigasi {
+    display: none;
+  }
+}

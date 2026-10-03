@@ -1,4 +1,4 @@
-import { GALLERY_PHOTOS } from "@/data/images";
+import { GALLERY_PHOTOS, photo } from "@/data/images";
 import type { IsiHalaman } from "./types";
 
 /** Halaman "Video" dan "Foto Kegiatan" di bawah Zona Integritas. */
@@ -33,7 +33,7 @@ export const ZONA_MEDIA: Record<string, IsiHalaman> = {
       {
         jenis: "galeri",
         foto: GALLERY_PHOTOS.map((id) => ({
-          src: id,
+          src: photo(id, 1200, 800),
           alt: "Foto kegiatan di RSUD Contoh Sehat",
         })),
       },
