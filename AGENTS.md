@@ -36,11 +36,36 @@ bun run test:watch  # Vitest, mode watching
 `packageManager` dikunci ke `bun@1.4.2`. Belum ada CI workflow, jadi jalankan
 `bun run lint && bun run test && bun run build` sebelum menyatakan selesai.
 
+Backend memakai skrip yang sama. Urutannya penting, karena tiap langkah
+bergantung pada langkah sebelumnya:
+
+```bash
+docker compose up -d postgres   # database lokal, hanya di 127.0.0.1
+bun run db:migrate              # jalankan drizzle/000*.sql
+bun run db:seed                 # isi data contoh
+bun run db:status               # cek isi database
+bun run db:snapshot             # tulis ulang snapshot/*.json
+```
+
+`DATABASE_URL` di `.env.local` harus sama persis dengan nama service, user,
+kata sandi, dan database di `docker-compose.yml`. Salah satu berubah, keduanya
+harus berubah bersama.
+
+Skrip `cek:konten`, `cek:tulis`, `cek:admin`, dan `audit:teks` adalah gerbang
+manual, bukan bagian dari `bun run test`. `cek:tulis` menyentuh database
+sungguhan, jadi jangan menjalankannya di mode snapshot.
+
 ## Tes
 
 Vitest 5, tanpa jsdom karena semua yang diuji logika murni. Tes ada di
 `tests/*.test.ts` dan hanya mencakup apa yang tidak bisa dijamin mata:
-`nav-path.ts`, `format.ts`, `validate()` di formulir, dan bentuk data konten.
+`nav-path.ts`, `format.ts`, `validate()` di formulir, bentuk data konten,
+sanitasi Markdown, dan fungsi tanggal di `src/server/`.
+
+Tes yang menguji aturan waktu **wajib** memakai `vi.setSystemTime`. Aturan
+yang membandingkan "hari ini" dengan tanggal UTC terlihat benar selama
+berbulan-bulan, lalu meledak sendiri di jendela tujuh jam pertama pagi. Tes
+yang memakai jam sebenarnya tidak akan pernah menyentuh jalur itu.
 
 Alias `@/` dideklarasikan ulang di `vitest.config.mts`; Vite tidak membaca
 `tsconfig.json`. Berkas itu memakai ekstensi `.mts` karena paket ini tidak
@@ -150,8 +175,16 @@ sebelum menyentuh kredensial apa pun. Ringkasnya:
   dikecualikan dari ESLint. Jangan diperbaiki atau dipindahkan.
 - `docs/` berisi pekerjaan milik pemilik repo (rename PRD). **Jangan diubah**
   kecuali diminta.
-- Isi `src/data/` masih data lokal. Route Handler `/api/registrations` dan
-  `/api/schedules` belum ada; jangan mengarang pemanggilan yang tidak ada.
+- Isi `src/data/` masih data lokal dan itu disengaja: backend punya database
+  sendiri, tapi halaman masih membaca dari modul data, bukan dari API. Route
+  Handler sudah ada di `src/app/api/v1/`, jadi **`/api/registrations` dan
+  `/api/schedules` bukan nama yang benar**; yang benar `/api/v1/appointments`
+  dan `/api/v1/schedules`. Jangan mengarang pemanggilan: endpoint publik ada
+  di `src/app/api/v1/<namabesar>/route.ts`, dan semua path lain dibalas 404
+  oleh catcher di `src/app/api/v1/[...path]/route.ts`.
+- Backend Rust yang lama ada di `archive/rust-api/` dan sudah read-only.
+  Jangan memperbaikinya; backend aktif ada di `src/server/` dan
+  `src/app/api/v1/`.
 - Foto berasal dari Unsplash dan picsum, dan host-nya didaftarkan pada
   `remotePatterns` di `next.config.ts`. Host baru harus ditambahkan di sana atau
   `next/image` akan menolaknya.

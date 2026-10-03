@@ -7,11 +7,16 @@ import { SPECIALTIES } from "@/data/home";
 /**
  * Formulir pendaftaran online.
  *
- * Validasi berjalan di sisi klien lewat fungsi `validate()` di bawah ini.
- * Belum ada Route Handler,
- * jadi `handleSubmit` baru menampilkan pemberitahuan bahwa backend sedang
- * disiapkan. Saat Route Handler `/api/registrations` siap (PRD bagian 6.4),
- * cukup ganti isi `handleSubmit` dengan fetch; aturan validasinya dipakai ulang.
+ * Validasi berjalan di sisi klien lewat fungsi `validate()` di bawah ini, dan
+ * `handleSubmit` masih berhenti di pemberitahuan: tidak ada yang dikirim ke
+ * server.
+ *
+ * Endpoint-nya sudah ada, `POST /api/v1/appointments`, tapi bentuknya tidak
+ * sama dengan formulir ini. Endpoint itu menuntut `schedule_id`, yaitu UUID
+ * jadwal dokter, sedangkan formulir hanya menanyakan tanggal. Menyambungkannya
+ * berarti menambah langkah pilih dokter lalu pilih jam, dan itu perubahan alur
+ * halaman, bukan sekadar mengganti `handleSubmit` dengan `fetch`. Aturan
+ * validasinya di bawah tetap dipakai ulang ketika itu dikerjakan.
  */
 
 /**
@@ -51,10 +56,25 @@ const INITIAL: Fields = {
  * Di-export supaya bisa diuji tanpa merender komponen. Fungsi ini murni,
  * tidak menyentuh state React.
  */
+/**
+ * Tanggal hari ini dalam waktu setempat, bentuk `YYYY-MM-DD`.
+ *
+ * Sengaja tidak memakai `toISOString()`: itu menghasilkan tanggal dalam UTC.
+ * WIB tujuh jam di depan UTC, jadi antara pukul 00:00 dan 06:59 waktu
+ * setempat tanggal UTC masih kemarin. Formulir lalu menerima booking
+ * kemarin sebagai "tidak sudah lewat".
+ */
+function tanggalHariIni(): string {
+  const d = new Date();
+  const bulan = String(d.getMonth() + 1).padStart(2, "0");
+  const hari = String(d.getDate()).padStart(2, "0");
+  return `${d.getFullYear()}-${bulan}-${hari}`;
+}
+
 export function validate(v: Fields): Partial<Record<keyof Fields, string>> {
   const e: Partial<Record<keyof Fields, string>> = {};
   const digits = v.telepon.replace(/[\s-]/g, "");
-  const today = new Date().toISOString().slice(0, 10);
+  const today = tanggalHariIni();
 
   if (v.nama.trim().length < 3) e.nama = "Nama lengkap minimal 3 karakter.";
   if (!/^\d{16}$/.test(v.nik)) e.nik = "NIK harus 16 digit angka.";
@@ -104,9 +124,9 @@ export default function RegistrationForm() {
       icon: "info",
       title: "Pendaftaran dicatat sementara",
       html:
-        "Validasi formulir berhasil. <b>Penyimpanan ke server belum tersedia</b> " +
-        "karena Route Handler <code>/api/registrations</code> masih dikerjakan " +
-        "(PRD bagian 6.4). Data Anda tidak dikirim ke mana pun.",
+        "Validasi formulir berhasil. <b>Data Anda belum dikirim ke mana pun</b> " +
+        "karena formulir ini masih dalam mode uji: backend pendaftaran sudah " +
+        "ada, tetapi halaman ini belum terhubung ke sana.",
       confirmButtonColor: "#1977cc",
     });
   }
