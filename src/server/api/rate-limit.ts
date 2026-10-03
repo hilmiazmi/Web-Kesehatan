@@ -33,13 +33,50 @@ function sweep(now: number): void {
   }
 }
 
-/** Alamat IP-effective dari header. */
+/**
+ * Alamat IP-effective dari header proxy.
+ *
+ * `X-Forwarded-For` adalah rantai: nilai paling kiri ditulis pihak yang
+ * paling dekat dengan penyerang, yaitu penyerang itu sendiri kalau tidak ada
+ * proxy yang menyaringnya lebih dulu.
+ *
+ * Traefik sebagai reverse proxy di depan aplikasi ini memakai konfigurasi
+ * bawaan: `forwardedHeaders.insecure` tidak diaktifkan dan `trustedIPs` kosong,
+ * sehingga Traefik **menghapus** header yang masuk lalu menuliskan alamat klien
+ * yang dia lihat sendiri (lihat `pkg/middlewares/forwardedheaders` di Traefik).
+ * Pada konfigurasi itu rantainya hanya berisi satu nilai dan tidak bisa
+ * dipalsukan.
+ *
+ * Yang dipakai di sini tetap nilai paling **kanan**, bukan paling kiri, karena
+ * benar pada kedua perilaku Traefik:
+ *
+ * - Mode `overwrite` (konfigurasi sekarang): rantai cuma berisi satu nilai,
+ *   jadi kedua ujung sama saja.
+ * - Mode `append` (muncul kalau `trustedIPs` diisi, misalnya kalau kelak ada
+ *   Nginx atau Cloudflare di depan Traefik): Traefik menambahkan alamat yang
+ *   dia lihat di ujung rantai. Di mode ini nilai paling kiri milik penyerang,
+ *   dan mengambilnya membuat rate limit bisa dilewati dengan header buatan
+ *   sendiri.
+ *
+ * Jadi pilihan ini tidak diam-diam rusak kalau konfigurasi proxy berubah.
+ *
+ * Batas yang tidak bisa dihilangkan dari dalam aplikasi: kalau aplikasi
+ * suatu saat dibuka langsung tanpa proxy di depannya, alamat di header sepenuhnya
+ * dikontrol klien dan rate limit per alamat tidak lagi bermakna. Yang perlu
+ * dilakukan untuk itu bukan membaca header lebih pintar, melainkan memastikan
+ * aplikasi tidak pernah terbuka tanpa proxy — dan `docs/deploy-api-rust.md`
+ * sudah mencantumkan bahwa Traefik tidak pernah dibuka langsung ke internet.
+ */
 export function clientAddress(headers: Headers): string {
   const forwarded = headers.get("x-forwarded-for");
   if (forwarded) {
-    // Header ini bisa berisi daftar. Yang pertama adalah klien asli.
-    const pertama = forwarded.split(",")[0]?.trim();
-    if (pertama) return pertama;
+    // Dibaca dari ujung, bukan dari awal. Keterangan di atas
+    // menjelaskan kenapa ujung itu yang dipakai.
+    const rantai = forwarded.split(",");
+    for (let i = rantai.length - 1; i >= 0; i -= 1) {
+      const alamat = rantai[i]?.trim();
+      if (alamat) return alamat;
+    }
   }
   return headers.get("x-real-ip")?.trim() || "tidak-diketahui";
 }

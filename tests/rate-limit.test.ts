@@ -96,8 +96,28 @@ describe("limitRequest", () => {
 });
 
 describe("clientAddress", () => {
-  it("mengambil alamat pertama dari daftar proxy", () => {
+  it("mengambil alamat paling kanan dari rantai proxy", () => {
     const h = new Headers({ "x-forwarded-for": "203.0.113.7, 10.0.0.1, 10.0.0.2" });
+    expect(clientAddress(h)).toBe("10.0.0.2");
+  });
+
+  it("membuang nilai paling kiri yang dikontrol penyerang", () => {
+    // Traefik menambah alamat yang dia lihat di ujung rantai kalau
+    // `trustedIPs` diisi. Nilai paling kiri saat itu milik penyerang, jadi
+    // mengambilnya membuat rate limit bisa dilewati dengan header buatan.
+    const h = new Headers({ "x-forwarded-for": "9.9.9.9, 203.0.113.7" });
+    expect(clientAddress(h)).toBe("203.0.113.7");
+  });
+
+  it("mengambil satu-satunya nilai saat rantai hanya satu", () => {
+    // Mode `overwrite` milik Traefik: header masuk dihapus lalu ditulis ulang
+    // dengan alamat klien. Kedua ujung sama saja, jadi hasilnya tidak berubah.
+    const h = new Headers({ "x-forwarded-for": "203.0.113.7" });
+    expect(clientAddress(h)).toBe("203.0.113.7");
+  });
+
+  it("melewati entri kosong di ujung rantai", () => {
+    const h = new Headers({ "x-forwarded-for": "203.0.113.7, ,  " });
     expect(clientAddress(h)).toBe("203.0.113.7");
   });
 
@@ -111,6 +131,21 @@ describe("clientAddress", () => {
     // tidak mengirim header ke satu penghitung, jadi satu klien bisa membuat
     // semua orang terkunci.
     expect(clientAddress(new Headers())).toBe("tidak-diketahui");
+  });
+
+  it("nilai karangan di ujung depan tidak membuat penghitung baru", () => {
+    // Skenario yang membuat versi lama bisa dilewati, dalam mode `append`
+    // Traefik: penyerang mengarang nilai paling kiri, lalu Traefik menambahkan
+    // alamat klien yang sebenarnya di ujung. Dua permintaan dari klien yang
+    // sama dengan nilai karangan berbeda harus tetap masuk satu penghitung;
+    // kalau tidak, batas 5 permintaan per menit tidak pernah terlampaui.
+    clearAll();
+    limitRequest(new Headers({ "x-forwarded-for": "1.1.1.1, 203.0.113.7" }), "login");
+    limitRequest(new Headers({ "x-forwarded-for": "2.2.2.2, 203.0.113.7" }), "login");
+
+    expect(
+      currentCount(new Headers({ "x-forwarded-for": "9.9.9.9, 203.0.113.7" }), "login")
+    ).toBe(2);
   });
 });
 
