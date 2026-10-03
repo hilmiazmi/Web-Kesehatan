@@ -3,6 +3,7 @@ import Link from "next/link";
 import PageHeader from "@/components/layout/PageHeader";
 import ClinicDirectory from "@/components/pelayanan/ClinicDirectory";
 import { CLINIC_DETAILS, CLINICS } from "@/data/clinics";
+import { DOCTORS } from "@/data/doctors";
 
 export const metadata: Metadata = {
   title: "Poliklinik",
@@ -18,9 +19,13 @@ export const metadata: Metadata = {
  *
  * `ClinicDirectory` adalah komponen client, jadi data diteruskan sebagai props
  * dari sini. Yang dikirim hanya kolom yang benar-benar dirender direktori:
- * deskripsi, layanan, dan jam praktik untuk klinik; nama dan induknya saja
- * untuk tiap kartu detail. Isi penuh 25 halaman detail — deskripsi, layanan,
- * jam — tidak perlu masuk browser karena tidak dirender di halaman ini.
+ * deskripsi, layanan, dan jam praktik untuk klinik; nama, induknya, dan
+ * spesialisnya saja untuk tiap kartu detail. Isi penuh 25 halaman detail —
+ * deskripsi, layanan, jam — tidak perlu masuk browser karena tidak dirender di
+ * halaman ini.
+ *
+ * `doctors` yang dikirim hanya slug, nama, dan spesialis. Jadwal praktiknya
+ * tidak ikut, karena sudah tampil sendiri di `/jadwal-dokter`.
  */
 export default function PoliklinikPage() {
   const clinics = CLINICS.map(({ slug, name, description, services, hours }) => ({
@@ -30,10 +35,20 @@ export default function PoliklinikPage() {
     services,
     hours,
   }));
-  const details = CLINIC_DETAILS.map(({ slug, name, clinicSlug }) => ({
+  const details = CLINIC_DETAILS.map(({ slug, name, clinicSlug, specialty }) => ({
     slug,
     name,
     clinicSlug,
+    // Spesialis di sini yang menghubungkan klinik ke dokter. Tanpa itu,
+    // `cariKlinik()` tidak bisa menampilkan dokter di bawah klinik yang tepat.
+    specialty,
+  }));
+  // Jadwal dokter tidak ikut dikirim. Yang dibutuhkan pencarian hanya nama dan
+  // spesialisnya, sedangkan jadwalnya sudah tampil di `/jadwal-dokter`.
+  const doctors = DOCTORS.map(({ slug, name, specialty }) => ({
+    slug,
+    name,
+    specialty,
   }));
 
   return (
@@ -49,7 +64,7 @@ export default function PoliklinikPage() {
 
       <section className="section">
         <div className="container">
-          <ClinicDirectory clinics={clinics} details={details} />
+          <ClinicDirectory clinics={clinics} details={details} doctors={doctors} />
 
           <div className="d-flex gap-2 flex-wrap mt-5">
             <Link href="/daftar-online" className="btn btn-primary">

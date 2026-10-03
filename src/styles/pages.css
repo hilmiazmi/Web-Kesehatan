@@ -245,7 +245,60 @@
   opacity: 0.75;
 }
 
-/* ---------- Direktori klinik (/pelayanan/poliklinik) ----------
+/* ---------- Pencarian klinik (/pelayanan/poliklinik) ----------
+
+   Kotak pencarian tidak ada di situs acuan, jadi tidak ada angka yang bisa
+   dipakai dari sana. Yang dipakai di sini mengikuti bentuk yang sudah ada di
+   halaman lain supaya tidak terlihat asing: tinggi 40px, radius 5px, dan
+   placeholder abu-abu yang sama dengan .form-control bawaan Bootstrap.
+
+   Label dan ringkasan hasil sengaja terlihat, bukan disembunyikan. Label
+   dibutuhkan karena kotak ini tidak punya penjelasan lain, dan ringkasan
+   jumlah hasil penting untuk pembaca layar karena daftar tab di bawahnya
+   ikut berubah setiap kali kata kunci berubah. */
+
+.klinik-cari {
+  margin-bottom: 1rem;
+}
+
+.klinik-cari-label {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--rs-text-body);
+  margin-bottom: 0.35rem;
+}
+
+.klinik-cari-input {
+  height: 40px;
+  font-size: 0.92rem;
+  border-radius: var(--rs-radius-btn);
+}
+
+.klinik-cari-hasil {
+  font-size: 0.8rem;
+  color: var(--rs-text-lembut);
+  margin: 0.5rem 0 0;
+  line-height: 1.5;
+}
+
+.klinik-cari-reset {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--rs-accent-teks);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.klinik-panel-kosong {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* ---------- Daftar klinik (/pelayanan/poliklinik) ----------
 
    Di situs referensi, daftar klinik berupa tab vertikal di kolom kiri dan
    isi klinik terpilih di kolom kanan. Angka di bawah hasil pengukuran:
@@ -312,6 +365,14 @@
   font-size: 1.05rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
+}
+
+/* Judul yang menyusul daftar. `.detail-list` sengaja tidak punya margin
+   bawah supaya tetap rapat dengan jam praktik, jadi jarak ke judul berikutnya
+   harus ditaruh di sini. `.klinik-panel-sub` biasa tidak diberi margin atas
+   karena bagian "Layanan" sudah mendapat jarak dari `.klinik-panel-desc`. */
+.detail-list + .klinik-panel-sub {
+  margin-top: 1.25rem;
 }
 
 .klinik-panel-hours {

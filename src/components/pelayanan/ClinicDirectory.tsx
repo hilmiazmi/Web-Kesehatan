@@ -1,12 +1,16 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import Photo from "@/components/ui/Photo";
 import {
   ClinicCardGrid,
   type ClinicCard,
 } from "@/components/pelayanan/ClinicCardGrid";
 import { GALLERY_PHOTOS, photo } from "@/data/images";
+import {
+  cariKlinik,
+  type DokterCari,
+} from "@/lib/cari-klinik";
 
 /** Satu tab klinik, beserta isi panel yang tampil ketika tabnya dipilih. */
 export type ClinicTab = {
@@ -40,21 +44,65 @@ export type ClinicTab = {
  * `@/data/clinics`. Modul itu memuat isi penuh 25 halaman detail klinik —
  * deskripsi, daftar layanan, jam praktik — yang tidak pernah dirender di sini.
  * Mengimpornya akan mengirim semuanya ke browser tanpa ada yang memakainya.
+ *
+ * Pencarian teksnya dihitung oleh `cariKlinik()` di `src/lib/cari-klinik.ts`,
+ * bukan di dalam komponen. Alasannya supaya aturannya bisa diuji tanpa
+ * merender apa pun.
+ *
+ * `setState` tidak pernah dipanggil dari dalam `useEffect`, karena aturan
+ * eslint `react-hooks/set-state-in-effect` melarangnya. Perpindahan tab karena
+ * kata kunci berubah ditangani di dalam `onChange`, bukan saat render.
  */
 export default function ClinicDirectory({
   clinics,
   details,
+  doctors,
 }: {
   clinics: ClinicTab[];
-  details: ClinicCard[];
+  details: (ClinicCard & { specialty?: string })[];
+  doctors: DokterCari[];
 }) {
+  const [cari, setCari] = useState("");
   const [aktif, setAktif] = useState(0);
   const daftarTab = useRef<(HTMLButtonElement | null)[]>([]);
-  const klinik = clinics[aktif];
+  const idCari = useId();
+
+  const hasil = cariKlinik(clinics, details, doctors, cari);
+
+  /**
+   * Tab yang tampil.
+   *
+   * Indeks `aktif` bisa menunjuk ke luar daftar hasil saringan, karena daftar
+   * itu ikut berubah mengikuti kata kunci. Karena itu dipakai `?? daftar[0]`
+   * supaya panel tidak pernah crash. `onChange` di bawah sudah mengembalikan
+   * `aktif` ke nol setiap kali kata kunci berubah, jadi kasus ini hanya
+   * muncul sesaat di antara dua render.
+   */
+  const klinik = hasil.klinik[aktif] ?? hasil.klinik[0];
+  const totalKlinik = hasil.klinik.length;
+  const totalDokter = hasil.klinik.reduce(
+    (n, k) => n + (hasil.dokter[k.slug]?.length ?? 0),
+    0,
+  );
+
+  /**
+   * Kata kunci baru selalu memculkan klinik pertama.
+   *
+   * Ini dilakukan di dalam penanganan peristiwa, bukan saat render. Versi
+   * pertama memakai penyesuaian saat render dengan pasangan `lastX` dan
+   * `setLastX`, dan itu berputar tanpa henti: ketika saringan mengembalikan
+   * nol klinik, syarat "harus kembali ke yang pertama" tetap berlaku di setiap
+   * render sehingga React melempar "Too many re-renders".
+   */
+  const ubahKataKunci = (nilai: string) => {
+    setCari(nilai);
+    setAktif(0);
+  };
 
   /** Panah atas dan bawah memindahkan tab, sesuai pola tablist vertikal. */
   const geser = (arah: 1 | -1) => {
-    const berikut = (aktif + arah + clinics.length) % clinics.length;
+    if (hasil.klinik.length === 0) return;
+    const berikut = (aktif + arah + hasil.klinik.length) % hasil.klinik.length;
     setAktif(berikut);
     daftarTab.current[berikut]?.focus();
   };
@@ -62,8 +110,35 @@ export default function ClinicDirectory({
   return (
     <div className="row g-4">
       <div className="col-md-3">
+        {/* Pencarian poliklinik. Labelnya terlihat, bukan hanya untuk pembaca
+            layar, karena kotak ini tidak punya penjelasan lain yang
+            menjelaskan apa yang diisikan. */}
+        <div className="klinik-cari">
+          <label className="klinik-cari-label" htmlFor={idCari}>
+            Cari klinik
+          </label>
+          <input
+            id={idCari}
+            type="search"
+            className="form-control klinik-cari-input"
+            placeholder="Nama klinik, layanan, atau dokter"
+            value={cari}
+            onChange={(e) => ubahKataKunci(e.target.value)}
+            autoComplete="off"
+          />
+          {/* Ringkasan hasil diumumkan pembaca layar setiap kali kata kunci
+              berubah, karena daftar tab di bawahnya ikut berubah. */}
+          <p className="klinik-cari-hasil" role="status" aria-live="polite">
+            {cari.trim().length === 0
+              ? `${totalKlinik} klinik. Tulis di atas untuk menyaring.`
+              : totalKlinik === 0
+                ? `Tidak ada klinik yang cocok dengan "${cari.trim()}".`
+                : `${totalKlinik} klinik cocok dengan "${cari.trim()}"${totalDokter > 0 ? `, ${totalDokter} dokter` : ""}.`}
+          </p>
+        </div>
+
         <ul className="klinik-tab-list" role="tablist" aria-orientation="vertical">
-          {clinics.map((k, i) => (
+          {hasil.klinik.map((k, i) => (
             <li key={k.slug} role="presentation">
               <button
                 type="button"
@@ -99,6 +174,23 @@ export default function ClinicDirectory({
       </div>
 
       <div className="col-md-9">
+        {klinik === undefined ? (
+          <div className="klinik-panel klinik-panel-kosong">
+            <h2 className="klinik-panel-title">Klinik tidak ditemukan</h2>
+            <p className="klinik-panel-desc">
+              Tidak ada klinik yang cocok dengan &quot;{cari.trim()}&quot;.
+              Coba kata yang lebih umum, atau{" "}
+              <button
+                type="button"
+                className="klinik-cari-reset"
+                onClick={() => ubahKataKunci("")}
+              >
+                kosongkan kata kunci
+              </button>{" "}
+              untuk melihat semua klinik.
+            </p>
+          </div>
+        ) : (
         <div
           className="klinik-panel"
           role="tabpanel"
@@ -131,6 +223,22 @@ export default function ClinicDirectory({
                 ))}
               </ul>
 
+              {/* Daftar dokter per klinik. Hanya muncul kalau klinik ini punya
+                  dokter, dan isinya disaring oleh kata kunci yang sama. */}
+              {(hasil.dokter[klinik.slug]?.length ?? 0) > 0 && (
+                <>
+                  <h3 className="klinik-panel-sub">Dokter</h3>
+                  <ul className="detail-list">
+                    {hasil.dokter[klinik.slug]!.map((d) => (
+                      <li key={d.slug}>
+                        <i className="bi bi-person-badge" aria-hidden="true" />
+                        {d.name}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+
               <p className="klinik-panel-hours">
                 <i className="bi bi-clock" aria-hidden="true" />
                 {klinik.hours}
@@ -139,9 +247,10 @@ export default function ClinicDirectory({
           </div>
 
           <ClinicCardGrid
-            list={details.filter((d) => d.clinicSlug === klinik.slug)}
+            list={(hasil.detail[klinik.slug] ?? []) as ClinicCard[]}
           />
         </div>
+        )}
       </div>
     </div>
   );
