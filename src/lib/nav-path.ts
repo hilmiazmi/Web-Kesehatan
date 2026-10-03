@@ -5,6 +5,7 @@ import {
   type NavChild,
   type NavItem,
 } from "@/data/navigation";
+import { NAV_PPID_CHILDREN } from "@/data/ppid-nav";
 
 /**
  * Pencarian jejak remah roti di dalam data navigasi.
@@ -92,7 +93,7 @@ export function slugify(text: string): string {
 
 /**
  * Ambil label manusia dari segmen URL, untuk fallback breadcrumb.
- * "kmanaged-langganan" -> "Kmanaged Langganan" (huruf awal kapital).
+ * "pengumuman-terbaru" -> "Pengumuman Terbaru" (huruf awal kapital).
  */
 export function humanize(segment: string): string {
   return segment
@@ -101,6 +102,35 @@ export function humanize(segment: string): string {
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
 }
+
+/**
+ * Path yang punya route sendiri di `src/app`, jadi tidak boleh didaftarkan
+ * lagi oleh catch-all.
+ *
+ * `/ppid` punya subtree di `src/app/ppid`, jadi hanya leaf-nya yang dilewati
+ * dan halaman induknya tetap terdaftar. `/informasi-publik/brosur` tidak punya
+ * anak di menu, jadi path-nya sendiri yang dilewati karena `src/app/informasi-publik/brosur`
+ * sudah menangani induk dan detailnya.
+ */
+const OWN_ROUTE_SUBTREES = new Set(["/ppid", "/informasi-publik/brosur"]);
+
+/**
+ * Apakah path ini dilayani route khusus di `src/app`, bukan catch-all?
+ *
+ * Seluruh subtree di bawah satu path juga dianggap route khusus: `/ppid/...`
+ * dan `/informasi-publik/brosur/...` punya foldernya masing-masing.
+ *
+ * Dipakai tes navigasi supaya daftar yang dikecualikan di sini dan di
+ * `collectNavPaths()` tidak bisa berbeda sumber.
+ */
+export function hasOwnRoute(path: string): boolean {
+  const clean = path.replace(/\/+$/, "") || "/";
+  for (const prefix of OWN_ROUTE_SUBTREES) {
+    if (clean === prefix || clean.startsWith(`${prefix}/`)) return true;
+  }
+  return false;
+}
+
 /**
  * Kumpulkan seluruh path dari data navigasi (kecuali root) dalam bentuk
  * parameter catch-all.
@@ -120,8 +150,12 @@ export function collectNavPaths(): { slug: string[] }[] {
       const segs = segments(node.href);
       const full = segs.length > 1 ? node.href : `${parent}/${segs[0] ?? ""}`;
       const clean = full.replace(/\/+$/, "") || "/";
-      if (clean !== "/" && !out.includes(clean)) out.push(clean);
-      if (node.children) walk(node.children, clean);
+      // Path yang sudah punya folder sendiri di src/app tidak didaftarkan
+      // di sini, supaya tidak bentrok dengan route eksplisit.
+      if (clean !== "/" && !out.includes(clean) && !hasOwnRoute(clean)) {
+        out.push(clean);
+      }
+      if (node.children && !hasOwnRoute(clean)) walk(node.children, clean);
     }
   };
 
@@ -130,6 +164,11 @@ export function collectNavPaths(): { slug: string[] }[] {
   walk(NAV_ITEMS, "");
   walk(HEADER_CTAS, "");
   walk(FOOTER_LINKS, "");
+
+  // PPID punya route sendiri di src/app/ppid. Import di sini dipakai sebagai
+  // penjaga: kalau submenu PPID pernah dikosongkan, halaman induknya yang
+  // biasanya menampilkan tautannya ikut kehilangan isi.
+  if (NAV_PPID_CHILDREN.length === 0) throw new Error("NAV_PPID_CHILDREN kosong");
 
   return out.map((path) => ({ slug: segments(path) }));
 }

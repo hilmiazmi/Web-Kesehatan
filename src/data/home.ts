@@ -170,7 +170,7 @@ export const MCU_PACKAGES = [
     slug: "paket-calon-karyawan-pria",
     title: "Paket Calon Karyawan Pria",
     price: 1_450_000,
-    items: ["Semua Paket Dasar 2", "Rontgen toraks", "Golongan darah", "Riwayatunteduh"],
+    items: ["Semua Paket Dasar 2", "Rontgen toraks", "Golongan darah", "Riwayat penyakit"],
   },
   {
     slug: "paket-calon-karyawan-wanita",
@@ -204,10 +204,84 @@ export const MCU_PACKAGES = [
   },
 ];
 
+/**
+ * Paket MCU Health Meets Holiday.
+ * Ditujukan untuk anak sekolah, tersedia pada musim libur sekolah.
+ * Diprerender oleh `src/app/pelayanan/mcu/holiday/[slug]/page.tsx`.
+ */
+export const MCU_HOLIDAY_PACKAGES = [
+  {
+    slug: "anak-sekolah-basic-health-fun",
+    title: "Paket Anak Sekolah - Basic: Health & Fun",
+    price: 450_000,
+    items: [
+      "Pemeriksaan fisik",
+      "Darah lengkap",
+      "Gula darah",
+      "Urine",
+      "Pemeriksaan mata",
+      "Pemeriksaan gigi",
+    ],
+  },
+  {
+    slug: "anak-sekolah-medical-explore",
+    title: "Paket Anak Sekolah - Medical & Explore",
+    price: 650_000,
+    items: [
+      "Semua Paket Basic Health & Fun",
+      "Fungsi hati",
+      "Fungsi ginjal",
+      "Rontgen toraks",
+      "USG abdomen",
+      "Konsultasi dokter anak",
+    ],
+  },
+  {
+    slug: "anak-sekolah-fun-talent",
+    title: "Paket Anak Sekolah - Fun & Talent",
+    price: 700_000,
+    items: [
+      "Semua Paket Medical & Explore",
+      "Treadmill",
+      "Spirometry",
+      "Pendengaran",
+      "Pemeriksaan berat badan dan tinggi badan",
+    ],
+  },
+  {
+    slug: "screening-cancer-male",
+    title: "Paket Screening Cancer Male",
+    price: 850_000,
+    items: [
+      "Pemeriksaan fisik",
+      "Darah lengkap",
+      "Fungsi hati",
+      "Fungsi ginjal",
+      "Pemeriksaan prostat",
+      "USG abdomen",
+      "Konsultasi dokter spesialis",
+    ],
+  },
+  {
+    slug: "screening-cancer-female",
+    title: "Paket Screening Cancer Female",
+    price: 950_000,
+    items: [
+      "Pemeriksaan fisik",
+      "Darah lengkap",
+      "Fungsi hati",
+      "Fungsi ginjal",
+      "Mamografi",
+      "USG abdomen",
+      "Konsultasi dokter spesialis",
+    ],
+  },
+];
+
 /** Berita & artikel kesehatan (section 6). Judul dan isi karangan sendiri. */
 export const ARTICLES = [
   { slug: "rsud-contoh-sehat-terima-akreditasi-utama", title: "RSUD Contoh Sehat Terima Akreditasi Utama", date: "2026-09-28", excerpt: "RSUD Contoh Sehat resmi menerima akreditasi utama dari lembaga kesehatan nasional." },
-  { slug: "layanan-stroke-terpadu", title: "Layanan Stroke Terpadu", date: "2026-09-22", excerpt: "Penanganan stroke cepat dengan tim defibrilasi dan UNIT stroke siaga." },
+  { slug: "layanan-stroke-terpadu", title: "Layanan Stroke Terpadu", date: "2026-09-22", excerpt: "Penanganan stroke cepat dengan tim defibrilasi dan unit stroke siaga." },
   { slug: "program-promosi-layanan-jantung", title: "Program Promosi Layanan Jantung Terpadu", date: "2026-09-15", excerpt: "Penawaran dan informasi layanan jantung terpadu." },
   { slug: "workshop-kesehatan-untuk-warga", title: "Workshop Kesehatan Untuk Warga", date: "2026-09-09", excerpt: "Kegiatan edukasi kesehatan rutin." },
   { slug: "peresmian-unit-maternal-center-baru", title: "Peresmian Unit Maternal Center Baru", date: "2026-09-03", excerpt: "Fasilitas ibu dan anak yang lebih lengkap." },

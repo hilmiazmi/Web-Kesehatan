@@ -321,6 +321,112 @@
   margin-right: 0.4rem;
 }
 
+/* ---------- Kartu brosur ----------
+   Kartu ini bukan hasil ukur dari situs acuan. Yang diukur dan dipakai ulang
+   hanya tombol tab dan panel dari .klinik-tab / .klinik-panel, karena di acuan
+   susunan brosur juga memakai tab yang sama. Sisanya mengikuti skala kartu
+   yang sudah dipakai di halaman ini. */
+.brosur-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-top: 1rem;
+}
+
+.brosur-kartu {
+  display: block;
+  padding: 18px 20px;
+  border: var(--rs-border-card);
+  border-radius: 5px;
+  color: var(--rs-text-body);
+  text-decoration: none;
+  transition: border-color 0.15s ease;
+}
+
+.brosur-kartu:hover {
+  border-color: var(--rs-accent);
+}
+
+.brosur-kartu-judul {
+  display: block;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  color: var(--rs-accent);
+}
+
+.brosur-kartu-lead {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.brosur-kartu-baca {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.75rem;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--rs-accent);
+}
+
+@media (max-width: 768px) {
+  .brosur-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Kartu klinik di bawah tab ----------
+   Angka di sini hasil getComputedStyle() pada halaman /poliklinik di situs
+   acuan, bukan tebakan:
+     grid 4 kolom fixed 187px, gap 15px, padding 10px;
+     kartu 187 x 250px tanpa border dan tanpa box-shadow;
+     foto 177 x 180px, radius 5px, object-fit cover;
+     teks 16px, line-height 24px, weight 400, warna #1977cc. */
+.clinic-card-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 187px);
+  gap: 15px;
+  padding: 10px;
+  margin-top: 1.5rem;
+}
+
+.clinic-card {
+  display: block;
+  width: 187px;
+  color: var(--rs-accent);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+  text-decoration: none;
+}
+
+/* Kartu tidak punya border di acuan, jadi hover cukup memberi garis bawah
+   tipis supaya tetap terbaca sebagai tautan. */
+.clinic-card:hover .clinic-card-title {
+  text-decoration: underline;
+}
+
+.clinic-card-title {
+  display: block;
+  margin: 0.5rem 0 0;
+}
+
+/* Di bawah empat kolom, grid menyusut ke dua lalu satu kolom. */
+@media (max-width: 992px) {
+  .clinic-card-grid {
+    grid-template-columns: repeat(2, 187px);
+  }
+}
+
+@media (max-width: 448px) {
+  .clinic-card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ---------- 404 ---------- */
 .not-found-code {
   font-size: 5rem;

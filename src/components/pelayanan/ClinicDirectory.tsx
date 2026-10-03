@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Photo from "@/components/ui/Photo";
+import { ClinicCardGrid } from "@/components/pelayanan/ClinicCardGrid";
 import { CLINICS } from "@/data/clinics";
 import { GALLERY_PHOTOS, photo } from "@/data/images";
 
@@ -85,6 +86,8 @@ export default function ClinicDirectory() {
               </p>
             </div>
           </div>
+
+          <ClinicCardGrid clinicSlug={klinik.slug} />
         </div>
       </div>
     </div>
