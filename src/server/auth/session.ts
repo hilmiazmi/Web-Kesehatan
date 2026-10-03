@@ -8,9 +8,10 @@ import { dbOrNull } from "../db/client";
 /**
  * Token sesi admin: `payload.signature`, ditandatangani HMAC-SHA256.
  *
- * Token stateless, jadi tidak ada tabel sesi yang harus dibersihkan dan satu
- * query database tidak perlu dijalankan untuk setiap permintaan yang perlu
- * memastikan sesi masih hidup.
+ * Tidak ada tabel sesi, jadi tidak ada yang perlu dibersihkan. Tokennya sendiri
+ * membawa angka pencabutan `sv`, tapi angka itu tidak dipercaya apa adanya:
+ * `readSession()` tetap membandingkannya dengan `users.session_version` di
+ * database, jadi satu query tetap jalan untuk setiap permintaan admin.
  */
 
 /**
