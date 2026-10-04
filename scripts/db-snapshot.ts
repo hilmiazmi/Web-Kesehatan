@@ -27,6 +27,7 @@ import { snapshotKey } from "@/server/api/snapshot";
 import { loadBedSummary, listBeds } from "@/server/db/repo/beds";
 import {
   findArticle,
+  findDocument,
   findJob,
   findMcuPackage,
   findPage,
@@ -129,6 +130,14 @@ async function kumpulkan(db: Db): Promise<[string, unknown][]> {
   for (const ringkasan of await listJobs(db)) {
     const baris = await findJob(db, ringkasan.slug);
     if (baris !== null) rute.push([`/jobs/${ringkasan.slug}`, baris]);
+  }
+
+  // Dokumen ikut dapat halaman detail, sama seperti berita, lowongan, dan
+  // layanan. Slug diambil dari daftar, bukan dari seed, supaya dokumen yang
+  // ditambahkan lewat panel admin ikut terbawa.
+  for (const ringkasan of await listDocuments(db, null)) {
+    const baris = await findDocument(db, ringkasan.slug);
+    if (baris !== null) rute.push([`/documents/${ringkasan.slug}`, baris]);
   }
 
   // Jadwal praktik per dokter tidak berubah terhadap tanggal permintaan, jadi

@@ -118,7 +118,7 @@ describe("collectNavPaths", () => {
     // CTA header dan tautan footer dulu tidak ikut ditelusuri sehingga
     // /administrasi, /sitemap, dan /kontak membalas 404.
     //
-    // "Punya halaman" di sini berartiAppearing salah satu dari dua: terdaftar
+    // "Punya halaman" di sini berarti salah satu dari dua: terdaftar
     // di catch-all, atau punya route sendiri di src/app. `/daftar-online`
     // masuk kategori kedua.
     const slugs = new Set(collectNavPaths().map((e) => e.slug.join("/")));

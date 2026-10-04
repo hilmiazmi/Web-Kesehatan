@@ -1,6 +1,6 @@
 {
  "versi": 1,
- "jumlah": 79,
+ "jumlah": 84,
  "rute": {
   "/home": "home.json",
   "/specialties": "specialties.json",
@@ -80,6 +80,11 @@
   "/doctors/8ff250e2-6a10-5e7b-ad08-81f37ac1906d/schedules": "doctors__8ff250e2-6a10-5e7b-ad08-81f37ac1906d__schedules.json",
   "/doctors/3cdbd28d-b37e-5d34-92e6-0b573f73a165/schedules": "doctors__3cdbd28d-b37e-5d34-92e6-0b573f73a165__schedules.json",
   "/doctors/510625a7-7236-5dbd-91dd-43f2e1dfbc29/schedules": "doctors__510625a7-7236-5dbd-91dd-43f2e1dfbc29__schedules.json",
-  "/doctors/d6fc647a-3239-5d09-8901-9c6c79388c91/schedules": "doctors__d6fc647a-3239-5d09-8901-9c6c79388c91__schedules.json"
+  "/doctors/d6fc647a-3239-5d09-8901-9c6c79388c91/schedules": "doctors__d6fc647a-3239-5d09-8901-9c6c79388c91__schedules.json",
+  "/documents/standar-pelayanan": "documents__standar-pelayanan.json",
+  "/documents/kompensasi-pelayanan": "documents__kompensasi-pelayanan.json",
+  "/documents/regulasi-zona-integritas": "documents__regulasi-zona-integritas.json",
+  "/documents/ppid": "documents__ppid.json",
+  "/documents/brosur-layanan": "documents__brosur-layanan.json"
  }
 }
