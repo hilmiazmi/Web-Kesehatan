@@ -23,9 +23,11 @@ import { HEADER_CTAS, NAV_ITEMS, SITE, type NavChild, type NavItem } from "@/dat
  * - Tombol tutup di dalam panel.
  * - Tombol Escape.
  *
- * Tata letak desktop tidak tersentuh oleh perubahan ini. Semua aturan baru
- * hanya ada di dalam `@media (max-width: 1199.98px)`, dan `tests/navbar-beku.test.ts`
- * tetap mengunci batas 1200px, lebar `.navmenu > ul`, serta lebar font nav 15px.
+ * Tata letak desktop tampil penuh tanpa hamburger: delapan butir nav dan
+ * (di 1496px ke atas) dua CTA header selalu terlihat. Semua aturan panel
+ * hanya ada di dalam `@media (max-width: 1199.98px)`, dan
+ * `tests/header-ctas.test.ts` mengunci perilaku CTA sementara
+ * `tests/panel-nav-mobile.test.ts` mengunci panel mobile.
  *
  * Komponen ini client karena butuh interaksi; sisanya tetap Server Component.
  */
@@ -127,7 +129,7 @@ export default function Navbar() {
           {/* Tombol tutup.
 
               Namanya sengaja tidak memakai kelas tombol hamburger.
-              `tests/navbar-beku.test.ts` menolak kelas hamburger itu kalau
+              `tests/header-ctas.test.ts` menolak kelas hamburger itu kalau
               muncul di dalam blok `<nav>`, karena kalau hamburger ikut masuk
               ke sini ia ikut tergeser bersama panel dan tidak bisa diklik.
               Sekalian, kelas hamburger disembunyikan di desktop dengan

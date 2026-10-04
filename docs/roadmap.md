@@ -17,8 +17,8 @@ bukan sebagai perkiraan.
 |---|---|---|
 | Halaman ter-prerender | 148 | `bun run cek:tautan`, berkas `.html` di `.next/server/app` tanpa dua halaman cadangan Next.js |
 | Pola rute dinamis | 11 | `dynamicRoutes` di `.next/prerender-manifest.json` |
-| Berkas tes | 42 | `bun run test` |
-| Jumlah tes | 579 | `bun run test` |
+| Berkas tes | 44 | `bun run test`, diukur 4 Oktober 2026 |
+| Jumlah tes | 611 | `bun run test`, diukur 4 Oktober 2026 |
 | Rute internal dari catch-all | 30 | `collectNavPaths()` di `src/lib/nav-path.ts` |
 | Tabel terkelola di panel admin | 17 | `src/server/admin/registry.ts` |
 | Tabel di skema database | 27 | `pgTable` di `src/server/db/schema.ts` |
@@ -55,7 +55,7 @@ masing-masing, dan sebelas pola dinamis dihitung terpisah di baris di atasnya.
 Jadi 148 halaman tidak bisa dijumlahkan dari 30.
 
 Gerbang kualitas terakhir: typecheck bersih, `bun run lint` bersih,
-`bun run test` 579 tes lulus dari 42 berkas, `bun run cek:konten` dan
+`bun run test` 609 tes lulus dari 44 berkas, `bun run cek:konten` dan
 `bun run audit:teks` lulus, `bun run build` sukses, dan `bun run cek:tautan`
 tidak menemukan tautan mati, halaman tanpa tautan masuk, maupun halaman yang
 lupa masuk sitemap: 148 halaman, 148 tautan unik, 148 entri sitemap.
