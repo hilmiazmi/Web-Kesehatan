@@ -42,9 +42,10 @@ Gerbang kualitas terakhir: typecheck bersih, `bun run lint` bersih,
 `bun run test` 482 tes lulus, `bun run cek:konten` dan `bun run audit:teks`
 lulus, `bun run build` sukses.
 
-Alur CI sudah ada di `.github/workflows/gerbang.yml`. Ia menjalankan lint, tes,
-`cek:konten`, `audit:teks`, dan build pada setiap push dan setiap pull request,
-dengan `DATABASE_URL` dikosongkan agar semuanya berjalan pada mode snapshot.
+Alur CI sudah ada di `.github/workflows/gerbang.yml`. Isinya menjalankan lint,
+tes, `cek:konten`, `audit:teks`, dan build pada setiap push dan setiap pull
+request, dengan `DATABASE_URL` dikosongkan agar semuanya berjalan pada mode
+snapshot. Berkasnya tidak pernah berhasil dijalankan sekali pun. Lihat 3.13.
 
 ---
 
@@ -301,6 +302,42 @@ CSS dengan meta itu tidak berbeda. Hasilnya 151 dari 152 halaman
 ter-prerender memakai tag itu; sisanya `_global-error.html` yang memang
 menggantikan root layout.
 
+### 3.13 Alur kerja gerbang belum pernah berhasil sekali pun
+
+`.github/workflows/gerbang.yml` tercatat `active` di GitHub, tapi dua belas
+run pertama-tiganya semuanya `failure` dan selesai dalam 0 detik. Tidak ada
+satu pun job yang pernah dibuat.
+
+Buktinya:
+
+- Dua belas run, dua belas `failure`, semuanya 0 detik.
+- `jobs` run kosong dan `latest_check_runs_count` pada check suite bernilai 0.
+- GitHub menulis `This run likely failed because of a workflow file issue`.
+- Branch yang tidak disentuh perubahan ini juga gagal, jadi bukan bawaan
+  pull request ini.
+- Tidak ada satu pun run Gerbang di branch `main`, sementara Pages
+  miliknya GitHub tetap berjalan normal di branch yang sama.
+
+Yang sudah disingkirkan:
+
+- Berkasnya valid YAML. Parser membacanya tanpa galat dan kunci teratasnya
+  `name`, `on`, `concurrency`, `timeout-minutes`, `permissions`, `jobs`.
+- Isi berkas di GitHub sama dengan isi di repo, dibandingkan lewat
+  `git hash-object`. Keduanya `244345`.
+- Tidak ada tab dan tidak ada indentasi ganjil.
+- Bagian strukturalnya tidak pernah berubah sejak commit `c400d2d`.
+  Commit `ea60ad6` hanya mengubah komentar.
+- `pages-build-deployment` milik GitHub sendiri berjalan normal di repo yang
+  sama, jadi runner dan repo tidak bermasalah umum.
+
+Penyebabnya karena itu berada di luar berkas, kemungkinan besar di tingkat
+repo atau akun: kebijakan Actions, atau batas belanja yang nol. Menucarkannya
+butuh akses admin repo, karena `GET /actions/permissions` membalas 403 untuk
+kolaborator biasa.
+
+Selama ini belum selesai, gerbang hanya bisa dijalankan manual seperti
+tercantum di bagian 1.
+
 ---
 
 ## 4. Langkah berikutnya
@@ -324,7 +361,10 @@ hanya yang butuh keputusan pemilik repo atau perkakas yang belum dipasang.
    limit, dan nomor tiket. Yang belum ada adalah formulir yang memanggilnya.
    Ini selisih yang paling besar antara PRD dan implementasi, dan
    rinciannya di bagian 6.
-7. **Baca-nyaring dan analytics** dikerjakan kalau diminta. Keduanya opsional
+7. **Periksa kebijakan Actions repo ini** dengan akun admin. Alur kerja
+   gerbang belum pernah berjalan, dan penyebabnya di luar berkasnya. Lihat
+   3.13. Sampai masalahnya beres, gerbang tetap harus dijalankan manual.
+8. **Baca-nyaring dan analytics** dikerjakan kalau diminta. Keduanya opsional
    di PRD.
 
 Butir 6 bukan pekerjaan kecil. Endpoint-nya menuntut `schedule_id`, yaitu UUID
