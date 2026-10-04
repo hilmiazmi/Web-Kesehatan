@@ -2,7 +2,7 @@
  * Laporkan konfigurasi backend yang sedang aktif.
  *
  * Jalankan ini lebih dulu kalau sebuah endpoint menjawab 404 padahal tabelnya
- * ada, atau kalau `"denganSnapshot"` diam-diam membaca berkas lama. almost
+ * ada, atau kalau `"denganSnapshot"` diam-diam membaca berkas lama. Hampir
  * seluruh penyebabnya adalah `DATABASE_URL` yang salah atau `API_MODE` yang
  * masih `snapshot`.
  *

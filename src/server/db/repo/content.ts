@@ -716,6 +716,37 @@ export async function listDocuments(db: Db, category: string | null = null): Pro
     .orderBy(asc(documents.sortOrder), asc(documents.title));
 }
 
+/**
+ * Satu dokumen, dicari lewat slug.
+ *
+ * Daftar kolomnya disalin ulang dari `listDocuments`, bukan diambil dari sana,
+ * karena Drizzle tidak menyediakan cara memakai hasil select lain sebagai
+ * select baru. Menjaga keduanya tetap sama adalah tanggung jawab pemanggilnya:
+ * kalau ada kolom baru yang ditambahkan ke `DocumentRow`, kedua daftar di atas
+ * harus ikut menambahkannya.
+ *
+ * Dokumen yang belum terbit tidak pernah dikembalikan, sama seperti di
+ * `listDocuments`, jadi rute detail tidak bisa jadi jalan pintas untuk membaca
+ * dokumen yang sengaja disembunyikan.
+ */
+export async function findDocument(db: Db, slug: string): Promise<DocumentRow | null> {
+  const rows = await db
+    .select({
+      slug: documents.slug,
+      title: documents.title,
+      category: documents.category,
+      description: documents.description,
+      file_url: documents.fileUrl,
+      file_size: documents.fileSize,
+      year: documents.year,
+    })
+    .from(documents)
+    .where(and(eq(documents.isPublished, true), eq(documents.slug, slug)))
+    .limit(1);
+
+  return rows[0] ?? null;
+}
+
 export type JobRow = {
   slug: string;
   title: string;

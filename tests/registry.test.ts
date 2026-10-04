@@ -112,7 +112,7 @@ describe("find", () => {
     }
   });
 
-  it("menolak nama yang tries menumpang ke prototype", () => {
+  it("menolak nama yang bisa menumpang ke prototype", () => {
     expect(find("constructor")).toBeUndefined();
     expect(find("toString")).toBeUndefined();
   });

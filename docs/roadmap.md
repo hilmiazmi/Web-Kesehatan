@@ -45,6 +45,14 @@ diserver saat diminta, bukan ditulis ke berkas HTML, karena isinya berbeda
 setiap pengunjung. `bun run cek:tautan` tidak pernah melihatnya, dan tidak
 perlu: `/admin` tidak boleh ada di sitemap maupun punya tautan masuk.
 
+
+"Rute dari catch-all" 30 bukan 63 seperti tertulis sebelumnya. Angka 30 diukur
+langsung dari `collectNavPaths()`, dan itulah yang dihitung: hanya path
+yang dilayani `src/app/[...slug]/page.tsx`. Daun `/pelayanan/prioritas/*` dan
+`/pelayanan/medis/*` sengaja tidak ikut karena sudah dilayani folder `[slug]`
+masing-masing, dan sebelas pola dinamis dihitung terpisah di baris di atasnya.
+Jadi 154 halaman tidak bisa dijumlahkan dari 30.
+
 Gerbang kualitas terakhir: typecheck bersih, `bun run lint` bersih,
 `bun run test` 554 tes lulus dari 40 berkas, `bun run cek:konten` dan
 `bun run audit:teks` lulus, `bun run build` sukses, dan `bun run cek:tautan`
@@ -509,6 +517,83 @@ ditolak. Menampilkan pesan "sudah terdaftar" sudah jelas. Yang belum jelas
 adalah apakah pendaftaran kedua harus **ditolak** atau **diterima lalu
 ditandai**, karena yang kedua memerlukan kolom status tambahan dan tidak bisa
 dijamin constraint database selama statusnya bisa berubah.
+
+### 3.11 Bilah aksi cepat juga tidak pernah dibuat
+
+`QuickActionBar` di PRD 8.4 tidak ada, sama seperti `BackToTop` di 3.10.
+Layout hanya merender `Topbar`, `Navbar`, dan `Footer`, dan tidak ada kelas
+CSS untuk bilah aksi cepat.
+
+Inilah satu-satunya Acceptance Criteria yang gagal, yaitu butir 4 di bagian 6.
+Back-to-top di 3.10 membuat butir 1 di bagian 2 hanya "sebagian", sedangkan
+bilah aksi cepat membuat butir 4 gagal seluruhnya.
+
+Isi bilah aksi cepat tidak bisa ditebak. Kandidat yang paling masuk akal
+mengambil isinya dari `HEADER_CTAS` ditambah WhatsApp, tapi itu masih
+perkiraan, dan belum ada rujukan visual di situs acuan untuk diambil.
+
+### 3.12 Tautan mati yang sudah diperbaiki, dan penjaganya
+
+Ditemukan lewat crawl 160 tautan internal dari HTML hasil build: 157 membalas
+200, satu membalas 404. Dua sisanya berkas `_next/static/chunks` yang basi
+karena build diulang di tengah penelusuran, bukan tautan.
+
+Tautan yang 404 itu tombol "Daftar Online" di `/radiologi` dan
+`/laboratorium`, yang menunjuk `/register`. Halaman itu tidak ada. Sembilan
+tempat lain sudah memakai `/daftar-online`.
+
+Penyebabnya celah tes, bukan salah ketik. `tests/nav-path.test.ts` hanya
+membaca tautan di `src/data/navigation.ts`, sedangkan `href` yang ditulis
+langsung di komponen tidak ikut dibaca. Karena itu `tests/tautan-internal.test.ts`
+sekarang menjaga dua arah: setiap literal `href` di `.tsx` harus punya halaman,
+dan tidak boleh menunjuk `/api/`.
+
+Pola yang sama berlaku untuk warna theme-color. PRD, bagian 8.2,
+`docs/design-tokens-terverifikasi.md`, dan `AGENTS.md` sama-sama menautkan
+`#1A77CC` ke `<meta name="theme-color">`, padahal meta itu tidak pernah ada di
+HTML hasil build dan `--rs-accent-theme-color` adalah token mati. Penyebabnya
+`themeColor` di `metadata` sudah deprecated sejak Next.js 14 dan dibuang tanpa
+peringatan: tetap lolos typecheck, tapi tagnya tidak pernah muncul. Sekarang
+dipakai lewat export `viewport`, dan `tests/theme-color.test.ts` menjaga token
+CSS dengan meta itu tidak berbeda. Hasilnya 151 dari 152 halaman
+ter-prerender memakai tag itu; sisanya `_global-error.html` yang memang
+menggantikan root layout.
+
+### 3.13 Alur kerja gerbang belum pernah berhasil sekali pun
+
+`.github/workflows/gerbang.yml` tercatat `active` di GitHub, tapi dua belas
+run pertama-tiganya semuanya `failure` dan selesai dalam 0 detik. Tidak ada
+satu pun job yang pernah dibuat.
+
+Buktinya:
+
+- Dua belas run, dua belas `failure`, semuanya 0 detik.
+- `jobs` run kosong dan `latest_check_runs_count` pada check suite bernilai 0.
+- GitHub menulis `This run likely failed because of a workflow file issue`.
+- Branch yang tidak disentuh perubahan ini juga gagal, jadi bukan bawaan
+  pull request ini.
+- Tidak ada satu pun run Gerbang di branch `main`, sementara Pages
+  miliknya GitHub tetap berjalan normal di branch yang sama.
+
+Yang sudah disingkirkan:
+
+- Berkasnya valid YAML. Parser membacanya tanpa galat dan kunci teratasnya
+  `name`, `on`, `concurrency`, `timeout-minutes`, `permissions`, `jobs`.
+- Isi berkas di GitHub sama dengan isi di repo, dibandingkan lewat
+  `git hash-object`. Keduanya `244345`.
+- Tidak ada tab dan tidak ada indentasi ganjil.
+- Bagian strukturalnya tidak pernah berubah sejak commit `c400d2d`.
+  Commit `ea60ad6` hanya mengubah komentar.
+- `pages-build-deployment` milik GitHub sendiri berjalan normal di repo yang
+  sama, jadi runner dan repo tidak bermasalah umum.
+
+Penyebabnya karena itu berada di luar berkas, kemungkinan besar di tingkat
+repo atau akun: kebijakan Actions, atau batas belanja yang nol. Menucarkannya
+butuh akses admin repo, karena `GET /actions/permissions` membalas 403 untuk
+kolaborator biasa.
+
+Selama ini belum selesai, gerbang hanya bisa dijalankan manual seperti
+tercantum di bagian 1.
 
 ---
 
