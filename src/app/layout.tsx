@@ -9,6 +9,7 @@ import Topbar from "@/components/layout/Topbar";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import BackToTop from "@/components/layout/BackToTop";
+import QuickActionBar from "@/components/layout/QuickActionBar";
 import { siteUrl } from "@/lib/site-url";
 
 /**
@@ -106,9 +107,13 @@ export default function RootLayout({
           {children}
         </main>
         <Footer />
-        {/* Dipasang di luar `<main>` karena posisinya tetap di layar dan tidak
-            boleh ikut bergeser bersama isi halaman. Targetnya `#main-content`
-            sudah ada di atas, jadi tombol ini tetap bekerja tanpa JavaScript. */}
+        {/* Bilah aksi cepat dan tombol kembali ke atas sama-sama melayang di
+            luar alur halaman, jadi keduanya dipasang di luar `<main>` supaya
+            tidak ikut bergeser bersama isi. Bilah aksi memakai tepi kanan;
+            tombol kembali ke atas memakai tepi kiri, supaya keduanya tidak
+            saling menutupi. Target `#main-content` sudah ada di atas, jadi
+            tombol kembali ke atas tetap bekerja tanpa JavaScript. */}
+        <QuickActionBar />
         <BackToTop />
       </body>
     </html>

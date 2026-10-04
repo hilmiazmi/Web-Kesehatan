@@ -216,6 +216,96 @@ h6 {
   background-color: var(--rs-whatsapp);
 }
 
+/* ---------- Bilah aksi cepat dan tombol kembali ke atas ---------- */
+
+/* Bilah aksi cepat, PRD bagian 8.4.
+ *
+ * Ditaruh di `site.css` bersama komponen layout-nya, bukan di `pages.css`,
+ * karena `pages.css` hanya diimpor oleh halaman yang butuh. Tombol kembali
+ * ke atas memakai warna tombol yang sama, jadi aturannya di sini juga. */
+.quick-action {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 1020;
+}
+
+.quick-action-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.quick-action-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  /* Radius 5px sama seperti tombol di dalam kartu, bukan pill. Bentuk pill
+     hanya untuk CTA header. */
+  border-radius: var(--rs-radius-btn);
+  padding: var(--rs-padding-btn);
+  font-size: var(--rs-fs-btn);
+  line-height: var(--rs-lh-btn);
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Ikon di dalam bilah aksi cepat tidak mewarisi ukuran font teks. */
+.quick-action-item i {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.quick-action-item:focus-visible {
+  outline: 3px solid rgba(var(--rs-accent-rgb), 0.4);
+  outline-offset: 2px;
+}
+
+/* Tombol kembali ke atas, PRD bagian 8 butir 1.
+ *
+ * Muncul lewat atribut `hidden` dari komponen, bukan lewat kelas, supaya
+ * hilang dari urutan Tab sekaligus dari tampilan. */
+.back-to-top {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 1019;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--rs-gray-300);
+  border-radius: 50%;
+  background-color: var(--rs-white);
+  color: var(--rs-accent);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.back-to-top:hover,
+.back-to-top:focus {
+  background-color: var(--rs-accent);
+  color: var(--rs-white);
+  border-color: var(--rs-accent);
+}
+
+.back-to-top:focus-visible {
+  outline: 3px solid rgba(var(--rs-accent-rgb), 0.4);
+  outline-offset: 2px;
+}
+
+/* Di bawah 768px ruang vertikal sempit dan tombol Daftar Online sudah ada
+   menapak di header, jadi keduanya disembunyikan. */
+@media (max-width: 767.98px) {
+  .quick-action,
+  .back-to-top {
+    display: none;
+  }
+}
+
 /* Latar biru aksen. */
 .bg-rs {
   background-color: var(--rs-accent);
