@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { siteUrlFor } from "@/lib/site-url";
 
 /**
  * Petunjuk peramban untuk mesin pencari.
@@ -12,12 +13,17 @@ import type { MetadataRoute } from "next";
  *   sebagai halaman membuat peramban mengunduh respons yang tidak dimaksudkan
  *   untuk dibaca manusia.
  *
- * `NEXT_PUBLIC_SITE_URL` sama dengan `metadataBase` di `src/app/layout.tsx`.
- * Kalau keduanya berbeda, sitemap dan halaman akan menunjuk domain berbeda.
+ * `/admin` sengaja tidak diblokir. Aturan robots mencocokkan awalan, bukan
+ * segmen utuh, jadi `Disallow: /admin` ikut memblokir `/administrasi`, dan
+ * `/administrasi` adalah halaman publik "Administrasi Pasien" yang memang
+ * sengaja ada di navbar. Halaman admin ditandai `noindex` lewat metadata di
+ * `src/app/admin/layout.tsx`, yang juga berlaku untuk halaman login.
+ *
+ * Domainnya diambil dari `siteUrlFor()`, sama seperti `metadataBase` di
+ * `src/app/layout.tsx`. Kalau keduanya berbeda, sitemap dan halaman akan
+ * menunjuk domain berbeda.
  */
 export default function robots(): MetadataRoute.Robots {
-  const asal = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-
   return {
     rules: [
       {
@@ -26,6 +32,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/api/"],
       },
     ],
-    sitemap: `${asal.replace(/\/+$/, "")}/sitemap.xml`,
+    sitemap: siteUrlFor("/sitemap.xml"),
   };
 }

@@ -21,9 +21,20 @@ export type BrosurCard = {
  * Tab memakai <button>, bukan <a>, karena yang diklik hanya mengganti panel
  * dan tidak berpindah halaman.
  *
- * Hanya panel aktif yang dirender. Karena itu `aria-controls` hanya dipasang
- * pada tab yang sedang terpilih; kalau dipasang juga pada tab lain, id yang
- * ditunjuknya tidak ada di DOM dan pembaca layar akan diam.
+ * Semua panel dirender di server, bukan hanya yang sedang aktif. Panel yang
+ * tidak aktif diberi atribut `hidden`, jadi tetap ada di HTML tapi tidak
+ * terlihat dan tidak bisa difokuskan.
+ *
+ * Versi pertama merender hanya panel aktif. Akibatnya 18 dari 21 halaman brosur
+ * tidak pernah muncul sebagai tautan di HTML server, sehingga tidak ada satu
+ * pun halaman yang menautkannya. Halaman yang tidak punya tautan masuk sulit
+ * ditemukan mesin pencari, dan `aria-controls` juga harus dikosongkan di tab
+ * lain karena id yang ditunjuknya tidak ada di DOM.
+ *
+ * `aria-controls` sekarang selalu menunjuk id yang benar-benar ada, karena
+ * semua panel ada di DOM. Ini juga pola `tabpanel` yang benar untuk pembaca
+ * layar: yang disembunyikan memakai `hidden`, bukan `display: none` di CSS,
+ * supaya atributnya ikut terbaca oleh teknologi bantu.
  *
  * Data dikirim dari halaman server sebagai props, bukan diimpor dari
  * `@/data/brosur`. Modul itu memuat isi penuh 21 brosur beserta semua poin
@@ -38,8 +49,6 @@ export default function BrosurDirectory({
 }) {
   const [aktif, setAktif] = useState(0);
   const daftarTab = useRef<(HTMLButtonElement | null)[]>([]);
-  const kategori = categories[aktif];
-  const isi = brosurs.filter((b) => b.category === kategori.slug);
 
   /** Panah atas dan bawah memindahkan tab, sesuai pola tablist vertikal. */
   const geser = (arah: 1 | -1) => {
@@ -59,9 +68,7 @@ export default function BrosurDirectory({
                 role="tab"
                 id={`brosur-tab-${c.slug}`}
                 aria-selected={i === aktif}
-                aria-controls={
-                  i === aktif ? `brosur-panel-${c.slug}` : undefined
-                }
+                aria-controls={`brosur-panel-${c.slug}`}
                 // Roving tabindex: hanya tab terpilih yang bisa difokuskan,
                 // supaya penfocusan tidak berhenti di 16 tab satu per satu.
                 tabIndex={i === aktif ? 0 : -1}
@@ -88,21 +95,32 @@ export default function BrosurDirectory({
       </div>
 
       <div className="col-md-9">
-        <div
-          className="klinik-panel"
-          role="tabpanel"
-          id={`brosur-panel-${kategori.slug}`}
-          aria-labelledby={`brosur-tab-${kategori.slug}`}
-          tabIndex={0}
-        >
-          <h2 className="klinik-panel-title">{kategori.name}</h2>
+        {categories.map((kategori, i) => {
+          const isi = brosurs.filter((b) => b.category === kategori.slug);
 
-          <div className="brosur-list">
-            {isi.map((b) => (
-              <BrosurKartu key={b.slug} brosur={b} />
-            ))}
-          </div>
-        </div>
+          return (
+            <div
+              key={kategori.slug}
+              className="klinik-panel"
+              role="tabpanel"
+              id={`brosur-panel-${kategori.slug}`}
+              aria-labelledby={`brosur-tab-${kategori.slug}`}
+              // `tabIndex` hanya perlu pada panel yang terlihat. Panel tersembunyi
+              // sudah tidak bisa difokuskan karena `hidden`, jadi memberinya
+              // `tabIndex` hanya menambah angka yang tidak berguna.
+              tabIndex={i === aktif ? 0 : -1}
+              hidden={i !== aktif}
+            >
+              <h2 className="klinik-panel-title">{kategori.name}</h2>
+
+              <div className="brosur-list">
+                {isi.map((b) => (
+                  <BrosurKartu key={b.slug} brosur={b} />
+                ))}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

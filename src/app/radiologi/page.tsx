@@ -35,7 +35,7 @@ export default function RadiologiPage() {
           </nav>
           <h1 className={s.title}>{radInfo.judul}</h1>
           <p className="lead mb-4">{radInfo.pengantar[0]}</p>
-          <Link href="/register" className={s.btn}>
+          <Link href="/daftar-online" className={s.btn}>
             Daftar Online
           </Link>
         </div>

@@ -8,6 +8,8 @@ import "@/styles/pages.css";
 import Topbar from "@/components/layout/Topbar";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import BackToTop from "@/components/layout/BackToTop";
+import { siteUrl } from "@/lib/site-url";
 
 /**
  * Poppins dipakai sebagai pengganti Gotham/Gotham Rounded.
@@ -23,9 +25,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
-  ),
+  metadataBase: new URL(siteUrl()),
   title: {
     default: "RSUD Contoh Sehat | Rumah Sehat Untuk Semua",
     // Pola judul mengikuti situs referensi: "<Judul> | <Nama RS> - <Tagline>"
@@ -86,6 +86,10 @@ export default function RootLayout({
           {children}
         </main>
         <Footer />
+        {/* Dipasang di luar `<main>` karena posisinya tetap di layar dan tidak
+            boleh ikut bergeser bersama isi halaman. Targetnya `#main-content`
+            sudah ada di atas, jadi tombol ini tetap bekerja tanpa JavaScript. */}
+        <BackToTop />
       </body>
     </html>
   );

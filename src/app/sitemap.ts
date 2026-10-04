@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { collectSitemapPaths } from "@/lib/sitemap";
+import { siteUrlFor } from "@/lib/site-url";
 
 /**
  * Peta situs untuk mesin pencari.
@@ -9,20 +10,15 @@ import { collectSitemapPaths } from "@/lib/sitemap";
  *
  * URL-nya harus absolut lengkap dengan domain. `metadataBase` di
  * `src/app/layout.tsx` tidak berlaku di sini: itu hanya untuk `metadata`,
- * dan sitemap memakai aturan sendiri. Karena itu domain diambil langsung dari
- * `NEXT_PUBLIC_SITE_URL`, sama seperti `metadataBase`.
+ * dan sitemap memakai aturan sendiri. Karena itu domain diambil dari
+ * `siteUrlFor()`, yang membaca env yang sama dengan `metadataBase`.
  *
  * Aturan pathname-nya ada di `collectSitemapPaths()` pada
  * `src/lib/sitemap.ts`, supaya bisa diuji tanpa merender.
  */
 export default function sitemap(): MetadataRoute.Sitemap {
-  const asal = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000").replace(
-    /\/+$/,
-    "",
-  );
-
   return collectSitemapPaths().map((entri) => ({
-    url: `${asal}${entri.path}`,
+    url: siteUrlFor(entri.path),
     changeFrequency: entri.changeFrequency,
     priority: entri.priority,
   }));

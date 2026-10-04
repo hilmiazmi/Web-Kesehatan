@@ -95,3 +95,13 @@ jobs:
       # `next build`, jadi langkah terpisah tidak perlu.
       - name: Build produksi
         run: bun run build
+
+      # Harus setelah build, karena yang diperiksa adalah HTML hasil
+      # prerender di `.next/server/app`. Menggagalkan tiga hal sekaligus:
+      # tautan yang menunjuk halaman tidak ada, halaman yang tidak pernah
+      # ditautkan dari mana pun, dan halaman yang lupa masuk sitemap.
+      #
+      # Catatan urutan: langkah ini membaca `.next/server/app`, jadi tidak
+      # butuh server, tidak butuh database, dan tidak butuh browser.
+      - name: Kropl tautan dan kelengkapan sitemap
+        run: bun run cek:tautan

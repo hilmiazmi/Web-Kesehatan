@@ -21,6 +21,75 @@
   top: 0;
 }
 
+/* ---------- Kembali ke atas ---------- */
+/* Semua angka di blok ini terverifikasi dari getComputedStyle() pada
+   rsudpasarminggu.jakarta.go.id, 4 Oktober 2026, untuk elemen
+   `<a id="scroll-top" class="scroll-top ...">`. Sumber CSS-nya
+   `/v2/assets/css/main.css`, bagian "Scroll Top Button". Sites acuan memakai
+   `var(--accent-color)` yang di sana bernilai #1977cc, sama dengan
+   `--rs-accent` di sini, dan `var(--contrast-color)` #ffffff, sama dengan
+   `--rs-white`.
+
+   Penyimpangan dari sumbernya hanya satu: z-index.
+
+   Situs acuan memakai 99999. Nilai itu ditiru sebagai 1199, bukan 99999,
+   karena susunan lapisan di repo ini berbeda. Urutannya sudah ditulis di
+   `.lightbox`: panel navigasi off-canvas 1200, tautan lewati 9999, dan
+   lightbox 10000.
+
+   99999 akan membuat tombol ini tetap terender dan tetap bisa diklik di atas
+   dua lapisan penutup itu. Di atas lightbox yang sedang terbuka, orang bisa
+   menggulir halaman di belakang foto yang sedang dimuka. Di atas panel navigasi
+   yang sedang terbuka, tombol hanya muncul di ruang kosong panel dan tidak
+   melakukan apa yang diharapkan: ia menggulir ke atas, panel tetap terbuka, dan
+   tombol ikut menghilang karena ikut bergeser ke atas.
+
+   1199 menaruh tombol tepat di bawah kedua lapisan penutup, tapi tetap di atas
+   seluruh isi halaman. */
+.scroll-top {
+  position: fixed;
+  visibility: hidden;
+  opacity: 0;
+  right: 15px;
+  bottom: 15px;
+  z-index: 1199;
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  background-color: var(--rs-accent);
+  /* `transition: all` apa adanya di sumbernya ikut ditulis, supaya angka lama
+     tetap bisa dibandingkan kalau aturan ini nanti ditinjau ulang. */
+  transition: all 0.4s;
+}
+
+.scroll-top i {
+  font-size: 24px;
+  line-height: 0;
+  color: var(--rs-white);
+}
+
+.scroll-top:hover {
+  /* Sumbernya `color-mix(in srgb, var(--accent-color), transparent 20%)`,
+     artinya aksen jadi 80% pekat. Nilai yang sama ditulis lewat token rgb yang
+     sudah ada, supaya warna tombol tetap mengikuti `--rs-accent` kalau someday
+     aksennya diganti. */
+  background-color: rgba(var(--rs-accent-rgb), 0.8);
+}
+
+/* Ini tidak ada di situs acuan, dan memang harus ada. Tombol ini bisa difokuskan
+   karena ia adalah tautan, sedangkan di sumbernya tidak ada apa pun yang berubah
+   saat tombol mendapat fokus. Tanpa ini, pengguna keyboard tidak akan pernah
+   tahu sedang berada di tombol mana. */
+.scroll-top:focus-visible {
+  outline: 3px solid var(--rs-white);
+  outline-offset: 2px;
+}
+
+.scroll-top.active {
+  visibility: visible;
+  opacity: 1;
+}
+
 /* ---------- Topbar ---------- */
 .topbar {
   background-color: var(--rs-accent);
