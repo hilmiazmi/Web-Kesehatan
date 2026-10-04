@@ -18,9 +18,11 @@ import { formatDate } from "@/lib/format";
 export default function NewsSection() {
   return (
     <section id="berita" className="berita section pb-3 light-background">
-      <div className="container section-title pb-4">
+      {/* Situs referensi tidak memakai sub-judul di section ini
+          (`section-title pb-0` hanya berisi h2). Sub-judul hanya ada di
+          Layanan, Fasilitas, dan MCU. */}
+      <div className="container section-title pb-0">
         <h2>Berita dan Artikel Kesehatan</h2>
-        <p>&quot;Informasi terkini mengenai layanan kami&quot;</p>
       </div>
 
       <CardCarousel label="Berita dan artikel kesehatan">
