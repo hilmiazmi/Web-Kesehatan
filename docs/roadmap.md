@@ -18,7 +18,7 @@ bukan sebagai perkiraan.
 | Halaman ter-prerender | 148 | `bun run cek:tautan`, berkas `.html` di `.next/server/app` tanpa dua halaman cadangan Next.js |
 | Pola rute dinamis | 11 | `dynamicRoutes` di `.next/prerender-manifest.json` |
 | Berkas tes | 42 | `bun run test` |
-| Jumlah tes | 584 | `bun run test` |
+| Jumlah tes | 579 | `bun run test` |
 | Rute internal dari catch-all | 30 | `collectNavPaths()` di `src/lib/nav-path.ts` |
 | Tabel terkelola di panel admin | 17 | `src/server/admin/registry.ts` |
 | Tabel di skema database | 27 | `pgTable` di `src/server/db/schema.ts` |
@@ -55,16 +55,16 @@ masing-masing, dan sebelas pola dinamis dihitung terpisah di baris di atasnya.
 Jadi 148 halaman tidak bisa dijumlahkan dari 30.
 
 Gerbang kualitas terakhir: typecheck bersih, `bun run lint` bersih,
-`bun run test` 584 tes lulus dari 42 berkas, `bun run cek:konten` dan
+`bun run test` 579 tes lulus dari 42 berkas, `bun run cek:konten` dan
 `bun run audit:teks` lulus, `bun run build` sukses, dan `bun run cek:tautan`
 tidak menemukan tautan mati, halaman tanpa tautan masuk, maupun halaman yang
 lupa masuk sitemap: 148 halaman, 148 tautan unik, 148 entri sitemap.
 
-Alur CI sudah ada di `.github/workflows/gerbang.yml`. Ia menjalankan lint, tes,
-`cek:konten`, `audit:teks`, build, lalu `cek:tautan` pada setiap push dan setiap
-pull request, dengan `DATABASE_URL` dikosongkan agar semuanya berjalan pada mode
-snapshot. `cek:tautan` sengaja diletakkan setelah build karena yang diperiksa
-adalah HTML hasil prerender.
+Alur CI berjalan dan sudah dipakai. `.github/workflows/gerbang.yml` menjalankan
+lint, tes, `cek:konten`, `audit:teks`, build, lalu `cek:tautan` pada setiap push
+dan setiap pull request, dengan `DATABASE_URL` dikosongkan agar semuanya berjalan
+pada mode snapshot. `cek:tautan` sengaja diletakkan setelah build karena yang
+diperiksa adalah HTML hasil prerender.
 
 ---
 
@@ -270,7 +270,7 @@ di `AGENTS.md`. Dicatat di sini supaya tidak mengejutkan saat diuji di laptop.
 
 **Selesai. Dua puluh dari dua puluh sudah diperbaiki.**
 
-Kropl seluruh tautan internal dari `/` menemukan nol link mati dari 148 halaman.
+Kontrol seluruh tautan internal dari `/` menemukan nol link mati dari 148 halaman.
 Ketika hasilnya dibandingkan dengan halaman yang ter-prerender, ada dua puluh
 yang tidak muncul sebagai tujuan tautan mana pun, dan dua puluh itu sudah tidak
 lagi ada:
@@ -410,14 +410,17 @@ komponennya dipasang di `layout.tsx` dan dipakai di seluruh halaman.
 
 ### 3.11 Panel navigasi mobile tidak bisa ditutup dengan mengetuk
 
-**Belum diperbaiki. Navbar dibekukan pemilik repo, dengan satu pengecualian.**
+**Selesai, tetapi belum masuk `main`.** Perbaikannya sudah ada di mesin
+pemilik repo dan belum di-commit di sana, jadi `main` sekarang masih punya kedua
+cacat mobile ini.
 
 Ditemukan saat menguji tombol kembali ke atas di lebar 390px. Panel off-canvas
 saat terbuka punya kotak 340px mulai dari x=50 sampai x=390, sedangkan tombol
 hamburger ada di x=332 sampai x=378. Panelnya menutupi tombol sepenuhnya, jadi
 mengetuk hamburger kedua kali tidak terjadi apa pun.
 
-Diperiksa tiga jalan keluar lain, semuanya tidak ada:
+Keadaan awal sudah diperiksa dulu. Tiga jalan keluar lain dicoba, dan
+ketiganya tidak ada:
 
 | Jalan keluar | Hasil |
 |---|---|
@@ -426,7 +429,8 @@ Diperiksa tiga jalan keluar lain, semuanya tidak ada:
 | Tab ke tombol hamburger lalu Enter | Berhasil, karena `tabIndex` tombolnya 0 dan `onClick`-nya masih aktif. |
 
 Jadi pengguna sentuh yang membuka menunya tidak bisa menutupnya lagi tanpa
-memilih salah satu tautan di dalam. Pengguna keyboard tidak terpengaruh.
+memilih salah satu tautan di dalam. Pengguna keyboard tidak terpengaruh. Ketiga
+baris tabel itu berubah setelah perbaikan, yang dijelaskan setelah tabel.
 
 Ini bukan bug baru yang saya sebabkan, dan bukan racun dari tombol kembali ke
 atas. Elemen yang menutupi ketukan adalah `<a>` di dalam `.navmenu`, yaitu
@@ -434,33 +438,47 @@ navbar itu sendiri, bukan racun dari tombol kembali ke atas. Tombol itu justru
 dirancang supaya tidak menambah masalah: ia memakai `z-index: 1199`, tepat di
 bawah panel 1200, sehingga tidak pernah melayang di atas panel.
 
-Perbaikannya ada di navbar, jadi tidak dikerjakan tanpa persetujuan pemilik repo.
+Ada dua cacat mobile, dan keduanya ditutup dalam satu pekerjaan. Pertama, panel
+tertutup yang isinya masih bisa dicapai tombol Tab. Kedua, panel yang menutupi
+tombol hamburger sehingga pengguna sentuh tidak bisa menutupnya lagi.
 
-**Yang sudah diperbaiki, dengan persetujuan khusus.** Cacat mobile yang kedua
-memang berbeda, dan yang ini sudah ditutup. Panel off-canvas yang tertutup
-memuat tautan yang masih bisa dicapai tombol Tab, karena `translateX(100%)`
-menggeser isi panel ke luar layar tanpa menyembunyikannya. Pengunjung yang
-memakai keyboard bisa mendarat di menu yang tidak terlihat dan tidak tahu itu
-terjadi.
+Perbaikannya ada di navbar, jadi dikerjakan hanya dengan persetujuan pemilik
+repo. Batas 1200px, lebar navmenu 894px, font 15px, dan posisi tombol hamburger
+tetap seperti commit `a9b5fd5`, dan semuanya dikunci `tests/navbar-beku.test.ts`.
 
-Atribut `inert` menutupnya, karena membuat seluruh isi panel keluar dari urutan
-Tab sekaligus dari pohon aksesibilitas, dan `aria-hidden` ditulis juga untuk
-pembaca layar yang belum mengenal `inert`. Lebar viewport dibaca dengan
-`useSyncExternalStore`, bukan `setState` dari dalam `useEffect`, karena aturan
-`react-hooks/set-state-in-effect` melarang yang kedua. Snapshot server dianggap
-desktop, jadi HTML hasil server tidak pernah menandai `inert` dan tidak muncul
-ketidaksesuaian hidrasi.
+Panel yang tertutup memakai `visibility: hidden`, bukan hanya
+`translateX(100%)`. Menggeser bukan menyembunyikan: 74 tautan di dalam
+panel tetap bisa difokuskan padahal tidak terlihat, jadi Tab masuk ke menu yang
+tidak kelihatan. `visibility` menutupnya tanpa JavaScript, jadi benar sejak
+render pertama. `visibility` juga ikut masuk `transition`, karena nilainya
+dianimasikan sebagai langkah diskret dan panel tetap terlihat sepanjang durasi
+geser keluar.
 
-Ini satu-satunya bagian navbar yang boleh berubah. Batas 1200px, lebar navmenu
-894px, font 15px, dan posisi tombol hamburger tetap seperti commit `a9b5fd5`.
-Lima penjaga baru ada di `tests/navbar-beku.test.ts` pada describe terpisah,
-supaya kelihatan bahwa inilah satu-satunya bagian yang bergerak. Terbukti dengan
-mematikan: menghapus `inert` gagal 1 tes, membuat `inert` selalu hidup gagal
-1 tes, dan menambah batas kedua 1300px gagal 2 tes.
+Tiga cara menutup, dan ketiganya dipakai karena tidak ada satu pun yang cukup
+sendiri: `.navmenu-backdrop` dengan `z-index: 1190` di bawah panel 1200, tombol
+`.navmenu-close` di dalam panel, dan tombol Escape. Sambil panel terbuka, `body`
+dapat kelas `navmenu-terbuka` dan `overflow: hidden`, tanpa itu halaman di
+belakang panel masih bisa bergulir dan membuat orang mengira panelnya yang
+bergerak.
 
-Jadi ada dua cacat mobile yang berbeda, dan hanya satu yang sudah tertutup. Yang
-tersisa murni soal sentuh, dan menutupnya butuh backdrop atau penanganan Escape,
-yang keduanya berarti menyentuh navbar lagi.
+Fokus kembali ke hamburger hanya setelah panel ditutup, dijaga ref
+`pernahTerbuka`. Tanpa penjaga itu, `useEffect` berjalan sekali saat render
+pertama dengan panel masih tertutup dan fokus melompat ke tombol menu, jadi
+pembaca layar tidak lagi membacakan isi halaman.
+
+Ada satu hal yang mudah pecah. `BackToTop` memakai `d-flex` dari Bootstrap yang
+menulis `display: flex !important`, jadi
+`display: none` pada tombol itu kalah dan tombol tetap terlihat di atas panel.
+Karena itu `body.navmenu-terbuka .scroll-top` memakai `visibility: hidden`.
+`z-index` tombol itu tidak disentuh, karena `tests/kembali-ke-atas.test.ts`
+mengunci 1199 sebagai satu-satunya nilai.
+
+Seluruh perilaku di atas dikunci `tests/panel-nav-mobile.test.ts`.
+
+Catatan perubahan: versi sebelumnya bagian ini merekomendasikan atribut
+`inert` sebagai perbaikannya. Pendekatan itu sudah dicabut, karena pemilik repo
+menyelesaikan masalahnya dengan `visibility: hidden` ditambah tiga cara menutup,
+dan `inert` tidak ada di navbar sekarang.
 
 ### 3.12 Panel admin dan formulir e-pasien: koreksi atas dua klaim yang salah
 
@@ -610,41 +628,52 @@ CSS dengan meta itu tidak berbeda. Hasilnya 151 dari 152 halaman
 ter-prerender memakai tag itu; sisanya `_global-error.html` yang memang
 menggantikan root layout.
 
-### 3.16 Alur kerja gerbang belum pernah berhasil sekali pun
+### 3.16 Alur kerja gerbang: kesimpulan sebelumnya salah
 
-`.github/workflows/gerbang.yml` tercatat `active` di GitHub, tapi dua belas
-run pertama-tiganya semuanya `failure` dan selesai dalam 0 detik. Tidak ada
-satu pun job yang pernah dibuat.
+**Selesai dan berjalan. Versi bagian ini sebelumnya menyatakan sebaliknya, dan
+pernyataannya salah.**
 
-Buktinya:
+Versi sebelumnya menulis "belum pernah berhasil sekali pun", dengan bukti
+"dua belas run, dua belas `failure`, semuanya 0 detik" dan "`jobs` run kosong".
+Bukti itu pernah benar, tapi tidak lagi, dan tidak pernah diselidiki sampai
+sekarang. Hasil yang benar per 4 Oktober 2026:
 
-- Dua belas run, dua belas `failure`, semuanya 0 detik.
-- `jobs` run kosong dan `latest_check_runs_count` pada check suite bernilai 0.
-- GitHub menulis `This run likely failed because of a workflow file issue`.
-- Branch yang tidak disentuh perubahan ini juga gagal, jadi bukan bawaan
-  pull request ini.
-- Tidak ada satu pun run Gerbang di branch `main`, sementara Pages
-  miliknya GitHub tetap berjalan normal di branch yang sama.
+| Workflow | Sukses | Gagal |
+|---|---|---|
+| `Gerbang` | 15 | 1 |
+| `pages-build-deployment` | 4 | 0 |
 
-Yang sudah disingkirkan:
+Tabel itu foto pada satu titik, diukur sebelum commit yang memuat koreksi ini
+masuk. Setiap push sesudahnya menambah angka sukses, jadi bacalah sebagai catatan
+pada waktu itu, bukan angka yang selalu benar. Yang tidak berubah adalah
+polanya: sejak penyebabnya diperbaiki, tidak ada satu pun run `Gerbang` yang
+gagal.
 
-- Berkasnya valid YAML. Parser membacanya tanpa galat dan kunci teratasnya
-  `name`, `on`, `concurrency`, `timeout-minutes`, `permissions`, `jobs`.
-- Isi berkas di GitHub sama dengan isi di repo, dibandingkan lewat
-  `git hash-object`. Keduanya `244345`.
-- Tidak ada tab dan tidak ada indentasi ganjil.
-- Bagian strukturalnya tidak pernah berubah sejak commit `c400d2d`.
-  Commit `ea60ad6` hanya mengubah komentar.
-- `pages-build-deployment` milik GitHub sendiri berjalan normal di repo yang
-  sama, jadi runner dan repo tidak bermasalah umum.
+Satu-satunya kegagalan adalah push dari commit `699b923` pada 4 Oktober 2026
+pukul 07:52 UTC, yang gagal dalam 0 detik dengan pesan `This run likely failed
+because of a workflow file issue`. Penyebabnya diketahui dan bukan kekurangan
+Actions: branch itu masih berisi versi lama roadmap yang bentrok dengan
+`main`, jadi berkas workflow-nya memang tidak bisa dipakai. Push berikutnya ke
+branch yang sama, dengan isi yang sudah benar, berhasil penuh.
 
-Penyebabnya karena itu berada di luar berkas, kemungkinan besar di tingkat
-repo atau akun: kebijakan Actions, atau batas belanja yang nol. Menucarkannya
-butuh akses admin repo, karena `GET /actions/permissions` membalas 403 untuk
-kolaborator biasa.
+Bukti bahwa alurnya benar-benar bekerja, bukan hanya tidak error: run
+`37187189691` pada PR #37 menjalankan sembilan langkah kerja dan semuanya
+`success`, yaitu `Ambil kode`, `Pasang bun`, `Pasang dependensi`, `Lint`, `Tes`,
+`Snapshot dan route saling cocok`, `Audit teks`, `Build produksi`, dan
+`Kontrol tautan dan kelengkapan sitemap`. Langkah terakhirnya mencetak
+`148 halaman, 148 tautan unik, 148 entri sitemap` di runner, bukan di mesin
+lokal.
 
-Selama ini belum selesai, gerbang hanya bisa dijalankan manual seperti
-tercantum di bagian 1.
+Konsekuensinya untuk dokumen ini. Bagian 1 dan bagian 4 pernah menulis bahwa
+gerbang hanya bisa dijalankan manual. Itu tidak benar lagi. `bun run lint`,
+`bun run test`, `bun run cek:konten`, `bun run audit:teks`, `bun run build`,
+dan `bun run cek:tautan` sekarang berjalan otomatis pada setiap push dan
+setiap pull request, dengan `DATABASE_URL` dikosongkan agar semuanya berjalan
+pada mode snapshot.
+
+Yang masih perlu diketahui: `bun run cek:tulis` dan `bun run cek:admin` tidak
+ada di alur CI, karena keduanya butuh Postgres hidup sementara alur itu
+menjalankan segalanya pada mode snapshot. Keduanya masih gerbang manual.
 
 ---
 
@@ -702,9 +731,10 @@ Yang **tidak** ada di daftar ini, karena sudah selesai atau sudah gugur:
 
 - **Navbar dibekukan.** Jangan diubah tanpa diminta pemilik repo.
   `tests/navbar-beku.test.ts` mengunci keadaan itu, dan sengaja gagal kalau
-  navbar disentuh. Pengecualiannya satu dan sudah dipakai: atribut `inert` pada
-  panel off-canvas, dengan persetujuan pemilik repo. Cacat yang tersisa disengaja
-  tidak disentuh: panelnya tidak bisa ditutup dengan mengetuk, lihat 3.11.
+  navbar disentuh. Pengecualiannya satu: panel off-canvas mobile, dengan
+  persetujuan pemilik repo, dan perbaikannya dijelaskan di 3.11. Perbaikan itu
+  sudah ada di mesin pemilik repo tapi belum masuk `main`, jadi `main` sekarang
+  masih punya kedua cacat mobile itu.
 - **`collectSitemapPaths()` di `src/lib/sitemap.ts` adalah sumber sitemap.**
   Ia memindai folder `src/app` dari filesystem, jadi route baru ikut masuk
   begitu foldernya dibuat dan tidak bisa basi seperti daftar manual. Modul ini
@@ -716,12 +746,14 @@ Yang **tidak** ada di daftar ini, karena sudah selesai atau sudah gugur:
   angkanya memang harus berubah, ukur ulang di situs acuan lebih dulu, catat
   tanggalnya di komentar CSS, lalu perbarui tesnya. Mengubah angka supaya cocok
   dengan mata saja membuat tes itu berbohong.
-- **Panel navigasi mobile sudah pakai `inert` dan `aria-hidden`.** Dulu panel
-  yang tertutup masih bisa dicapai Tab. Sudah ditutup dengan persetujuan khusus
-  pemilik repo, dan atribut itu dikunci lima tes di `tests/navbar-beku.test.ts`.
-  Yang belum ditutup adalah cacat sentuhnya: panel tidak bisa ditutup dengan
-  mengetuk. Keduanya sering tercampur jadi satu, padahal satu sudah beres dan
-  satu masih terbuka.
+- **Panel navigasi mobile ditutup tanpa `inert`.** Versi sebelumnya bagian ini
+  menyebut atribut `inert` plus `aria-hidden`. Pendekatan itu sudah dicabut,
+  karena pemilik repo menyelesaikan masalahnya dengan `visibility: hidden` pada
+  panel tertutup ditambah tiga cara menutup, dan `inert` tidak ada di navbar
+  sekarang. `tests/panel-nav-mobile.test.ts` mengunci seluruh perilaku itu.
+  Jangan menutup panel dengan `inert` tanpa izin pemilik repo, dan
+  jangan menghapus `visibility: hidden`: menggeser dengan `translateX(100%)`
+  bukan menyembunyikan, sehingga 74 tautan di dalam panel tetap bisa difokuskan.
 - **Data di `src/data/` masih lokal.** Halaman membaca dari modul data, bukan
   dari API. Route handler sudah ada di `src/app/api/v1/`, dan semua path di luar
   sana dijawab 404 oleh catcher di `src/app/api/v1/[...path]/route.ts`.
