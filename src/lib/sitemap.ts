@@ -44,8 +44,22 @@ export type SitemapEntry = {
  * `/daftar-online` tidak diindeks karena isinya berbeda tiap pengunjung:
  * halaman itu menampilkan formulir yang menanyakan tanggal dan jam, dan
  * menampilkan hasil pencarian jadwal kepada orang yang berbeda.
+ *
+ * `/laboratorium` dan `/radiologi` dikeluarkan karena isinya sama persis dengan
+ * `/pelayanan/diagnostik/*`, dan `/pelayanan/diagnostik/*` yang sudah ada di
+ * peta. Mendaftarkan keduanya berarti meminta mesin pencari mengindeks dua URL
+ * untuk isi yang sama, jadi hanya URL kanonik yang didaftarkan. Keduanya tetap
+ * menjawab 200 dan tetap boleh dibaca orang yang mengetik URL-nya.
+ *
+ * Catatan: pemindai di bawah mengambil semua folder yang punya `page.tsx`, jadi
+ * tanpa dua entri di sini kedua halaman ini otomatis ikut masuk. Pengecualian ini
+ * disengaja dan dijaga tes, bukan sisa.
  */
-const DIKECUALIKAN = new Set(["/daftar-online"]);
+const DIKECUALIKAN = new Set([
+  "/daftar-online",
+  "/laboratorium",
+  "/radiologi",
+]);
 
 /** Folder di bawah `src/app` yang bukan halaman untuk pengunjung. */
 const BUKAN_HALAMAN = [

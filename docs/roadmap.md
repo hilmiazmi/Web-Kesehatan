@@ -46,7 +46,7 @@ setiap pengunjung. `bun run cek:tautan` tidak pernah melihatnya, dan tidak
 perlu: `/admin` tidak boleh ada di sitemap maupun punya tautan masuk.
 
 Gerbang kualitas terakhir: typecheck bersih, `bun run lint` bersih,
-`bun run test` 564 tes lulus dari 41 berkas, `bun run cek:konten` dan
+`bun run test` 554 tes lulus dari 40 berkas, `bun run cek:konten` dan
 `bun run audit:teks` lulus, `bun run build` sukses, dan `bun run cek:tautan`
 tidak menemukan tautan mati, halaman tanpa tautan masuk, maupun halaman yang
 lupa masuk sitemap.
@@ -283,8 +283,14 @@ tersembunyi sudah tidak bisa difokuskan, dibuktikan di peramban.
 Dua URL ganda tidak bisa diselesaikan tanpa keputusan: menghapusnya berarti
 menghapus rute, dan menggabungkan slug-nya berarti URL-nya tidak lagi cocok
 dengan `DETAIL_CONTENT`. Selama belum diputuskan, keduanya sengaja
-dikeluarkan dari sitemap supaya mesin pencari tidak diminta mengindeks isi yang
-sama dua kali. Keduanya tetap menjawab 200 dan tetap diuji soal tautan mati.
+dikeluarkan dari sitemap supaya mesin pencari tidak diminta mengindeks isi
+yang sama dua kali. Keduanya tetap menjawab 200 dan tetap diuji soal tautan mati.
+
+Catatan versi: saat versi ini ditulis, pemindai sitemap milik upstream sudah
+mengambil setiap folder yang punya `page.tsx`, jadi tanpa daftar eksplisit kedua
+URL ini otomatis ikut masuk dan keputusan "hanya yang kanonik" ikut hilang.
+Daftarnya dikembalikan di `DIKECUALIKAN` pada `src/lib/sitemap.ts`, dan
+`tests/sitemap.test.ts` menjaga kedua entri itu agar tidak hilang lagi.
 
 ### 3.9 Tidak ada sitemap.xml dan robots.txt
 

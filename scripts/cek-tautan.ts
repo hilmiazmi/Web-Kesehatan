@@ -49,12 +49,26 @@ const TANPA_TAUTAN_MASUK = new Set(["/laboratorium", "/radiologi"]);
 /**
  * Halaman yang boleh tidak ada di sitemap.
  *
- * Dua URL yang sama persis dengan `/pelayanan/diagnostik/*`. Memasukkannya ke
- * sitemap berarti meminta mesin pencari mengindeks dua URL untuk isi yang sama,
- * jadi hanya URL kanonik yang didaftarkan. Halaman aslinya tetap ada dan tetap
- * menjawab 200.
+ * Tiga halaman, masing-masing dengan alasan yang berbeda.
+ *
+ * `/laboratorium` dan `/radiologi` isinya sama persis dengan
+ * `/pelayanan/diagnostik/*`. Memasukkannya berarti meminta mesin pencari
+ * mengindeks dua URL untuk isi yang sama, jadi hanya URL kanonik yang
+ * didaftarkan. Keduanya tetap menjawab 200.
+ *
+ * `/daftar-online` dikecualikan di `DIKECUALIKAN` pada `src/lib/sitemap.ts`,
+ * karena isinya berbeda tiap pengunjung: formulirnya menanyakan tanggal dan
+ * jam, dan hasil pencarian jadwalnya berbeda antara orang satu dan yang lain.
+ * Halaman ini tetap boleh diindeks, hanya tidak wajib didaftarkan.
+ *
+ * Daftar ini bukan izin untuk lupa. Kalau sebuah halaman masuk sini tanpa
+ * alasan yang tertulis, cek:tautan kehilangan gunanya.
  */
-const TANPA_SITEMAP = new Set(["/laboratorium", "/radiologi"]);
+const TANPA_SITEMAP = new Set([
+  "/daftar-online",
+  "/laboratorium",
+  "/radiologi",
+]);
 
 /**
  * Rute internal Next.js, bukan halaman.

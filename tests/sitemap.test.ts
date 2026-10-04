@@ -136,6 +136,22 @@ describe("daftar path sitemap", () => {
     // isinya berbeda tiap orang. Mengindeksnya tidak berguna.
     expect(semua).not.toContain("/daftar-online");
   });
+
+  it("tidak mengindeks URL ganda dari halaman diagnostik", () => {
+    // `/laboratorium` dan `/radiologi` punya isi yang sama persis dengan
+    // `/pelayanan/diagnostik/*`. Pemindai di `src/lib/sitemap.ts` mengambil
+    // semua folder yang punya `page.tsx`, jadi tanpa entri di `DIKECUALIKAN`
+    // keduanya otomatis masuk dan mesin pencari diminta mengindeks dua URL
+    // untuk satu isi. Tes ini yang menjaganya.
+    expect(semua).not.toContain("/laboratorium");
+    expect(semua).not.toContain("/radiologi");
+
+    // Bentuk kamus tetap harus ada, supaya pengecualian ini tidak diam-diam
+    // membuat halaman hilang total. Yang dikecualikan hanya aliasnya: versi
+    // kanonik tetap terdaftar.
+    expect(semua).toContain("/pelayanan/diagnostik/laboratorium");
+    expect(semua).toContain("/pelayanan/diagnostik/radiologi");
+  });
 });
 
 describe("bentuk sitemap.xml", () => {
