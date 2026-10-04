@@ -44,8 +44,12 @@ export async function generateMetadata({
   //
   // `src/app/layout.tsx` sudah memasang template `%s | RSUD Contoh Sehat`, jadi
   // menulis `${title} - ${SITE.name}` di sini membuat `<title>` menyebut nama
-  // rumah sakit dua kali. Itu terjadi di 31 dari 152 halaman, karena route ini
-  // melayani seluruh halaman generik.
+  // rumah sakit dua kali.
+  //
+  // Angkanya 30 dari 148 halaman, diukur pada 4 Oktober 2026 dengan
+  // menyuntikkan baris ini lalu menjalankan `bun run cek:tautan`. Tiga puluh itu
+  // sama dengan jumlah route yang dilayani catch-all, sesuai
+  // `collectNavPaths()`, karena hanya route generic yang melewati berkas ini.
   //
   // Halaman yang memang mau menyebut nama rumah sakit di awal judulnya tetap
   // boleh, karena `JUDUL_BOLEH_DOBEL` di `scripts/cek-tautan.ts` yang

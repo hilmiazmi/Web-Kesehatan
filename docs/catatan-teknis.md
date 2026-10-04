@@ -22,7 +22,7 @@ dirender menjadi `<title>Judul | RSUD Contoh Sehat</title>`, dan nama rumah
 sakit muncul **satu kali**, dari template.
 
 `src/app/[...slug]/page.tsx` dulu mengembalikan `${title} - ${SITE.name}`.
-Untuk halaman generic, `metadata.title` disusun dari labelJejak halaman itu,
+Untuk halaman generic, `metadata.title` disusun dari label jejak halaman itu,
 sehingga hasilnya seperti `Tentang Kami - RSUD Contoh Sehat`. Template lalu
 menempelkan nama rumah sakit lagi, dan `<title>`-nya menjadi
 `Tentang Kami - RSUD Contoh Sehat | RSUD Contoh Sehat`. Nama rumah sakit
@@ -80,7 +80,7 @@ menghitung ulang lalu meragukan hasilnya.
 
 ### Status
 
-**Belum di-commit.** Perubahan ada di working tree pada dua berkas:
+**Sudah di-commit** di `422292e`. Perubahan itu ada di dua berkas:
 
 | Berkas | Isi |
 |---|---|
