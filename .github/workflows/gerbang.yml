@@ -25,10 +25,6 @@ concurrency:
   group: gerbang-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-# Batas waktu enam menit. Build produksi pada repo ini selesai sekitar dua
-# menit, jadi angka ini memberi ruang tanpa membiarkan pemeriksaan menggantung.
-timeout-minutes: 6
-
 # Repo hanya perlu dibaca. Tidak ada langkah yang menulis ke GitHub.
 permissions:
   contents: read
@@ -38,7 +34,19 @@ jobs:
     name: Lint, tes, build
     runs-on: ubuntu-latest
 
+    # Batas waktu enam menit. Build produksi pada repo ini selesai sekitar dua
+    # menit, jadi angka ini memberi ruang tanpa membiarkan pemeriksaan
+    # menggantung. Ditaruh di job, bukan di atas: `timeout-minutes` di level
+    # workflow tidak valid dan membuat seluruh alur gagal sebelum mulai.
+    timeout-minutes: 6
+
     env:
+      # Aplikasi ini melayani zona WIB dan sebagian aturannya memakai tanggal
+      # setempat mesin. Tanpa ini, runner GitHub yang berjalan dalam UTC
+      # menghitung "hari ini" yang berbeda pada 00:00-06:59 WIB, dan dua tes
+      # waktu gagal padahal lulus di mesin pengembang. Ini penanda sementara
+      # sampai aturannya dihitung dari UTC eksplisit, bukan dari zona mesin.
+      TZ: Asia/Jakarta
       # Kosong berarti mode snapshot. Jangan diisi dengan URL database mana pun,
       # dan jangan pakai secret repository untuk ini.
       DATABASE_URL: ""
