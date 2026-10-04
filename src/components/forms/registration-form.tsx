@@ -109,18 +109,27 @@ const INITIAL: Fields = {
 };
 
 /**
- * Tanggal hari ini dalam waktu setempat, bentuk `YYYY-MM-DD`.
+ * Selisih WIB dari UTC dalam jam.
  *
- * Sengaja tidak memakai `toISOString()`: itu menghasilkan tanggal dalam UTC.
- * WIB tujuh jam di depan UTC, jadi antara pukul 00:00 dan 06:59 waktu
- * setempat tanggal UTC masih kemarin. Formulir lalu menerima booking
- * kemarin sebagai "tidak sudah lewat".
+ * WIB tidak punya daylight saving, jadi angka ini tetap sepanjang tahun.
+ */
+const WIB_OFFSET_JAM = 7;
+
+/**
+ * Tanggal hari ini dalam waktu WIB, bentuk `YYYY-MM-DD`.
+ *
+ * Dihitung dari UTC ditambah offset eksplisit, bukan dari waktu setempat
+ * mesin. Server CI berjalan dalam UTC dan VPS bisa begitu juga; memakai
+ * `getMonth`/`getDate` membuat "hari ini" ikut zona waktu mesin dan booking
+ * kemarin lolos antara 00:00 dan 06:59 WIB. Dengan offset eksplisit, hasilnya
+ * sama di zona waktu mana pun, dan `vi.setSystemTime` di tes tetap berfungsi
+ * karena yang dibaca adalah `Date.now()`.
  */
 function tanggalHariIni(): string {
-  const d = new Date();
-  const bulan = String(d.getMonth() + 1).padStart(2, "0");
-  const hari = String(d.getDate()).padStart(2, "0");
-  return `${d.getFullYear()}-${bulan}-${hari}`;
+  const kini = new Date(Date.now() + WIB_OFFSET_JAM * 3_600_000);
+  const bulan = String(kini.getUTCMonth() + 1).padStart(2, "0");
+  const hari = String(kini.getUTCDate()).padStart(2, "0");
+  return `${kini.getUTCFullYear()}-${bulan}-${hari}`;
 }
 
 /**

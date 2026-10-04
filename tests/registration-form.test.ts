@@ -27,13 +27,19 @@ import {
  * ini yang akan menangkapnya lebih dulu.
  */
 
-/** Tanggal dalam waktu setempat, bukan UTC. Lihat catatan di bawah. */
+/**
+ * Tanggal WIB ditambah offset hari, bukan tanggal setempat mesin.
+ *
+ * Implementasi yang diuji menghitung WIB dari UTC eksplisit, jadi helper tes
+ * harus memakai cara yang sama. Kalau helper memakai `getMonth`/`getDate`
+ * mesin, keduanya berbeda satu hari pada 00:00-06:59 WIB di mesin UTC, dan tes
+ * yang tidak memakai jam palsu gagal hanya di zona itu.
+ */
 function tanggalSetempat(offsetHari = 0): string {
-  const d = new Date();
-  d.setDate(d.getDate() + offsetHari);
-  const bulan = String(d.getMonth() + 1).padStart(2, "0");
-  const hari = String(d.getDate()).padStart(2, "0");
-  return `${d.getFullYear()}-${bulan}-${hari}`;
+  const d = new Date(Date.now() + (7 + offsetHari * 24) * 3_600_000);
+  const bulan = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const hari = String(d.getUTCDate()).padStart(2, "0");
+  return `${d.getUTCFullYear()}-${bulan}-${hari}`;
 }
 
 const BESOK = tanggalSetempat(1);
