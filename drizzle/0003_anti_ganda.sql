@@ -1,0 +1,34 @@
+-- Mencegah satu nomor telepon punya dua pendaftaran untuk jadwal yang sama.
+--
+-- PRD bagian 12 tidak menyebut aturan ini, jadi index ini hasil dari
+-- keputusan teknis di `docs/roadmap.md` bagian 3.13, bukan dari tuntutan PRD.
+-- Bentuk yang paling sempit yang sesuai dengan kerusakan yang teridentifikasi:
+-- "satu orang menekan kirim dua kali, atau menyimpan halaman lalu mengirim ulang,
+-- lalu mendapat dua nomor antrean untuk slot yang sama".
+--
+-- Yang SENGAJA tidak ditegakkan, dan alasannya:
+--
+--   - Satu nomor telepon boleh mendaftar di dua slot berbeda pada hari yang sama.
+--   - Satu nomor telepon boleh mendaftar ke dokter berbeda pada hari yang sama.
+--
+-- Mengunci keduanya akan menolak kegiatan yang sah, misalnya satu orang
+-- mengambil antrean di dua poliklinik pada hari yang sama. Dua bentuk yang lebih
+-- luas sudah dipetakan di roadmap 3.13 sebagai pilihan yang ditolak.
+--
+-- `schedule_id` boleh NULL kalau admin sudah menghapus jadwalnya. Di PostgreSQL,
+-- NULL pada unique index tidak pernah dianggap sama dengan NULL lain, jadi
+-- pendaftaran yang jadwalnya sudah hilang tidak ikut saling memblokir. Itu benar:
+-- tanpa jadwal, tidak ada slot yang sama untuk diblokir.
+--
+-- Index ini adalah pengaman kedua, bukan satu-satunya. `createAppointment`
+-- mengecek lebih dulu supaya pesan yang muncul ke pasien bisa ditulis dalam
+-- bahasa manusia. Yang ditangani index ini adalah dua permintaan yang datang
+-- bersamaan: keduanya bisa lolos pengecekan, dan hanya database yang bisa
+-- memastikan salah satunya ditolak.
+--
+-- Migration ini tidak menghapus data. Kalau sudah ada baris yang melanggar, index
+-- ini gagal dibuat dengan pesan dari PostgreSQL, dan itu memang yang diharapkan:
+-- data ganda harus dibersihkan lebih dulu, bukan dipotong diam-diam.
+
+CREATE UNIQUE INDEX "appointments_phone_schedule_unique"
+  ON "appointments" USING btree ("phone", "schedule_id");
