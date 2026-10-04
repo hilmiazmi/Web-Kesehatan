@@ -425,13 +425,76 @@
     padding: 1.25rem;
     overflow-y: auto;
     transform: translateX(100%);
-    transition: transform 0.3s ease;
+
+    /* `translateX(100%)` saja tidak menyembunyikan panel dari pengguna
+       keyboard dan pembaca layar. Elemennya memang di luar layar, tapi 74
+       tautan di dalamnya masih bisa difokus, jadi Tab masuk ke menu yang
+       tidak terlihat dan pembaca layar membacakan isinya.
+       `visibility` menutup keduanya tanpa JavaScript, jadi benar sejak render
+       pertama dan tidak bergantung pada hydration.
+
+       `visibility` dianimasikan sebagai langkah diskret: saat ditutup,
+       nilainya baru jadi `hidden` di akhir transisi, jadi panel tetap
+       terlihat sepanjang durasi geser keluar. Saat dibuka, nilainya langsung
+       `visible` di awal. */
+    visibility: hidden;
+    transition: transform 0.3s ease, visibility 0.3s;
     box-shadow: -6px 0 24px rgba(0, 0, 0, 0.15);
     z-index: 1200;
   }
 
   .navmenu.navmenu-open {
     transform: translateX(0);
+    visibility: visible;
+  }
+
+  /* Tombol tutup di dalam panel.
+     Ditaruh absolut di kanan atas supaya tidak menambah tinggi panel dan
+     tidak mengubah posisi butir menu yang lain. */
+  .navmenu-close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 4px;
+    background-color: var(--rs-white);
+    color: var(--rs-accent);
+    font-size: 22px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .navmenu-close:hover {
+    background-color: var(--rs-section-light);
+  }
+
+  /* Latar gelap di belakang panel, jadi mengetuk area di luar panel menutup
+     menu. Tanpa ini, panel menutupi tombol hamburger yang berada di
+    koordinat yang sama, sehingga tidak ada satu pun titik di layar yang
+     bisa diketuk untuk menutupnya.
+
+     `z-index` 1190: di atas isi halaman, di bawah panel 1200.
+     tombol kembali ke atas punya 1199 sehingga masih bisa diklik di atas
+     latar ini, jadi tombol itu disembunyikan lewat
+     `body.navmenu-terbuka` di bawah. */
+  .navmenu-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1190;
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background-color: rgba(0, 0, 0, 0.45);
+    cursor: pointer;
   }
 
   .navmenu > ul {
@@ -492,10 +555,34 @@
   .navmobile {
     display: block;
   }
+
+  /* Panel terbuka adalah lapisan atas di mobile, jadi tombol kembali ke atas
+     tidak boleh bisa diklik saat itu.
+
+     Bukan `display: none`. `BackToTop` memakai kelas `d-flex` dari Bootstrap,
+     yang menulis `display: flex !important`, jadi `display: none` kalah dan
+     tombolnya tetap bisa diklik di atas latar penutup. `visibility: hidden`
+     menang karena tidak pernah ditimpa `!important`, dan hasilnya sama untuk
+     keperluan ini: elemen yang `visibility: hidden` tidak menerima klik
+     maupun fokus.
+
+     `z-index`-nya tidak disentuh, supaya angka 1199 yang sudah diverifikasi
+     tetap satu-satunya angka `z-index` pada blok `.scroll-top`. */
+  body.navmenu-terbuka .scroll-top {
+    visibility: hidden;
+  }
 }
 
 @media (min-width: 1200px) {
   .nav-mobile {
+    display: none;
+  }
+
+  /* Dua elemen ini hanya untuk panel off-canvas. Di desktop panelnya tidak
+     pernah ada, jadi keduanya harus hilang dan tidak menambah apa pun ke
+     tata letak. */
+  .navmenu-close,
+  .navmenu-backdrop {
     display: none;
   }
 }

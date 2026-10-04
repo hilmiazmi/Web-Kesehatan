@@ -244,10 +244,10 @@ Navigasi keyboard: urutan Tab beranda logis, `outline` 3px ada di semua
 elemen, dan lightbox punya `role="dialog"` plus `aria-modal`, memindahkan fokus
 saat dibuka, menutup dengan Escape, dan mengembalikan fokus ke pemicunya.
 
-Satu temuan yang tidak diperbaiki: panel navigasi mobile tidak memakai
-`aria-hidden` maupun `inert` saat tertutup, jadi tautan di dalamnya masih bisa
-dicapai Tab meskipun panelnya di luar layar. Navbar dibekukan pemilik repo.
-Lihat bagian 5.
+Satu temuan yang awalnya tidak diperbaiki dan sekarang sudah ditutup: panel
+navigasi mobile tidak memakai `aria-hidden` maupun `inert` saat tertutup, jadi
+tautan di dalamnya masih bisa dicapai Tab meskipun panelnya di luar layar.
+Sekarang memakai `visibility: hidden`. Lihat 3.11.
 
 Lighthouse belum terpasang. Memasangnya berarti menambah dependensi, jadi
 memerlukan persetujuan tersendiri.
@@ -410,9 +410,8 @@ komponennya dipasang di `layout.tsx` dan dipakai di seluruh halaman.
 
 ### 3.11 Panel navigasi mobile tidak bisa ditutup dengan mengetuk
 
-**Selesai, tetapi belum masuk `main`.** Perbaikannya sudah ada di mesin
-pemilik repo dan belum di-commit di sana, jadi `main` sekarang masih punya kedua
-cacat mobile ini.
+**Selesai, sudah masuk `main`.** Navbar dibekukan pemilik repo, jadi perbaikannya
+dikerjakan hanya atas izin khusus, dan hanya cacat mobile ini yang disentuh.
 
 Ditemukan saat menguji tombol kembali ke atas di lebar 390px. Panel off-canvas
 saat terbuka punya kotak 340px mulai dari x=50 sampai x=390, sedangkan tombol
@@ -692,18 +691,11 @@ dipasang. Urutannya dari yang paling jelas.
    tambahkan constraint-nya. PRD tidak menyebut aturan ini, jadi tidak mendesak.
    Setelah keputusannya pekerjaannya kecil: satu unique index, satu migration,
    satu pesan galat.
-2. **Perbaiki panel navigasi mobile** di 3.11, kalau pemilik repo mengizinkan
-   menyentuh navbar lagi. Perbaikannya kecil: satu backdrop, atau satu penanganan
-   Escape, atau menggeser panel supaya tidak menutupi hamburger. Yang sekarang
-   terjadi adalah pengguna sentuh yang membuka menu tidak bisa menutupnya lagi
-   tanpa memilih salah satu tautan di dalamnya. Cacat keyboard-nya sudah tertutup
-   dan navbar sudah disentuh sekali dengan persetujuan khusus, jadi yang tersisa
-   murni soal sentuh.
-3. **Pasang Lighthouse** kalau angka SEO dan aksesibilitas ingin dibuktikan,
+2. **Pasang Lighthouse** kalau angka SEO dan aksesibilitas ingin dibuktikan,
    bukan hanya diperkirakan. Memasangnya berarti menambah dependensi. Ini
    satu-satunya butir di bagian 6 yang statusnya "belum diukur", jadi setiap
    klaim tentang aksesibilitas di dokumen ini masih perkiraan.
-4. **Baca-nyaring dan analytics** dikerjakan kalau diminta. Keduanya opsional
+3. **Baca-nyaring dan analytics** dikerjakan kalau diminta. Keduanya opsional
    di PRD.
 
 Butir 1 optional. Kalau pemilik repo menganggap tidak perlu, tidak ada yang rusak:
@@ -729,12 +721,12 @@ Yang **tidak** ada di daftar ini, karena sudah selesai atau sudah gugur:
 
 ## 5. Yang perlu diketahui sebelum lanjut
 
-- **Navbar dibekukan.** Jangan diubah tanpa diminta pemilik repo.
+- **Navbar dibekuan.** Jangan diubah tanpa diminta pemilik repo.
   `tests/navbar-beku.test.ts` mengunci keadaan itu, dan sengaja gagal kalau
   navbar disentuh. Pengecualiannya satu: panel off-canvas mobile, dengan
   persetujuan pemilik repo, dan perbaikannya dijelaskan di 3.11. Perbaikan itu
-  sudah ada di mesin pemilik repo tapi belum masuk `main`, jadi `main` sekarang
-  masih punya kedua cacat mobile itu.
+  sudah masuk `main`. Semua aturan barunya hanya ada di dalam
+  `@media (max-width: 1199.98px)`, jadi keadaan desktop tidak tersentuh.
 - **`collectSitemapPaths()` di `src/lib/sitemap.ts` adalah sumber sitemap.**
   Ia memindai folder `src/app` dari filesystem, jadi route baru ikut masuk
   begitu foldernya dibuat dan tidak bisa basi seperti daftar manual. Modul ini

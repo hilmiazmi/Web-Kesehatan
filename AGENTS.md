@@ -132,7 +132,7 @@ bukan tebakan. Rinciannya ada di `docs/design-tokens-terverifikasi.md`.
   `next/image` menolak SVG kecuali `dangerouslyAllowSVG` diaktifkan, dan
   mengaktifkannya melemahkan keamanan seluruh situs. Bentuknya dihasilkan oleh
   `/tmp/opencode/gen-avatar.py` supaya dapat dibangun ulang.
-- **NAVBAR BEKU. Jangan diubah tanpa diminta pemilik repo.**
+- **NAVBAR BEKU DI DESKTOP. Jangan diubah tanpa diminta pemilik repo.**
   Permintaan pemilik repo: navbar harus tetap seperti aslinya dan tidak boleh
   diubah lagi. Keadaan yang dibekukan ada di commit `a9b5fd5`.
   - Batas desktop `1200px`, dengan panel off-canvas `translateX(100%)` dan
@@ -158,6 +158,42 @@ bukan tebakan. Rinciannya ada di `docs/design-tokens-terverifikasi.md`.
 
   `tests/navbar-beku.test.ts` mengunci semua angka di atas. Tes itu gagal kalau
   navbar disentuh. Jangan dihapus atau dilonggarkan tanpa diminta.
+
+  **Pengecualian yang sudah ada: panel off-canvas mobile, diperbaiki 4 Oktober
+  2026 atas izin pemilik repo.** Semua aturan barunya hanya ada di dalam
+  `@media (max-width: 1199.98px)`. `.navmenu` diukur ulang di 1920, 1440, dan
+  1200px: tetap `894px`, font `15px`, `flex-wrap: nowrap`, tinggi `.branding`
+  53px. Kalau angka itu berubah, berarti keadaan beku dilanggar, bukan berarti
+  perbaikannya salah.
+  - Panel yang tertutup memakai `visibility: hidden`, bukan hanya
+    `translateX(100%)`. Tanpa itu, 74 tautan di dalam panel tetap bisa difokus
+    padahal tidak terlihat, jadi Tab masuk ke menu yang tidak kelihatan.
+    `visibility` juga ikut masuk `transition`, karena nilainya dianimasikan
+    sebagai langkah diskret: panel tetap terlihat sepanjang durasi geser keluar.
+  - Tiga cara menutup, semuanya dipakai karena tidak ada satu pun yang cukup
+    sendiri: `.navmenu-backdrop` (latar penutup, `z-index: 1190`, di bawah
+    panel 1200), tombol `.navmenu-close` di dalam panel, dan tombol Escape.
+  - Sambil panel terbuka, `body` dapat kelas `navmenu-terbuka` dan
+    `overflow: hidden`. Tanpa itu, halaman di belakang panel masih bisa bergulir
+    dan membuat orang mengira panelnya yang bergerak.
+  - Fokus kembali ke hamburger **hanya setelah panel ditutup**, dijaga ref
+    `pernahTerbuka`. Tanpa penjaga itu, `useEffect` berjalan sekali saat render
+    pertama dengan panel masih tertutup dan fokus melompat ke tombol menu, jadi
+    pembaca layar tidak lagi membacakan isi halaman.
+  - `body.navmenu-terbuka .scroll-top` memakai `visibility: hidden`, bukan
+    `display: none`. Alasannya teknis: `BackToTop` memakai `d-flex` dari
+    Bootstrap yang menulis `display: flex !important`, jadi `display` biasa
+    kalah. `z-index` tombol itu tidak disentuh, karena
+    `tests/kembali-ke-atas.test.ts` mengunci 1199 sebagai satu-satunya nilai.
+
+  `tests/panel-nav-mobile.test.ts` mengunci seluruh perilaku di atas. Cara
+  memeriksa angka CSS di berkas tes ada di helper `kodeSaja()`: komentar harus
+  dibuang dulu, karena aturan pembacaan properti hanya menerima `^`, `{`, atau
+  `;` tepat sebelum nama propertinya. Tanpa itu, `visibility: hidden` yang
+  didahului penutup komentar terbaca tidak ada.
+- **Jangan menulis `*/` di dalam komentar blok manapun di repo ini.** Itu menutup
+  komentar lebih awal, dan sisa komentarnya dibaca TypeScript sebagai kode. Error
+  berikutnya muncul jauh dari lokasi sebenarnya, jadi sulit dibaca.
 - **Tombol hamburger harus di LUAR `.navmenu`.** Di mobile `.navmenu` menjadi
   panel off-canvas `translateX(100%)`, sehingga apa pun isinya tidak bisa diklik.
 - Submenu navbar: hover di desktop dan tautan induk tetap dinavigasi; accordion
