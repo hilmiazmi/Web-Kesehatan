@@ -1,5 +1,5 @@
 /**
- * Kropl seluruh tautan internal situs dan bandingkan dengan halaman yang
+ * Kontrol seluruh tautan internal situs dan bandingkan dengan halaman yang
  * benar-benar ditulis build.
  *
  * Kenapa ini skrip terpisah dan bukan tes Vitest. Tes berjalan tanpa build,

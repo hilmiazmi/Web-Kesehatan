@@ -103,5 +103,5 @@ jobs:
       #
       # Catatan urutan: langkah ini membaca `.next/server/app`, jadi tidak
       # butuh server, tidak butuh database, dan tidak butuh browser.
-      - name: Kropl tautan dan kelengkapan sitemap
+      - name: Kontrol tautan dan kelengkapan sitemap
         run: bun run cek:tautan
