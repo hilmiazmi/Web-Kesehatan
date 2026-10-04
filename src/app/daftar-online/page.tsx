@@ -30,11 +30,11 @@ export default function DaftarOnlinePage() {
 
               <p className="form-footnote">
                 <i className="bi bi-info-circle" aria-hidden="true" />
-                Validasi formulir berjalan di sisi peramban, dan
-                penyimpanannya ke server belum dikirim. Endpoint-nya sudah
-                ada (<code>POST /api/v1/appointments</code>), tetapi
-                bentuknya berbeda: endpoint itu menuntut pilihan dokter dan
-                jam, sedangkan formulir ini baru menanyakan tanggal.
+                Formulir ini mengirim data ke <code>POST /api/v1/appointments</code>.
+                Jam kunjungan diambil dari jadwal dokter yang benar-benar
+                tersedia, dan nomor antrean dihitung server saat pendaftaran
+                disimpan. NIK divalidasi bentuknya tetapi tidak ikut
+                tersimpan.
               </p>
             </div>
           </div>
