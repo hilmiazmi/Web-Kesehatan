@@ -220,22 +220,34 @@ describe("panel mobile: keadaan desktop tidak tersentuh", () => {
   });
 
   it("tidak ada batas lebar baru yang muncul", () => {
-    // Batas yang sah: 1495.98px yang hanya menyembunyikan `.header-ctas`
-    // (dikunci `tests/header-ctas.test.ts`). Blok itu dikeluarkan dulu supaya
-    // tidak menutupi batas liar yang lain.
-    const tanpaCta = siteCss.replace(
-      /@media \(max-width: 1495\.98px\) \{\s*\.header-ctas \{[^}]*\}\s*\}/,
-      "",
-    );
-    expect(tanpaCta).not.toMatch(/@media \((?:max|min)-width: 1[3-5][0-9]{2}(?:\.\d+)?px/);
+    // Batas yang sah hanya 1199.98px dan 1200px. Blok `.header-ctas` yang dulu
+    // memakai 1495.98px sudah tidak ada: header desktop sekarang dua baris,
+    // sehingga tidak ada lebar desktop yang perlu CTA disembunyikan.
+    // Aturan CTA-nya sendiri dikunci `tests/header-ctas.test.ts`.
+    expect(siteCss).not.toMatch(/@media \((?:max|min)-width: 1[3-9][0-9]{2}(?:\.\d+)?px/);
   });
 
-  it("batas 1200px tetap sama di CSS dan di logika percabangan", () => {
+  it("batas 1200px tetap sama di CSS, logika percabangan, dan aturan CTA", () => {
     // `isDesktopNav()` di Navbar menentukan apakah submenu memakai hover atau
     // accordion. Kalau batasnya berbeda dari media query CSS, submenu akan
-    // memakai perilaku yang salah di rentang lebar antara keduanya.
+    // memakai perilaku yang salah di rentang lebar antara keduanya. Aturan
+    // CTA disembunyikan juga harus berhenti tepat di batas yang sama, supaya
+    // tidak ada lebar desktop yang kehilangan CTA.
     expect(siteCss).toContain("@media (max-width: 1199.98px) {");
     expect(siteCss).toContain("@media (min-width: 1200px) {");
     expect(navbar).toContain('window.matchMedia("(min-width: 1200px)").matches');
+    // Aturan CTA harus berada di blok yang sama, bukan di media query sendiri
+    // dengan batas berbeda.
+    //
+    // `kodeSaja` wajib dipakai di sini. Tanpa itu, sebutan
+    // `@media (min-width: 1200px)` di dalam komentar pada blok itu ikut
+    // terhitung, dan batas yang dicari menjadi salah tempat.
+    const blokMobile = kodeSaja(
+      siteCss.slice(
+        siteCss.indexOf("@media (max-width: 1199.98px) {"),
+        siteCss.indexOf("@media (min-width: 1200px) {"),
+      ),
+    );
+    expect(blokMobile).toContain(".header-ctas");
   });
 });

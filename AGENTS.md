@@ -142,11 +142,26 @@ bukan tebakan. Rinciannya ada di `docs/design-tokens-terverifikasi.md`.
   - Delapan butir nav butuh `894px`, tidak membungkus dan tidak menyusut.
     Angka itu adalah lebar elemen `.navmenu` pada viewport 1920px,
     hasil `getBoundingClientRect()`, bukan perkiraan.
-  - Satu baris header butuh `1496px`; di bawah itu dua CTA header
-    disembunyikan lewat `@media (max-width: 1495.98px)` supaya tidak ada yang
-    terpotong saat sidebar browser (Zen/Helium) aktif. Kedua CTA tetap
-    terjangkau lewat panel mobile, bilah aksi cepat, dan footer.
-  - `tests/header-ctas.test.ts` mengunci perilaku CTA di atas;
+  - **Header desktop dua baris.** Baris pertama logo + dua CTA, baris kedua
+    nav penuh dan dipusatkan. Alasannya angka: satu baris butuh `1496px`
+    (logo 237 + nav 894 + CTA 341 + padding 24), sedangkan viewport terkecil
+    yang masih desktop adalah `1200px`. Menambah tinggi header dari `53px`
+    menjadi `100px` memberi ruang yang cukup tanpa harus mengecilkan huruf nav.
+  - **Sudah dicoba dan ditolak, jangan diulang:**
+    - Memaksa satu baris dengan menyembunyikan CTA di bawah `1496px`.
+      Akibatnya nav terdorong ke tepi kanan sampai menempel (`12px`) dan dua
+      tombol utama hilang. Persis cacat yang dilaporkan pemilik repo
+      4 Oktober 2026 lewat tangkapan layar.
+    - Mengecilkan nav supaya muat di `1200px`. Nav harus menyusut sekitar 33%
+      supaya seluruhnya muat, dan huruf `15px` menjadi `10px`: tidak terbaca.
+  - Yang menyembunyikan CTA hanyalah lebar di bawah `1200px`, di mana header
+    memang sedang berpanel off-canvas. Di mobile CTA tetap terjangkau lewat
+    panel, bilah aksi cepat, dan footer.
+  - Diukur ulang lewat CDP pada 1200, 1280, 1366, 1440, 1496, 1920, dan
+    2560px: tinggi `.branding` `100px`, nav tetap `894px` di semua lebar itu,
+    `scrollWidth` sama dengan `clientWidth` (tidak ada gulir horizontal), dan
+    CTA `display: flex` di semua lebar itu.
+  - `tests/header-ctas.test.ts` mengunci semua angka di atas;
     `tests/panel-nav-mobile.test.ts` mengunci panel mobile.
 
   **Panel off-canvas mobile, diperbaiki 4 Oktober 2026 atas izin pemilik repo.**

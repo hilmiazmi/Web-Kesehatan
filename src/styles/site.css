@@ -400,29 +400,6 @@
   white-space: nowrap;
 }
 
-/* CTA header disembunyikan saat tidak muat.
- *
- * Satu baris header butuh 1496px (logo 237 + nav 894 + CTA 341 + padding 24,
- * hasil pencarian biner di peramban). Tanpa aturan ini, di rentang 1200-1495px
- * — misalnya saat sidebar kanan Zen/Helium memakan lebar viewport — tombol
- * "Administrasi Pasien" terpotong di tepi kanan. Di bawah 768px masalahnya
- * sama: logo + dua CTA + hamburger tidak muat berdampingan.
- *
- * Nav desktopnya sendiri tidak disentuh: batas 1200px, font 15px, lebar
- * 894px nowrap, dan bentuk pill CTA tetap seperti semula. Kedua CTA tetap
- * terjangkau lewat salinannya di panel off-canvas (kelas .nav-mobile),
- * bilah aksi cepat, dan footer.
- *
- * `!important` diperlukan karena markup memakai `d-sm-flex` dari Bootstrap
- * yang menulis `display: flex !important`, jadi `display: none` biasa kalah.
- * Batasnya 1495.98px (bukan 1496px) mengikuti konvensi Bootstrap `.98`
- * supaya tidak bentrok tepat di titik batas. */
-@media (max-width: 1495.98px) {
-  .header-ctas {
-    display: none !important;
-  }
-}
-
 .mobile-nav-toggle {
   background: none;
   border: none;
@@ -437,10 +414,27 @@
  *
  * Batasnya 1200px (warisan Bootstrap `xl`): di bawah itu nav desktop
  * diganti panel off-canvas + tombol hamburger, di atas itu nav penuh tanpa
- * hamburger. Rentang 1200-1495px tidak muat satu baris penuh, dan itu
- * ditangani aturan `.header-ctas` di atas (CTA disembunyikan), bukan dengan
- * menggeser batas ini. */
+ * hamburger dan memakai barisnya sendiri. Rentang 1200-1495px tidak muat satu
+ * baris penuh, dan itu ditangani header dua baris di blok
+ * `@media (min-width: 1200px)`, bukan dengan menggeser batas ini. */
 @media (max-width: 1199.98px) {
+  /* Di desktop (1200px ke atas) kedua CTA tetap tampil karena nav pindah ke
+   * baris sendiri, lihat blok `@media (min-width: 1200px)` di bawah.
+   *
+   * Di sini logo + dua CTA + tombol hamburger tidak muat berdampingan, jadi
+   * yang disembunyikan hanya CTA, bukan nav. Salinannya ada di dalam panel
+   * off-canvas (kelas `.nav-mobile`), di bilah aksi cepat, dan di footer.
+   *
+   * Aturan ini sengaja di dalam blok panel navigasi, bukan blok media query
+   * terpisah, supaya batasnya tidak mungkin melenceng dari batas panel.
+   *
+   * `!important` diperlukan karena markup memakai `d-sm-flex` dari Bootstrap
+   * yang menulis `display: flex !important`, jadi `display: none` biasa kalah
+   * dan tombolnya tetap tampil. */
+  .header-ctas {
+    display: none !important;
+  }
+
   .navmenu {
     position: fixed;
     top: 0;
@@ -613,6 +607,54 @@
   .navmenu-close,
   .navmenu-backdrop {
     display: none;
+  }
+
+  /* ---------- Header desktop dua baris ----------
+   *
+   * Baris header dipaksa menjadi satu baris adalah sumber masalahnya: logo
+   * 237px + nav 894px + CTA 341px = 1496px. Di bawah angka itu satu baris
+   * tidak muat. Dua solusi lama sama-sama buruk:
+   *
+   * - Sembunyikan CTA (perubahan 4 Oktober 2026). Akibatnya nav terdorong ke
+   *   tepi kanan sampai menempel, sisa marginya 12px, dan dua tombol utama
+   *   hilang. Itu yang terlihat pada tangkapan layar dari pemilik repo.
+   * - Mengecilkan nav supaya muat. Nav harus menyusut sekitar 33% supaya
+   *   seluruhnya muat di 1200px, dan huruf 15px menjadi 10px: tidak terbaca.
+   *
+   * Yang dipakai di sini: nav mendapat baris penuh sendiri. Baris pertama
+   * logo dan CTA, baris kedua nav. Ruang baris kedua pada 1200px adalah
+   * 1176px, cukup untuk nav 894px dengan sisa 282px, dan tidak ada yang perlu
+   * disembunyikan pada lebar desktop mana pun.
+   *
+   * `flex-wrap: wrap` dipakai, bukan hanya `order` pada dua elemen, karena
+   * `order` hanya menukar urutan di dalam satu baris flex: tanpa wrap tidak
+   * ada baris kedua. `flex-basis: 100%` pada nav yang memaksanya turun ke baris
+   * baru, dan `order` memastikan urutannya logo, CTA, baru nav. */
+  .header-nav-menu {
+    flex-wrap: wrap;
+    row-gap: 0.15rem;
+  }
+
+  .header-nav-menu > .logo {
+    order: 1;
+  }
+
+  .header-nav-menu > .header-ctas {
+    order: 2;
+    margin-left: auto;
+  }
+
+  .header-nav-menu > .navmenu {
+    order: 3;
+    flex: 1 0 100%;
+    /* Nav di baris kedua dipusatkan, bukan menempel kiri, supaya simetris
+       dengan logo di baris pertama. */
+    justify-content: center;
+    /* Pemisah tipis antara logo dan nav, supaya dua baris terbaca sebagai satu
+       kesatuan dan bukan dua blok yang tidak sengaja berdempet. */
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    margin-top: 0.15rem;
+    padding-top: 0.15rem;
   }
 }
 
