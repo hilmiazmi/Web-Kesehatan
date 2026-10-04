@@ -17,13 +17,14 @@ bukan sebagai perkiraan.
 |---|---|---|
 | Halaman ter-prerender | 150 | berkas `.html` di `.next/server/app`, lewat `bun run cek:tautan` |
 | Pola rute dinamis | 11 | `dynamicRoutes` di `.next/prerender-manifest.json` |
-| Berkas tes | 35 | `bun run test` |
-| Jumlah tes | 501 | `bun run test` |
+| Berkas tes | 41 | `bun run test` |
+| Jumlah tes | 564 | `bun run test` |
 | Rute internal unik | 63 | `collectNavPaths()` di `src/data/navigation.ts` |
 | Tabel terkelola di panel admin | 17 | `src/server/admin/registry.ts` |
 | Tabel di skema database | 27 | `pgTable` di `src/server/db/schema.ts` |
-| Route handler API | 42 | `src/app/api/v1/**/route.ts`, tidak termasuk catcher 404 |
+| Route handler API | 43 | `src/app/api/v1/**/route.ts`, termasuk catcher 404 |
 | Butir navigasi tingkat atas | 8 | `NAV_ITEMS` |
+| Halaman panel admin | 4 | `src/app/admin/**/page.tsx`, semuanya dinamis karena butuh sesi |
 
 Jumlah "halaman ter-prerender" pernah ditulis 160, lalu 154. Dua-duanya salah,
 dan sekarang alasannya jelas.
@@ -36,13 +37,19 @@ lima kuncinya bukan halaman: `/_global-error`, `/_not-found`, `/favicon.ico`,
 
 Angka yang benar adalah 150, yaitu berkas `.html` yang benar-benar ditulis di
 `.next/server/app`. Lebih mudah diukur dan tidak perlu menebak apa yang
-sepatnya dihitung. `bun run cek:tautan` menghitungnya langsung, jadi angka ini tidak
-lagi perlu diperbarui tangan setiap kali ada rute baru.
+sepatnya dihitung. `bun run cek:tautan` menghitungnya langsung, jadi angka ini
+tidak lagi perlu diperbarui tangan setiap kali ada rute baru.
+
+Empat halaman panel admin tidak termasuk 150, dan itu memang benar. Semuanya
+diserver saat diminta, bukan ditulis ke berkas HTML, karena isinya berbeda
+setiap pengunjung. `bun run cek:tautan` tidak pernah melihatnya, dan tidak
+perlu: `/admin` tidak boleh ada di sitemap maupun punya tautan masuk.
 
 Gerbang kualitas terakhir: typecheck bersih, `bun run lint` bersih,
-`bun run test` 501 tes lulus, `bun run cek:konten` dan `bun run audit:teks`
-lulus, `bun run build` sukses, dan `bun run cek:tautan` tidak menemukan tautan
-mati, halaman tanpa tautan masuk, maupun halaman yang lupa masuk sitemap.
+`bun run test` 564 tes lulus dari 41 berkas, `bun run cek:konten` dan
+`bun run audit:teks` lulus, `bun run build` sukses, dan `bun run cek:tautan`
+tidak menemukan tautan mati, halaman tanpa tautan masuk, maupun halaman yang
+lupa masuk sitemap.
 
 Alur CI sudah ada di `.github/workflows/gerbang.yml`. Ia menjalankan lint, tes,
 `cek:konten`, `audit:teks`, build, lalu `cek:tautan` pada setiap push dan setiap
@@ -78,7 +85,7 @@ adalah HTML hasil prerender.
 
 | # | Butir PRD | Status |
 |---|---|---|
-| 11 | Daftar online (E-Pasien) | selesai, termasuk nomor antrean |
+| 11 | Daftar online (E-Pasien) | selesai. Alurnya persis seperti PRD butir 11: pilih dokter, pilih tanggal, pilih pembayaran, dapat nomor antrean, lalu modal konfirmasi. |
 | 12 | Registrasi MCU | selesai |
 | 13 | Kritik dan saran | selesai |
 | 14 | WBS | selesai |
@@ -87,25 +94,47 @@ adalah HTML hasil prerender.
 
 ### P3 — Panel admin
 
-**Sebagian, dan klaim sebelumnya di bagian ini terlalu cepat.** Tulisan
-sebelumnya berbunyi "Butir 17 dan 18 selesai". Setengah dari itu benar.
+**Selesai.** PR #34 upstream menutup kedua sisinya, server dan antarmuka.
 
-Benar: sisi server sudah lengkap. Tujuh belas tabel punya CRUD lewat
-`src/server/admin/`, inbox mencakup pendaftaran, registrasi MCU, kritik-saran,
-WBS, serta respons survei, `POST /api/v1/auth/login` sudah ada, dan pemisahan
-peran berlaku: `front_office` tidak bisa mengubah konten, `editor` tidak bisa
-mengelola akun.
+Butir 17 PRD meminta "Login admin, manajemen: dokter, spesialis, jadwal,
+layanan/fasilitas, paket MCU, berita, penghargaan, galeri, hero slider,
+testimoni, asuransi, FAQ, kapasitas bed, lowongan, dokumen, pengaturan situs".
+Semuanya ada:
 
-Salah: **tidak ada satu pun halaman panel admin.** Butir 17 PRD menyebut
-"Login admin, manajemen: dokter, spesialis, jadwal, ..." dan itu permintaan
-antarmuka, bukan permintaan API. Yang ada hanya route handler di
-`src/app/api/v1/admin/*`. `find src/app -name page.tsx` yang menyentuh kata
-`admin` mengembalikan nol hasil, dan tidak ada berkas `middleware.ts` maupun
-`proxy.ts` yang melindungi halaman apa pun.
+| Lapisan | Isi |
+|---|---|
+| Halaman | `/admin/login`, `/admin` (dasbor), `/admin/inbox/[kind]`, `/admin/records/[table]` |
+| Komponen | `LoginForm`, `AdminShell`, `AdminNav`, `RecordManager`, `InboxManager`, `FormBaris`, `LogoutButton`, `nilai-form` |
+| Gaya | `src/styles/admin.css` |
 
-Artinya panel admin tidak bisa dipakai dari mana pun: tidak ada halaman login,
-tidak ada dasbor, tidak ada layar manajemen. Sudah lewat produksi, dan masih
-begitu. Lihat 3.12.
+Gerbang sesi ada di dua tempat dan keduanya diperiksa:
+
+- Halaman: `(panel)/layout.tsx` memanggil `readSession()` lalu
+  `redirect("/admin/login")`. Diverifikasi di server produksi: `/admin`
+  membalas 307 ke `/admin/login` tanpa sesi, dan `/admin/login` membalas 200.
+- Route handler: keempat belas berkas di `src/app/api/v1/admin/**/route.ts`
+  semuanya memanggil `requireSession()`. Dicek satu per satu, tidak ada yang
+  lupa. Enam di antaranya juga memanggil `canEditContent`, jadi aturan peran di
+  Acceptance Criteria butir 10 ditegakkan di jalur HTTP, bukan hanya di
+  backside.
+
+Tujuh belas tabel punya CRUD generik, bukan tujuh belas halaman. `registry.ts`
+mendeskripsikan tiap tabel dan `RecordManager` merakit layar dari deskripsi itu.
+Inbox mencakup lima pengajuan: pendaftaran, registrasi MCU, kritik-saran, WBS,
+dan respons survei.
+
+Satu tambahan dari sesi ini: `noindex` untuk halaman admin. Sebelumnya tidak
+ada satu pun `robots: { index: false }` di repo, sehingga `/admin/login` boleh
+terindeks. Sekarang ada di `src/app/admin/layout.tsx`, di layout terluar supaya
+berlaku juga untuk halaman login. Diverifikasi di HTML yang tersaji:
+`<meta name="robots" content="noindex, nofollow"/>`.
+
+Tiga tes di `tests/admin-panel.test.ts` menjaganya: bahwa tandanya ada, bahwa
+tandanya ada di layout terluar dan bukan di `(panel)` yang tidak melingkupi
+halaman login, dan bahwa `robots.txt` tidak pernah memuat larangan yang menjadi
+awalan dari `/administrasi`. Tes ketiga menguji hasil `robots()`, bukan teks
+sumbernya, karena bentuk `disallow: ["/api/", "/admin"]` lolos dari pencarian
+teks biasa.
 
 ### P4 — Pelengkap (opsional)
 
@@ -259,7 +288,9 @@ sama dua kali. Keduanya tetap menjawab 200 dan tetap diuji soal tautan mati.
 
 ### 3.9 Tidak ada sitemap.xml dan robots.txt
 
-**Selesai.** Keduanya sebelumnya menjawab 404. Sekarang keduanya menjawab 200.
+**Selesai, dan cara penyelesaiannya berubah setelah rebase.** PR #33 upstream
+sudah membuat keduanya, jadi tidak lagi dikerjakan dari nol. Yang tersisa adalah
+memperbaiki apa yang belum terpakai di sana.
 
 - `src/app/sitemap.ts` menghasilkan 148 entri. Daftar path-nya datang dari
   `collectSitemapPaths()` di `src/lib/sitemap.ts`, yang menggabungkan tiga
@@ -267,6 +298,17 @@ sama dua kali. Keduanya tetap menjawab 200 dan tetap diuji soal tautan mati.
   untuk catch-all `[...slug]`, dan modul data tiap route yang nilainya sama
   dengan `generateStaticParams`. Tidak ada satu pun path yang diketik manual,
   sesuai aturan yang sama seperti `NAV_ITEMS`.
+
+Catatan versi. Versi sebelumnya bagian ini memakai `semuaRute()` di
+`src/lib/semua-rute.ts` dengan daftar `HALAMAN_TETAP` yang diketik tangan,
+karena `collectNavPaths()` melewati path yang punya folder sendiri dan delapan
+halaman ikut hilang dari peta situs. PR #37 upstream menutup celah itu dengan
+memindai filesystem, dan pemindaian itu lebih baik daripada daftar manual:
+route baru ikut masuk begitu foldernya dibuat, sedangkan daftar manual justru
+bisa basi tanpa ada yang memberi tahu. Jadi `src/lib/semua-rute.ts` dan
+`tests/semua-rute.test.ts`-nya dihapus. `bun run cek:tautan` tetap menangkap
+hasilnya, hanya sekarang ia membandingkan `collectSitemapPaths()`.
+
 - `src/app/robots.ts` menulis `Allow: /` dan `Disallow: /api/`, plus baris
   `Sitemap:` yang menunjuk ke `sitemap.xml`.
 - `src/lib/site-url.ts` menyatukan pembacaan `NEXT_PUBLIC_SITE_URL` yang
@@ -281,19 +323,16 @@ kedua berkas hanya dibaca setelah situs benar-benar dipublikasikan.
 `Disallow: /admin` sengaja TIDAK ditulis, padahal kelihatannya menggoda.
 `/administrasi` adalah halaman publik yang sengaja ada di navbar, dan aturan
 robots mencocokkan awalan, bukan segmen utuh, jadi `Disallow: /admin` ikut
-memblokir `/administrasi`.
+memblokir `/administrasi`. Halaman admin sendiri ditandai `noindex` lewat
+`metadata`, bukan lewat robots, dan alasannya ada di bagian P3: aturan robots
+mencegah perayap membaca, tetapi URL-nya masih bisa muncul di hasil pencarian
+sebagai judul tanpa isi.
 
 Hal ini tidak keluar dari daftar tautan karena ada penjaga: `scripts/cek-tautan.ts`
 membandingkan hasil `collectSitemapPaths()` dengan berkas HTML yang benar-benar
 ditulis build, dan kegagalannya menggagalkan CI. Sitemap yang tertinggal karena
 rute dinamis baru jadi ketahuan saat itu juga.
 
-Catatan versi: bagian ini sebelumnya menyebut `semuaRute()` di
-`src/lib/semua-rute.ts` dan menyandarkan sitemap pada `HALAMAN_TETAP`, yaitu
-daftar path yang diketik tangan. Pendekatan itu lebih rapuh: daftar manual bisa
-basi tanpa ada yang memberi tahu, sedangkan pemindaian filesystem tidak bisa.
-PR #37 upstream sudah menggantinya, jadi versi lama dihapus beserta
-`tests/semua-rute.test.ts`-nya.
 
 ### 3.10 Tombol kembali ke atas tidak ada
 
@@ -367,75 +406,149 @@ atas panel.
 
 Perbaikannya ada di navbar, jadi tidak dikerjakan tanpa persetujuan pemilik repo.
 
-### 3.12 Tidak ada halaman panel admin sama sekali
+### 3.12 Panel admin dan formulir e-pasien: koreksi atas dua klaim yang salah
 
-**Belum dikerjakan. Butuh keputusan pemilik repo soal ruang lingkup.**
+**Selesai. Dua-duanya hasil rebase ke upstream, bukan hasil kerjaan sesi ini.**
 
-Ini ditemukan saat menulis `robots.ts`, karena `./admin` yang ada di `src/app`
-ternyata hanya `src/app/api/v1/admin`, yaitu route handler, bukan halaman.
+Bagian ini sebelumnya menuduh panel admin tidak ada sama sekali. Itu salah, dan
+salah karena cara mengukurnya, bukan karena subjeknya.
 
-Yang benar-benar ada:
+Yang benar sekarang: panel admin lengkap, dengan halaman login, dasbor, lima
+layar inbox, dan layar manajemen untuk tujuh belas tabel. Gerbang sesinya juga
+nyata: `/admin` membalas 307 ke `/admin/login` tanpa sesi, dan keempat belas
+route handler admin semuanya memanggil `requireSession()`.
 
-- `src/server/admin/records.ts` dan modul lain di sana, untuk tujuh belas tabel.
-- `src/server/admin/accounts.ts` dengan `hashPassword` dan `verifyPassword`.
-- `POST /api/v1/auth/login` di `src/app/api/v1/auth/login/route.ts`, beserta
-  `src/server/auth/session.ts`.
-- `src/app/api/v1/admin/*`, dua puluh route handler.
+Kesalahannya punya satu sebab yang sama, dan bentuknya mudah terulang:
 
-Yang tidak ada:
+1. **Tree yang diukur basi.** Pemeriksaan dilakukan di tree sebelum PR #34
+   upstream masuk, ketika `src/app/admin` memang belum ada. Setelah rebase
+   berkasnya ada dan ter-track di git, dan `next dev` menyajikan `/admin/login`
+   dengan 200. Hanya pemeriksaan di build lama yang menyimpulkan tidak ada.
+2. **Build yang diukur basi.** `next build` yang seharusnya mendahului tidak
+   pernah jalan. Penyebabnya `pkill -f next-server` memakai pola yang juga ada
+   di baris perintah shell itu sendiri, jadi shell membunuh dirinya sendiri
+   sebelum sampai ke `bun run build`. `rm -rf .next` tidak sempat dijalankan dan
+   build lama tetap tersaji.
+3. **Log build yang dibaca juga basi**, dan `tail -40` pada pohon rute memotong
+   bagian atasnya, jadi `/admin` yang ada di urutan awal tidak terlihat sama
+   sekali.
 
-- Halaman login. Tidak ada `src/app/admin`, tidak ada `src/app/login`.
-- Dasbor atau layar manajemen apa pun. `find src/app -name page.tsx` yang
-  menyentuh kata `admin` mengembalikan nol hasil.
-- `middleware.ts` atau `proxy.ts`. Tidak ada satu pun berkas itu di repo, jadi
-  tidak ada lapisan yang menjaga halaman admin.
+Ketiganya satu arah: semua pengukuran dijalankan terhadap keadaan yang tidak
+lagi berlaku. Semuanya bisa ditutup dengan satu pertanyaan yang tidak sempat
+ditanyakan, yaitu apakah build ini dibangun dari tree sekarang.
 
-Butir 17 PRD meminta "Login admin, manajemen: dokter, spesialis, jadwal,
-layanan/fasilitas, paket MCU, berita, penghargaan, galeri, hero slider,
-testimoni, asuransi, FAQ, kapasitas bed, lowongan, dokumen, pengaturan situs".
-Delapan belas dari sembilan belas butir itu adalah permintaan antarmuka.
+Konsekuensinya nyata. `/admin/login` sempat hampir ditulis ulang sebagai
+temuan "`/admin` tidak ada di build", karena membalas 404 dari build basi.
+Temuan itu kelihatan sangat meyakinkan karena 404 memang jawaban yang benar
+untuk build yang memang tidak punya rute tersebut.
 
-Konsekuensinya sudah muncul di Acceptance Criteria: butir 9 gagal, dan butir 10
-lulus tanpa pengujian dari sisi pengguna karena tidak ada layar yang bisa
-memakai aturan peran itu. Penyebabnya sama dengan butir 7 dan butir 9: backend
-lengkap, tidak ada jalur dari antarmuka yang memakainya.
+### 3.13 Pendaftaran E-Pasien tidak menolak pendaftaran ganda
 
-Membuat panel admin adalah pekerjaan besar dan bukan pengikut butir 3.10, jadi
-tidak dikerjakan di sesi ini. Perlu diperlakukan sebagai pekerjaan tersendiri,
-dan hanya masuk akal kalau halaman publik mulai membaca dari database, karena
-selain 3.12 itu masih ada butir 9 yang gagal atas sebab yang sama.
+**Di luar Acceptance Criteria. Dicatat karena bisa jadi bocor, bukan karena
+PRD memintanya.**
+
+Koreksi lebih dulu, karena versi sebelumnya bagian ini menulis "Acceptance
+Criteria butir 7 menyebut tidak bisa daftar ganda". Itu salah. Butir 7 di PRD
+bagian 12 berbunyi "Pendaftaran E-Pasien menghasilkan nomor antrean dan
+tersimpan di DB", dan kata "ganda" tidak muncul di seluruh PRD kecuali di
+"deploy ganda Vercel + VPS" yang tidak ada hubungannya. Jadi butir 7 lulus,
+dan yang tertulis di sini bukan kekurangan terhadap PRD.
+
+Yang tetap benar adalah pengamatannya: endpoint-nya tidak menolak pendaftaran
+yang sama dua kali.
+
+Ditemukan saat menulis ulang bagian P2, setelah formulir terhubung ke API di
+PR #34 upstream.
+
+Yang sudah benar dan terverifikasi:
+
+- Formulir mengambil dokter dari `GET /api/v1/doctors`.
+- Formulir mengambil slot jam dari `GET /api/v1/schedules`.
+- Formulir mengirim `POST /api/v1/appointments` dengan `schedule_id`, persis
+  seperti yang dituntut endpoint.
+- Nomor antrean kembali ke pengguna setelah berhasil.
+- Kuota dicek dengan benar. `createAppointment` memakai penghitung atomik
+  `INSERT ... ON CONFLICT DO UPDATE ... RETURNING taken` di dalam transaksi,
+  jadi dua permintaan bersamaan tidak mendapat nomor antrean yang sama. Unique
+  index `(doctor_id, visit_date, queue_number)` jadi pengaman kedua.
+
+Yang tidak ada: apa pun yang menolak pasien yang sama mendaftar dua kali.
+
+Di `src/app/api/v1/appointments/route.ts` tidak ada satu pun pengecekan
+duplikat. `createAppointment` di `src/server/db/repo/appointments.ts` hanya
+memeriksa jadwal ada, dokter cocok, jadwal aktif, hari praktik cocok, dan kuota
+masih sisa. Tabel `appointments` punya unique index pada `ticket_code` dan pada
+`(doctor_id, visit_date, queue_number)`, tapi tidak pada `phone`, tidak pada
+`schedule_id`, dan tidak pada kombinasi apa pun yang melibatkan pasien.
+
+Konsekuensinya bisa dilakukan orang: satu orang menekan kirim dua kali, atau
+menyimpan halaman lalu mengirim ulang, dan mendapat dua nomor antrean untuk slot
+yang sama. Untuk rumah sakit fiktif ini tidak berbahaya. Untuk situs yang
+benar-benar dipakai, satu nomor telepon bisa mengisi seluruh kuota satu dokter.
+
+Kenapa tidak langsung dikerjakan: "ganda" itu definisi bisnis, bukan teknis,
+dan PRD tidak menyinggunginya sama sekali. Menambahkan constraint tanpa
+keputusan pemilik repo berarti mengarang aturan yang tidak diminta.
+Setidaknya tiga bentuk yang berbeda masuk akal, dan masing-masing menuntut
+constraint yang berbeda.
+
+| Bentuk "ganda" | Constraint yang dibutuhkan | Konsekuensi |
+|---|---|---|
+| Telepon sama, jadwal sama | Unik pada `(phone, schedule_id)` | Paling sempit. Satu orang tetap boleh mendaftar di dua slot berbeda. |
+| Telepon sama, dokter sama, tanggal sama | Unik pada `(phone, doctor_id, visit_date)` | Satu orang tidak bisa mengambil dua antrean ke dokter yang sama di hari yang sama. |
+| Telepon sama, tanggal sama | Unik pada `(phone, visit_date)` | Paling luas. Satu orang hanya boleh satu pendaftaran sehari. |
+
+Semuanya juga butuh keputusan kedua: apa yang terjadi kalau pendaftaran kedua
+ditolak. Menampilkan pesan "sudah terdaftar" sudah jelas. Yang belum jelas
+adalah apakah pendaftaran kedua harus **ditolak** atau **diterima lalu
+ditandai**, karena yang kedua memerlukan kolom status tambahan dan tidak bisa
+dijamin constraint database selama statusnya bisa berubah.
+
+---
 
 ## 4. Langkah berikutnya
 
-Tujuh langkah versi sebelumnya sudah diselesaikan; empat di antaranya selesai
-pada sesi terakhir ini. Yang tersisa hanya yang butuh keputusan pemilik repo,
-perkakas yang belum dipasang, atau pekerjaan yang memang besar.
+Sembilan langkah versi sebelumnya sudah diselesaikan. Empat di antaranya selesai
+pada sesi terakhir ini, dan dua di antaranya selesai oleh upstream tanpa ikut
+saya: peta situs di PR #33, panel admin dan formulir e-pasien di PR #34.
 
-1. **Hubungkan formulir Pendaftaran Online ke `POST /api/v1/appointments`.**
-   Ini yang paling layak dan paling jelas. Endpoint-nya sudah lengkap,
-   termasuk validasi sisi server, honeypot, rate limit, dan nomor tiket. Yang
-   belum ada adalah formulir yang memanggilnya. Ini selisih terbesar antara PRD
-   dan implementasi, dan rinciannya di bagian 6.
+Yang tersisa hanya yang butuh keputusan pemilik repo atau perkakas yang belum
+dipasang. Urutannya dari yang paling jelas.
+
+1. **Putuskan apa yang menghitung sebagai pendaftaran ganda** di 3.13, lalu
+   tambahkan constraint-nya. PRD tidak menyebut aturan ini, jadi tidak mendesak.
+   Setelah keputusannya pekerjaannya kecil: satu unique index, satu migration,
+   satu pesan galat.
 2. **Putuskan dua URL ganda** di 3.8. Apakah `/laboratorium` dan `/radiologi`
    dihapus, atau slug `DIAGNOSTIC_SERVICES` diubah supaya hanya menyisakan
    `/pelayanan/diagnostik/*`. Menghapus rute tidak dilakukan tanpa persetujuan.
-3. **Putuskan ruang lingkup panel admin** di 3.12. Ada sisi server yang lengkap
-   untuk tujuh belas tabel, tapi nol halaman. Perlu diputuskan apakah panelnya
-   mau dibuat, dan kalau ya, seberapa luas.
-4. **Perbaiki panel navigasi mobile** di 3.11, kalau pemilik repo mengizinkan
+3. **Perbaiki panel navigasi mobile** di 3.11, kalau pemilik repo mengizinkan
    menyentuh navbar. Perbaikannya kecil: satu backdrop, atau satu penanganan
-   Escape, atau menggeser panel supaya tidak menutupi hamburger.
-5. **Pasang Lighthouse** kalau angka SEO dan aksesibilitas ingin dibuktikan,
-   bukan hanya diperkirakan. Memasangnya berarti menambah dependensi.
-6. **Baca-nyaring dan analytics** dikerjakan kalau diminta. Keduanya opsional
+   Escape, atau menggeser panel supaya tidak menutupi hamburger. Yang sekarang
+   terjadi adalah pengguna sentuh yang membuka menu tidak bisa menutupnya lagi
+   tanpa memilih salah satu tautan di dalamnya.
+4. **Pasang Lighthouse** kalau angka SEO dan aksesibilitas ingin dibuktikan,
+   bukan hanya diperkirakan. Memasangnya berarti menambah dependensi. Ini
+   satu-satunya butir di bagian 6 yang statusnya "belum diukur", jadi setiap
+   klaim tentang aksesibilitas di dokumen ini masih perkiraan.
+5. **Baca-nyaring dan analytics** dikerjakan kalau diminta. Keduanya opsional
    di PRD.
 
-Butir 1 bukan pekerjaan kecil. Endpoint-nya menuntut `schedule_id`, yaitu UUID
-jadwal dokter, sedangkan formulir sekarang hanya menanyakan tanggal.
-Menyambungkannya berarti menambah langkah pilih dokter lalu pilih jam, dan itu
-perubahan alur halaman, bukan sekadar mengganti satu pemanggilan.
+Butir 1 optional. Kalau pemilik repo menganggap tidak perlu, tidak ada yang rusak:
+butir 7 tetap lulus dan tidak ada Acceptance Criteria yang gagal karena ini.
+Kalau mau dikerjakan, tiga bentuk "ganda" yang berbeda sudah dipetakan di 3.13,
+jadi yang dibutuhkan hanya memilih satu baris.
 
----
+Yang **tidak** ada di daftar ini, karena sudah selesai atau sudah gugur:
+
+- **Hubungkan formulir ke `POST /api/v1/appointments`**. Sudah di PR #34. Tinggal
+  butir 1 di atas.
+- **Buat `sitemap.xml` dan `robots.txt`**. Sudah di PR #33, lalu diperluas di
+  sesi ini karena versinya kehilangan delapan halaman.
+- **Buat tombol kembali ke atas**. Selesai di sesi ini, lihat 3.10.
+- **Render semua panel brosur di server**. Selesai di sesi ini, lihat 3.8.
+- **Putuskan ruang lingkup panel admin**. Tidak perlu diputuskan, panelnya
+  sudah ada dan lengkap. Lihat koreksinya di 3.12.
 
 ## 5. Yang perlu diketahui sebelum lanjut
 
@@ -500,10 +613,10 @@ dinilai lulus karena "sepertinya sudah ada".
 |---|---|---|---|
 | 5 | Memilih spesialis memfilter dropdown dokter; hasil jadwal tampil dengan status memuat | Lulus | `DoctorSearchCard` punya tiga state: spesialis, dokter, hari. Memilih spesialis mengisi daftar dokter. Dipakai `<select>` bawaan, bukan `react-select` seperti PRD 8.3 menulis, karena `react-select` memang terpasang tetapi belum dipakai. Perbedaan komponen, bukan perbedaan fungsi. |
 | 6 | Semua halaman bisa dijangkau lewat link; tidak ada halaman yatim dan tidak ada link mati | Sebagian | Link mati nol dari 150 halaman. Link masuk juga ada untuk 148 halaman. Sisanya dua URL ganda, `/laboratorium` dan `/radiologi`, yang isinya sama persis dengan `/pelayanan/diagnostik/*` dan tidak pernah ditautkan. Delapan belas halaman brosur yang dulu yatim sudah diperbaiki dengan merender semua panel di server. `bun run cek:tautan` sekarang menjaga jenis kesalahan ini di CI. Lihat 3.8. |
-| 7 | Pendaftaran E-Pasien menghasilkan nomor antrean dan tersimpan di DB | Gagal | Endpoint-nya benar-benar ada dan benar-benar menyimpan: `POST /api/v1/appointments` memvalidasi tujuh field, menghasilkan `ticket_code`, dan menulis ke database. Tapi formulir di `/daftar-online` tidak pernah memanggilnya. `handleSubmit` berhenti di pemberitahuan, dan berkasnya sendiri menjelaskan alasannya. Dari sisi pengunjung tidak ada yang tersimpan. |
-| 8 | Form menolak input tidak valid di sisi server dan tahan terhadap spam sederhana | Sebagian | Sisi server sudah lengkap: `src/server/validation.ts` dipakai route appointments, honeypot dan rate limit dijalankan `src/server/api/form.ts` sebelum validasi. Yang belum ada adalah formulir yang mengirim datanya, jadi dua aturan itu belum pernah teruji dari jalur yang dipakai pengunjung. Butir 7 menjelaskan kenapa. |
-| 9 | Admin dapat menambah, mengubah, dan menghapus berita, dan perubahannya tampil di situs publik | Gagal | Ada dua sebab yang menumpuk, dan keduanya independen. Pertama, tidak satu pun halaman publik membaca dari API atau database; semuanya membaca modul di `src/data/`. Kedua, tidak ada halaman panel admin sama sekali, jadi tidak ada tempat untuk melakukan perubahan itu dari antarmuka. Admin bisa mengubah baris di database lewat API, dan halaman publik tetap menampilkan isi modul. Perubahan itu tidak pernah terlihat pengunjung. Lihat 3.12. |
-| 10 | Peran `front_office` tidak bisa mengubah konten; `editor` tidak bisa mengelola user | Lulus | `src/server/admin/registry.ts` memetakan aksi ke peran. Diverifikasi oleh tes di `tests/registry.test.ts`. Perlu dicatat bahwa aturan ini baru diuji di tingkat server: tidak ada layar yang bisa memakainya, karena panel admin tidak punya halaman sama sekali. Jadi yang lulus adalah aturan aksesnya, bukan pengalaman penggunanya. Lihat 3.12. |
+| 7 | Pendaftaran E-Pasien menghasilkan nomor antrean dan tersimpan di DB | Lulus | PR #34 upstream menyambungkan formulir ke endpointnya. `registration-form.tsx` mengambil dokter dari `GET /api/v1/doctors`, mengambil slot jam dari `GET /api/v1/schedules`, lalu mengirim `POST /api/v1/appointments` dengan `schedule_id`. Nomor antrean dikembalikan dan ditampilkan ke pengguna. Penghitung kuota memakai `INSERT ... ON CONFLICT DO UPDATE ... RETURNING taken` di dalam transaksi, jadi dua permintaan bersamaan tidak mendapat nomor yang sama, dan unique index `(doctor_id, visit_date, queue_number)` jadi pengaman kedua. |
+| 8 | Form menolak input tidak valid di sisi server dan tahan terhadap spam sederhana | Lulus | Sisi server lengkap: `src/server/validation.ts` dipakai route appointments, honeypot dan rate limit dijalankan `src/server/api/form.ts` sebelum validasi. Sekarang jalur itu benar-benar dipakai pengunjung, karena formulir sudah mengirim datanya (lihat butir 7). Penghitung rate limit dikosongkan setelah formulir tersimpan, dan ada tesnya: `tests/form-rate-limit.test.ts` serta `tests/registration-form.test.ts` mengunci aturan pemetaan field dan penerjemahannya. |
+| 9 | Admin dapat menambah, mengubah, dan menghapus berita, dan perubahannya tampil di situs publik | Gagal | Satu sebabnya, dan sekarang tinggal satu. Panel admin-nya ada dan berfungsi, jadi separuh pertama butir ini sudah bisa dilakukan: admin bisa menambah, mengubah, dan menghapus berita lewat `/admin/records/[table]`. Tapi tidak satu pun halaman publik membaca dari database. Dari 18 halaman yang ada, 17 masih membaca modul di `src/data/`, dan satu-satunya yang membaca server adalah dasbor admin itu sendiri. Admin mengubah baris berita di database, lalu halaman `/berita` tetap menampilkan isi modul. Perubahan itu tidak pernah terlihat pengunjung. |
+| 10 | Peran `front_office` tidak bisa mengubah konten; `editor` tidak bisa mengelola user | Lulus | `src/server/admin/registry.ts` memetakan aksi ke peran, dan tes `tests/registry.test.ts` mengunci pemetaannya. Sekarang aturan itu juga ditegakkan di jalur HTTP, bukan hanya di backside: enam route handler admin memanggil `requireSession(canEditContent)`, jadi permintaan dari peran yang salah ditolak sebelum menyentuh database. Panel admin-nya juga sudah ada, jadi aturannya bisa dipakai dari antarmuka. |
 
 ### Non-fungsional
 
@@ -525,25 +638,26 @@ dinilai lulus karena "sepertinya sudah ada".
 
 | Verdict | Jumlah | Nomor butir |
 |---|---|---|
-| Lulus | 7 | 1, 2, 5, 10, 11, 15, 16 |
-| Sebagian | 4 | 3, 4, 6, 8 |
+| Lulus | 9 | 1, 2, 5, 7, 8, 10, 11, 15, 16 |
+| Sebagian | 3 | 3, 4, 6 |
 | Belum bisa dibuktikan | 1 | 12 |
 | Belum diukur | 1 | 14 |
-| Gagal | 2 | 7, 9 |
+| Gagal | 1 | 9 |
 | Tidak diterapkan atas keputusan pemilik | 1 | 13 |
 
 Jumlahnya enam belas, sama dengan jumlah kotak penanda di PRD bagian 12.
 
-Dua yang gagal adalah butir 7 dan butir 9. Keduanya punya sebab yang sama:
-backend-nya lengkap, tapi tidak ada jalur dari antarmuka yang memakainya.
+Satu yang gagal adalah butir 9, dan sebabnya sekarang tunggal: tidak satu pun
+halaman publik membaca dari database. Panel admin-nya sudah ada, jadi separuh
+pertama butir itu bisa dilakukan. Yang tersisa adalah separuh kedua, yaitu
+menampilkan hasil perubahan itu ke pengunjung, dan itu bukan pekerjaan panel
+admin melainkan pekerjaan seluruh halaman publik sekaligus.
+
 Butir 13 dihitung terpisah karena tidak diterapkan atas keputusan pemilik,
 bukan karena gagal.
 
-Butir 10 lulus, tapi perlu dibaca bersama 3.12: aturannya benar dan sudah
-diuji di server, sedangkan tidak ada layar yang bisa memakainya. Jadi butir itu
-lulus secara harfiah dan belum lulus secara praktis.
-
-Butir yang paling layak dikerjakan berikutnya adalah butir 7, karena endpoint-nya
-sudah ada dan lengkap. Yang penghalangnya hanya bentuk formulir: endpoint
-menuntut `schedule_id`, sedangkan formulir sekarang belum menanyakan dokter
-maupun jam.
+Perubahan terbesar sejak versi dokumen ini adalah butir 7 dan butir 8. Keduanya
+pernah gagal dengan sebab yang sama persis: backend lengkap, tapi formulirnya
+tidak pernah memanggilnya. Keduanya sudah lulus setelah PR #34 upstream. Butir 7
+pernah ditulis gagal karena mengukur `handleSubmit` di tree yang sudah basi,
+sama seperti panel admin di 3.12.
