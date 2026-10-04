@@ -100,11 +100,37 @@ describe("tombol kembali ke atas — angka terverifikasi", () => {
   it("ukuran, posisi, dan bentuk sama dengan situs acuan", () => {
     expect(nilai(".scroll-top", "width")).toBe("40px");
     expect(nilai(".scroll-top", "height")).toBe("40px");
-    expect(nilai(".scroll-top", "right")).toBe("15px");
     expect(nilai(".scroll-top", "bottom")).toBe("15px");
     expect(nilai(".scroll-top", "border-radius")).toBe("4px");
     expect(nilai(".scroll-top", "transition")).toBe("all 0.4s");
     expect(nilai(".scroll-top", "position")).toBe("fixed");
+  });
+
+  it("sisi horizontalnya menyimpang dari situs acuan, dan alasannya tercatat", () => {
+    // Situs acuan mengukur 15px dari tepi kanan. Nilai itu tidak bisa dipakai
+    // mentah karena situs acuan tidak punya bilah aksi cepat, sedangkan repo ini
+    // punya: `.quick-action` juga melayang di pojok kanan bawah, dengan z-index
+    // 1020 di bawah 1199 tombol ini. Kalau tombol ini tetap di kanan, dia
+    // menutupi butir paling bawah bilah aksi cepat dan memblokir kliknya.
+    // Dipindah ke tepi kiri, jadi jaraknya tetap 15px seperti hasil pengukuran
+    // dan tidak ada dua elemen yang berebut ruang.
+    expect(nilai(".scroll-top", "left")).toBe("15px");
+    // `nilai` mengembalikan string kosong untuk properti yang tidak ada, jadi
+    // ini yang memeriksa `right` benar-benar hilang, bukan menyetel ulang ke 0.
+    expect(nilai(".scroll-top", "right")).toBe("");
+
+    const tokensCss = readFileSync(
+      path.join(akar, "src/styles/tokens.css"),
+      "utf8",
+    );
+    const blokBilah = tokensCss.match(/\.quick-action\s*\{([^}]*)\}/);
+    expect(blokBilah).not.toBeNull();
+    expect(blokBilah?.[1]).toMatch(/right:\s*1rem/);
+    expect(blokBilah?.[1]).not.toMatch(/left:/);
+
+    // Alasannya harus tertulis di CSS. Penyimpangan tanpa catatan akan dibaca
+    // sebagai kesalahan orang berikutnya dan dikembalikan ke kanan.
+    expect(cssMentah).toContain(".quick-action");
   });
 
   it("warna memakai token yang sudah diverifikasi, bukan hex mentah", () => {

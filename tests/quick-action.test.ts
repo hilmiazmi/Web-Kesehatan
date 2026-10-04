@@ -31,6 +31,32 @@ const sumberBackToTop = readFileSync(
   "utf8",
 );
 
+const seluruhCss = ["site.css", "tokens.css", "pages.css"]
+  .map((berkas) => readFileSync(path.join(AKAR, "src/styles", berkas), "utf8"))
+  .join("\n");
+
+/**
+ * Ambil isi satu blok aturan CSS.
+ *
+ * Dipakai untuk memeriksa posisi dan visibilitas, karena keduanya benar-benar
+ * menentukan apakah tombol kembali ke atas bisa diklik dan apakah tombol yang
+ * tak terlihat masih masuk urutan Tab. Mengambil teks satu blok aturan lewat
+ * pencarian `}` pertama setelah selector, supaya tidak ikut menelan aturan
+ * berikutnya.
+ */
+function bacaCss(selector: string): string {
+  const mulai = seluruhCss.indexOf(`\n${selector} {`);
+  if (mulai === -1) {
+    // Selector bisa berada di awal berkas, di mana `\n` di depannya tidak ada.
+    const awal = seluruhCss.startsWith(`${selector} {`)
+      ? 0
+      : seluruhCss.indexOf(`${selector} {`);
+    if (awal === -1) throw new Error(`blok ${selector} tidak ada di CSS`);
+    return seluruhCss.slice(awal, seluruhCss.indexOf("}", awal));
+  }
+  return seluruhCss.slice(mulai, seluruhCss.indexOf("}", mulai));
+}
+
 describe("isi bilah aksi cepat", () => {
   it("mengambil dua tombol header dan satu WhatsApp", () => {
     expect(QUICK_ACTIONS).toHaveLength(HEADER_CTAS.length + 1);
@@ -101,18 +127,49 @@ describe("bentuk markup bilah aksi cepat", () => {
 
 describe("tombol kembali ke atas", () => {
   it("hilang dari urutan Tab saat tidak ditampilkan", () => {
-    // `hidden` yang hilang, atau `opacity: 0`, membuat tombol yang tidak
-    // terlihat masih bisa difokuskan. Itu lebih buruk daripada tidak ada
-    // tombolnya, karena pembaca layar akan membacakan tombol yang tak terlihat.
-    expect(sumberBackToTop).toContain("hidden={!muncul}");
-    expect(sumberBackToTop).not.toMatch(/opacity/);
-    expect(sumberBackToTop).not.toMatch(/visibility/);
+    // `opacity: 0` saja tidak cukup: elemen yang hanya transparan masih bisa
+    // difokuskan, jadi pembaca layar akan membacakan tombol yang tak terlihat.
+    // Yang benar `visibility: hidden`, dan aturan itu ada di CSS karena status
+    // gulir disimpan di class elemen, bukan di state React.
+    const css = bacaCss(".scroll-top");
+    expect(css).toMatch(/visibility:\s*hidden/);
+    expect(css).toMatch(/opacity:\s*0/);
+    // Hanya keadaan awal yang boleh tersembunyi. Class `.active` wajib
+    // membalikannya, kalau tidak tombolnya tidak pernah muncul sama sekali.
+    const cssAktif = bacaCss(".scroll-top.active");
+    expect(cssAktif).toMatch(/visibility:\s*visible/);
+  });
+
+  it("tidak berebut ruang dengan bilah aksi cepat", () => {
+    // Keduanya melayang di pojok bawah dan z-index tombol kembali ke atas lebih
+    // tinggi. Kalau tombol itu tetap di tepi kanan, dia menutupi butir paling
+    // bawah bilah aksi cepat dan memblokir kliknya. Tepi kiri dipakai bilah
+    // aksi cepat, tepi kanan dipakai tombol ini.
+    const tombol = bacaCss(".scroll-top");
+    expect(tombol).toMatch(/left:\s*15px/);
+    expect(tombol).not.toMatch(/right:/);
+
+    const bilah = bacaCss(".quick-action");
+    expect(bilah).toMatch(/right:/);
+    expect(bilah).not.toMatch(/left:/);
   });
 
   it("punya nama yang terbaca pembaca layar", () => {
-    expect(sumberBackToTop).toContain('aria-label="Kembali ke atas halaman"');
+    // Namanya lewat teks tersembunyi, bukan `aria-label`, supaya tetap ada
+    // ketika teknologinya hanya membaca isi elemen.
+    expect(sumberBackToTop).toContain("visually-hidden");
+    expect(sumberBackToTop).toMatch(/<span className="visually-hidden">/);
     // Ikonnya harus disembunyikan, kalau tidak nama tombol jadi dua kali.
     expect(sumberBackToTop).toContain('aria-hidden="true"');
+  });
+
+  it("tetap berguna tanpa JavaScript", () => {
+    // `href` harus menunjuk elemen yang benar-benar ada di server. Kalau
+    // `#`, tombolnya hanya menambah tanda pagar di URL dan tidak melakukan apa
+    // apa tanpa JS.
+    expect(sumberBackToTop).toContain('href="#main-content"');
+    const layout = readFileSync(path.join(AKAR, "src/app/layout.tsx"), "utf8");
+    expect(layout).toContain('id="main-content"');
   });
 
   it("mendengar peristiwa scroll dan membersihkannya", () => {
