@@ -267,15 +267,10 @@ h6 {
 /* Tombol kembali ke atas, PRD bagian 8 butir 1.
  *
  * Muncul lewat atribut `hidden` dari komponen, bukan lewat kelas, supaya
- * hilang dari urutan Tab sekaligus dari tampilan.
- *
- * Ditarik ke tepi kiri, bukan tepi kanan. Bilah aksi cepat juga ada di tepi
- * kanan dan posisinya ikut ditentukan oleh tinggi isinya, jadi kalau keduanya
- * menumpuk di sana, satu pasti menutupi yang lain. Di tepi kiri tidak ada
- * elemen mengambang lain, jadi keduanya tidak pernah bisa bertabrakan. */
+ * hilang dari urutan Tab sekaligus dari tampilan. */
 .back-to-top {
   position: fixed;
-  left: 1rem;
+  right: 1rem;
   bottom: 1rem;
   z-index: 1019;
   width: 44px;
@@ -295,14 +290,6 @@ h6 {
   background-color: var(--rs-accent);
   color: var(--rs-white);
   border-color: var(--rs-accent);
-}
-
-/* Panahnya kecil sekali di ukuran teks bawaan, jadi ukurannya diperbesar.
-   Warna panah tetap aksen di atas putih, yaitu #1977cc di #ffffff dengan
-   rasio kontras 4.6:1, lolos AA. */
-.back-to-top i {
-  font-size: 1.25rem;
-  line-height: 1;
 }
 
 .back-to-top:focus-visible {
