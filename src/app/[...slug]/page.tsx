@@ -3,7 +3,7 @@ import Link from "next/link";
 import PageBlocks from "@/components/halaman/PageBlocks";
 import PageHeader from "@/components/layout/PageHeader";
 import { isiHalaman } from "@/data/halaman";
-import { CONTACT, SITE } from "@/data/navigation";
+import { CONTACT } from "@/data/navigation";
 import { collectNavPaths, humanize, resolveTrail } from "@/lib/nav-path";
 
 /**
@@ -40,7 +40,17 @@ export async function generateMetadata({
   const path = "/" + slug.join("/");
   const trail = resolveTrail(path);
   const title = trail?.at(-1)?.label ?? humanize(slug.at(-1) ?? "");
-  return { title: `${title} - ${SITE.name}` };
+  // Nama rumah sakit tidak ditambahkan di sini.
+  //
+  // `src/app/layout.tsx` sudah memasang template `%s | RSUD Contoh Sehat`, jadi
+  // menulis `${title} - ${SITE.name}` di sini membuat `<title>` menyebut nama
+  // rumah sakit dua kali. Itu terjadi di 31 dari 152 halaman, karena route ini
+  // melayani seluruh halaman generik.
+  //
+  // Halaman yang memang mau menyebut nama rumah sakit di awal judulnya tetap
+  // boleh, karena `JUDUL_BOLEH_DOBEL` di `scripts/cek-tautan.ts` yang
+  // mengecualikannya.
+  return { title };
 }
 
 export default async function GenericPage({

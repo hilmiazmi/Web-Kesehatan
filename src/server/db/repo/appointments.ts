@@ -8,7 +8,7 @@ import {
   polyclinics,
   specialties,
 } from "../schema";
-import { ApiError } from "../../api/error";
+import { ApiError, dbCause, dbErrorCode } from "../../api/error";
 import { formatIsoDate } from "../../validation";
 
 /**
@@ -29,6 +29,46 @@ import { formatIsoDate } from "../../validation";
  * pengaman kedua.
  */
 export const NIK_SIMULASI = "0000000000000000";
+
+/**
+ * Nama unique index yang menyatukan nomor telepon dan jadwal.
+ *
+ * Dideklarasikan di `src/server/db/schema.ts` dan dibuat di
+ * `drizzle/0003_anti_ganda.sql`. Disalin ke sini sebagai string biasa, bukan
+ * dibaca dari skema, supaya modul ini tetap bisa diuji tanpa database.
+ */
+export const CONSTRAINT_DAFTAR_GANDA = "appointments_phone_schedule_unique";
+
+/**
+ * Pesan yang dilihat pasien kalau satu nomor telepon daftar dua kali untuk slot
+ * yang sama.
+ *
+ * Sesuai bentuk paling sempit yang dipilih di `docs/roadmap.md` bagian 3.13:
+ * satu nomor, satu jadwal, satu baris. Satu nomor tetap boleh mengambil antrean
+ * di slot lain pada hari yang sama.
+ */
+export const PESAN_DAFTAR_GANDA =
+  "Nomor ini sudah terdaftar untuk jadwal itu. Satu nomor hanya bisa satu antrean per jadwal.";
+
+/**
+ * Ubah pelanggaran unique anti-ganda menjadi pesan yang bisa dibaca pasien.
+ *
+ * Mengembalikan `null` kalau galatnya bukan itu, supaya pemanggil melempar
+ * aslinya apa adanya dan pemetaan galat di lapisan pemanggil tetap berlaku.
+ * Pemetaan global tidak bisa dipakai sebagai gantinya: di `mapDbError`, kode
+ * `23505` selalu menjadi 500, karena di lapisan admin bentrok unique memang bug
+ * pada kodenya. Di sini bentrok jadwal adalah jawaban yang benar untuk
+ * permintaan yang memang salah.
+ *
+ * Nama constraint dan pesan PostgreSQL tidak ikut ke klien. Aturan itu berlaku
+ * untuk semua galat, termasuk yang dipetakan di sini.
+ */
+export function kePesanDaftarGanda(err: unknown): ApiError | null {
+  if (dbErrorCode(err) !== "23505") return null;
+  if (dbCause(err).constraint !== CONSTRAINT_DAFTAR_GANDA) return null;
+
+  return ApiError.badRequest(PESAN_DAFTAR_GANDA);
+}
 
 /** Data pendaftaran yang sudah lolos validasi. */
 export type NewAppointment = {
@@ -128,8 +168,10 @@ export function weekdayName(day: number): string {
  * 2. Nomor antrean adalah nilai `taken` yang baru dikembalikan.
  * 3. Kuota dicek. Kalau lewat, transaksi dibatalkan, sehingga baris penghitung
  *    juga kembali seperti semula.
- * 4. Baris pendaftaran disimpan, dengan unique index
- *    `(doctor_id, visit_date, queue_number)` sebagai pengaman kedua.
+ * 4. Baris pendaftaran disimpan, dengan dua unique index sebagai pengaman
+ *    kedua: `(doctor_id, visit_date, queue_number)` untuk nomor antrean, dan
+ *    `(phone, schedule_id)` untuk pendaftaran ganda pada satu slot. Pelanggaran
+ *    yang kedua dipetakan jadi pesan pasien oleh `kePesanDaftarGanda`.
  *
  * Kalau langkah 1 diganti jadi "SELECT count lalu INSERT", langkah 2 dan 3 akan
  * membaca angka yang sama pada dua permintaan bersamaan, dan keduanya mendapat
@@ -195,25 +237,41 @@ export async function createAppointment(
       );
     }
 
-    await tx.insert(appointments).values({
-      ticketCode: input.ticket_code,
-      doctorId: input.doctor_id,
-      polyclinicId: input.polyclinic_id,
-      patientName: input.patient_name,
-      // NIK tidak pernah ikut ke query. Formulir tetap memvalidasinya sebagai
-      // enam belas digit supaya pengunjung mendapat umpan balik yang benar,
-      // tapi nilainya dibuang di sini.
-      nik: NIK_SIMULASI,
-      birthDate: input.birth_date,
-      phone: input.phone,
-      email: input.email,
-      address: input.address,
-      complaint: input.complaint,
-      visitDate: input.visit_date,
-      scheduleId: input.schedule_id,
-      paymentType: input.payment_type as never,
-      queueNumber: taken_after,
-    });
+    try {
+      await tx.insert(appointments).values({
+        ticketCode: input.ticket_code,
+        doctorId: input.doctor_id,
+        polyclinicId: input.polyclinic_id,
+        patientName: input.patient_name,
+        // NIK tidak pernah ikut ke query. Formulir tetap memvalidasinya sebagai
+        // enam belas digit supaya pengunjung mendapat umpan balik yang benar,
+        // tapi nilainya dibuang di sini.
+        nik: NIK_SIMULASI,
+        birthDate: input.birth_date,
+        phone: input.phone,
+        email: input.email,
+        address: input.address,
+        complaint: input.complaint,
+        visitDate: input.visit_date,
+        scheduleId: input.schedule_id,
+        paymentType: input.payment_type as never,
+        queueNumber: taken_after,
+      });
+    } catch (err) {
+      // Pelanggaran `appointments_phone_schedule_unique` berarti pendaftaran ganda
+      // untuk slot yang sama. Galatnya dilempar dari sini, di dalam transaksi,
+      // supaya `taken` yang sudah dinaikkan di langkah 1 ikut kembali lagi.
+      //
+      // Tidak ada pengecekan SELECT sebelum INSERT. Alasannya, pemetaan di bawah
+      // menghasilkan pesan yang persis sama, jadi pengecekan awal hanya menambah
+      // satu query tanpa menambah informasi. Dan pengecekan awal tidak bisa
+      // menggantikan index: dua permintaan yang datang bersamaan bisa sama-sama
+      // lolos pengecekan, lalu sama-sama mendapat nomor antrean yang berbeda, dan
+      // hanya database yang bisa memastikan salah satunya ditolak.
+      const ganda = kePesanDaftarGanda(err);
+      if (ganda) throw ganda;
+      throw err;
+    }
 
     return {
       ticket_code: input.ticket_code,

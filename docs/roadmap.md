@@ -244,10 +244,10 @@ Navigasi keyboard: urutan Tab beranda logis, `outline` 3px ada di semua
 elemen, dan lightbox punya `role="dialog"` plus `aria-modal`, memindahkan fokus
 saat dibuka, menutup dengan Escape, dan mengembalikan fokus ke pemicunya.
 
-Satu temuan yang tidak diperbaiki: panel navigasi mobile tidak memakai
-`aria-hidden` maupun `inert` saat tertutup, jadi tautan di dalamnya masih bisa
-dicapai Tab meskipun panelnya di luar layar. Navbar dibekukan pemilik repo.
-Lihat bagian 5.
+Satu temuan yang awalnya tidak diperbaiki dan sekarang sudah ditutup: panel
+navigasi mobile tidak memakai `aria-hidden` maupun `inert` saat tertutup, jadi
+tautan di dalamnya masih bisa dicapai Tab meskipun panelnya di luar layar.
+Sekarang memakai `visibility: hidden`. Lihat 3.11.
 
 Lighthouse belum terpasang. Memasangnya berarti menambah dependensi, jadi
 memerlukan persetujuan tersendiri.
@@ -410,9 +410,8 @@ komponennya dipasang di `layout.tsx` dan dipakai di seluruh halaman.
 
 ### 3.11 Panel navigasi mobile tidak bisa ditutup dengan mengetuk
 
-**Selesai, tetapi belum masuk `main`.** Perbaikannya sudah ada di mesin
-pemilik repo dan belum di-commit di sana, jadi `main` sekarang masih punya kedua
-cacat mobile ini.
+**Selesai, sudah masuk `main`.** Navbar dibekukan pemilik repo, jadi perbaikannya
+dikerjakan hanya atas izin khusus, dan hanya cacat mobile ini yang disentuh.
 
 Ditemukan saat menguji tombol kembali ke atas di lebar 390px. Panel off-canvas
 saat terbuka punya kotak 340px mulai dari x=50 sampai x=390, sedangkan tombol
@@ -518,65 +517,136 @@ untuk build yang memang tidak punya rute tersebut.
 
 ### 3.13 Pendaftaran E-Pasien tidak menolak pendaftaran ganda
 
-**Di luar Acceptance Criteria. Dicatat karena bisa jadi bocor, bukan karena
-PRD memintanya.**
+**Selesai. Di luar Acceptance Criteria, jadi tidak mengubah verdict butir 7.**
 
 Koreksi lebih dulu, karena versi sebelumnya bagian ini menulis "Acceptance
 Criteria butir 7 menyebut tidak bisa daftar ganda". Itu salah. Butir 7 di PRD
 bagian 12 berbunyi "Pendaftaran E-Pasien menghasilkan nomor antrean dan
 tersimpan di DB", dan kata "ganda" tidak muncul di seluruh PRD kecuali di
-"deploy ganda Vercel + VPS" yang tidak ada hubungannya. Jadi butir 7 lulus,
-dan yang tertulis di sini bukan kekurangan terhadap PRD.
+"deploy ganda Vercel + VPS" yang tidak ada hubungannya. Jadi butir 7 lulus, dan
+yang tertulis di bagian ini adalah perbaikan di luar cakupan PRD, bukan
+kekurangan terhadap PRD.
 
-Yang tetap benar adalah pengamatannya: endpoint-nya tidak menolak pendaftaran
-yang sama dua kali.
+#### Yang dulunya bocor
 
-Ditemukan saat menulis ulang bagian P2, setelah formulir terhubung ke API di
-PR #34 upstream.
+`src/app/api/v1/appointments/route.ts` tidak punya satu pun pengecekan duplikat.
+`createAppointment` hanya memeriksa jadwal ada, dokter cocok, jadwal aktif, hari
+praktik cocok, dan kuota masih sisa. Tabel `appointments` punya unique index
+pada `ticket_code` dan pada `(doctor_id, visit_date, queue_number)`, tapi tidak
+pada `phone`, tidak pada `schedule_id`, dan tidak pada kombinasi apa pun yang
+melibatkan pasien.
 
-Yang sudah benar dan terverifikasi:
+Konsekuensinya: satu orang menekan kirim dua kali, atau menyimpan halaman lalu
+mengirim ulang, dan mendapat dua nomor antrean untuk slot yang sama. Untuk rumah
+sakit fiktif ini tidak berbahaya. Untuk situs yang benar-benar dipakai, satu
+nomor telepon bisa mengisi seluruh kuota satu dokter.
 
-- Formulir mengambil dokter dari `GET /api/v1/doctors`.
-- Formulir mengambil slot jam dari `GET /api/v1/schedules`.
-- Formulir mengirim `POST /api/v1/appointments` dengan `schedule_id`, persis
-  seperti yang dituntut endpoint.
-- Nomor antrean kembali ke pengguna setelah berhasil.
-- Kuota dicek dengan benar. `createAppointment` memakai penghitung atomik
-  `INSERT ... ON CONFLICT DO UPDATE ... RETURNING taken` di dalam transaksi,
-  jadi dua permintaan bersamaan tidak mendapat nomor antrean yang sama. Unique
-  index `(doctor_id, visit_date, queue_number)` jadi pengaman kedua.
+#### Keputusan bisnisnya, dan alasannya
 
-Yang tidak ada: apa pun yang menolak pasien yang sama mendaftar dua kali.
-
-Di `src/app/api/v1/appointments/route.ts` tidak ada satu pun pengecekan
-duplikat. `createAppointment` di `src/server/db/repo/appointments.ts` hanya
-memeriksa jadwal ada, dokter cocok, jadwal aktif, hari praktik cocok, dan kuota
-masih sisa. Tabel `appointments` punya unique index pada `ticket_code` dan pada
-`(doctor_id, visit_date, queue_number)`, tapi tidak pada `phone`, tidak pada
-`schedule_id`, dan tidak pada kombinasi apa pun yang melibatkan pasien.
-
-Konsekuensinya bisa dilakukan orang: satu orang menekan kirim dua kali, atau
-menyimpan halaman lalu mengirim ulang, dan mendapat dua nomor antrean untuk slot
-yang sama. Untuk rumah sakit fiktif ini tidak berbahaya. Untuk situs yang
-benar-benar dipakai, satu nomor telepon bisa mengisi seluruh kuota satu dokter.
-
-Kenapa tidak langsung dikerjakan: "ganda" itu definisi bisnis, bukan teknis,
-dan PRD tidak menyinggunginya sama sekali. Menambahkan constraint tanpa
-keputusan pemilik repo berarti mengarang aturan yang tidak diminta.
-Setidaknya tiga bentuk yang berbeda masuk akal, dan masing-masing menuntut
-constraint yang berbeda.
+Tiga bentuk "ganda" sudah dipetakan, dan masing-masing menuntut constraint yang
+berbeda:
 
 | Bentuk "ganda" | Constraint yang dibutuhkan | Konsekuensi |
 |---|---|---|
 | Telepon sama, jadwal sama | Unik pada `(phone, schedule_id)` | Paling sempit. Satu orang tetap boleh mendaftar di dua slot berbeda. |
 | Telepon sama, dokter sama, tanggal sama | Unik pada `(phone, doctor_id, visit_date)` | Satu orang tidak bisa mengambil dua antrean ke dokter yang sama di hari yang sama. |
-| Telepon sama, tanggal sama | Unik pada `(phone, visit_date)` | Paling luas. Satu orang hanya boleh satu pendaftaran sehari. |
+| Telepon sama, tanggal sama | Unik pada `(phone, visit_date)` | Paling luas. Satu nomor telepon hanya boleh satu pendaftaran sehari. |
 
-Semuanya juga butuh keputusan kedua: apa yang terjadi kalau pendaftaran kedua
-ditolak. Menampilkan pesan "sudah terdaftar" sudah jelas. Yang belum jelas
-adalah apakah pendaftaran kedua harus **ditolak** atau **diterima lalu
-ditandai**, karena yang kedua memerlukan kolom status tambahan dan tidak bisa
-dijamin constraint database selama statusnya bisa berubah.
+**Dipilih yang paling sempit: `(phone, schedule_id)`.** Alasannya persis
+kerusakannya yang teridentifikasi, yaitu "dua nomor antrean untuk slot yang
+sama". Dua bentuk yang lebih luas akan ikut menolak kegiatan yang sah, misalnya
+satu orang mengambil antrean di dua poliklinik pada hari yang sama. Memilih
+bentuk paling sempit juga pilihan yang paling bisa dibalik: kalau nanti bisnisnya
+berubah, index yang sekarang bisa dilepas tanpa menyentuh kode.
+
+Keputusan kedua: pendaftaran kedua **ditolak**, bukan diterima lalu ditandai.
+Yang kedua memerlukan kolom status tambahan, dan tidak bisa dijamin index selama
+statusnya masih bisa berubah. Jadi ditolak adalah satu-satunya bentuk yang bisa
+dibuktikan database.
+
+PRD tidak menyinggung aturan ini sama sekali. Constraint ini hasil keputusan
+teknis di dokumen ini, bukan tuntutan PRD, dan migration-nya menyatakan itu di
+baris Comment pertama.
+
+#### Yang ditambahkan
+
+- `uniqueIndex("appointments_phone_schedule_unique")` pada
+  `(phone, schedule_id)` di `src/server/db/schema.ts`, dibuat di
+  `drizzle/0003_anti_ganda.sql`.
+- `kePesanDaftarGanda()` di `src/server/db/repo/appointments.ts` memetakan
+  pelanggaran index itu jadi `ApiError.badRequest` dengan pesan yang bisa dibaca
+  pasien. Mengembalikan `null` untuk semua galat lain, jadi bug di jalur ini
+  tidak ikut tertutupi sebagai "sudah terdaftar".
+- Pemetaan itu dipasang melekat pada `insert`, di dalam `db.transaction`.
+  consequent: penolakan membatalkan transaksi, jadi `taken` yang sudah dinaikkan
+  di langkah pertama ikut kembali. Satu pendaftaran yang ditolak tidak memakan
+  daya tampang.
+
+Tiga keputusan yang tidak langsung terlihat, dan semuanya punya alasannya:
+
+1. **Tidak ada `SELECT` pemeriksaan sebelum `INSERT`.** Pemetaan index
+   menghasilkan pesan yang persis sama, jadi pemeriksaan awal hanya menambah satu
+   query tanpa menambah informasi. Dan pemeriksaan awal tidak bisa menggantikan
+   index: dua permintaan yang datang bersamaan bisa sama-sama lolos pemeriksaan,
+   lalu sama-sama mendapat nomor antrean yang berbeda, dan hanya database yang
+   bisa memastikan salah satunya ditolak.
+2. **`23505` dipetakan jadi 400 di sini, dan tetap jadi 500 di lapisan admin.**
+   Di admin bentrok unique memang bug pada program, jadi 500 dengan detail di
+   log adalah jawaban yang benar. Di sini bentrok jadwal adalah jawaban yang
+   benar untuk permintaan yang memang salah. Pemetaan global tidak bisa dipakai
+   untuk keduanya, jadi `mapDbError` tidak boleh diubah.
+3. **`schedule_id` yang `NULL` tidak saling memblokir.** Di PostgreSQL `NULL`
+   pada unique index tidak pernah dianggap sama dengan `NULL` lain. `schedule_id`
+   bisa `NULL` kalau admin sudah menghapus jadwalnya, dan tanpa jadwal tidak ada
+   slot yang sama untuk diblokir.
+
+#### Yang belum bisa dibuktikan tanpa database
+
+Perilaku database dibuktikan di `scripts/cek-tulis.ts`, yang ditambah tiga kasus:
+pendaftaran ganda ditolak dengan pesan pasien, `taken` tidak berkurang setelah
+penolakan, dan nomor sama dengan jadwal lain **tetap diterima** supaya index yang
+kelewat lebar ikut ketahuan.
+
+**Ketiganya belum dijalankan.** Database lokal tidak terjangkau dari lingkungan
+penulisan dokumen ini, dan `docker compose up -d postgres` tidak bisa dijalankan
+karena socket Docker tidak diizinkan. Yang sudah terbukti secara statis:
+
+- Statement di `drizzle/0003_anti_ganda.sql` sama dengan yang di-generate
+  `bun run db:generate`, hanya dibungkus ke dua baris.
+- Setiap tag di `drizzle/meta/_journal.json` punya berkas `.sql` yang sesuai, dan
+  rantai `prevId` snapshot tidak putus.
+- `appointments` ada di `TABEL_RUNTIME` di `scripts/seed-data.ts`, jadi tidak
+  pernah ikut di-seed. Instalasi baru selalu punya nol baris pendaftaran, jadi
+  `CREATE UNIQUE INDEX` pasti berhasil di sana.
+
+Yang **bisa** memblokir migrasi adalah database pengembangan yang sudah
+memperoleh baris ganda. Jalur yang paling mungkin: `cek:tulis` versi lama memakai
+telepon tetap `081234567890` untuk jadwal yang sama di setiap jalannya, jadi
+jalankan kedua sudah menghasilkan baris ganda. Deteksi dulu sebelum migrate:
+
+```sql
+SELECT phone, schedule_id, count(*)
+  FROM appointments
+ WHERE schedule_id IS NOT NULL
+ GROUP BY phone, schedule_id
+HAVING count(*) > 1;
+```
+
+Kalau keluar baris, migrasi akan gagal dengan pesan dari PostgreSQL, dan itu memang
+yang diharapkan: data ganda harus dibersihkan lebih dulu, bukan dipotong diam-diam.
+Menghapus baris perlu keputusan pemilik repo, jadi tidak dilakukan di sini.
+
+#### Satu jebakan yang mungkin besar nanti
+
+`kolomUnique()` menebak nama kolom dari nama constraint, jadi
+`appointments_phone_schedule_unique` terbaca sebagai kolom `schedule`.
+`tabrakanUnik()` di `src/server/admin/records.ts` memakai tebakan itu untuk
+menampilkan "Nilai ini sudah dipakai" di field yang salah.
+
+Hari ini itu tidak terjangkau: `appointments` tidak ada di registry admin, dan
+inbox hanya menulis `status` serta `admin_note`, keduanya bukan bagian index baru.
+Kalau suatu saat admin boleh mengubah `phone` atau `schedule_id` dari panel,
+`tabrakanUnik()` perlu tahu constraint ini lebih dulu.
 
 ### 3.14 Bilah aksi cepat juga tidak pernah dibuat
 
@@ -683,38 +753,37 @@ Sembilan langkah versi sebelumnya sudah diselesaikan. Empat di antaranya selesai
 pada sesi terakhir ini, dua di antaranya selesai oleh upstream tanpa ikut saya
 (peta situs di PR #33, panel admin dan formulir e-pasien di PR #34), dan satu
 lagi berstatus "menunggu keputusan" yang sekarang sudah diputuskan dan dikerjakan,
-yaitu dua URL ganda di 3.8.
+yaitu dua URL ganda di 3.8 dan constraint anti-pendaftaran ganda di 3.13.
 
 Yang tersisa hanya yang butuh keputusan pemilik repo atau perkakas yang belum
 dipasang. Urutannya dari yang paling jelas.
 
-1. **Putuskan apa yang menghitung sebagai pendaftaran ganda** di 3.13, lalu
-   tambahkan constraint-nya. PRD tidak menyebut aturan ini, jadi tidak mendesak.
-   Setelah keputusannya pekerjaannya kecil: satu unique index, satu migration,
-   satu pesan galat.
-2. **Perbaiki panel navigasi mobile** di 3.11, kalau pemilik repo mengizinkan
-   menyentuh navbar lagi. Perbaikannya kecil: satu backdrop, atau satu penanganan
-   Escape, atau menggeser panel supaya tidak menutupi hamburger. Yang sekarang
-   terjadi adalah pengguna sentuh yang membuka menu tidak bisa menutupnya lagi
-   tanpa memilih salah satu tautan di dalamnya. Cacat keyboard-nya sudah tertutup
-   dan navbar sudah disentuh sekali dengan persetujuan khusus, jadi yang tersisa
-   murni soal sentuh.
-3. **Pasang Lighthouse** kalau angka SEO dan aksesibilitas ingin dibuktikan,
+1. **Jalankan `db:migrate` lalu `cek:tulis` di mesin yang punya database.**
+   Constraint anti-pendaftaran ganda sudah ditulis dan diuji secara statis, tapi
+   belum pernah dijalankan terhadap PostgreSQL sungguhan. Perintah dan kueri
+   pendeteksinya ada di 3.13. Ini satu-satunya bagian dari pekerjaan ini yang
+   belum terbukti.
+2. **Pasang Lighthouse** kalau angka SEO dan aksesibilitas ingin dibuktikan,
    bukan hanya diperkirakan. Memasangnya berarti menambah dependensi. Ini
    satu-satunya butir di bagian 6 yang statusnya "belum diukur", jadi setiap
    klaim tentang aksesibilitas di dokumen ini masih perkiraan.
-4. **Baca-nyaring dan analytics** dikerjakan kalau diminta. Keduanya opsional
+3. **Baca-nyaring dan analytics** dikerjakan kalau diminta. Keduanya opsional
    di PRD.
 
-Butir 1 optional. Kalau pemilik repo menganggap tidak perlu, tidak ada yang rusak:
-butir 7 tetap lulus dan tidak ada Acceptance Criteria yang gagal karena ini.
-Kalau mau dikerjakan, tiga bentuk "ganda" yang berbeda sudah dipetakan di 3.13,
-jadi yang dibutuhkan hanya memilih satu baris.
+Butir 1 satu-satunya yang bukan pilihan. Index-nya sudah ditulis dan tidak
+menyentuh data, jadi tidak ada yang rusak kalau belum dijalankan, tapi klaim
+"pendaftaran ganda ditolak" belum terbukti sampai `db:migrate` dan `cek:tulis`
+berhasil.
+
+Butir 2 dan 3 optional. Kalau pemilik repo menganggap tidak perlu, tidak ada yang
+rusak: tidak ada Acceptance Criteria yang gagal karena keduanya. Butir 14 di
+bagian 6 memang berstatus "belum diukur", dan itu sudah tertulis begitu sejak
+versi sebelumnya.
 
 Yang **tidak** ada di daftar ini, karena sudah selesai atau sudah gugur:
 
-- **Hubungkan formulir ke `POST /api/v1/appointments`**. Sudah di PR #34. Tinggal
-  butir 1 di atas.
+- **Hubungkan formulir ke `POST /api/v1/appointments`**. Sudah di PR #34. Batas
+  anti-pendaftaran ganda yang menyelesaikannya ada di 3.13.
 - **Buat `sitemap.xml` dan `robots.txt`**. Sudah di PR #33, lalu diperluas di
   sesi ini karena versinya kehilangan delapan halaman.
 - **Buat tombol kembali ke atas**. Sudah di PR #34, lalu diukur ulang dan
@@ -726,15 +795,17 @@ Yang **tidak** ada di daftar ini, karena sudah selesai atau sudah gugur:
   pemilik repo. URL kanoniknya tetap ada.
 - **Putuskan ruang lingkup panel admin**. Tidak perlu diputuskan, panelnya
   sudah ada dan lengkap. Lihat koreksinya di 3.12.
+- **Tambahkan constraint anti-pendaftaran ganda**. Selesai, bentuk paling sempit
+  `(phone, schedule_id)`. Lihat 3.13.
 
 ## 5. Yang perlu diketahui sebelum lanjut
 
-- **Navbar dibekukan.** Jangan diubah tanpa diminta pemilik repo.
+- **Navbar dibekuan.** Jangan diubah tanpa diminta pemilik repo.
   `tests/navbar-beku.test.ts` mengunci keadaan itu, dan sengaja gagal kalau
   navbar disentuh. Pengecualiannya satu: panel off-canvas mobile, dengan
   persetujuan pemilik repo, dan perbaikannya dijelaskan di 3.11. Perbaikan itu
-  sudah ada di mesin pemilik repo tapi belum masuk `main`, jadi `main` sekarang
-  masih punya kedua cacat mobile itu.
+  sudah masuk `main`. Semua aturan barunya hanya ada di dalam
+  `@media (max-width: 1199.98px)`, jadi keadaan desktop tidak tersentuh.
 - **`collectSitemapPaths()` di `src/lib/sitemap.ts` adalah sumber sitemap.**
   Ia memindai folder `src/app` dari filesystem, jadi route baru ikut masuk
   begitu foldernya dibuat dan tidak bisa basi seperti daftar manual. Modul ini

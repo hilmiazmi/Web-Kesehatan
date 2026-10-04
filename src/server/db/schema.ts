@@ -626,6 +626,27 @@ export const appointments = pgTable(
     // Lapisan kedua pengaman nomor antrean: nomor ganda jadi kegagalan database,
     // bukan record yang tersimpan diam-diam.
     uniqueIndex("appointments_queue_unique").on(t.doctorId, t.visitDate, t.queueNumber),
+    /**
+     * Anti pendaftaran ganda untuk satu slot.
+     *
+     * Yang ditegakkan: satu nomor telepon tidak boleh punya dua pendaftaran
+     * untuk jadwal yang sama. Itu persis kerusakannya, yaitu satu orang
+     * menekan kirim dua kali atau menyimpan halaman lalu mengirim ulang, lalu
+     * mendapat dua nomor antrean untuk slot yang sama.
+     *
+     * Yang SENGAJA tidak ditegakkan: satu nomor telepon boleh mendaftar di dua
+     * slot berbeda pada hari yang sama, dan boleh mendaftar ke dokter berbeda
+     * pada hari yang sama. Mengunci keduanya akan menolak kegiatan yang sah,
+     * misalnya satu orang mengambil antrean di dua poliklinik pada hari yang
+     * sama. Bentuk lain yang lebih luas sudah dipetakan di
+     * `docs/roadmap.md` bagian 3.13.
+     *
+     * `schedule_id` boleh `NULL` kalau admin sudah menghapus jadwalnya. Di
+     * PostgreSQL, `NULL` pada unique index tidak pernah dianggap sama dengan
+     * `NULL` lain, jadi pendaftaran yang jadwalnya sudah hilang tidak ikut
+     * saling memblokir. Itu benar: tanpa jadwal, tidak ada slot yang sama.
+     */
+    uniqueIndex("appointments_phone_schedule_unique").on(t.phone, t.scheduleId),
     index("appointments_doctor_visit_idx").on(t.doctorId, t.visitDate),
     index("appointments_inbox_idx").on(t.status, t.createdAt.desc().nullsFirst()),
     index("appointments_visit_date_idx").on(t.visitDate.desc().nullsFirst()),

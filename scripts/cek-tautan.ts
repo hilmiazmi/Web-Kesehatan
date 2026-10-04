@@ -85,6 +85,32 @@ const BUKAN_HALAMAN = new Set(["/_not-found", "/_global-error"]);
 const EKSTENSI_ASET = /\.(?:ico|png|jpe?g|svg|webp|avif|gif|txt|xml|webmanifest|json|css|js|mjs)$/i;
 
 /**
+ * Nama rumah sakit, ditulis ulang di sini sebagai string biasa.
+ *
+ * Sengaja tidak diimpor dari `src/data/navigation.ts`. Skrip ini berjalan
+ * sendiri setelah build, jadi ia tidak butuh menarik modul data, dan
+ * ketidakbergantungannya itu yang membuatnya masih bisa dipakai saat modul
+ * data sedang rusak.
+ *
+ * Konsekuensinya ada yang harus diingat: kalau nama rumah sakit diubah,
+ * nilai di `src/app/layout.tsx` dan nilai di sini harus berubah bersama. Kalau
+ * hanya salah satu, setiap halaman akan dilaporkan punya judul dobel, dan itu
+ * lebih mudah daripada diam-diam kehilangan pemeriksaan.
+ */
+const NAMA_RS = "RSUD Contoh Sehat";
+
+/**
+ * Halaman yang `<title>`-nya memang menyebut nama rumah sakit lebih dari sekali.
+ *
+ * Setiap halaman di sini diizinkan karena isi judulnya memang memuat nama itu,
+ * bukan karena kerusakannya dibiarkan. Daftar ini bukan izin untuk menambah
+ * halaman: kalau sebuah halaman masuk sini, cek:tautan kehilangan gunanya.
+ */
+const JUDUL_BOLEH_DOBEL = new Set([
+  "/berita/rsud-contoh-sehat-terima-akreditasi-utama",
+]);
+
+/**
  * Ubah nama berkas HTML menjadi path rute.
  *
  * `index.html` berarti direktorinya sendiri, dan `.html` di akhir dibuang.
@@ -141,6 +167,33 @@ function tautanDalam(html: string): Set<string> {
   return keluar;
 }
 
+/**
+ * Isi `<title>` pertama dari satu berkas HTML, atau `null` kalau tidak ada.
+ *
+ * Regex, bukan parser HTML, sama seperti `tautanDalam`. Yang dibutuhkan cuma
+ * teks di antara `<title>` dan `</title>`.
+ */
+function judulDalam(html: string): string | null {
+  const cocok = /<title>([^<]*)<\/title>/.exec(html);
+  return cocok ? cocok[1] : null;
+}
+
+/**
+ * Berapa kali nama rumah sakit muncul di satu judul.
+ *
+ * `layout.tsx` memasang template `%s | RSUD Contoh Sehat`, jadi nama itu
+ * selalu muncul sekali di setiap halaman. Muncul lebih dari sekali berarti ada
+ * halaman yang menambahkannya sendiri, dan `<title>`-nya menyebut nama rumah
+ * sakit dua kali.
+ *
+ * Yang dihitung kemunculan, bukan posisi. Menghitung posisi akan salah, karena
+ * ada judul yang memang diawali nama rumah sakit dan itu sah, misalnya judul
+ * berita. Lihat `JUDUL_BOLEH_DOBEL`.
+ */
+function kemunculanNamaRS(judul: string): number {
+  return judul.split(NAMA_RS).length - 1;
+}
+
 async function main(): Promise<void> {
   const rute = await kumpulkanRute();
   if (rute.length === 0) {
@@ -155,10 +208,20 @@ async function main(): Promise<void> {
   const tautanMati = new Set<string>();
   const punyaTautanMasuk = new Set<string>();
   const semuaTautan = new Set<string>();
+  const judulDobel = new Set<string>();
 
   for (const sumber of halaman) {
     const berkas = sumber === "/" ? "index" : sumber.slice(1);
     const html = await readFile(path.join(AKAR, `${berkas}.html`), "utf8");
+
+    const judul = judulDalam(html);
+    if (
+      judul !== null &&
+      kemunculanNamaRS(judul) > 1 &&
+      !JUDUL_BOLEH_DOBEL.has(sumber)
+    ) {
+      judulDobel.add(`${sumber} :: ${judul}`);
+    }
 
     for (const tautan of tautanDalam(html)) {
       semuaTautan.add(tautan);
@@ -198,6 +261,12 @@ async function main(): Promise<void> {
     for (const r of tanpaSitemap) console.error(`  ${r}`);
   }
 
+  if (judulDobel.size > 0) {
+    gagal = true;
+    console.error(`\n${judulDobel.size} halaman dengan judul dobel:`);
+    for (const baris of [...judulDobel].sort()) console.error(`  ${baris}`);
+  }
+
   console.log(
     `\n${halaman.length} halaman, ${semuaTautan.size} tautan unik, ` +
       `${diSitemap.size} entri sitemap`,
@@ -206,7 +275,10 @@ async function main(): Promise<void> {
   if (gagal) {
     process.exit(1);
   }
-  console.log("tidak ada tautan mati, semua halaman punya tautan masuk, sitemap lengkap");
+  console.log(
+    "tidak ada tautan mati, semua halaman punya tautan masuk, " +
+      "sitemap lengkap, tidak ada judul dobel",
+  );
 }
 
 await main();
