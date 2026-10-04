@@ -12,11 +12,6 @@ import { describe, expect, it } from "vitest";
  * satu-satunya cara menutup adalah Tab lalu Enter, atau memilih salah satu
  * tautan di dalam panel.
  *
- * Cacat itu sudah dilaporkan dan sengaja dibiarkan selama navbar dibekukan.
- * Pemilik repo kemudian mengizinkan perbaikannya, dan hanya cacat ini yang
- * disentuh. Keadaan desktop tetap dikunci oleh `tests/navbar-beku.test.ts`, dan
- * angka tombol kembali ke atas dikunci oleh `tests/kembali-ke-atas.test.ts`.
- *
  * Tes di sini membaca sumber apa adanya, bukan hasil render, karena yang
  * dikunci adalah keberadaan aturan dan urutan elemen di markup. Perilaku
  * sebenarnya dibuktikan di peramban pada lebar 390px.
@@ -160,8 +155,8 @@ describe("panel mobile: tiga cara menutup", () => {
 
   it("tombol tutup ada di dalam panel, dan menutup panel", () => {
     // Berada di dalam `<nav>` supaya ikut tersembunyi bersama panelnya.
-    // Keluarannya, kelas tombol hamburger yang dilarang muncul di dalam
-    // `<nav>` oleh `tests/navbar-beku.test.ts`.
+    // Tombol hamburger wajib di luar `<nav>`: kalau ikut masuk, ia ikut
+    // tergeser ke kanan bersama panel off-canvas sehingga tidak bisa diklik.
     expect(isiNav()).toContain("navmenu-close");
     expect(isiNav()).toContain('aria-label="Tutup menu"');
     expect(isiNav()).toContain("onClick={() => setMobileOpen(false)}");
@@ -225,8 +220,14 @@ describe("panel mobile: keadaan desktop tidak tersentuh", () => {
   });
 
   it("tidak ada batas lebar baru yang muncul", () => {
-    // 1360px, 1460px, dan 1520px pernah dipakai lalu ditolak pemilik repo.
-    expect(siteCss).not.toMatch(/@media \((?:max|min)-width: 1[3-5][0-9]{2}px/);
+    // Batas yang sah: 1495.98px yang hanya menyembunyikan `.header-ctas`
+    // (dikunci `tests/header-ctas.test.ts`). Blok itu dikeluarkan dulu supaya
+    // tidak menutupi batas liar yang lain.
+    const tanpaCta = siteCss.replace(
+      /@media \(max-width: 1495\.98px\) \{\s*\.header-ctas \{[^}]*\}\s*\}/,
+      "",
+    );
+    expect(tanpaCta).not.toMatch(/@media \((?:max|min)-width: 1[3-5][0-9]{2}(?:\.\d+)?px/);
   });
 
   it("batas 1200px tetap sama di CSS dan di logika percabangan", () => {

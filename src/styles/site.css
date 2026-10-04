@@ -400,6 +400,29 @@
   white-space: nowrap;
 }
 
+/* CTA header disembunyikan saat tidak muat.
+ *
+ * Satu baris header butuh 1496px (logo 237 + nav 894 + CTA 341 + padding 24,
+ * hasil pencarian biner di peramban). Tanpa aturan ini, di rentang 1200-1495px
+ * — misalnya saat sidebar kanan Zen/Helium memakan lebar viewport — tombol
+ * "Administrasi Pasien" terpotong di tepi kanan. Di bawah 768px masalahnya
+ * sama: logo + dua CTA + hamburger tidak muat berdampingan.
+ *
+ * Nav desktopnya sendiri tidak disentuh: batas 1200px, font 15px, lebar
+ * 894px nowrap, dan bentuk pill CTA tetap seperti semula. Kedua CTA tetap
+ * terjangkau lewat salinannya di panel off-canvas (kelas .nav-mobile),
+ * bilah aksi cepat, dan footer.
+ *
+ * `!important` diperlukan karena markup memakai `d-sm-flex` dari Bootstrap
+ * yang menulis `display: flex !important`, jadi `display: none` biasa kalah.
+ * Batasnya 1495.98px (bukan 1496px) mengikuti konvensi Bootstrap `.98`
+ * supaya tidak bentrok tepat di titik batas. */
+@media (max-width: 1495.98px) {
+  .header-ctas {
+    display: none !important;
+  }
+}
+
 .mobile-nav-toggle {
   background: none;
   border: none;
@@ -410,7 +433,13 @@
   line-height: 1;
 }
 
-/* ---------- Menu mobile ---------- */
+/* ---------- Menu mobile ----------
+ *
+ * Batasnya 1200px (warisan Bootstrap `xl`): di bawah itu nav desktop
+ * diganti panel off-canvas + tombol hamburger, di atas itu nav penuh tanpa
+ * hamburger. Rentang 1200-1495px tidak muat satu baris penuh, dan itu
+ * ditangani aturan `.header-ctas` di atas (CTA disembunyikan), bukan dengan
+ * menggeser batas ini. */
 @media (max-width: 1199.98px) {
   .navmenu {
     position: fixed;
