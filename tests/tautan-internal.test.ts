@@ -2,6 +2,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { collectNavPaths, hasOwnRoute } from "@/lib/nav-path";
+import { DIAGNOSTIC_SERVICES } from "@/data/informasi";
 
 /**
  * Penjaga tautan internal yang ditulis langsung di komponen.
@@ -126,5 +127,40 @@ describe("tautan internal yang ditulis langsung", () => {
       .map((d) => `${d.href}  <-  ${d.dari}`);
 
     expect(api, `tautan API di markup:\n${api.join("\n")}`).toEqual([]);
+  });
+});
+
+describe("rute kembar", () => {
+  /**
+   * Dua halaman diagnostik pernah hidup di dua URL sekaligus: `/laboratorium`
+   * dan `/pelayanan/diagnostik/laboratorium`, begitu juga radiologi. Yang datar
+   * tidak pernah ditautkan dari mana pun, jadi isinya tidak pernah ditemukan
+   * lewat penelusuran tautan. Setelah pemilik repo memutuskan, isinya dipindah
+   * ke route berprefix dan folder datar dihapus.
+   *
+   * Yang dijaga di sini hanya foldernya. Isinya tidak hilang: semua kartu
+   * dan daftar dari kedua halaman itu sekarang ada di `DIAGNOSTIC_SERVICES`
+   * dan diperiksa `tests/konten-detail.test.ts`.
+   */
+  it("halaman kembar yang datar tidak ada lagi", () => {
+    const folder = routeFolders();
+
+    for (const rute of ["/laboratorium", "/radiologi"]) {
+      expect(folder, `${rute} seharusnya sudah dihapus`).not.toContain(rute);
+      expect(existsSync(path.join(AKAR, "src/app", rute))).toBe(false);
+    }
+  });
+
+  it("slug diagnostik hanya dilayani route berprefix", () => {
+    // Isinya dipindah ke `DIAGNOSTIC_SERVICES`, jadi slug yang menentukan
+    // URL ada di sana, bukan di nama folder.
+    expect(DIAGNOSTIC_SERVICES.map((d) => d.slug)).toEqual([
+      "laboratorium",
+      "radiologi",
+    ]);
+    expect(
+      existsSync(path.join(AKAR, "src/app/pelayanan/diagnostik/[slug]/page.tsx")),
+      "route berprefix harus ada",
+    ).toBe(true);
   });
 });

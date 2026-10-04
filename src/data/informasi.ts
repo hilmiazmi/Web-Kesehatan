@@ -74,23 +74,47 @@ export const ABOUT_SECTIONS: AboutSection[] = [
   },
 ];
 
-export type DiagnosticGroup = {
-  /** Nama alat atau kelompok pemeriksaan. */
+/** Satu kartu di dalam sebuah bagian, dengan daftar fungsinya. */
+export type DiagnosticCard = {
+  id: string;
   name: string;
-  /** Indikasi atau cakupan pemeriksaan. */
+  icon: string;
+  /**
+   * Fungsi tindakan pada alat, atau satu kalimat keterangan pada layanan.
+   *
+   * Bentuknya sengaja satu daftar untuk keduanya, bukan dua bidang terpisah,
+   * supaya pemeriksa data cukup punya satu aturan: daftar ini tidak boleh
+   * kosong. Halaman sendiri yang memutuskan ditampilkan sebagai paragraf
+   * kalau isinya satu butir, atau sebagai daftar kalau lebih dari satu.
+   */
   points: string[];
 };
 
 /**
- * Laboratorium memuat daftar pemeriksaan datar, sedangkan radiologi
- * memuat pemeriksaan yang dikelompokkan per alat. Satu bentuk data dipakai
- * untuk keduanya, dan grup pertama pada laboratorium cukup diisi satu butir.
+ * Satu bagian halaman layanan, menjadi heading level dua.
+ *
+ * Dipakai untuk kedua layanan diagnostik sekaligus karena bentuk halaman
+ * keduanya sama: ada bagian bertitel dengan daftar di dalamnya, dan ada
+ * bagian bertitel dengan kartu di dalamnya.
  */
+export type DiagnosticSection = {
+  title: string;
+  /** Paragraf pembuka bagian, tepat sebelum daftarnya. */
+  lead?: string;
+  /** Butir daftar. Berpasangan dengan `cards`, bukan dua-duanya. */
+  points?: string[];
+  /** Kartu layanan atau peralatan. Berpasangan dengan `points`. */
+  cards?: DiagnosticCard[];
+};
+
 export type DiagnosticService = {
   slug: string;
   title: string;
+  /** Kalimat ringkas yang dipakai sebagai deskripsi meta dan lead. */
   description: string;
-  groups: DiagnosticGroup[];
+  /** Paragraf pengantar setelah kalimat ringkas itu. */
+  paragraphs?: string[];
+  sections: DiagnosticSection[];
 };
 
 export const DIAGNOSTIC_SERVICES: DiagnosticService[] = [
@@ -99,16 +123,60 @@ export const DIAGNOSTIC_SERVICES: DiagnosticService[] = [
     title: "Laboratorium",
     description:
       "Pemeriksaan laboratorium penunjang diagnosis dan pemantauan penyakit.",
-    groups: [
+    paragraphs: [
+      "Instalasi Laboratorium RSUD Contoh Sehat merupakan instalasi pelayanan penunjang medis dengan metode layanan diagnostik.",
+    ],
+    sections: [
       {
-        name: "Jenis Pemeriksaan",
+        title: "Jenis Pemeriksaan Laboratorium",
         points: [
           "Hematologi",
           "Urin lengkap",
           "Kimia darah",
           "Elektrolit",
           "Analisis gas darah",
-          "Hemostatis",
+          "Hemostasis dan lain-lain",
+        ],
+      },
+      {
+        title: "Keunggulan Laboratorium",
+        lead: "Instalasi Laboratorium RSUD Contoh Sehat memiliki keunggulan berupa jenis pemeriksaan yang lengkap, hasil data yang akurat, dan harga terjangkau.",
+      },
+      {
+        title: "Jenis Layanan Laboratorium",
+        cards: [
+          {
+            id: "bank-darah",
+            name: "Bank Darah",
+            icon: "bi-droplet-fill",
+            points: [
+              "Menyediakan pengadaan kantong darah (PRC, PCRR, FPP, AHF, WE, TC), crossmatch, dan layanan rujukan incompatible.",
+            ],
+          },
+          {
+            id: "patologi-anatomi",
+            name: "Laboratorium Patologi Anatomi",
+            icon: "bi-eyedropper",
+            points: [
+              "Melayani pemeriksaan FNAB, histopatologi, sitopatologi ginekologi, dan sitopatologi non ginekologi.",
+            ],
+          },
+          {
+            id: "patologi-klinik",
+            name: "Laboratorium Patologi Klinik",
+            icon: "bi-activity",
+            points: [
+              "Melayani pemeriksaan kimia klinik, hematologi, imunologi, serologi, urinalisis, feses, dan cairan tubuh yang lengkap (termasuk analisis sperma).",
+            ],
+          },
+          {
+            id: "mikrobiologi",
+            name: "Laboratorium Mikrobiologi",
+            icon: "bi-bug",
+            points: [
+              "Melayani pemeriksaan kultur dan uji resistensi manual maupun otomatis, pemeriksaan Gram, BTA, dan sediaan jamur KOH.",
+            ],
+          },
         ],
       },
     ],
@@ -118,50 +186,118 @@ export const DIAGNOSTIC_SERVICES: DiagnosticService[] = [
     title: "Radiologi",
     description:
       "Pemeriksaan pencitraan untuk melihat struktur dan fungsi organ.",
-    groups: [
+    paragraphs: [
+      "Instalasi Radiologi RSUD Contoh Sehat merupakan pelayanan penunjang medis yang memberikan layanan pemeriksaan radiologi dengan hasil berupa foto atau gambar untuk membantu dokter merawat pasien dan menegakkan diagnosis.",
+      "Instalasi Radiologi kami didukung peralatan yang canggih dan terbaru. Keunggulan kami antara lain CT Scan MSCT 128 Slices, USG Abdomen, serta pemeriksaan Magnetic Resonance Imaging (MRI).",
+    ],
+    sections: [
       {
-        name: "Rontgen Thorax",
-        points: ["Pemeriksaan rontgen dada"],
-      },
-      {
-        name: "Tanpa Kontras",
+        title: "Fasilitas Pemeriksaan",
+        lead: "Instalasi Radiologi RSUD Contoh Sehat menyediakan beberapa jenis fasilitas pemeriksaan, di antaranya:",
         points: [
-          "Kepala",
-          "Tulang belakang",
-          "Perut",
-          "Ekstremitas",
-          "Pelvis",
+          "Rontgen Thorax",
+          "Pemeriksaan Radiologi Tanpa Kontras",
+          "Pemeriksaan Radiologi Kontras",
+          "Pemeriksaan CT Scan",
+          "Pemeriksaan Mammografi",
+          "Panoramic",
         ],
       },
       {
-        name: "Dengan Kontras",
-        points: [
-          "Saluran cerna atas",
-          "Saluran cerna bawah",
-          "Sistem saluran kemih",
-          "Pembuluh darah",
-        ],
-      },
-      {
-        name: "CT Scan",
-        points: [
-          "Kepala",
-          "Toraks",
-          "Abdomen",
-          "Punggung",
-        ],
-      },
-      {
-        name: "Mamografi",
-        points: ["Pemeriksaan rontgen payu dada"],
-      },
-      {
-        name: "Panoramic",
-        points: [
-          "Perawatan gigi dan rahang",
-          "Kista pada tulang rahang",
-          "Tumor rahang",
-          "Perencanaan ortodontis",
+        title: "Peralatan dan Fungsi Tindakan",
+        cards: [
+          {
+            id: "fluoroscopy",
+            name: "Fluoroscopy",
+            icon: "bi-camera-video",
+            points: [
+              "Pemeriksaan HSG (gangguan kesuburan wanita)",
+              "Pemeriksaan appendix",
+              "Pemeriksaan kelainan saluran pencernaan",
+            ],
+          },
+          {
+            id: "mri",
+            name: "Magnetic Resonance Imaging (MRI)",
+            icon: "bi-magnet",
+            points: [
+              "Mendiagnosis penyakit",
+              "Evaluasi jantung dan pembuluh darah",
+              "Deteksi kanker",
+              "Pemeriksaan jaringan lunak",
+              "Memantau perkembangan penyakit dalam pengobatan",
+            ],
+          },
+          {
+            id: "usg",
+            name: "USG",
+            icon: "bi-soundwave",
+            points: [
+              "Mendiagnosis kondisi yang memengaruhi organ dan jaringan lunak tubuh",
+              "Digunakan dalam pemeriksaan Medical Check Up (MCU)",
+            ],
+          },
+          {
+            id: "panoramic",
+            name: "Panoramic",
+            icon: "bi-emoji-smile",
+            points: [
+              "Pemeriksaan kelainan pada periodontal",
+              "Pemeriksaan kista pada tulang rahang",
+              "Pemeriksaan tumor rahang atau kanker mulut",
+              "Pemeriksaan gigi geraham bagian belakang",
+              "Pemeriksaan kelainan terkait daerah mulut lainnya",
+            ],
+          },
+          {
+            id: "cephalometri",
+            name: "Cephalometri",
+            icon: "bi-person-bounding-box",
+            points: [
+              "Mengukur struktur kepala dan rahang",
+              "Diagnosis kelainan kraniofasial",
+              "Perencanaan perawatan ortodontis",
+              "Pemantauan pertumbuhan kraniofasial",
+            ],
+          },
+          {
+            id: "ct-scan",
+            name: "CT-Scan 128 Slice",
+            icon: "bi-disc",
+            points: [
+              "Mendeteksi masalah hati, ginjal, atau saluran kemih",
+              "Membantu mendiagnosis atau memantau penyakit jantung arteri koroner atau dalam rangka operasi penggantian katup",
+              "Mengidentifikasi tumor, pendarahan, trauma tulang, dan penyumbatan aliran darah pada kepala",
+              "Mendiagnosis kelainan pada paru-paru",
+              "Mendiagnosis cedera tulang atau kerusakan sendi",
+            ],
+          },
+          {
+            id: "mamografi",
+            name: "Mamografi",
+            icon: "bi-heart-pulse",
+            points: [
+              "Mendeteksi kanker.payudara",
+              "Digunakan dalam pemeriksaan Medical Check Up (MCU)",
+            ],
+          },
+          {
+            id: "c-arm",
+            name: "C-Arm",
+            icon: "bi-bullseye",
+            points: ["Penunjang proses pelayanan medis dan diagnosis penyakit tertentu"],
+          },
+          {
+            id: "konvensional",
+            name: "Radiologi Konvensional",
+            icon: "bi-file-medical",
+            points: [
+              "Pemeriksaan organ tubuh bagian kepala",
+              "Pemeriksaan paru-paru (thorax)",
+              "Pemeriksaan abdomen (perut)",
+              "Pemeriksaan tulang pada seluruh bagian tubuh",
+            ],
+          },
         ],
       },
     ],

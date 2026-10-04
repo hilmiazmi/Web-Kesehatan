@@ -216,14 +216,61 @@ describe("layanan diagnostik", () => {
     ]);
   });
 
-  it("tiap layanan punya grup dan butir yang tidak kosong", () => {
+  it("tiap layanan punya bagian dengan isi yang tidak kosong", () => {
     for (const d of DIAGNOSTIC_SERVICES) {
       expect(d.description.trim()).not.toBe("");
-      expect(d.groups.length, `grup ${d.slug}`).toBeGreaterThan(0);
-      for (const g of d.groups) {
-        expect(g.name.trim()).not.toBe("");
-        expect(g.points.length, `butir ${g.name}`).toBeGreaterThan(0);
+      for (const paragraf of d.paragraphs ?? []) {
+        expect(paragraf.trim(), `paragraf ${d.slug}`).not.toBe("");
+      }
+      expect(d.sections.length, `bagian ${d.slug}`).toBeGreaterThan(0);
+
+      for (const bagian of d.sections) {
+        expect(bagian.title.trim(), `judul bagian ${d.slug}`).not.toBe("");
+
+        // `points` dan `cards` tidak boleh dipakai bersamaan, karena bagian
+        // dengan keduanya akan merender daftar dan kartu sekaligus. Salah
+        // satu boleh kosong: bagian yang cuma prosa tidak punya salah
+        // keduanya, tapi tetap harus punya `lead` atau paragraf di dalamnya.
+        const adaPoints = (bagian.points?.length ?? 0) > 0;
+        const adaCards = (bagian.cards?.length ?? 0) > 0;
+        expect(
+          !(adaPoints && adaCards),
+          `bagian ${bagian.title} tidak boleh punya points dan cards sekaligus`,
+        ).toBe(true);
+        expect(
+          adaPoints || adaCards || (bagian.lead?.trim().length ?? 0) > 0,
+          `bagian ${bagian.title} kosong semua`,
+        ).toBe(true);
+        if (bagian.lead !== undefined) {
+          expect(bagian.lead.trim(), `lead bagian ${bagian.title}`).not.toBe("");
+        }
+
+        for (const p of bagian.points ?? []) {
+          expect(p.trim(), `butir ${bagian.title}`).not.toBe("");
+        }
+        for (const kartu of bagian.cards ?? []) {
+          expect(kartu.id.trim(), `id kartu ${bagian.title}`).not.toBe("");
+          expect(kartu.name.trim(), `nama kartu ${kartu.id}`).not.toBe("");
+          expect(kartu.icon.trim(), `ikon kartu ${kartu.id}`).not.toBe("");
+          expect(kartu.points.length, `fungsi kartu ${kartu.id}`).toBeGreaterThan(
+            0,
+          );
+          for (const p of kartu.points) {
+            expect(p.trim(), `fungsi kartu ${kartu.id}`).not.toBe("");
+          }
+        }
       }
     }
+  });
+
+  it("penyebab unik di seluruh layanan dan seluruh kartu", () => {
+    // `key` React memakai string ini, jadi duplikat akan membuat satu kartu
+    // hilang diam-diam dari daftar.
+    const semuaId = DIAGNOSTIC_SERVICES.flatMap((d) =>
+      d.sections.flatMap((b) =>
+        (b.cards ?? []).map((k) => `${d.slug}/${k.id}`),
+      ),
+    );
+    expect(new Set(semuaId).size).toBe(semuaId.length);
   });
 });

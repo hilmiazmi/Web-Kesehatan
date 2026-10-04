@@ -117,3 +117,61 @@ describe("navbar dibekukan: isi menu", () => {
     expect(navbar).toContain("{NAV_ITEMS.map((item) => (");
   });
 });
+
+/**
+ * Panel off-canvas yang tertutup harus keluar dari urutan Tab.
+ *
+ * Ini satu-satunya bagian navbar yang boleh berubah tanpa izin pemilik repo,
+ * dan izin itu diberikan khusus untuk perbaikan ini. Angka batas, ukuran font,
+ * dan urutan elemen tetap dikunci di describe di atas.
+ *
+ * Alasannya: `.navmenu` digeser dengan `translateX(100%)`, dan menggeser
+ * bukan menyembunyikan. Tanpa `inert`, seluruh tautan di panel tetap bisa
+ * dicapai tombol Tab, jadi pengunjung keyboard bisa mendarat di menu yang
+ * tidak terlihat dan tidak tahu itu terjadi.
+ */
+describe("panel off-canvas yang tertutup", () => {
+  it("navmenu memakai inert dan aria-hidden", () => {
+    const nav = navbar.slice(navbar.indexOf("<nav"), navbar.indexOf("</nav>"));
+    expect(nav).toContain("inert={panelTertutup}");
+    expect(nav).toContain("aria-hidden={panelTertutup}");
+  });
+
+  it("hanya berlaku di mode off-canvas yang belum dibuka", () => {
+    // `inert` yang selalu hidup akan membuat menu tidak bisa diklik di desktop.
+    // Syaratnya harus involve dua hal: mode off-canvas, dan belum dibuka.
+    expect(navbar).toContain(
+      "const panelTertutup = !desktopNav && !mobileOpen;",
+    );
+  });
+
+  it("memakai useSyncExternalStore, bukan setState dari useEffect", () => {
+    // `setState` di dalam `useEffect` dilarang oleh aturan eslint
+    // `react-hooks/set-state-in-effect`. `useSyncExternalStore` adalah cara
+    // resmi membaca sumber daya di luar React seperti `matchMedia`, dan
+    // snapshot servernya mencegah ketidaksesuaian hidrasi.
+    expect(navbar).toContain("useSyncExternalStore");
+    expect(navbar).toContain("dengarLebarDesktop");
+    expect(navbar).toContain("bacaLebarDesktop");
+    // Yang dicek adalah pemanggilan dan impornya, bukan penyebutannya di
+    // dalam komentar.
+    expect(navbar).not.toMatch(/useEffect\s*\(/);
+    expect(navbar).not.toMatch(/import \{[^}]*useEffect/);
+  });
+
+  it("batas 1200px dipakai bersama, tidak ada batas kedua", () => {
+    // `bacaLebarDesktop` dan `isDesktopNav` harus sepakat, kalau tidak panel
+    // akan menutup sendiri di layar lebar atau tidak pernah menutup di
+    // layar sempit.
+    const batas = navbar.match(/matchMedia\("\(min-width: \d+px\)"\)/g) ?? [];
+    expect(new Set(batas).size).toBe(1);
+    expect(batas[0]).toBe('matchMedia("(min-width: 1200px)")');
+  });
+
+  it("listener perubahan lebar dibongkar", () => {
+    // Tanpa pembongkaran, setiap selesai render menambah satu listener baru
+    // pada `MediaQueryList` yang sama.
+    expect(navbar).toContain('mql.addEventListener("change", callback)');
+    expect(navbar).toContain('mql.removeEventListener("change", callback)');
+  });
+});

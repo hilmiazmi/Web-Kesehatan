@@ -45,20 +45,16 @@ export type SitemapEntry = {
  * halaman itu menampilkan formulir yang menanyakan tanggal dan jam, dan
  * menampilkan hasil pencarian jadwal kepada orang yang berbeda.
  *
- * `/laboratorium` dan `/radiologi` dikeluarkan karena isinya sama persis dengan
- * `/pelayanan/diagnostik/*`, dan `/pelayanan/diagnostik/*` yang sudah ada di
- * peta. Mendaftarkan keduanya berarti meminta mesin pencari mengindeks dua URL
- * untuk isi yang sama, jadi hanya URL kanonik yang didaftarkan. Keduanya tetap
- * menjawab 200 dan tetap boleh dibaca orang yang mengetik URL-nya.
- *
- * Catatan: pemindai di bawah mengambil semua folder yang punya `page.tsx`, jadi
- * tanpa dua entri di sini kedua halaman ini otomatis ikut masuk. Pengecualian ini
- * disengaja dan dijaga tes, bukan sisa.
+ * Dulu daftar ini juga memuat `/laboratorium` dan `/radiologi`, karena kedua
+ * URL itu menduplikasi isi `/pelayanan/diagnostik/<slug>`. Foldernya sudah
+ * dihapus, jadi keduanya sekarang menjawab 404 dan pemindai di bawah tidak
+ * pernah menemukannya. Entri dibuang bersama foldernya supaya tidak ada lagi
+ * yang menyebut URL yang tidak hidup. Yang tersisa hanya satu, dan penjaga di
+ * `tests/tautan-internal.test.ts` yang memastikan kedua alias itu benar-benar
+ * tidak kembali.
  */
 const DIKECUALIKAN = new Set([
   "/daftar-online",
-  "/laboratorium",
-  "/radiologi",
 ]);
 
 /** Folder di bawah `src/app` yang bukan halaman untuk pengunjung. */

@@ -40,21 +40,18 @@ const AKAR = path.join(process.cwd(), ".next", "server", "app");
 /**
  * Halaman yang boleh tidak punya tautan masuk.
  *
- * `/laboratorium` dan `/radiologi` tidak pernah ditautkan karena isinya sama
- * dengan `/pelayanan/diagnostik/*`, dan keduanya juga dikecualikan dari
- * sitemap. Alasannya ada di roadmap bagian 3.8 dan perlu keputusan pemilik repo.
+ * Saat daftar ini dibuat masih ada `/laboratorium` dan `/radiologi`: keduanya
+ * tidak pernah ditautkan karena isinya sama dengan `/pelayanan/diagnostik/*`.
+ * Foldernya sudah dihapus, jadi keduanya sekarang tidak muncul lagi di
+ * kumpulan rute dan entri di sini dibuang bersamanya. Satu-satunya penjaga
+ * yang masih dibutuhkan ada di `tests/tautan-internal.test.ts`: dia yang
+ * memastikan kedua alias itu tidak diam-diam hidup lagi lewat filter halaman
+ * generik.
  */
-const TANPA_TAUTAN_MASUK = new Set(["/laboratorium", "/radiologi"]);
+const TANPA_TAUTAN_MASUK = new Set<string>([]);
 
 /**
  * Halaman yang boleh tidak ada di sitemap.
- *
- * Tiga halaman, masing-masing dengan alasan yang berbeda.
- *
- * `/laboratorium` dan `/radiologi` isinya sama persis dengan
- * `/pelayanan/diagnostik/*`. Memasukkannya berarti meminta mesin pencari
- * mengindeks dua URL untuk isi yang sama, jadi hanya URL kanonik yang
- * didaftarkan. Keduanya tetap menjawab 200.
  *
  * `/daftar-online` dikecualikan di `DIKECUALIKAN` pada `src/lib/sitemap.ts`,
  * karena isinya berbeda tiap pengunjung: formulirnya menanyakan tanggal dan
@@ -66,8 +63,6 @@ const TANPA_TAUTAN_MASUK = new Set(["/laboratorium", "/radiologi"]);
  */
 const TANPA_SITEMAP = new Set([
   "/daftar-online",
-  "/laboratorium",
-  "/radiologi",
 ]);
 
 /**

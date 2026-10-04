@@ -15,19 +15,19 @@ bukan sebagai perkiraan.
 
 | Yang diukur | Nilai | Cara mengukur |
 |---|---|---|
-| Halaman ter-prerender | 150 | berkas `.html` di `.next/server/app`, lewat `bun run cek:tautan` |
+| Halaman ter-prerender | 148 | `bun run cek:tautan`, berkas `.html` di `.next/server/app` tanpa dua halaman cadangan Next.js |
 | Pola rute dinamis | 11 | `dynamicRoutes` di `.next/prerender-manifest.json` |
-| Berkas tes | 41 | `bun run test` |
-| Jumlah tes | 564 | `bun run test` |
-| Rute internal unik | 63 | `collectNavPaths()` di `src/data/navigation.ts` |
+| Berkas tes | 42 | `bun run test` |
+| Jumlah tes | 584 | `bun run test` |
+| Rute internal dari catch-all | 30 | `collectNavPaths()` di `src/lib/nav-path.ts` |
 | Tabel terkelola di panel admin | 17 | `src/server/admin/registry.ts` |
 | Tabel di skema database | 27 | `pgTable` di `src/server/db/schema.ts` |
-| Route handler API | 43 | `src/app/api/v1/**/route.ts`, termasuk catcher 404 |
+| Route handler API | 44 | `src/app/api/v1/**/route.ts`, 43 endpoint dan catcher 404 |
 | Butir navigasi tingkat atas | 8 | `NAV_ITEMS` |
 | Halaman panel admin | 4 | `src/app/admin/**/page.tsx`, semuanya dinamis karena butuh sesi |
 
-Jumlah "halaman ter-prerender" pernah ditulis 160, lalu 154. Dua-duanya salah,
-dan sekarang alasannya jelas.
+Jumlah "halaman ter-prerender" pernah ditulis 160, lalu 154, lalu 150. Dua-duanya
+salah, dan sekarang alasannya jelas.
 
 160 adalah jumlah baris yang dicetak build, termasuk `/_global-error` dan
 `/_not-found` yang bukan halaman untuk pengunjung. 154 adalah jumlah kunci
@@ -35,29 +35,30 @@ dan sekarang alasannya jelas.
 lima kuncinya bukan halaman: `/_global-error`, `/_not-found`, `/favicon.ico`,
 `/robots.txt`, dan `/sitemap.xml`.
 
-Angka yang benar adalah 150, yaitu berkas `.html` yang benar-benar ditulis di
-`.next/server/app`. Lebih mudah diukur dan tidak perlu menebak apa yang
-sepatnya dihitung. `bun run cek:tautan` menghitungnya langsung, jadi angka ini
-tidak lagi perlu diperbarui tangan setiap kali ada rute baru.
+150 adalah berkas `.html` yang benar-benar ditulis di `.next/server/app`. Dua
+di antaranya tetap bukan halaman untuk pengunjung, yaitu `/_global-error` dan
+`/_not-found`, jadi angka yang dipakai di mana-mana di dokumen ini adalah 148.
+`bun run cek:tautan` menghitungnya langsung lewat daftar `BUKAN_HALAMAN`, jadi
+angka ini tidak lagi perlu diperbarui tangan setiap kali ada rute baru.
 
-Empat halaman panel admin tidak termasuk 150, dan itu memang benar. Semuanya
+Empat halaman panel admin tidak termasuk 148, dan itu memang benar. Semuanya
 diserver saat diminta, bukan ditulis ke berkas HTML, karena isinya berbeda
 setiap pengunjung. `bun run cek:tautan` tidak pernah melihatnya, dan tidak
 perlu: `/admin` tidak boleh ada di sitemap maupun punya tautan masuk.
 
 
-"Rute dari catch-all" 30 bukan 63 seperti tertulis sebelumnya. Angka 30 diukur
-langsung dari `collectNavPaths()`, dan itulah yang dihitung: hanya path
-yang dilayani `src/app/[...slug]/page.tsx`. Daun `/pelayanan/prioritas/*` dan
+"Rute dari catch-all" 30, bukan 63 seperti tertulis sebelumnya di tabel ini.
+Angka 30 diukur langsung dari `collectNavPaths()`, dan itulah yang dihitung: hanya
+path yang dilayani `src/app/[...slug]/page.tsx`. Daun `/pelayanan/prioritas/*` dan
 `/pelayanan/medis/*` sengaja tidak ikut karena sudah dilayani folder `[slug]`
 masing-masing, dan sebelas pola dinamis dihitung terpisah di baris di atasnya.
-Jadi 154 halaman tidak bisa dijumlahkan dari 30.
+Jadi 148 halaman tidak bisa dijumlahkan dari 30.
 
 Gerbang kualitas terakhir: typecheck bersih, `bun run lint` bersih,
-`bun run test` 554 tes lulus dari 40 berkas, `bun run cek:konten` dan
+`bun run test` 584 tes lulus dari 42 berkas, `bun run cek:konten` dan
 `bun run audit:teks` lulus, `bun run build` sukses, dan `bun run cek:tautan`
 tidak menemukan tautan mati, halaman tanpa tautan masuk, maupun halaman yang
-lupa masuk sitemap.
+lupa masuk sitemap: 148 halaman, 148 tautan unik, 148 entri sitemap.
 
 Alur CI sudah ada di `.github/workflows/gerbang.yml`. Ia menjalankan lint, tes,
 `cek:konten`, `audit:teks`, build, lalu `cek:tautan` pada setiap push dan setiap
@@ -75,7 +76,7 @@ adalah HTML hasil prerender.
 |---|---|---|---|
 | 1 | Layout global: topbar, navbar, footer, back-to-top | selesai | keempatnya ada. Tombol kembali ke atas di `src/components/layout/BackToTop.tsx`, angka dan posisinya diukur dari situs acuan. Lihat 3.10 |
 | 2 | Beranda dengan seluruh section | selesai | 13 section di `src/app/page.tsx`, urutannya sama dengan PRD 8.3 |
-| 3 | Halaman konten dari tabel `pages` | selesai | 150 halaman hasil build |
+| 3 | Halaman konten dari tabel `pages` | selesai | ikut 148 halaman hasil build |
 | 4 | Halaman detail template | selesai | layanan prioritas, fasilitas, MCU, berita |
 | 5 | Galeri dengan lightbox | selesai | `src/components/ui/GalleryLightbox.tsx`, PR #25 |
 
@@ -267,17 +268,17 @@ di `AGENTS.md`. Dicatat di sini supaya tidak mengejutkan saat diuji di laptop.
 
 ### 3.8 Halaman tanpa satu pun tautan masuk
 
-**Sebagian selesai.** Delapan belas dari dua puluh sudah diperbaiki. Dua sisanya
-masih terbuka dan butuh keputusan pemilik repo.
+**Selesai. Dua puluh dari dua puluh sudah diperbaiki.**
 
-Kropl seluruh tautan internal dari `/` menemukan nol link mati dari 150 halaman.
+Kropl seluruh tautan internal dari `/` menemukan nol link mati dari 148 halaman.
 Ketika hasilnya dibandingkan dengan halaman yang ter-prerender, ada dua puluh
-yang tidak muncul sebagai tujuan tautan mana pun:
+yang tidak muncul sebagai tujuan tautan mana pun, dan dua puluh itu sudah tidak
+lagi ada:
 
 | Jumlah | Rute | Sebabnya | Status |
 |---|---|---|---|
 | 18 | `/informasi-publik/brosur/*` | `BrosurDirectory` hanya merender panel kategori yang sedang aktif, jadi HTML server hanya memuat tiga brosur dari kategori pertama. Delapan belas sisanya baru muncul setelah tab diklik, yaitu setelah JavaScript berjalan. | Selesai |
-| 2 | `/laboratorium`, `/radiologi` | `DIAGNOSTIC_SERVICES` di `src/data/informasi.ts` memakai slug datar, sementara `NAV_ITEMS` menautkan ke `/pelayanan/diagnostik/laboratorium` dan `/pelayanan/diagnostik/radiologi`. Isi yang sama muncul di dua URL berbeda, dan yang datar tidak pernah ditautkan. | Menunggu keputusan |
+| 2 | `/laboratorium`, `/radiologi` | `DIAGNOSTIC_SERVICES` di `src/data/informasi.ts` memakai slug datar, sementara `NAV_ITEMS` menautkan ke `/pelayanan/diagnostik/laboratorium` dan `/pelayanan/diagnostik/radiologi`. Isi yang sama muncul di dua URL berbeda, dan yang datar tidak pernah ditautkan. | Selesai |
 
 Perbaikan delapan belas halaman brosur: semua panel sekarang dirender di server
 dan yang tidak aktif diberi atribut `hidden`. HTML server memuat keempat panel
@@ -288,17 +289,23 @@ terbaca teknologi bantu. `aria-controls` di keempat tab sekarang juga menunjuk
 id yang benar-benar ada, yang sebelumnya harus dikosongkan di tab lain. Panel
 tersembunyi sudah tidak bisa difokuskan, dibuktikan di peramban.
 
-Dua URL ganda tidak bisa diselesaikan tanpa keputusan: menghapusnya berarti
-menghapus rute, dan menggabungkan slug-nya berarti URL-nya tidak lagi cocok
-dengan `DETAIL_CONTENT`. Selama belum diputuskan, keduanya sengaja
-dikeluarkan dari sitemap supaya mesin pencari tidak diminta mengindeks isi
-yang sama dua kali. Keduanya tetap menjawab 200 dan tetap diuji soal tautan mati.
+Dua URL ganda itu diselesaikan dengan menghapus URL datarnya, yaitu folder
+`src/app/laboratorium/` dan `src/app/radiologi/` beserta modul data dan tesnya.
+URL kanonik `/pelayanan/diagnostik/<slug>` tetap ada dan sekarang jadi satu-
+satunya. Menghapus lebih jujur daripada membiarkan dua URL hidup dan berharap yang
+datar tidak pernah diketik orang.
 
-Catatan versi: saat versi ini ditulis, pemindai sitemap milik upstream sudah
-mengambil setiap folder yang punya `page.tsx`, jadi tanpa daftar eksplisit kedua
-URL ini otomatis ikut masuk dan keputusan "hanya yang kanonik" ikut hilang.
-Daftarnya dikembalikan di `DIKECUALIKAN` pada `src/lib/sitemap.ts`, dan
-`tests/sitemap.test.ts` menjaga kedua entri itu agar tidak hilang lagi.
+Akibat penghapusan itu ikut dibereskan. `DIKECUALIKAN` di
+`src/lib/sitemap.ts` serta `TANPA_TAUTAN_MASUK` dan `TANPA_SITEMAP` di
+`scripts/cek-tautan.ts` masih memuat kedua path itu, dengan komentar yang
+menyatakan keduanya "tetap menjawab 200". Pernyataan itu sudah tidak benar
+setelah foldernya dihapus, jadi entri dibuang bersama foldernya. Keduanya
+tidak pernah membuat gerbang gagal, karena keduanya hanya keanggotaan di daftar
+rute dan rute yang sudah dihapus tidak pernah muncul di daftar itu.
+
+Yang menggantikannya adalah penjaga di `tests/tautan-internal.test.ts`: kedua
+alias itu harus membalas 404. Kalau suatu saat muncul lagi lewat filter halaman
+generik, tes itu yang menangkapnya.
 
 ### 3.9 Tidak ada sitemap.xml dan robots.txt
 
@@ -361,7 +368,7 @@ diambil dari CSS situs acuan `rsudpasarminggu.jakarta.go.id` pada 4 Oktober
 | Yang diukur | Nilai |
 |---|---|
 | Ukuran | 40 x 40 px |
-| Jarak dari tepi kanan dan bawah | 15 px dan 15 px |
+| Jarak dari tepi bawah | 15 px |
 | Radius | 4px |
 | Warna | aksen `#1977cc`, sudah ada sebagai `--rs-accent` |
 | Font ikon | 24 px |
@@ -373,7 +380,7 @@ Semua angka itu dikunci oleh `tests/kembali-ke-atas.test.ts`, supaya tidak bisa
 berubah diam-diam. Kalau memang perlu diubah, sumbernya harus diukur ulang lebih
 dulu.
 
-Tiga penyimpangan dari sumbernya, semuanya disengaja dan tercatat di kode:
+Empat penyimpangan dari sumbernya, semuanya disengaja dan tercatat di kode:
 
 1. **z-index 1199, bukan 99999.** Di repo ini ada dua lapisan penutup yang harus
    menang: panel navigasi off-canvas 1200 dan lightbox 10000. Dengan 99999 tombol
@@ -387,13 +394,23 @@ Tiga penyimpangan dari sumbernya, semuanya disengaja dan tercatat di kode:
 3. **Ada indikator fokus.** Tombol ini tautan, jadi harus bisa difokuskan
    keyboard, dan harus ada yang berubah saat itu terjadi. Situs acuan tidak
    memiliki apa pun untuk itu.
+4. **Tepi kiri, bukan tepi kanan.** Situs acuan mengukur 15px dari tepi kanan
+   bawah. Nilai itu tidak bisa dipakai mentah di sini: bilah aksi cepat di
+   3.14 juga melayang di pojok kanan bawah, dengan `z-index: 1020` di bawah
+   1199 tombol ini. Kalau tombol tetap di kanan, dia menutupi butir paling
+   bawah bilah aksi cepat dan memblokir kliknya. Jarak 15px tetap sama, yang
+   dipindah hanya sisinya.
+
+Butir keempat yang paling mudah dibatalkan tanpa sadar. Tidak ada di situs
+acuan, jadi tidak ada yang bisa mengukurnya di sana; yang mengukurnya hanya
+tumpang tindih dengan `.quick-action` di repo ini.
 
 Catatan kecil: `.scroll-top` ada di `site.css`, bukan `home.css`, karena
 komponennya dipasang di `layout.tsx` dan dipakai di seluruh halaman.
 
 ### 3.11 Panel navigasi mobile tidak bisa ditutup dengan mengetuk
 
-**Belum diperbaiki. Navbar dibekukan pemilik repo.**
+**Belum diperbaiki. Navbar dibekukan pemilik repo, dengan satu pengecualian.**
 
 Ditemukan saat menguji tombol kembali ke atas di lebar 390px. Panel off-canvas
 saat terbuka punya kotak 340px mulai dari x=50 sampai x=390, sedangkan tombol
@@ -413,12 +430,37 @@ memilih salah satu tautan di dalam. Pengguna keyboard tidak terpengaruh.
 
 Ini bukan bug baru yang saya sebabkan, dan bukan racun dari tombol kembali ke
 atas. Elemen yang menutupi ketukan adalah `<a>` di dalam `.navmenu`, yaitu
-navbar itu sendiri, yang tidak disentuh dalam perubahan mana pun di sesi ini.
-Tombol kembali ke atas justru dirancang supaya tidak menambah masalah: ia memakai
-`z-index: 1199`, tepat di bawah panel 1200, sehingga tidak pernah melayang di
-atas panel.
+navbar itu sendiri, bukan racun dari tombol kembali ke atas. Tombol itu justru
+dirancang supaya tidak menambah masalah: ia memakai `z-index: 1199`, tepat di
+bawah panel 1200, sehingga tidak pernah melayang di atas panel.
 
 Perbaikannya ada di navbar, jadi tidak dikerjakan tanpa persetujuan pemilik repo.
+
+**Yang sudah diperbaiki, dengan persetujuan khusus.** Cacat mobile yang kedua
+memang berbeda, dan yang ini sudah ditutup. Panel off-canvas yang tertutup
+memuat tautan yang masih bisa dicapai tombol Tab, karena `translateX(100%)`
+menggeser isi panel ke luar layar tanpa menyembunyikannya. Pengunjung yang
+memakai keyboard bisa mendarat di menu yang tidak terlihat dan tidak tahu itu
+terjadi.
+
+Atribut `inert` menutupnya, karena membuat seluruh isi panel keluar dari urutan
+Tab sekaligus dari pohon aksesibilitas, dan `aria-hidden` ditulis juga untuk
+pembaca layar yang belum mengenal `inert`. Lebar viewport dibaca dengan
+`useSyncExternalStore`, bukan `setState` dari dalam `useEffect`, karena aturan
+`react-hooks/set-state-in-effect` melarang yang kedua. Snapshot server dianggap
+desktop, jadi HTML hasil server tidak pernah menandai `inert` dan tidak muncul
+ketidaksesuaian hidrasi.
+
+Ini satu-satunya bagian navbar yang boleh berubah. Batas 1200px, lebar navmenu
+894px, font 15px, dan posisi tombol hamburger tetap seperti commit `a9b5fd5`.
+Lima penjaga baru ada di `tests/navbar-beku.test.ts` pada describe terpisah,
+supaya kelihatan bahwa inilah satu-satunya bagian yang bergerak. Terbukti dengan
+mematikan: menghapus `inert` gagal 1 tes, membuat `inert` selalu hidup gagal
+1 tes, dan menambah batas kedua 1300px gagal 2 tes.
+
+Jadi ada dua cacat mobile yang berbeda, dan hanya satu yang sudah tertutup. Yang
+tersisa murni soal sentuh, dan menutupnya butuh backdrop atau penanganan Escape,
+yang keduanya berarti menyentuh navbar lagi.
 
 ### 3.12 Panel admin dan formulir e-pasien: koreksi atas dua klaim yang salah
 
@@ -518,21 +560,30 @@ adalah apakah pendaftaran kedua harus **ditolak** atau **diterima lalu
 ditandai**, karena yang kedua memerlukan kolom status tambahan dan tidak bisa
 dijamin constraint database selama statusnya bisa berubah.
 
-### 3.11 Bilah aksi cepat juga tidak pernah dibuat
+### 3.14 Bilah aksi cepat juga tidak pernah dibuat
 
-`QuickActionBar` di PRD 8.4 tidak ada, sama seperti `BackToTop` di 3.10.
-Layout hanya merender `Topbar`, `Navbar`, dan `Footer`, dan tidak ada kelas
-CSS untuk bilah aksi cepat.
+**Selesai.** Ini terakhir satu-satunya Acceptance Criteria yang gagal, yaitu
+butir 4 di bagian 6. Sekarang layout merender `Topbar`, `Navbar`, `Footer`,
+`QuickActionBar`, dan `BackToTop`.
 
-Inilah satu-satunya Acceptance Criteria yang gagal, yaitu butir 4 di bagian 6.
-Back-to-top di 3.10 membuat butir 1 di bagian 2 hanya "sebagian", sedangkan
-bilah aksi cepat membuat butir 4 gagal seluruhnya.
+Isinya tidak ada di situs acuan, jadi tidak ada yang bisa diukur. Yang dipakai
+lima komponen yang sudah ada, bukan tebakan: dua tombol dari `HEADER_CTAS`
+supaya isinya sama persis dengan yang sudah ada di header, ditambah WhatsApp
+dari `CONTACT` karena itu sudah dipakai di topbar dan footer. Kalau
+`HEADER_CTAS` berubah, isi bilah ini ikut berubah tanpa perlu disentuh.
 
-Isi bilah aksi cepat tidak bisa ditebak. Kandidat yang paling masuk akal
-mengambil isinya dari `HEADER_CTAS` ditambah WhatsApp, tapi itu masih
-perkiraan, dan belum ada rujukan visual di situs acuan untuk diambil.
+Bentuk tiap butir ditulis sebagai data di `src/data/quick-action.ts`, bukan di
+dalam JSX, supaya `tests/quick-action.test.ts` bisa memeriksanya tanpa merender
+apa pun dan supaya komponennya sendiri tidak memuat daftar tautannya.
 
-### 3.12 Tautan mati yang sudah diperbaiki, dan penjaganya
+Tautannya dijaga. Setiap `href` di `QUICK_ACTIONS` diuji dengan
+`hasOwnRoute()`, jadi butir yang menunjuk halaman yang tidak ada akan membuat
+tes gagal, bukan jadi tautan mati diam-diam seperti yang terjadi di 3.15.
+
+Sengaja disembunyikan di bawah 768px. Ruang vertikal di layar kecil sempit,
+dan tombol `Daftar Online` sudah ada menapak di header.
+
+### 3.15 Tautan mati yang sudah diperbaiki, dan penjaganya
 
 Ditemukan lewat crawl 160 tautan internal dari HTML hasil build: 157 membalas
 200, satu membalas 404. Dua sisanya berkas `_next/static/chunks` yang basi
@@ -559,7 +610,7 @@ CSS dengan meta itu tidak berbeda. Hasilnya 151 dari 152 halaman
 ter-prerender memakai tag itu; sisanya `_global-error.html` yang memang
 menggantikan root layout.
 
-### 3.13 Alur kerja gerbang belum pernah berhasil sekali pun
+### 3.16 Alur kerja gerbang belum pernah berhasil sekali pun
 
 `.github/workflows/gerbang.yml` tercatat `active` di GitHub, tapi dua belas
 run pertama-tiganya semuanya `failure` dan selesai dalam 0 detik. Tidak ada
@@ -600,8 +651,10 @@ tercantum di bagian 1.
 ## 4. Langkah berikutnya
 
 Sembilan langkah versi sebelumnya sudah diselesaikan. Empat di antaranya selesai
-pada sesi terakhir ini, dan dua di antaranya selesai oleh upstream tanpa ikut
-saya: peta situs di PR #33, panel admin dan formulir e-pasien di PR #34.
+pada sesi terakhir ini, dua di antaranya selesai oleh upstream tanpa ikut saya
+(peta situs di PR #33, panel admin dan formulir e-pasien di PR #34), dan satu
+lagi berstatus "menunggu keputusan" yang sekarang sudah diputuskan dan dikerjakan,
+yaitu dua URL ganda di 3.8.
 
 Yang tersisa hanya yang butuh keputusan pemilik repo atau perkakas yang belum
 dipasang. Urutannya dari yang paling jelas.
@@ -610,19 +663,18 @@ dipasang. Urutannya dari yang paling jelas.
    tambahkan constraint-nya. PRD tidak menyebut aturan ini, jadi tidak mendesak.
    Setelah keputusannya pekerjaannya kecil: satu unique index, satu migration,
    satu pesan galat.
-2. **Putuskan dua URL ganda** di 3.8. Apakah `/laboratorium` dan `/radiologi`
-   dihapus, atau slug `DIAGNOSTIC_SERVICES` diubah supaya hanya menyisakan
-   `/pelayanan/diagnostik/*`. Menghapus rute tidak dilakukan tanpa persetujuan.
-3. **Perbaiki panel navigasi mobile** di 3.11, kalau pemilik repo mengizinkan
-   menyentuh navbar. Perbaikannya kecil: satu backdrop, atau satu penanganan
+2. **Perbaiki panel navigasi mobile** di 3.11, kalau pemilik repo mengizinkan
+   menyentuh navbar lagi. Perbaikannya kecil: satu backdrop, atau satu penanganan
    Escape, atau menggeser panel supaya tidak menutupi hamburger. Yang sekarang
    terjadi adalah pengguna sentuh yang membuka menu tidak bisa menutupnya lagi
-   tanpa memilih salah satu tautan di dalamnya.
-4. **Pasang Lighthouse** kalau angka SEO dan aksesibilitas ingin dibuktikan,
+   tanpa memilih salah satu tautan di dalamnya. Cacat keyboard-nya sudah tertutup
+   dan navbar sudah disentuh sekali dengan persetujuan khusus, jadi yang tersisa
+   murni soal sentuh.
+3. **Pasang Lighthouse** kalau angka SEO dan aksesibilitas ingin dibuktikan,
    bukan hanya diperkirakan. Memasangnya berarti menambah dependensi. Ini
    satu-satunya butir di bagian 6 yang statusnya "belum diukur", jadi setiap
    klaim tentang aksesibilitas di dokumen ini masih perkiraan.
-5. **Baca-nyaring dan analytics** dikerjakan kalau diminta. Keduanya opsional
+4. **Baca-nyaring dan analytics** dikerjakan kalau diminta. Keduanya opsional
    di PRD.
 
 Butir 1 optional. Kalau pemilik repo menganggap tidak perlu, tidak ada yang rusak:
@@ -636,8 +688,13 @@ Yang **tidak** ada di daftar ini, karena sudah selesai atau sudah gugur:
   butir 1 di atas.
 - **Buat `sitemap.xml` dan `robots.txt`**. Sudah di PR #33, lalu diperluas di
   sesi ini karena versinya kehilangan delapan halaman.
-- **Buat tombol kembali ke atas**. Selesai di sesi ini, lihat 3.10.
-- **Render semua panel brosur di server**. Selesai di sesi ini, lihat 3.8.
+- **Buat tombol kembali ke atas**. Sudah di PR #34, lalu diukur ulang dan
+  dikunci di 3.10.
+- **Buat bilah aksi cepat**. Selesai di sesi ini, lihat 3.14. Butir 4 bagian 6
+  tidak lagi gagal karena ini.
+- **Render semua panel brosur di server**. Sudah di PR #34, lihat 3.8.
+- **Hapus `/laboratorium` dan `/radiologi`**. Sudah di sesi ini dengan persetujuan
+  pemilik repo. URL kanoniknya tetap ada.
 - **Putuskan ruang lingkup panel admin**. Tidak perlu diputuskan, panelnya
   sudah ada dan lengkap. Lihat koreksinya di 3.12.
 
@@ -645,9 +702,9 @@ Yang **tidak** ada di daftar ini, karena sudah selesai atau sudah gugur:
 
 - **Navbar dibekukan.** Jangan diubah tanpa diminta pemilik repo.
   `tests/navbar-beku.test.ts` mengunci keadaan itu, dan sengaja gagal kalau
-  navbar disentuh. Sekarang navbar juga punya cacat yang diketahui: panelnya
-  tidak bisa ditutup dengan mengetuk, lihat 3.11. Cacat itu sengaja tidak
-  disentuh, bukan terlewat.
+  navbar disentuh. Pengecualiannya satu dan sudah dipakai: atribut `inert` pada
+  panel off-canvas, dengan persetujuan pemilik repo. Cacat yang tersisa disengaja
+  tidak disentuh: panelnya tidak bisa ditutup dengan mengetuk, lihat 3.11.
 - **`collectSitemapPaths()` di `src/lib/sitemap.ts` adalah sumber sitemap.**
   Ia memindai folder `src/app` dari filesystem, jadi route baru ikut masuk
   begitu foldernya dibuat dan tidak bisa basi seperti daftar manual. Modul ini
@@ -659,11 +716,12 @@ Yang **tidak** ada di daftar ini, karena sudah selesai atau sudah gugur:
   angkanya memang harus berubah, ukur ulang di situs acuan lebih dulu, catat
   tanggalnya di komentar CSS, lalu perbarui tesnya. Mengubah angka supaya cocok
   dengan mata saja membuat tes itu berbohong.
-- **.navbar belum pakai `aria-hidden` maupun `inert`.** Panel navigasi mobile
-  tetap bisa dicapai Tab meski panelnya di luar layar. Ini satu-satunya temuan
-  aksesibilitas yang belum diperbaiki, dan tidak bisa disentuh tanpa izin
-  pemilik repo karena perbaikannya ada di navbar. Ini terpisah dari verdict
-  Acceptance Criteria di bagian 6, dan tidak ikut dihitung di sana.
+- **Panel navigasi mobile sudah pakai `inert` dan `aria-hidden`.** Dulu panel
+  yang tertutup masih bisa dicapai Tab. Sudah ditutup dengan persetujuan khusus
+  pemilik repo, dan atribut itu dikunci lima tes di `tests/navbar-beku.test.ts`.
+  Yang belum ditutup adalah cacat sentuhnya: panel tidak bisa ditutup dengan
+  mengetuk. Keduanya sering tercampur jadi satu, padahal satu sudah beres dan
+  satu masih terbuka.
 - **Data di `src/data/` masih lokal.** Halaman membaca dari modul data, bukan
   dari API. Route handler sudah ada di `src/app/api/v1/`, dan semua path di luar
   sana dijawab 404 oleh catcher di `src/app/api/v1/[...path]/route.ts`.
@@ -696,18 +754,35 @@ dinilai lulus karena "sepertinya sudah ada".
 | 1 | Urutan section Home sama dengan tabel 8.3 | Lulus | `src/app/page.tsx` merender 13 section. Urutannya dibandingkan satu per satu dengan tabel PRD 8.3: hero, cari jadwal, layanan prioritas, fasilitas, paket MCU, berita, penghargaan, galeri, pendaftaran, sosial media, testimoni, asuransi, FAQ. Cocok semua. |
 | 2 | Navbar punya 3 tingkat dropdown dan berfungsi di desktop serta mobile | Lulus | `nav-path.ts` menelusuri tiga tingkat `children`. Dropdown diukur di peramban pada 1200, 1440, dan 1920px tanpa overflow. Panel off-canvas di mobile memakai batas 1200px yang sama. |
 | 3 | Warna utama, font, ukuran, dan jarak dicocokkan dari pengukuran DevTools | Sebagian | Font, ukuran, dan jarak memang hasil pengukuran, tercatat di `docs/design-tokens-terverifikasi.md`. Tapi warna yang tertulis di butir ini `#1A77CC` berbeda dari warna yang dipakai kode `#1977cc`. Yang dipakai kode adalah hasil pengukuran; angka di butir ini keliru. Butirnya tidak ditulis lulus karena bunyinya tidak cocok dengan implementasi. |
-| 4 | Topbar kontak, dua tombol CTA header, dan bilah aksi cepat ada | Sebagian | Topbar kontak ada. Dua tombol CTA header ada, `HEADER_CTAS` berisi "Daftar Online" dan "Administrasi Pasien". Bilah aksi cepat tidak ada; `QuickActionBar` di PRD 8.4 tidak pernah dibuat. |
+| 4 | Topbar kontak, dua tombol CTA header, dan bilah aksi cepat ada | Lulus | Ketiganya ada. Topbar kontak dari `Topbar.tsx`, dua tombol CTA header dari `HEADER_CTAS` berisi "Daftar Online" dan "Administrasi Pasien", dan bilah aksi cepat dari `QuickActionBar.tsx`. Isi bilah aksi cepat diambil dari `HEADER_CTAS` ditambah WhatsApp dari `CONTACT`, lalu setiap `href`-nya diuji dengan `hasOwnRoute()`. Lihat 3.14. |
 
 ### Fungsional
 
 | # | Butir | Verdict | Bukti atau sebab gagal |
 |---|---|---|---|
 | 5 | Memilih spesialis memfilter dropdown dokter; hasil jadwal tampil dengan status memuat | Lulus | `DoctorSearchCard` punya tiga state: spesialis, dokter, hari. Memilih spesialis mengisi daftar dokter. Dipakai `<select>` bawaan, bukan `react-select` seperti PRD 8.3 menulis, karena `react-select` memang terpasang tetapi belum dipakai. Perbedaan komponen, bukan perbedaan fungsi. |
-| 6 | Semua halaman bisa dijangkau lewat link; tidak ada halaman yatim dan tidak ada link mati | Sebagian | Link mati nol dari 150 halaman. Link masuk juga ada untuk 148 halaman. Sisanya dua URL ganda, `/laboratorium` dan `/radiologi`, yang isinya sama persis dengan `/pelayanan/diagnostik/*` dan tidak pernah ditautkan. Delapan belas halaman brosur yang dulu yatim sudah diperbaiki dengan merender semua panel di server. `bun run cek:tautan` sekarang menjaga jenis kesalahan ini di CI. Lihat 3.8. |
+| 6 | Semua halaman bisa dijangkau lewat link; tidak ada halaman yatim dan tidak ada link mati | Lulus | `bun run cek:tautan` melaporkan 148 halaman, 148 tautan unik, dan 148 entri sitemap, tanpa tautan mati dan tanpa halaman tanpa tautan masuk. Tiga cacat yang pernah ada sudah ditutup: 18 halaman brosur dulu yatim karena `BrosurDirectory` hanya merender panel kategori yang sedang aktif, dan dua URL ganda diduplikasi. Lihat 3.8. |
 | 7 | Pendaftaran E-Pasien menghasilkan nomor antrean dan tersimpan di DB | Lulus | PR #34 upstream menyambungkan formulir ke endpointnya. `registration-form.tsx` mengambil dokter dari `GET /api/v1/doctors`, mengambil slot jam dari `GET /api/v1/schedules`, lalu mengirim `POST /api/v1/appointments` dengan `schedule_id`. Nomor antrean dikembalikan dan ditampilkan ke pengguna. Penghitung kuota memakai `INSERT ... ON CONFLICT DO UPDATE ... RETURNING taken` di dalam transaksi, jadi dua permintaan bersamaan tidak mendapat nomor yang sama, dan unique index `(doctor_id, visit_date, queue_number)` jadi pengaman kedua. |
 | 8 | Form menolak input tidak valid di sisi server dan tahan terhadap spam sederhana | Lulus | Sisi server lengkap: `src/server/validation.ts` dipakai route appointments, honeypot dan rate limit dijalankan `src/server/api/form.ts` sebelum validasi. Sekarang jalur itu benar-benar dipakai pengunjung, karena formulir sudah mengirim datanya (lihat butir 7). Penghitung rate limit dikosongkan setelah formulir tersimpan, dan ada tesnya: `tests/form-rate-limit.test.ts` serta `tests/registration-form.test.ts` mengunci aturan pemetaan field dan penerjemahannya. |
 | 9 | Admin dapat menambah, mengubah, dan menghapus berita, dan perubahannya tampil di situs publik | Gagal | Satu sebabnya, dan sekarang tinggal satu. Panel admin-nya ada dan berfungsi, jadi separuh pertama butir ini sudah bisa dilakukan: admin bisa menambah, mengubah, dan menghapus berita lewat `/admin/records/[table]`. Tapi tidak satu pun halaman publik membaca dari database. Dari 18 halaman yang ada, 17 masih membaca modul di `src/data/`, dan satu-satunya yang membaca server adalah dasbor admin itu sendiri. Admin mengubah baris berita di database, lalu halaman `/berita` tetap menampilkan isi modul. Perubahan itu tidak pernah terlihat pengunjung. |
-| 10 | Peran `front_office` tidak bisa mengubah konten; `editor` tidak bisa mengelola user | Lulus | `src/server/admin/registry.ts` memetakan aksi ke peran, dan tes `tests/registry.test.ts` mengunci pemetaannya. Sekarang aturan itu juga ditegakkan di jalur HTTP, bukan hanya di backside: enam route handler admin memanggil `requireSession(canEditContent)`, jadi permintaan dari peran yang salah ditolak sebelum menyentuh database. Panel admin-nya juga sudah ada, jadi aturannya bisa dipakai dari antarmuka. |
+| 10 | Peran `front_office` tidak bisa mengubah konten; `editor` tidak bisa mengelola user | Lulus | `src/server/admin/registry.ts` memetakan aksi ke peran, dan tes `tests/registry.test.ts` mengunci pemetaannya. Sekarang aturan itu juga ditegakkan di jalur HTTP, bukan hanya di backside: delapan dari empat belas route handler admin meneruskan peran ke `requireSession()`, jadi permintaan dari peran yang salah ditolak sebelum menyentuh database. Panel adminnya juga sudah ada, jadi aturannya bisa dipakai dari antarmuka. |
+
+Catatan terbuka untuk butir 6: kedelapan belas halaman brosur dulu yatim karena
+`BrosurDirectory` hanya merender panel kategori yang sedang aktif, sehingga
+tautannya baru muncul setelah tab diklik. Sekarang semua panel dirender di server
+dan yang tidak aktif diberi atribut `hidden`. Dua URL ganda, `/laboratorium` dan
+`/radiologi`, dulu hidup berdampingan dengan `/pelayanan/diagnostik/<slug>` dan
+tidak pernah ditautkan; keduanya sekarang dihapus, jadi isinya tidak lagi
+diminta dua kali oleh mesin pencari.
+
+Catatan terbuka untuk butir 10: enam route admin lainnya tidak meneruskan
+peran sama sekali. Lima di antaranya hanya membaca (`stats`, `tables`,
+`appointments-per-day`, `survey-by-unit`, dan `inbox/[kind]`), jadi risikonya
+kecil. Yang keenam, `inbox/[kind]/[id]`, menulis dan tidak punya pemeriksaan
+peran. Itu bukan alasan butir 10 gagal, karena butirnya bicara soal
+`front_office` dan `editor` sedangkan route inbox tidak menyentuh konten sama
+sekali. `records` punya dua lapis: route-nya meneruskan peran, dan `rolehanya()`
+dipanggil lagi di `src/server/admin/records.ts`.
 
 ### Non-fungsional
 
@@ -729,14 +804,20 @@ dinilai lulus karena "sepertinya sudah ada".
 
 | Verdict | Jumlah | Nomor butir |
 |---|---|---|
-| Lulus | 9 | 1, 2, 5, 7, 8, 10, 11, 15, 16 |
-| Sebagian | 3 | 3, 4, 6 |
+| Lulus | 11 | 1, 2, 4, 5, 6, 7, 8, 10, 11, 15, 16 |
+| Sebagian | 1 | 3 |
 | Belum bisa dibuktikan | 1 | 12 |
 | Belum diukur | 1 | 14 |
 | Gagal | 1 | 9 |
 | Tidak diterapkan atas keputusan pemilik | 1 | 13 |
 
 Jumlahnya enam belas, sama dengan jumlah kotak penanda di PRD bagian 12.
+
+Dua butir naik pada versi ini: butir 4 dan butir 6. Keduanya karena pekerjaan
+yang sama-sama selesai di sesi ini, yaitu bilah aksi cepat di 3.14 dan
+penghapusan dua URL ganda di 3.8. Butir 4 sebelumnya ditulis gagal karena
+`QuickActionBar` benar-benar belum ada; butir 6 sebelumnya ditulis sebagian
+karena dua halaman itu tidak pernah ditautkan.
 
 Satu yang gagal adalah butir 9, dan sebabnya sekarang tunggal: tidak satu pun
 halaman publik membaca dari database. Panel admin-nya sudah ada, jadi separuh

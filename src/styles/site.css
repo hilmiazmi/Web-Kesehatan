@@ -30,7 +30,9 @@
    `--rs-accent` di sini, dan `var(--contrast-color)` #ffffff, sama dengan
    `--rs-white`.
 
-   Penyimpangan dari sumbernya hanya satu: z-index.
+   Penyimpangan dari sumbernya dua, bukan satu.
+
+   Yang pertama z-index.
 
    Situs acuan memakai 99999. Nilai itu ditiru sebagai 1199, bukan 99999,
    karena susunan lapisan di repo ini berbeda. Urutannya sudah ditulis di
@@ -45,12 +47,21 @@
    tombol ikut menghilang karena ikut bergeser ke atas.
 
    1199 menaruh tombol tepat di bawah kedua lapisan penutup, tapi tetap di atas
-   seluruh isi halaman. */
+   seluruh isi halaman.
+
+   Yang kedua adalah sisi yang dipakai. Situs acuan tidak punya bilah aksi
+   cepat, jadi tombolnya di pojok kanan bawah. Di repo ini pojok kanan bawah
+   sudah dipakai `.quick-action`, dan keduanya melayang pada z-index yang
+   berbeda: 1199 di atas 1020. Kalau tombol ini tetap di kanan, tombolnya
+   menutupi butir paling bawah bilah aksi cepat dan tidak pernah bisa diklik
+   karena `z-index` yang lebih tinggi. Dipindah ke tepi kiri supaya keduanya
+   tidak berebut ruang. Yang diukur dari situs acuan tetap bentuk, warna, ukuran,
+   ambang kemunculan, dan jarak 15px dari tepi. */
 .scroll-top {
   position: fixed;
   visibility: hidden;
   opacity: 0;
-  right: 15px;
+  left: 15px;
   bottom: 15px;
   z-index: 1199;
   width: 40px;

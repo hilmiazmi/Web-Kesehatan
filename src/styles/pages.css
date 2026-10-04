@@ -81,6 +81,14 @@
   color: var(--rs-accent);
 }
 
+/* Ikon di kartu layanan pada halaman diagnostik. Angkanya 1.75rem dan
+   warnanya aksen, sama seperti ikon kartu di halaman /laboratorium dan
+   /radiologi yang dibekukan ini. */
+.detail-card-icon {
+  color: var(--rs-accent);
+  font-size: 1.75rem;
+}
+
 /* ---------- Artikel berita ---------- */
 .article-meta {
   font-size: 0.85rem;

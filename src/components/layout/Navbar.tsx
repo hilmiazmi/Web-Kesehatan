@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { HEADER_CTAS, NAV_ITEMS, SITE, type NavChild, type NavItem } from "@/data/navigation";
 
 /**
@@ -27,6 +27,33 @@ export default function Navbar() {
     setMobileOpen(false);
   }
 
+  /**
+   * Panel off-canvas yang tertutup harusnya tidak bisa difokuskan.
+   *
+   * `.navmenu` digeser ke kanan dengan `translateX(100%)`, jadi isinya secara
+   * visual ada di luar layar. Tapi menggeser bukan menyembunyikan: seluruh
+   * tautan di dalamnya masih bisa dicapai tombol Tab, jadi pengunjung yang
+   * memakai keyboard bisa mendarat di menu yang tidak terlihat.
+   *
+   * Atribut `inert` yang menutup masalah ini, karena dia membuat seluruh
+   * isi panel keluar dari urutan Tab sekaligus dari pohon aksesibilitas.
+   * `aria-hidden` ditulis juga untuk pembaca layar yang belum mengenal
+   * `inert`.
+   *
+   * Syaratnya penting: `inert` hanya berlaku ketika panel benar-benar
+   * off-canvas, yaitu di bawah 1200px dan belum dibuka. Di desktop panelnya
+   * terlihat, jadi atribut ini harus selalu kosong di sana.
+   */
+  const desktopNav = useSyncExternalStore(
+    dengarLebarDesktop,
+    bacaLebarDesktop,
+    // Snapshot server selalu dianggap desktop. Panel di desktop memang
+    // terlihat, jadi HTML hasil server tidak pernah menandai `inert`. Kalau
+    // layar ternyata sempit, React melakukan render ulang setelah hidrasi.
+    () => true,
+  );
+  const panelTertutup = !desktopNav && !mobileOpen;
+
   return (
     <div className="branding d-flex align-items-center">
       <div className="container-fluid position-relative d-flex align-items-center justify-content-between header-nav-menu">
@@ -48,6 +75,8 @@ export default function Navbar() {
           id="navmenu"
           className={`navmenu ${mobileOpen ? "navmenu-open" : ""}`}
           aria-label="Navigasi utama"
+          inert={panelTertutup}
+          aria-hidden={panelTertutup}
         >
           <ul>
             {NAV_ITEMS.map((item) => (
@@ -101,6 +130,29 @@ export default function Navbar() {
  * pembuka accordion.
  */
 function isDesktopNav(): boolean {
+  return window.matchMedia("(min-width: 1200px)").matches;
+}
+
+/**
+ * Daftar perubahan lebar viewport untuk `useSyncExternalStore`.
+ *
+ * Dipakai supaya komponen tahu sedang dalam mode off-canvas atau bukan,
+ * tanpa memanggil `setState` dari dalam `useEffect`. Callback yang
+ * diteruskan ke `addEventListener` adalah milik React, dan itulah yang
+ * membuat komponen di-render ulang.
+ *
+ * Batasnya sengaja ditulis inline dan sama persis dengan `isDesktopNav()`
+ * di atas. Kalau keduanya berbeda, panel akan menutup sendiri di layar lebar
+ * atau tidak pernah menutup di layar sempit.
+ */
+function dengarLebarDesktop(callback: () => void): () => void {
+  const mql = window.matchMedia("(min-width: 1200px)");
+  mql.addEventListener("change", callback);
+  return () => mql.removeEventListener("change", callback);
+}
+
+/** Snapshot untuk `useSyncExternalStore`, dibaca saat render. */
+function bacaLebarDesktop(): boolean {
   return window.matchMedia("(min-width: 1200px)").matches;
 }
 

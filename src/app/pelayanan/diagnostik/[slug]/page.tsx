@@ -29,10 +29,10 @@ export async function generateMetadata({
 /**
  * Halaman detail satu layanan diagnostik.
  *
- * Laboratorium memuat daftar pemeriksaan datar, sedangkan radiologi
- * menampilkan pemeriksaan yang dikelompokkan per alat. Keduanya memakai
- * bentuk data yang sama di `src/data/informasi.ts` supaya halaman ini tidak
- * perlu branching.
+ * Isi tiap layanan ditata di `sections` pada `src/data/informasi.ts`, jadi
+ * halaman ini tidak perlu membedakan laboratorium dari radiologi. Keduanya
+ * punya bagian bertitel dengan daftar, dan bagian bertitel dengan kartu;
+ * hanya isi di dalamnya yang berbeda.
  */
 export default async function DiagnosticServicePage({
   params,
@@ -85,17 +85,73 @@ export default async function DiagnosticServicePage({
 
               <p className="detail-lead">{service.description}</p>
 
-              {service.groups.map((group) => (
-                <section key={group.name}>
-                  <h2 className="detail-subheading">{group.name}</h2>
-                  <ul className="detail-list">
-                    {group.points.map((p) => (
-                      <li key={p}>
-                        <i className="bi bi-check-circle" aria-hidden="true" />
-                        {p}
-                      </li>
-                    ))}
-                  </ul>
+              {service.paragraphs?.map((paragraf) => (
+                <p key={paragraf}>{paragraf}</p>
+              ))}
+
+              {service.sections.map((bagian) => (
+                <section key={bagian.title}>
+                  <h2 className="detail-subheading">{bagian.title}</h2>
+
+                  {bagian.lead ? <p>{bagian.lead}</p> : null}
+
+                  {bagian.points && (
+                    <ul className="detail-list">
+                      {bagian.points.map((p) => (
+                        <li key={p}>
+                          <i className="bi bi-check-circle" aria-hidden="true" />
+                          {p}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {bagian.cards && (
+                    <div className="row g-4">
+                      {bagian.cards.map((kartu) => (
+                        <div
+                          className="col-md-6 col-lg-4"
+                          key={kartu.id}
+                          id={kartu.id}
+                        >
+                          <div className="card h-100 border-0 shadow-sm">
+                            <div className="card-body">
+                              <i
+                                className={`bi ${kartu.icon} detail-card-icon`}
+                                aria-hidden="true"
+                              />
+                              <h3 className="h5 mt-2">{kartu.name}</h3>
+
+                              {/* Satu butir ditampilkan sebagai paragraf, karena
+                                  keterangan kartu laboratorium memang satu
+                                  kalimat. Lebih dari satu butir memakai daftar,
+                                  seperti fungsi tindakan pada alat. */}
+                              {kartu.points.length === 1 ? (
+                                <p className="mb-0">{kartu.points[0]}</p>
+                              ) : (
+                                <>
+                                  <p className="text-muted small mb-2">
+                                    Fungsi tindakan:
+                                  </p>
+                                  <ul className="detail-list">
+                                    {kartu.points.map((p) => (
+                                      <li key={p}>
+                                        <i
+                                          className="bi bi-check-circle"
+                                          aria-hidden="true"
+                                        />
+                                        {p}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </section>
               ))}
 
