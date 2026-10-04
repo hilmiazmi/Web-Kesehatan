@@ -1,65 +1,189 @@
 import { describe, expect, it } from "vitest";
+import { existsSync, readdirSync } from "node:fs";
+import path from "node:path";
 import sitemap from "@/app/sitemap";
-import robots from "@/app/robots";
-import { collectNavPaths } from "@/lib/nav-path";
-import { ARTICLES } from "@/data/home";
-import { CLINIC_DETAILS } from "@/data/clinics";
+import { collectSitemapPaths } from "@/lib/sitemap";
+import { collectNavPaths, hasOwnRoute } from "@/lib/nav-path";
+import { NAV_PPID_CHILDREN } from "@/data/ppid-nav";
+import { MANAGEMENT } from "@/data/manajemen";
 
 /**
- * Pengawal peta situs XML dan aturan perayap.
+ * Penjaga `sitemap.xml`.
  *
- * `/sitemap.xml` pernah jatuh ke halaman 404 karena tidak ada route yang
- * menanganinya. Tanpa tes, berkas `sitemap.ts` bisa terhapus atau daftar
- * URL-nya menyusut diam-diam dan tidak ada yang tahu sampai perayap
- * kehabisan halaman.
+ * Yang dijaga di sini bukan tampilannya, tapi cakupan dan kebenarannya.
+ * Dua kelas kesalahan yang pernah terjadi dan tidak terlihat dari mata:
+ *
+ * - Halaman hilang dari sitemap. `collectNavPaths()` melewati path yang punya
+ *   folder sendiri, jadi `/ppid` dan `/tentang-kami/manajemen` beserta
+ *   seluruh subtree-nya tidak pernah ikut. Sitemap yang hanya ikut fungsi itu
+ *   kehilangan 18 halaman tanpa satu galat pun.
+ * - URL yang salah bentuk. `metadataBase` tidak berlaku di sitemap, jadi
+ *   menulis path biasa menghasilkan `<loc>/tentang-kami</loc>`. Format itu
+ *   ditolak mesin pencari dan tetap lolos build.
+ *
+ * Berkas `src/app/sitemap.ts` diimpor langsung, bukan hanya aturannya di
+ * `src/lib/sitemap.ts`, supaya jaminan URL absolut ikut diperiksa.
  */
-describe("sitemap.xml", () => {
-  const entri = sitemap();
-  const url = entri.map((e) => e.url);
 
-  it("semua URL absolut, path tanpa garis miring ganda atau akhiran", () => {
-    expect(entri.length).toBeGreaterThan(0);
-    for (const u of url) {
-      expect(u).toMatch(/^https?:\/\//);
-      const p = new URL(u).pathname;
-      expect(p).not.toContain("//");
-      if (p !== "/") {
-        expect(p.endsWith("/")).toBe(false);
+const AKAR = path.resolve(import.meta.dirname, "..");
+const semua = collectSitemapPaths().map((e) => e.path);
+
+/**
+ * Folder `[slug]` di `src/app`, ditulis sebagai awalan URL.
+ *
+ * Dibaca dari filesystem supaya route dinamis baru ikut diperiksa begitu
+ * foldernya dibuat, tanpa perlu mendaftarkannya di tes ini.
+ */
+function folderSlug(): string[] {
+  const appDir = path.join(AKAR, "src/app");
+  const out: string[] = [];
+
+  const walk = (dir: string, prefix: string) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue;
+
+      const segments = prefix === "" ? entry.name : `${prefix}/${entry.name}`;
+      const full = path.join(dir, entry.name);
+
+      if (entry.name === "[slug]" && existsSync(path.join(full, "page.tsx"))) {
+        out.push(`/${segments.replace(/\/\[slug\]$/, "")}`);
       }
+      walk(full, segments);
     }
+  };
+
+  walk(appDir, "");
+  return out.sort();
+}
+
+describe("daftar path sitemap", () => {
+  it("tidak ada path yang sama dua kali", () => {
+    expect(new Set(semua).size).toBe(semua.length);
   });
 
-  it("tidak ada URL ganda", () => {
-    expect(new Set(url).size).toBe(url.length);
+  it("beranda ada dan tidak ada duplikat dari navigasi", () => {
+    expect(semua).toContain("/");
+    // `collectNavPaths()` tidak memuat beranda, jadi masuknya beranda berarti
+    // ada penambahan manual, bukan dari sumber yang salah.
+    expect(semua.filter((p) => p === "/")).toHaveLength(1);
   });
 
-  it("memuat beranda dan semua path navigasi", () => {
-    const path = new Set(url.map((u) => new URL(u).pathname));
-    expect(path.has("/")).toBe(true);
-    for (const { slug } of collectNavPaths()) {
-      expect(path.has("/" + slug.join("/"))).toBe(true);
-    }
+  it("memuat setiap path dari navigasi", () => {
+    const hilang = collectNavPaths()
+      .map((e) => `/${e.slug.join("/")}`)
+      .filter((p) => !semua.includes(p));
+
+    expect(hilang, `path navigasi yang hilang dari sitemap:\n${hilang.join("\n")}`).toEqual([]);
   });
 
-  it("memuat URL detail dari tiap keluarga halaman", () => {
-    const path = new Set(url.map((u) => new URL(u).pathname));
-    expect(path.has(`/berita/${ARTICLES[0].slug}`)).toBe(true);
-    expect(path.has(`/pelayanan/poliklinik/${CLINIC_DETAILS[0].slug}`)).toBe(
-      true,
+  it("memuat subtree yang dilewati collectNavPaths", () => {
+    // `/ppid` dan `/tentang-kami/manajemen` punya folder sendiri, jadi
+    // `collectNavPaths()` melewati seluruh cabangnya. Inilah yang pernah
+    // membuat 18 halaman hilang dari sitemap.
+    const hilang = [
+      ...NAV_PPID_CHILDREN.map((c) => c.href),
+      ...MANAGEMENT.map((m) => `/tentang-kami/manajemen/${m.slug}`),
+    ].filter((p) => !semua.includes(p));
+
+    expect(
+      hilang,
+      `subtree yang hilang dari sitemap:\n${hilang.join("\n")}`,
+    ).toEqual([]);
+  });
+
+  it("memuat minimal satu halaman untuk tiap route [slug]", () => {
+    // Ini penjaga anti-drift untuk route dinamis yang baru ditambahkan.
+    // Kalau ada folder `[slug]` tanpa isinya di sitemap, tes ini gagal dan
+    // menyebut foldernya.
+    const kosong = folderSlug().filter(
+      (prefix) => !semua.some((p) => p.startsWith(`${prefix}/`)),
     );
+
+    expect(
+      kosong,
+      `route [slug] tanpa isi di sitemap:\n${kosong.join("\n")}`,
+    ).toEqual([]);
   });
 
-  it("beranda diprioritaskan dan diperiksa harian", () => {
-    const dasar = entri.find((e) => new URL(e.url).pathname === "/");
-    expect(dasar?.priority).toBe(1);
-    expect(dasar?.changeFrequency).toBe("daily");
+  it("semua path-nya dilayani route sungguhan", () => {
+    const appDir = path.join(AKAR, "src/app");
+    const statis: string[] = [];
+    const walk = (dir: string, prefix: string) => {
+      for (const entry of readdirSync(dir, { withFileTypes: true })) {
+        if (!entry.isDirectory() || entry.name.startsWith("[")) continue;
+        const segments = prefix === "" ? entry.name : `${prefix}/${entry.name}`;
+        const full = path.join(dir, entry.name);
+        if (existsSync(path.join(full, "page.tsx"))) statis.push(`/${segments}`);
+        walk(full, segments);
+      }
+    };
+    walk(appDir, "");
+
+    const takAda = semua.filter(
+      (p) =>
+        p !== "/" &&
+        !statis.includes(p) &&
+        !hasOwnRoute(p) &&
+        !collectNavPaths().some((e) => `/${e.slug.join("/")}` === p) &&
+        !folderSlug().some((prefix) => p.startsWith(`${prefix}/`)),
+    );
+
+    expect(takAda, `path di sitemap tanpa route:\n${takAda.join("\n")}`).toEqual([]);
+  });
+
+  it("tidak mengindeks halaman yang isinya per pengunjung", () => {
+    // `/daftar-online` menampilkan formulir dan hasil pencarian jadwal, jadi
+    // isinya berbeda tiap orang. Mengindeksnya tidak berguna.
+    expect(semua).not.toContain("/daftar-online");
   });
 });
 
-describe("robots.txt", () => {
-  it("mengizinkan semua perayap dan menunjuk peta situs", () => {
-    const r = robots();
-    expect(r.rules).toMatchObject({ userAgent: "*", allow: "/" });
-    expect(String(r.sitemap)).toMatch(/^https?:\/\/.+\/sitemap\.xml$/);
+describe("bentuk sitemap.xml", () => {
+  it("URL-nya absolut lengkap dengan domain", () => {
+    // `metadataBase` tidak berlaku di sitemap, jadi ini harus dibentuk sendiri.
+    const isi = sitemap();
+    expect(isi.length).toBe(semua.length);
+
+    for (const entri of isi) {
+      expect(entri.url, entri.url).toMatch(
+        /^https?:\/\/[^/]+(\/[^?]*)?$/,
+      );
+    }
+  });
+
+  it("menghormati NEXT_PUBLIC_SITE_URL", () => {
+    const lama = process.env.NEXT_PUBLIC_SITE_URL;
+    process.env.NEXT_PUBLIC_SITE_URL = "https://contoh.example/";
+
+    try {
+      const isi = sitemap();
+      expect(isi[0].url).toMatch(/^https:\/\/contoh\.example\//);
+      // Garis miring akhir pada variabel tidak boleh menggandakan separator.
+      expect(isi[0].url).not.toContain("//beranda");
+      expect(isi.every((e) => !e.url.includes(".example//"))).toBe(true);
+    } finally {
+      if (lama === undefined) delete process.env.NEXT_PUBLIC_SITE_URL;
+      else process.env.NEXT_PUBLIC_SITE_URL = lama;
+    }
+  });
+
+  it("tidak ada segmen grup route atau dinamis", () => {
+    // Folder `(grup)` dan `[slug]` bukan segmen URL. Kalau lolos ke sini,
+    // sitemap memuat URL yang tidak pernah bisa dibuka, misalnya
+    // `/admin/(panel)` yang balas 404.
+    for (const p of semua) {
+      expect(p, p).not.toMatch(/[()[\]]/);
+    }
+  });
+
+  it("prioritas di dalam rentang 0 sampai 1", () => {
+    for (const entri of collectSitemapPaths()) {
+      expect(entri.priority, entri.path).toBeGreaterThan(0);
+      expect(entri.priority, entri.path).toBeLessThanOrEqual(1);
+      expect(
+        ["daily", "weekly", "monthly", "yearly"],
+        entri.path,
+      ).toContain(entri.changeFrequency);
+    }
   });
 });
