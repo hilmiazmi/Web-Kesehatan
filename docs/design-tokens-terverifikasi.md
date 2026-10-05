@@ -5,9 +5,35 @@
 > `https://rsudpasarminggu.jakarta.go.id/`, diambil 2 Oktober 2026.
 > Sumber CSS: `main.css` (37.878 byte) + `style.css` (11.667 byte).
 
-PRD bagian 8.1 dan 13.4 menandai token ini sebagai `⚠️ belum terverifikasi`.
+PRD bagian 8.1 dan 13.4 menandai token ini sebagai `⚠ belum terverifikasi`.
 Dokumen ini menutup celah tersebut. **Jangan menebak angka di bawah — semuanya
 hasil pengukuran.**
+
+## Cara verifiable ulang tanpa peramban
+
+Pengukuran di atas memakai peramban. Sejak 5 Oktober 2026 sebagian angka bisa
+dicek ulang dengan membaca stylesheet acuan langsung, karena `curl` berhasil
+pada host tersebut:
+
+```bash
+curl -s https://rsudpasarminggu.jakarta.go.id/v2/assets/css/main.css > main.css
+curl -s https://rsudpasarminggu.jakarta.go.id/v2/assets/css/style.css > style.css
+```
+
+Yang terkonfirmasi begitu:
+
+- `--accent-color: #1977cc` di `main.css`, dengan komentar resmi mereka sendiri.
+  `#1A77CC` tidak ada di kedua berkas, jadi angka di PRD bukan warna aksen.
+  Judul repo memakai Poppins, sama persis dengan nilai mereka. Yang berbeda
+  adalah body dan navigasi: mereka memakai `Roboto` dan `Raleway`, sedangkan
+  repo memakai Poppins untuk keduanya. Itu keputusan, bukan pengukuran.
+- `bootstrap.min.css` milik mereka 232.803 byte, sama dengan `bootstrap@5.3.3`
+  di npm.
+
+Angka yang **tidak** ada di CSS mereka, dan tetap harus diukur lewat peramban:
+tinggi hero `303px`, lebar `.navmenu` `894px`, dan angka lain yang muncul dari
+`getBoundingClientRect()`. Rincian dan alasannya ada di bagian 3.19
+`docs/roadmap.md`.
 
 ---
 
@@ -23,7 +49,7 @@ hasil pengukuran.**
 | Teks heading | `#000000` | `h1..h6` (ada `!important`) |
 | Teks link navigasi | `#2C4964` | `#navmenu > ul > li > a` |
 
-### ⚠️ Dua warna utama berbeda — ini Attention
+### ⚠ Dua warna utama berbeda — ini Attention
 
 PRD menyebut `#1A77CC`, dan itu memang benar untuk `theme-color` di `<head>`.
 Tapi warna yang **benar-benar dipakai CSS** adalah **`#1977cc`**.
@@ -54,7 +80,7 @@ Situs memakai **dua font**, keduanya `@font-face` di-inline di `<head>`:
 
 `.section-title h2` punya `padding-bottom: 20px`.
 
-### ⚠️ Gotham tidak boleh disalin
+### ⚠ Gotham tidak boleh disalin
 
 `Gotham` dan `Gotham Rounded` adalah font **komersial berlisensi** (Hoefler&Co).
 File `.otf` aslinya **tidak boleh** masuk ke repo publik — ini pelanggaran
@@ -70,7 +96,7 @@ Rekomendasi (bold = heading, regular = body):
 | **Inter** | Netral, sangat legibility | Fallback kalau mau kesan lebih modern |
 
 Hindari Montserrat untuk body:uskup lebih lebar dan sedikit lebih tegas dari
-Gotham, jadi 느낌 "lebih besar" dari aslinya.
+Gotham, jadi rasa "lebih besar" dari aslinya.
 
 ---
 
@@ -143,10 +169,10 @@ Kalau proyek iniuislater dijual, license key berbayar perlu dibeli.
 |---|---|---|
 | Logo RSUD PM | Logo instansi pemerintah | Logo SVG buatan sendiri |
 | Foto slider, layanan, fasilitas, berita | Hak cipta foto + foto orang nyata | Placeholder SVG/gradient |
-| Nama dokter (~83 orang) | Data pribadi orang nyata | Nama fiktif (PRD §9) |
+| Nama dokter (~83 orang) | Data pribadi orang nyata | Nama fiktif (PRD bagian 9) |
 | Testimoni pasien | Data pribadi + foto orang | Teks karangan sendiri |
-| Foto instagram/yt embed | Embed pihak ketiga +جل ACTIVE | Kartu placeholder statis |
-| Font Gotham / Gotham Rounded | Lisensi komersial | Poppins (lihat §2) |
+| Foto instagram/yt embed | Embed pihak ketiga dan aset nyata | Kartu placeholder statis |
+| Font Gotham / Gotham Rounded | Lisensi komersial | Poppins (lihat bagian 2) |
 
 Semua ini konsisten dengan aturan PRD bagian 12 Acceptance Criteria:
 > "Tidak ada logo, foto, nama dokter, testimoni, atau kontak asli dari situs
@@ -160,7 +186,7 @@ Ditemukan saat inspeksi, tidak disengaja:
 
 1. Section **"Sosial Media" kosong** di halaman live — iframe Instagram tidak
    termuat (kemungkinan diblokir atau sudah mati). Mustahil ditiru; pakai placeholder.
-2. `id="services"` duplikat (lihat §4).
+2. `id="services"` duplikat (lihat bagian 4).
 3. Nilai warna utama berbeda antara CSS (`#1977cc`) dan meta tag (`#1A77CC`).
 4. `[Image 1]` dan `[Image 2]` menandai "100% identik" — **tidak realistis dan tidak
   -etis.** Aset asli (foto dokter, logo, testimoni) tidak bisa dan tidak boleh

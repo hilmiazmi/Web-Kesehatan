@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PageHeader from "@/components/layout/PageHeader";
 import Photo from "@/components/ui/Photo";
-import { ARTICLES } from "@/data/home";
-import { NEWS_PHOTOS, photo } from "@/data/images";
 import { formatDate, summarize } from "@/lib/format";
+import { fotoBerita, getPublicArticles } from "@/lib/content-loader";
 
 export const metadata: Metadata = {
   title: "Berita dan Artikel",
@@ -12,9 +11,24 @@ export const metadata: Metadata = {
     "Kumpulan berita dan artikel kesehatan seputar layanan RSUD Contoh Sehat.",
 };
 
+/**
+ * Halaman di-regenerate tiap menit.
+ *
+ * Sumber beritanya `getPublicArticles()`, bukan modul `src/data/home.ts`, supaya
+ * berita yang ditambah atau diubah lewat `/admin/records/articles` langsung
+ * terlihat pengunjung. Tanpa `revalidate`, halamannya tetap prerender hasil
+ * build dan perubahan admin baru muncul setelah build berikutnya, yang tidak
+ * pernah berjalan sendiri di VPS.
+ *
+ * Loader mengembalikan data statis kalau database tidak ada, jadi `next build`
+ * di lingkungan pratinjau tetap berhasil tanpa PostgreSQL.
+ */
+export const revalidate = 60;
 
 /** Daftar semua berita. */
-export default function NewsIndexPage() {
+export default async function NewsIndexPage() {
+  const articles = await getPublicArticles();
+
   return (
     <>
       <PageHeader
@@ -26,34 +40,37 @@ export default function NewsIndexPage() {
       <section className="section">
         <div className="container">
           <div className="row gy-4 gx-4">
-            {ARTICLES.map((a, i) => (
-              <div className="col-md-6 col-lg-3" key={a.slug}>
-                <article className="card card-berita">
-                  <div className="image-content">
+            {articles.map((a, i) => {
+              const foto = fotoBerita(a, i, 600, 400);
+
+              return (
+                <div className="col-md-6 col-lg-3" key={a.slug}>
+                  <article className="card card-berita">
+                    <div className="image-content">
                       <Photo
-                        src={photo(NEWS_PHOTOS[i % NEWS_PHOTOS.length], 600, 400)}
+                        src={foto.src}
                         alt={a.title}
                         sizes="(max-width: 768px) 100vw, 300px"
                         height={165}
                         radius="top"
+                        unoptimized={foto.unoptimized}
                       />
-                  </div>
+                    </div>
 
-                  <div className="card-content">
-                    <h2 className="card-title">{a.title}</h2>
-                    <time className="berita-date" dateTime={a.date}>
-                      {formatDate(a.date)}
-                    </time>
-                    <p className="card-description">
-                      {summarize(a.excerpt)}
-                    </p>
-                    <Link href={`/berita/${a.slug}`} className="link-more">
-                      Baca Selengkapnya
-                    </Link>
-                  </div>
-                </article>
-              </div>
-            ))}
+                    <div className="card-content">
+                      <h2 className="card-title">{a.title}</h2>
+                      <time className="berita-date" dateTime={a.date}>
+                        {formatDate(a.date)}
+                      </time>
+                      <p className="card-description">{summarize(a.excerpt)}</p>
+                      <Link href={`/berita/${a.slug}`} className="link-more">
+                        Baca Selengkapnya
+                      </Link>
+                    </div>
+                  </article>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>

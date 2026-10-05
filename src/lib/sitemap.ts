@@ -134,7 +134,21 @@ function bobot(pathUrl: string): Pick<SitemapEntry, "priority" | "changeFrequenc
   return { priority: 0.6, changeFrequency: "monthly" };
 }
 
-export function collectSitemapPaths(): SitemapEntry[] {
+/**
+ * Daftar path untuk sitemap, dengan daftar berita sebagai parameter.
+ *
+ * Parameter itu ada karena sumber berita bisa berubah. Modul data
+ * `ARTICLES` selalu berisi enam belas berita bawaan, sedangkan database
+ * bisa berisi yang lain: sepuluh berita seed dengan slug berbeda, ditambah
+ * berita baru dari panel admin. Kalau sitemap hanya membaca modul
+ * statis, berita baru tidak pernah masuk peta dan tidak akan ditemukan mesin
+ * pencari.
+ *
+ * Nilai bawanya tetap `ARTICLES`, jadi pemanggil lama tidak berubah.
+ */
+export function collectSitemapPaths(
+  artikel: readonly { slug: string }[] = ARTICLES,
+): SitemapEntry[] {
   const semua = new Set<string>();
 
   // Beranda tidak pernah ada di `collectNavPaths()`, dan tidak punya folder
@@ -147,7 +161,7 @@ export function collectSitemapPaths(): SitemapEntry[] {
   const tambahDetail = (prefix: string, slug: string) =>
     semua.add(`${prefix}/${slug}`);
 
-  for (const a of ARTICLES) tambahDetail("/berita", a.slug);
+  for (const a of artikel) tambahDetail("/berita", a.slug);
   for (const s of PRIORITY_SERVICES) tambahDetail("/pelayanan/prioritas", s.slug);
   for (const f of FACILITIES) tambahDetail("/pelayanan/medis", f.slug);
   for (const d of CLINIC_DETAILS) tambahDetail("/pelayanan/poliklinik", d.slug);

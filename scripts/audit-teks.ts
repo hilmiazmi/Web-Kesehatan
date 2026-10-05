@@ -73,6 +73,25 @@ function nama(huruf: string): string {
   return `blok-U+${blok.toString(16).toUpperCase().padStart(2, "0")}`;
 }
 
+/**
+ * Folder yang tidak boleh dibaca.
+ *
+ * Dipisah jadi konstanta, bukan ditulis inline di dalam `if`, supaya
+ * `tests/audit-docs.test.ts` bisa mengunci isinya. Nilainya pernah memuat
+ * `docs`, dan akibatnya karakter asing bisa menetap di dokumen selama berbulan-bulan
+ * tanpa ada yang salah.
+ */
+const DILEWATI = new Set(["node_modules", ".next", ".git", "archive"]);
+
+/**
+ * Berkas yang isinya milik pemilik repo dan tidak boleh diubah.
+ *
+ * PRD memakai U+FE0F pada tanda centangnya. Selector itu membuat emoji tampil
+ * berwarna di editor tertentu dan disengaja di sana, jadi menghapusnya berarti
+ * mengubah berkas milik orang lain demi supaya audit sendiri terlihat bersih.
+ */
+const BERKAS_PEMILIK = ["prd-web-rumah-sakit.md", "contoh_prd.md"];
+
 async function kumpulkan(direktori: string): Promise<string[]> {
   const isi = await readdir(direktori, { withFileTypes: true });
   const berkas: string[] = [];
@@ -81,10 +100,15 @@ async function kumpulkan(direktori: string): Promise<string[]> {
     const penuh = join(direktori, entri.name);
 
     if (entri.isDirectory()) {
-      if (["node_modules", ".next", ".git", "archive", "docs"].includes(entri.name)) continue;
+      if (DILEWATI.has(entri.name)) continue;
       berkas.push(...(await kumpulkan(penuh)));
       continue;
     }
+
+    // PRD milik pemilik repo tidak boleh disentuh, dan tanda centangnya memakai
+    // U+FE0F yang memang disengaja. Menghapus selector itu mengubah berkas yang
+    // bukan milik kita, jadi kedua PRD dikecualikan, bukan folder `docs/`.
+    if (BERKAS_PEMILIK.includes(entri.name)) continue;
 
     if (/\.(ts|tsx|js|mjs|css|md|json|sql)$/.test(entri.name)) berkas.push(penuh);
   }
@@ -103,6 +127,7 @@ const daftar = target
       ...(await kumpulkan(join(akar, "scripts"))),
       ...(await kumpulkan(join(akar, "tests"))),
       ...(await kumpulkan(join(akar, "drizzle"))),
+      ...(await kumpulkan(join(akar, "docs"))),
     ];
 
 for (const berkas of daftar) {
