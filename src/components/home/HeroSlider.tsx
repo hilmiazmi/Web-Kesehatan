@@ -48,6 +48,11 @@ export default function HeroSlider() {
                      Slide ke-3 dan seterusnya dibiarkan lazy supaya tidak
                      jadi preload yang menumpuk. */
                   preload={i < 2}
+                  /* Tanpa `fetchpriority="high"`, link preload gambar ini
+                     diunduh dengan prioritas normal dan LCP bergeser ke
+                     gambar yang bukan slide pertama. Dua slide pertama tetap
+                     diprioritaskan, tiga sisanya dibiarkan lazy. */
+                  fetchPriority={i < 2 ? "high" : undefined}
                   className="slide-img"
                 />
                 <div className="slide-overlay">

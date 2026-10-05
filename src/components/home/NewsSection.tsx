@@ -2,7 +2,7 @@ import Link from "next/link";
 import Photo from "@/components/ui/Photo";
 import CardCarousel from "@/components/ui/CardCarousel";
 import { ARTICLES } from "@/data/home";
-import { NEWS_PHOTOS, photo } from "@/data/images";
+import { fotoBerita, type PublicArticle } from "@/lib/content-loader";
 import { formatDate } from "@/lib/format";
 
 /**
@@ -13,9 +13,19 @@ import { formatDate } from "@/lib/format";
  * carousel yang harus digulir untuk melihat sisanya.
  *
  * Foto asli tidak disalin, jadi tiap kartu memakai foto stok bergiliran dari
- * pool.
+ * pool, kecuali berita itu punya `cover_url` sendiri dari database.
+ *
+ * Daftar artikel masuk lewat prop supaya `src/app/page.tsx` bisa mengambilnya
+ * dari `getPublicArticles()`. Tanpa itu, kartu di beranda tetap menampilkan
+ * modul data statis sementara `/berita` sudah menampilkan isi database, jadi
+ * admin dan pengunjung melihat dua isi berbeda untuk hal yang sama. Nilai
+ * bawaanya tetap `ARTICLES`, jadi komponen ini masih bisa dipakai tanpa loader.
  */
-export default function NewsSection() {
+export default function NewsSection({
+  articles = ARTICLES,
+}: {
+  articles?: PublicArticle[];
+}) {
   return (
     <section id="berita" className="berita section pb-3 light-background">
       <div className="container section-title pb-4">
@@ -24,30 +34,35 @@ export default function NewsSection() {
       </div>
 
       <CardCarousel label="Berita dan artikel kesehatan">
-        {ARTICLES.map((a, i) => (
-          <article className="card" key={a.slug}>
-            <div className="image-content">
-              <Photo
-                src={photo(NEWS_PHOTOS[i % NEWS_PHOTOS.length], 600, 400)}
-                alt={a.title}
-                sizes="(max-width: 576px) 100vw, (max-width: 992px) 50vw, 300px"
-                height={165}
-                radius="top"
-              />
-            </div>
+        {articles.map((a, i) => {
+          const foto = fotoBerita(a, i, 600, 400);
 
-            <div className="card-content">
-              <h3 className="card-title">{a.title}</h3>
-              <time className="berita-date" dateTime={a.date}>
-                {formatDate(a.date)}
-              </time>
-              <p className="card-description">{a.excerpt}</p>
-              <Link href={`/berita/${a.slug}`} className="link-more">
-                Baca Selengkapnya
-              </Link>
-            </div>
-          </article>
-        ))}
+          return (
+            <article className="card" key={a.slug}>
+              <div className="image-content">
+                <Photo
+                  src={foto.src}
+                  alt={a.title}
+                  sizes="(max-width: 576px) 100vw, (max-width: 992px) 50vw, 300px"
+                  height={165}
+                  radius="top"
+                  unoptimized={foto.unoptimized}
+                />
+              </div>
+
+              <div className="card-content">
+                <h3 className="card-title">{a.title}</h3>
+                <time className="berita-date" dateTime={a.date}>
+                  {formatDate(a.date)}
+                </time>
+                <p className="card-description">{a.excerpt}</p>
+                <Link href={`/berita/${a.slug}`} className="link-more">
+                  Baca Selengkapnya
+                </Link>
+              </div>
+            </article>
+          );
+        })}
       </CardCarousel>
     </section>
   );

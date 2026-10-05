@@ -15,6 +15,7 @@ import {
   SocialMediaSection,
   TestimonialsSection,
 } from "@/components/home/HomeSections";
+import { getPublicArticles } from "@/lib/content-loader";
 import "@/styles/home.css";
 
 /**
@@ -28,8 +29,17 @@ import "@/styles/home.css";
  * Catatan: situs asli memakai `id="services"` dua kali (Akreditasi dan
  * Asuransi). Di sini ID-nya dibedakan menjadi `akreditasi` dan `asuransi`
  * agar anchor link tidak bentrok.
+ *
+ * Halaman di-regenerate tiap menit supaya kartu berita di section 6 ikut
+ * menampilkan isi database. Tanpa itu, `/berita` sudah berubah sementara
+ * beranda masih menampilkan modul statis, jadi admin dan pengunjung melihat
+ * dua isi berbeda untuk hal yang sama.
  */
-export default function Home() {
+export const revalidate = 60;
+
+export default async function Home() {
+  const articles = await getPublicArticles();
+
   return (
     <>
       {/* Beranda tidak punya judul yang terlihat secara visual, jadi judul
@@ -46,7 +56,7 @@ export default function Home() {
       <PriorityServices />
       <FacilityTabs />
       <McuPackages />
-      <NewsSection />
+      <NewsSection articles={articles} />
       <AwardsSection />
       <GallerySection />
       <RegistrationSection />

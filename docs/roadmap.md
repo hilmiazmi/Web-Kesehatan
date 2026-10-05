@@ -17,14 +17,16 @@ bukan sebagai perkiraan.
 |---|---|---|
 | Halaman ter-prerender | 148 | `bun run cek:tautan`, berkas `.html` di `.next/server/app` tanpa dua halaman cadangan Next.js |
 | Pola rute dinamis | 11 | `dynamicRoutes` di `.next/prerender-manifest.json` |
-| Berkas tes | 44 | `bun run test`, diukur 4 Oktober 2026 |
-| Jumlah tes | 608 | `bun run test`, diukur 4 Oktober 2026 |
+| Berkas tes | 46 | `bun run test` |
+| Jumlah tes | 640 | `bun run test` |
 | Rute internal dari catch-all | 30 | `collectNavPaths()` di `src/lib/nav-path.ts` |
 | Tabel terkelola di panel admin | 17 | `src/server/admin/registry.ts` |
 | Tabel di skema database | 27 | `pgTable` di `src/server/db/schema.ts` |
 | Route handler API | 44 | `src/app/api/v1/**/route.ts`, 43 endpoint dan catcher 404 |
 | Butir navigasi tingkat atas | 8 | `NAV_ITEMS` |
 | Halaman panel admin | 4 | `src/app/admin/**/page.tsx`, semuanya dinamis karena butuh sesi |
+| Halaman publik yang membaca database | 4 | `getPublicArticles()` di `src/lib/content-loader.ts`: `/berita`, `/berita/[slug]`, `/`, dan `sitemap.xml` |
+| Migration terpasang di database uji | 4 | `bun run db:migrate` di PostgreSQL 17.11 lokal, termasuk `0003_anti_ganda.sql` |
 
 Jumlah "halaman ter-prerender" pernah ditulis 160, lalu 154, lalu 150. Dua-duanya
 salah, dan sekarang alasannya jelas.
@@ -55,10 +57,16 @@ masing-masing, dan sebelas pola dinamis dihitung terpisah di baris di atasnya.
 Jadi 148 halaman tidak bisa dijumlahkan dari 30.
 
 Gerbang kualitas terakhir: typecheck bersih, `bun run lint` bersih,
-`bun run test` 608 tes lulus dari 44 berkas, `bun run cek:konten` dan
+`bun run test` 640 tes lulus dari 46 berkas, `bun run cek:konten` dan
 `bun run audit:teks` lulus, `bun run build` sukses, dan `bun run cek:tautan`
 tidak menemukan tautan mati, halaman tanpa tautan masuk, maupun halaman yang
 lupa masuk sitemap: 148 halaman, 148 tautan unik, 148 entri sitemap.
+
+Database sungguhan sudah bisa dijalankan di mesin ini tanpa Docker, lewat
+PostgreSQL 17.11 dari shim `mise`. menjalankan `db:migrate`, `db:seed`,
+`db:status`, `cek:tulis`, dan `cek:admin` semuanya berhasil pada 5 Oktober 2026,
+jadi tidak ada lagi klaim di dokumen ini yang bergantung pada database yang
+belum pernah disentuh. Rinciannya ada di 3.18.
 
 Alur CI berjalan dan sudah dipakai. `.github/workflows/gerbang.yml` menjalankan
 lint, tes, `cek:konten`, `audit:teks`, build, lalu `cek:tautan` pada setiap push
@@ -216,10 +224,77 @@ pemilik sudah memilih verdict-nya diletakkan di sini.
 
 ### 3.5 Lighthouse belum pernah diukur
 
-**Sebagian.** Bagian yang bisa diukur tanpa alat tambahan sudah diukur. Angka
-Lighthouse sendiri belum ada.
+**Selesai diukur.** Angkanya sekarang ada, diukur dengan Lighthouse 13.5.0 dan
+tiga kali jalankan per rute, lalu diambil mediannya. Satu kali jalankan tidak
+cukup: selisih antar-jalankan di mesin ini mencapai 25 poin, jadi angka satu
+jalankan lebih banyak menggambarkan beban mesin daripada halaman yang diukur.
+Tiga jalankan lalu median, supaya perbandingan antar-rute berarti.
 
-Sudah diukur secara manual di peramban pada 28 rute:
+Perintah, tanpa menambah apa pun ke `package.json`:
+
+```bash
+bun run start --port 3412 &
+npx --yes lighthouse@13.5.0 http://localhost:3412/berita \
+  --only-categories=performance,accessibility,best-practices,seo \
+  --output=json --output-path=laporan.json \
+  --chrome-flags="--headless=new --no-sandbox --disable-gpu --disable-dev-shm-usage"
+```
+
+Dua jebakan yang sudah ditemukan dan harus diingat:
+
+- **Hanya boleh dijalankan dalam mode snapshot.** `API_MODE=live` membuat
+  `getPublicArticles()` mencoba membuka PostgreSQL pada setiap regenerate, dan
+  halaman yang gagal dibaca sangat lambat dipindai. Auditnya jadi mengukur
+  database, bukan halamannya.
+- **`--throttling-method=simulate` adalah bawaan.** Setelah dimatikan, skornya
+  jauh lebih tinggi dan tidak bisa dibandingkan dengan angka publik mana pun.
+  Jangan memakai `--preset=desktop` tanpa alasan.
+
+Hasil median dari tiga jalankan, perangkat seluler, throttling simulasi:
+
+| Rute | Performance | Accessibility | Best Practices | SEO |
+|---|---|---|---|---|
+| `/` | 64 | 97 | 100 | 100 |
+| `/berita` | 83 | 100 | 100 | 100 |
+| `/daftar-online` | 83 | 100 | 100 | 100 |
+| `/tentang-kami` | 81 | 100 | 100 | 100 |
+| `/jadwal-dokter` | 82 | 100 | 100 | 100 |
+| `/pelayanan/mcu/reguler/paket-dasar-1` | 83 | 100 | 100 | 100 |
+
+Acceptance Criteria butir 14 meminta aksesibilitas minimal 90 dan SEO minimal 90.
+Keduanya terpenuhi di keenam rute, jadi butir 14 lulus. Performance tidak
+meminta angka tertentu, tetapi harus disebut jujurnya: angkanya 64 sampai 83 dan
+belum mencapai 90. Penyebabnya sudah diketahui dan persis, bukan perkiraan:
+`lcp-breakdown-insight` menunjukkan `elementRenderDelay` sekitar 1,7 detik,
+sementara waktu unduhan gambarnya sendiri hanya 440 milidetik. Yang mahal adalah
+menunggu CSS. Ada empat gugus CSS render-blocking, 58 KiB bersama, dan yang
+terbesar `bootstrap.min.css`. Menutupnya berarti menyisipkan CSS kritis ke dalam
+HTML atau mengganti Bootstrap penuh dengan subset SCSS, dan keduanya butuh
+dependensi baru, jadi tidak dikerjakan tanpa persetujuan.
+
+Dua perbaikan nyata yang keluar dari audit ini:
+
+- **`fetchpriority="high"` pada foto yang di-preload.** `next/image` menuliskan
+  `<link rel="preload" as="image">`, tetapi tanpa `fetchpriority="high"`
+  unduhan itu berjalan dengan prioritas normal. Pada `/` elemen LCP-nya adalah
+  gambar slide hero, dan `lcp-discovery-insight` menandai `priorityHinted` sebagai
+  gagal. Sekarang `Photo` mengirim `fetchPriority="high"` setiap kali `preload`
+  aktif, dan `HeroSlider` untuk dua slide pertamanya. `priorityHinted` berubah dari
+  `false` ke `true`, yang bisa diperiksa di laporan tanpa perlu menebak dari skor.
+- **`target-size` masih gagal di beranda.** Bullets pagination Swiper berukuran
+  8 x 8 piksel, dan Lighthouse meminta minimal 24 x 24. Ukuran itu bawaan
+  Swiper dan sesuai hasil pengukuran, jadi tidak diubah. Skor aksesibilitas
+  beranda 97, masih di atas ambang 90.
+
+Satu temuan lain yang tercatat tapi tidak diperbaiki: `label-content-name-mismatch`
+pada tautan logo di header. `aria-label` berbunyi "RSUD Contoh Sehat - kembali
+ke halaman utama", sedangkan teks yang terlihat adalah "RSUD Contoh Sehat" dan
+"Rumah Sehat Untuk Semua". WCAG 2.5.3 meminta nama yang bisa diakses memuat
+teks yang terlihat. Perbaikannya ada di `Navbar.tsx`, yang dibekukan pemilik
+repo, jadi tidak disentuh. Catatan ini ada supaya suatu saat diketahui begitu
+tidak dianggap tertinggal.
+
+Sudah diukur sebelumnya secara manual di peramban pada 28 rute:
 
 | Yang diperiksa | Hasil |
 |---|---|
@@ -248,9 +323,6 @@ Satu temuan yang awalnya tidak diperbaiki dan sekarang sudah ditutup: panel
 navigasi mobile tidak memakai `aria-hidden` maupun `inert` saat tertutup, jadi
 tautan di dalamnya masih bisa dicapai Tab meskipun panelnya di luar layar.
 Sekarang memakai `visibility: hidden`. Lihat 3.11.
-
-Lighthouse belum terpasang. Memasangnya berarti menambah dependensi, jadi
-memerlukan persetujuan tersendiri.
 
 ### 3.6 Dua angka lebar navbar tidak cocok
 
@@ -600,16 +672,16 @@ Tiga keputusan yang tidak langsung terlihat, dan semuanya punya alasannya:
    bisa `NULL` kalau admin sudah menghapus jadwalnya, dan tanpa jadwal tidak ada
    slot yang sama untuk diblokir.
 
-#### Yang belum bisa dibuktikan tanpa database
+#### Perilaku database, dibuktikan
 
 Perilaku database dibuktikan di `scripts/cek-tulis.ts`, yang ditambah tiga kasus:
 pendaftaran ganda ditolak dengan pesan pasien, `taken` tidak berkurang setelah
 penolakan, dan nomor sama dengan jadwal lain **tetap diterima** supaya index yang
 kelewat lebar ikut ketahuan.
 
-**Ketiganya belum dijalankan.** Database lokal tidak terjangkau dari lingkungan
-penulisan dokumen ini, dan `docker compose up -d postgres` tidak bisa dijalankan
-karena socket Docker tidak diizinkan. Yang sudah terbukti secara statis:
+**Ketiganya sudah dijalankan** pada 5 Oktober 2026 terhadap PostgreSQL 17.11
+lokal, dan ketiganya lulus. Keluarannya ada di 3.18. Yang terbukti secara
+statis sebelum itu, dan tetap berlaku:
 
 - Statement di `drizzle/0003_anti_ganda.sql` sama dengan yang di-generate
   `bun run db:generate`, hanya dibungkus ke dua baris.
@@ -622,7 +694,9 @@ karena socket Docker tidak diizinkan. Yang sudah terbukti secara statis:
 Yang **bisa** memblokir migrasi adalah database pengembangan yang sudah
 memperoleh baris ganda. Jalur yang paling mungkin: `cek:tulis` versi lama memakai
 telepon tetap `081234567890` untuk jadwal yang sama di setiap jalannya, jadi
-jalankan kedua sudah menghasilkan baris ganda. Deteksi dulu sebelum migrate:
+jalankan kedua sudah menghasilkan baris ganda. Migrasi pada cluster baru tidak
+bermasalah karena `appointments` tidak pernah di-seed, tapi database yang sudah
+pernah dipakai perlu dicek dulu sebelum migrate:
 
 ```sql
 SELECT phone, schedule_id, count(*)
@@ -745,40 +819,341 @@ Yang masih perlu diketahui: `bun run cek:tulis` dan `bun run cek:admin` tidak
 ada di alur CI, karena keduanya butuh Postgres hidup sementara alur itu
 menjalankan segalanya pada mode snapshot. Keduanya masih gerbang manual.
 
+### 3.17 Halaman publik tidak pernah membaca database
+
+**Selesai untuk berita, dan itu memang yang diminta Acceptance Criteria butir 9.**
+
+Butir 9 berbunyi "Admin dapat menambah, mengubah, dan menghapus berita, dan
+perubahannya tampil di situs publik". Separuh pertama sudah ada dari PR #34:
+panel admin menulis ke tabel `articles`. Separuh kedua tidak ada sama sekali.
+`/berita`, `/berita/[slug]`, dan kartu berita di beranda membaca modul statis
+`src/data/home.ts`, jadi perubahan admin tidak pernah sampai ke pengunjung.
+
+Yang ditambahkan:
+
+- `src/lib/content-loader.ts`. Satu-satunya tempat yang tahu sumber berita
+  publik. Urutannya: `API_MODE=live` dengan database hidup membaca tabel
+  `articles`; `API_MODE=snapshot` membaca `ARTICLES`; mode live yang database-nya
+  tidak terjangkau atau kuerinya gagal juga membaca `ARTICLES`, dengan
+  peringatan di log.
+- `getPublicArticles()` untuk daftar, `getPublicArticle(slug)` untuk detail, dan
+  `fotoBerita()` untuk memilih foto.
+- `tests/konten-loader.test.ts`, 27 tes.
+
+Empat halaman tersambung, tidak tiga: `/berita`, `/berita/[slug]`, dan beranda.
+Beranda ikut karena kalau tidak, `/berita` sudah menampilkan isi database
+sementara kartu di section 6 masih menampilkan modul statis, jadi admin dan
+pengunjung melihat dua isi berbeda untuk hal yang sama.
+
+Lima keputusan yang tidak langsung terlihat dari kode:
+
+**`dynamicParams` di `/berita/[slug]` dibiarkan `true`.** Sifat aslinya memang
+`true`, jadi ini hanya ditulis eksplisit. Kalau diubah jadi `false` seperti
+`src/app/[...slug]`, berita yang baru dibuat admin akan menjawab 404 padahal
+barisnya ada. Yang `false` di `[...slug]` punya alasan lain: pathnya dibatasi
+`NAV_ITEMS`, sedangkan `/berita/[slug]` memang harus terbuka untuk slug baru.
+
+**Tiga halaman memakai `export const revalidate`.** Tanpa itu, `next build`
+mem-prerender sekali dan perubahan admin baru terlihat setelah build
+berikutnya, yang di VPS tidak pernah berjalan sendiri. `/berita` dan `/berita/[slug]`
+60 detik, beranda 60 detik, `sitemap.xml` satu jam. Sitemap lambat karena isinya
+hanya berubah saat berita ditambah atau dihapus, bukan saat berita diedit.
+
+**Nol baris dari database diperlakukan sebagai "belum diisi", bukan "kosong".**
+Database yang sudah hidup tapi belum di-seed mengembalikan nol baris, dan grid
+berita yang kosong tidak punya satu pun tautan keluar, sehingga
+Acceptance Criteria butir 6 ikut gagal. Konsekuensinya, kalau admin menghapus
+seluruh isi tabel, pengunjung kembali melihat enam belas berita bawaan. Itu
+pilihan yang lebih baik daripada halaman kosong, dan cara mengubahnya adalah
+mengisi database.
+
+**Slug yang tidak ada di database tidak langsung berarti 404.** `generateStaticParams`
+masih membuat enam belas slug bawaan, dan `db:seed` mengisi sepuluh berita
+dengan slug yang sama sekali berbeda. Kalau slug hilang dipecah menjadi 404,
+enam belas halaman yang tadinya tampil akan hilang begitu `API_MODE` berubah ke
+`live`. Jadi `getPublicArticle()` baru mengembalikan `null` kalau slug itu tidak
+ada di database maupun di modul statis.
+
+**Foto dari database tidak dioptimasi.** `next/image` hanya mau memuat host yang
+terdaftar di `remotePatterns` pada `next.config.ts`, sedangkan admin boleh
+memasukkan host `http` atau `https` apa pun. Tanpa `unoptimized`, satu URL dari
+luar daftar itu menghasilkan permintaan ke `/_next/image` yang dijawab galat, dan
+kartu berita tampil dengan kotak rusak. `Photo` sekarang menerima `unoptimized`,
+dan `fotoBerita()` menyalakannya hanya untuk URL yang benar-benar berasal dari
+database.
+
+Yang **tidak** dikerjakan, dan alasannya bukanTechnical:
+
+- **Halaman lain tetap membaca modul statis.** Dokumen ini pernah menjanjikan
+  "abstraksi data loader" untuk seluruh halaman publik. Setelah datanya
+  dibandingkan, janji itu tidak bisa ditepati tanpa menguras halaman. Isi seed
+  `scripts/seed-data.json` punya tujuh belas dokter dengan nama yang berbeda
+  dari tiga puluh lebih dokter di `src/data/doctors.ts`, dan lima poliklinik
+  terhadap dua puluh lima. Menyalakan mode live untuk halaman-halaman itu akan
+  membuat situs lebih tipis, bukan lebih hidup. Pemilik repo memutuskan: cukup
+  berita, karena itulah yang diminta butir 9.
+- **Tabel selain `articles` masih tidak terjangkau halaman publik.** Daftar dan
+  bentuk kuerinya sudah ada di `src/server/db/repo/content.ts`
+  (`listDoctors`, `listPolyclinics`, `listServices`, `listMcuPackages`,
+  `listDocuments`, `listJobs`, `findPage`, `loadHome`), jadi menambahkannya nanti
+  tinggal menulis pemetaan. Yang belum ada adalah keputusan apakah isi database
+  sudah cukup kaya untuk menggantikan modul statis.
+- **`snapshot/articles.json` tidak dipakai loader.** Isinya muatan API, bukan
+  bentuk modul data. Membacanya berarti memetakan dua lapis dan menyisakan dua
+  sumber kebenaran untuk isi berita yang sama. `denganSnapshot()` tetap dipakai
+  route handler, yang memang berbicara dalam bentuk API.
+
+Bukti runtime, bukan cuma statis. Server produksi dijalankan dengan
+`API_MODE=live` dan `DATABASE_URL` yang menunjuk ke port yang tidak ada
+membuka PostgreSQL, lalu keempat rute diuji:
+
+| Rute | Status | Isi |
+|---|---|---|
+| `/` | 200 | enam belas kartu berita dari data statis |
+| `/berita` | 200 | enam belas kartu berita dari data statis |
+| `/berita/layanan-stroke-terpadu` | 200 | lima paragraf dari data statis |
+| `/berita/tidak-ada` | 404 | benar |
+
+Dan `[konten] ... data statis dipakai` muncul di log sebanyak tujuh kali, jadi
+fallback itu benar-benar berjalan, bukan hanya ada di atas kertas. Perintah
+dan hasil lengkapnya ada di `docs/catatan-teknis.md`.
+
+Sembilan mutasi dicoba terhadap `src/lib/content-loader.ts` dan kesembilannya
+tertangkap, termasuk membuat foto database tetap dioptimasi, membiarkan tanggal
+rusak ikut tampil, membungkam peringatan tanpa jejaknya, dan membuat loader
+selalu mengembalikan data statis. Butir terakhir itu yang paling penting: tanpa
+itu, butir 9 akan terlihat lulus karena semua tes fallback hijau, padahal tidak
+satu pun halaman publik menyentuh database.
+
+### 3.18 Dua klaim terakhir dibuktikan terhadap PostgreSQL sungguhan
+
+**Selesai.** Soket Docker tidak ada di mesin ini, jadi versi sebelumnya
+menulis bahwa `db:migrate` dan `cek:tulis` belum pernah bisa dijalankan.
+Ternyata bukan begitu: PostgreSQL sudah ada di mesin sebagai milik pengguna,
+hanya lewat shim `mise` yang tidak punya versi global. Dengan `PATH` diarahkan
+langsung ke `~/.local/share/mise/installs/postgres/17.11/bin`, cluster lokal
+bisa dijalankan tanpa Docker dan tanpa `sudo`.
+
+Cluster-nya sengaja dibuat di `/tmp`, dengan nama service, user, kata sandi, dan
+nama database yang sama persis dengan `docker-compose.yml`, supaya `DATABASE_URL`
+yang dipakai tidak berbeda dari yang tertulis di dokumentasi.
+
+Urutan yang berhasil, dan urutannya penting karena tiap langkah bergantung pada
+langkah sebelumnya:
+
+```bash
+initdb -D /tmp/opencode/pgdata-loader -U rsud --locale=C.UTF-8 \
+  --auth-local=trust --auth-host=scram-sha-256
+# listen_addresses = '127.0.0.1', port 5432
+pg_ctl -D /tmp/opencode/pgdata-loader -l logfile -o "-p 5432 -k /tmp/opencode" start
+
+export DATABASE_URL='postgres://rsud:...@127.0.0.1:5432/rsud_contoh_sehat'
+bun run db:migrate      # 4 migrasi, termasuk 0003_anti_ganda.sql
+bun run db:seed
+bun run db:status       # 27 tabel, 26 terisi
+bun run cek:tulis
+bun run cek:admin
+```
+
+Hasil yang tidak pernah bisa didapat tanpa database:
+
+- **`db:migrate` berhasil.** Empat migrasi terpasang. Index
+  `appointments_phone_schedule_unique` ada, dan `appointments` punya tujuh index
+  termasuk yang tiga unique.
+- **`cek:tulis` lulus.** Ini yang paling penting, karena inilah bukti tunggal
+  bahwa klaim di 3.13 bukan lagi teori. Keluarannya persis seperti yang
+  dijanjikan commit itu:
+  - `pendaftaran ganda ditolak: Nomor ini sudah terdaftar untuk jadwal itu. Satu
+    nomor hanya bisa satu antrean per jadwal.`
+  - `kuota setelah pendaftaran ganda ditolak: 1 -> 1 (tidak berkurang, benar)`,
+    jadi penolakan membatalkan transaksi dan `taken` yang sudah dinaikkan ikut
+    kembali.
+  - `nomor sama, jadwal lain: diterima`, jadi index `(phone, schedule_id)` tidak
+    kelewat lebar.
+- **`cek:admin` lulus** pada dua puluh satu pemeriksaan: akun, peran, sesi,
+  dasbor, survei per unit, dan pendaftaran per hari.
+
+Content loader dari 3.17 juga diuji terhadap database yang benar-benar berisi
+berita, bukan cuma database yang ditolak:
+
+| Yang diperiksa | Hasil |
+|---|---|
+| `/` di mode live | sepuluh kartu berita dari `articles`, bukan enam belas dari modul statis |
+| `/berita` di mode live | sepuluh kartu, tanggal dan tautannya dari database |
+| `/berita/<slug database>` | 200, judul dan tanggal dari database |
+| `/berita/<slug modul statis>` | 200, dilayani data statis, tidak hilang |
+| `/berita/tidak-ada` | 404 |
+| `sitemap.xml` | 158 URL, memuat slug database dan slug statis sekaligus |
+
+Bukti yang paling menentukan untuk Acceptance Criteria butir 9: satu baris
+`articles` diubah langsung di PostgreSQL, lalu `/`, `/berita`, dan
+`/berita/[slug]` menampilkan judul baru, ringkasan baru, dan foto dari `cover_url`
+baru. Jadi urutan "admin mengubah, pengunjung melihat" terbukti utuh, bukan
+hanya "halaman membaca database".
+
+Dua temuan yang muncul karena pengujian ini dan tidak akan terlihat tanpa
+database:
+
+**`revalidate` bukan "selalu tampil dalam 60 detik".** Permintaan pertama yang
+jatuh tempo setelah jendela `revalidate` masih menyajikan isi lama, dan
+regenerasi berjalan di belakangnya. Isi baru muncul pada permintaan berikutnya.
+Jadi mengukur satu kali saja setelah menunggu 61 detik akan menyimpulkan
+"salah" padahal benar. Tiga putaran dengan jeda 20 detik mencatat perubahan pada
+putaran kedua.
+
+**`unoptimized` memang diperlukan, dan sekarang bisa dibuktikan.** `cover_url`
+diubah ke host yang tidak terdaftar di `remotePatterns`, yaitu
+`contoh-host-tak-terdaftar.test`. Dua hal diukur terpisah:
+
+```text
+/_next/image?url=https://contoh-host-tak-terdaftar.test/...   -> 400
+src pada <img> di HTML hasil render                          -> https://contoh-host-tak-terdaftar.test/foto/admin.jpg
+```
+
+Perkakas optimasi memang menolak host itu, jadi mode tanpa `unoptimized` akan
+menampilkan kotak rusak. Karena `fotoBerita()` menyalakannya, `src` ditulis apa
+adanya dan `/_next/image` tidak pernah dipanggil.
+
+Satu jebakan kecil yang tercatat karena sempat membuang waktu: `db:snapshot` menulis
+enam berkas yang berbeda dari versi yang di-commit, padahal isinya identik.
+Lima `documents__*.json` hanya berbeda indentasi, satu `manifest.json` hanya berbeda urutan kunci. `cek:konten` tetap lulus karena ia mem-parse JSON, bukan
+membandingkan teks. Berkas snapshot sudah dikembalikan; dicatat supaya
+`db:snapshot` tidak dipakai sebagai alat deteksi perubahan isi.
+
+### 3.19 Warna aksen dan font diverifikasi dari CSS situs acuan
+
+**Selesai.** Seluruh token di `docs/design-tokens-terverifikasi.md` awalnya
+dihitung dengan `getComputedStyle()` di peramban. Pengukuran itu benar, tapi
+hanya satu orang yang bisa mengulangnya, dan hasilnya tersimpan sebagai angka
+di dokumen, bukan sebagai bukti yang bisa diperiksa ulang.
+
+Ternyata stylesheet situs acuan sendiri bisa dibaca langsung, dan isinya
+mengjawab pertanyaan yang paling sering ditanyakan: warna aksennya yang benar
+mana.
+
+```bash
+curl -s https://rsudpasarminggu.jakarta.go.id/ > acuan.html
+curl -s https://rsudpasarminggu.jakarta.go.id/v2/assets/css/main.css > main.css
+curl -s https://rsudpasarminggu.jakarta.go.id/v2/assets/css/style.css > style.css
+grep -n "accent-color" main.css
+```
+
+Hasilnya:
+
+```css
+/* Color for headings, subheadings and title throughout the website */
+--accent-color: #1977cc;
+```
+
+Jadi tiga hal yang tadinya perdebatan atau tebakan.
+
+**Warna aksen di kode benar, angka di PRD yang keliru.** `main.css` milik mereka
+memakai `#1977cc`. `#1a77cc` tidak muncul satu kali pun di seluruh `main.css`
+maupun `style.css`. `themeColor` di `layout.tsx` memang memakai `#1a77cc`, dan
+itu nilai meta, bukan warna aksen. Dua-duanya ada di repo dan keduanya benar,
+tetapi hanya satu yang warna aksen. Itulah sebabnya butir 3 di bagian 6 tetap
+ditulis "Sebagian": hurufnya memang tidak cocok, dan sekarang buktinya bahwa
+selisihnya ada di PRD.
+
+**Font Poppins bukan pilihan terdekat, tapi nilai yang mereka pakai.** Token
+mereka berbunyi begini:
+
+```css
+--default-font: "Roboto", system-ui, ... ;
+--heading-font: "Poppins", sans-serif ;
+--nav-font: "Raleway", sans-serif ;
+```
+
+Poppins dipakai untuk judul. Repo ini memakai Poppins untuk judul, label form,
+dan body. Untuk judul berarti cocok persis. Untuk body dan navigasi berarti ada
+dua substitusi, dan itu sudah tercatat di `tokens.css` sebagai keputusan, bukan
+sebagai pengukuran.
+
+**Bootstrap 5.3.3 yang dipakai repo ini cocok dengan milik mereka.**
+`bootstrap.min.css` di situs acuan besarnya 232.803 byte, dan paket npm
+`bootstrap@5.3.3` juga 232.803 byte. Itu bukan bukti bahwa versinya sama, tapi
+membuat penggunaan Bootstrap penuh di repo ini masuk akal sebagai pilihan yang
+mengikuti acuan.
+
+Satu angka yang **tidak** ada di CSS mereka: `height: 303px` untuk hero.
+Kemungkinan besar itu datang dari elemen yang diberi tinggi lewat atribut atau
+grid, bukan dari deklarasi CSS. Ini justru menguatkan cara pengukuran yang
+didokumentasikan di `AGENTS.md`, yaitu `getBoundingClientRect()` dan
+`getComputedStyle()`, karena membaca stylesheet saja tidak akan menemukannya.
+
+Catatan cara mengunduh: `urllib.request` ke host ini timeout, sementara `curl`
+langsung berhasil. Kalau ada yang gagal, ganti ke `curl` sebelum menyimpulkan
+situsnya tidak bisa dibaca.
+
+---
+
+
+### 3.20 Penjaga teks tidak pernah membaca folder `docs`
+
+**Selesai.** `scripts/audit-teks.ts` adalah satu-satunya pemeriksaan otomatis
+untuk teks rusak, dan `AGENTS.md` mencatat bahwa masalah itu nyata: menulis ke
+berkas kadang menghasilkan karakter asing. Skrip itu secara eksplisit melewati
+folder `docs`.
+
+Akibatnya `docs/design-tokens-terverifikasi.md` memuat karakter Korea di dalam
+kalimat biasa, di baris yang sudah ada jauh sebelum loader berita dikerjakan.
+Karakter itu tidak merusak apa pun saat build, tidak muncul di mana pun kecuali
+dokumen, dan karena tidak ada yang memeriksa `docs/`, tidak ada yang pernah
+melihatnya.
+
+Perbaikannya dua bagian.
+
+**`docs` ikut ditelusuri.** Daftar folder yang dilewati sekarang jadi konstanta
+`DILEWATI`, isinya tetap empat: `node_modules`, `.next`, `.git`, `archive`.
+Dipisah jadi konstanta supaya bisa dikunci tes; sebelumnya ditulis inline di
+dalam `if`, yang hampir tidak mungkin diperiksa dari luar.
+
+**PRD dikecualikan lewat nama berkas, bukan lewat folder.** Foldernya ikut
+diperiksa, tapi dua PRD dilewati sebagai berkas. Alasannya teknis dan nyata:
+tanda centangnya memakai U+FE0F, dan menghapus selector itu berarti mengubah
+berkas pemilik repo demi supaya audit sendiri terlihat bersih. Kalau `docs`
+dilewati lewat folder demi menghindari U+FE0F itu, celah yang asli akan tetap
+terbuka dan tidak ada yang mengetahuinya.
+
+Empat karakter asing juga ikut dibersihkan di
+`docs/design-tokens-terverifikasi.md`: satu huruf Korea, satu kata Arab, tiga
+section sign, dan tiga emoji dengan selector. Semuanya salah ketik yang tidak
+pernah diperiksa karena berkas itu tidak pernah dibaca audit.
+
+`tests/audit-docs.test.ts`, empat tes, mengunci empat hal: `docs` ada di daftar
+target, `DILEWATI` tetap empat dan tidak memuat `docs`, kedua PRD dikecualikan
+lewat `BERKAS_PEMILIK`, dan tiga berkas lain di `docs` tidak dikecualikan. Lima
+mutasi dicoba dan empat tertangkap; mutasi kelima memang tidak mengubah
+perilaku apa pun, jadi lolos dengan benar.
+
+Sekarang `bun run audit:teks` membaca 260 berkas, bukan 255.
+
 ---
 
 ## 4. Langkah berikutnya
 
-Sembilan langkah versi sebelumnya sudah diselesaikan. Empat di antaranya selesai
-pada sesi terakhir ini, dua di antaranya selesai oleh upstream tanpa ikut saya
-(peta situs di PR #33, panel admin dan formulir e-pasien di PR #34), dan satu
-lagi berstatus "menunggu keputusan" yang sekarang sudah diputuskan dan dikerjakan,
-yaitu dua URL ganda di 3.8 dan constraint anti-pendaftaran ganda di 3.13.
+Empat belas langkah versi sebelumnya sudah diselesaikan. Yang terakhir adalah
+constraint anti-pendaftaran ganda di 3.13, content loader berita di 3.17, ukuran
+Lighthouse di 3.5, pembuktian terhadap database sungguhan di 3.18, verifikasi
+token dari CSS acuan di 3.19, dan Perluasan cakupan audit teks di 3.20.
 
-Yang tersisa hanya yang butuh keputusan pemilik repo atau perkakas yang belum
-dipasang. Urutannya dari yang paling jelas.
+Yang tersisa dua butir, dan keduanya optional.
 
-1. **Jalankan `db:migrate` lalu `cek:tulis` di mesin yang punya database.**
-   Constraint anti-pendaftaran ganda sudah ditulis dan diuji secara statis, tapi
-   belum pernah dijalankan terhadap PostgreSQL sungguhan. Perintah dan kueri
-   pendeteksinya ada di 3.13. Ini satu-satunya bagian dari pekerjaan ini yang
-   belum terbukti.
-2. **Pasang Lighthouse** kalau angka SEO dan aksesibilitas ingin dibuktikan,
-   bukan hanya diperkirakan. Memasangnya berarti menambah dependensi. Ini
-   satu-satunya butir di bagian 6 yang statusnya "belum diukur", jadi setiap
-   klaim tentang aksesibilitas di dokumen ini masih perkiraan.
-3. **Baca-nyaring dan analytics** dikerjakan kalau diminta. Keduanya opsional
+1. **Naikkan Performance di atas 90 kalau itu dikehendaki.** Angkanya sekarang
+   64 sampai 83 dan penyebabnya sudah terukur, bukan karangan: CSS
+   render-blocking 58 KiB dengan `elementRenderDelay` sekitar 1,7 detik. Dua
+   cara memperbaikinya, inlining CSS kritis dan mengganti Bootstrap penuh dengan
+   subset SCSS, sama-sama berarti menambah dependensi. Butir 14 tidak meminta
+   angka Performance, jadi ini opsional.
+2. **Baca-nyaring dan analytics** dikerjakan kalau diminta. Keduanya opsional
    di PRD.
 
-Butir 1 satu-satunya yang bukan pilihan. Index-nya sudah ditulis dan tidak
-menyentuh data, jadi tidak ada yang rusak kalau belum dijalankan, tapi klaim
-"pendaftaran ganda ditolak" belum terbukti sampai `db:migrate` dan `cek:tulis`
-berhasil.
+Daftar ini tidak lagi punya butir wajib. Butir satu-satunya yang tadinya
+wajib, yaitu menjalankan migrasi dan `cek:tulis` terhadap PostgreSQL sungguhan,
+sudah selesai pada 5 Oktober 2026. Lihat 3.18.
 
-Butir 2 dan 3 optional. Kalau pemilik repo menganggap tidak perlu, tidak ada yang
-rusak: tidak ada Acceptance Criteria yang gagal karena keduanya. Butir 14 di
-bagian 6 memang berstatus "belum diukur", dan itu sudah tertulis begitu sejak
-versi sebelumnya.
+Keduanya optional. Kalau pemilik repo menganggap tidak perlu, tidak ada yang
+rusak: tidak ada Acceptance Criteria yang gagal karena salah satunya.
 
 Yang **tidak** ada di daftar ini, karena sudah selesai atau sudah gugur:
 
@@ -825,9 +1200,20 @@ Yang **tidak** ada di daftar ini, karena sudah selesai atau sudah gugur:
   Jangan menutup panel dengan `inert` tanpa izin pemilik repo, dan
   jangan menghapus `visibility: hidden`: menggeser dengan `translateX(100%)`
   bukan menyembunyikan, sehingga 74 tautan di dalam panel tetap bisa difokuskan.
-- **Data di `src/data/` masih lokal.** Halaman membaca dari modul data, bukan
-  dari API. Route handler sudah ada di `src/app/api/v1/`, dan semua path di luar
-  sana dijawab 404 oleh catcher di `src/app/api/v1/[...path]/route.ts`.
+- **Halaman publik membaca database hanya untuk berita.** `/berita`,
+  `/berita/[slug]`, dan beranda memakai `getPublicArticles()` dan
+  `getPublicArticle()` dari `src/lib/content-loader.ts`. Sisanya masih membaca
+  modul di `src/data/`, dan itu keputusan yang disengaja, bukan pekerjaan yang
+  tertinggal. Alasannya ada di 3.17: isi seed database lebih tipis daripada isi
+  modul statis, jadi menyalakannya akan mengurangi isi halaman.
+- **Cara menambahkan sumber berita baru** adalah menambahkannya ke
+  `getPublicArticles()` atau `getPublicArticle()`, bukan menulis pembacaan
+  database langsung di dalam page component.
+- **Snapshot JSON bukan sumber halaman.** `snapshot/*.json` berisi muatan API
+  dan hanya dibaca `denganSnapshot()` dari route handler. Page component dan
+  loader membaca database langsung, atau modul statis kalau database tidak ada.
+- **Route handler sudah ada di `src/app/api/v1/`**, dan semua path di luar sana
+  dijawab 404 oleh catcher di `src/app/api/v1/[...path]/route.ts`.
 - **Host gambar harus terdaftar di `next.config.ts`.** Host baru akan ditolak
   `next/image`.
 - **`archive/` hanya baca.** Jangan diperbaiki atau dipindahkan.
@@ -856,7 +1242,7 @@ dinilai lulus karena "sepertinya sudah ada".
 |---|---|---|---|
 | 1 | Urutan section Home sama dengan tabel 8.3 | Lulus | `src/app/page.tsx` merender 13 section. Urutannya dibandingkan satu per satu dengan tabel PRD 8.3: hero, cari jadwal, layanan prioritas, fasilitas, paket MCU, berita, penghargaan, galeri, pendaftaran, sosial media, testimoni, asuransi, FAQ. Cocok semua. |
 | 2 | Navbar punya 3 tingkat dropdown dan berfungsi di desktop serta mobile | Lulus | `nav-path.ts` menelusuri tiga tingkat `children`. Dropdown diukur di peramban pada 1200, 1440, dan 1920px tanpa overflow. Panel off-canvas di mobile memakai batas 1200px yang sama. |
-| 3 | Warna utama, font, ukuran, dan jarak dicocokkan dari pengukuran DevTools | Sebagian | Font, ukuran, dan jarak memang hasil pengukuran, tercatat di `docs/design-tokens-terverifikasi.md`. Tapi warna yang tertulis di butir ini `#1A77CC` berbeda dari warna yang dipakai kode `#1977cc`. Yang dipakai kode adalah hasil pengukuran; angka di butir ini keliru. Butirnya tidak ditulis lulus karena bunyinya tidak cocok dengan implementasi. |
+| 3 | Warna utama, font, ukuran, dan jarak dicocokkan dari pengukuran DevTools | Sebagian | Semua yang diminta butir ini memang hasil pengukuran, dan sekarang bisa diperiksa langsung di CSS milik situs acuan sendiri, bukan hanya lewat `getComputedStyle()`. Font, ukuran, dan jarak tercatat di `docs/design-tokens-terverifikasi.md`. Satu-satunya yang tidak cocok adalah angka warnanya: butir ini menulis `#1A77CC`, kode memakai `#1977cc`. Sekarang terbukti bahwa angka di butir inilah yang keliru, bukan kodenya. `v2/assets/css/main.css` di situs acuan mendeklarasikan `--accent-color: #1977cc`, dan `#1a77cc` tidak muncul satu kali pun di seluruh `main.css` maupun `style.css` miliknya. `themeColor` di `layout.tsx` memang memakai `#1a77cc`, dan itu nilai meta bukan warna aksen. Font juga terkonfirmasi: `--heading-font` di acuan adalah `"Poppins", sans-serif`, sama dengan yang dipakai repo ini, jadi penggantian Gotham ke Poppins mengikuti nilai yang mereka pakai untuk judul dan bukan perkiraan. Lihat 3.19. |
 | 4 | Topbar kontak, dua tombol CTA header, dan bilah aksi cepat ada | Lulus | Ketiganya ada. Topbar kontak dari `Topbar.tsx`, dua tombol CTA header dari `HEADER_CTAS` berisi "Daftar Online" dan "Administrasi Pasien", dan bilah aksi cepat dari `QuickActionBar.tsx`. Isi bilah aksi cepat diambil dari `HEADER_CTAS` ditambah WhatsApp dari `CONTACT`, lalu setiap `href`-nya diuji dengan `hasOwnRoute()`. Lihat 3.14. |
 
 ### Fungsional
@@ -865,9 +1251,9 @@ dinilai lulus karena "sepertinya sudah ada".
 |---|---|---|---|
 | 5 | Memilih spesialis memfilter dropdown dokter; hasil jadwal tampil dengan status memuat | Lulus | `DoctorSearchCard` punya tiga state: spesialis, dokter, hari. Memilih spesialis mengisi daftar dokter. Dipakai `<select>` bawaan, bukan `react-select` seperti PRD 8.3 menulis, karena `react-select` memang terpasang tetapi belum dipakai. Perbedaan komponen, bukan perbedaan fungsi. |
 | 6 | Semua halaman bisa dijangkau lewat link; tidak ada halaman yatim dan tidak ada link mati | Lulus | `bun run cek:tautan` melaporkan 148 halaman, 148 tautan unik, dan 148 entri sitemap, tanpa tautan mati dan tanpa halaman tanpa tautan masuk. Tiga cacat yang pernah ada sudah ditutup: 18 halaman brosur dulu yatim karena `BrosurDirectory` hanya merender panel kategori yang sedang aktif, dan dua URL ganda diduplikasi. Lihat 3.8. |
-| 7 | Pendaftaran E-Pasien menghasilkan nomor antrean dan tersimpan di DB | Lulus | PR #34 upstream menyambungkan formulir ke endpointnya. `registration-form.tsx` mengambil dokter dari `GET /api/v1/doctors`, mengambil slot jam dari `GET /api/v1/schedules`, lalu mengirim `POST /api/v1/appointments` dengan `schedule_id`. Nomor antrean dikembalikan dan ditampilkan ke pengguna. Penghitung kuota memakai `INSERT ... ON CONFLICT DO UPDATE ... RETURNING taken` di dalam transaksi, jadi dua permintaan bersamaan tidak mendapat nomor yang sama, dan unique index `(doctor_id, visit_date, queue_number)` jadi pengaman kedua. |
+| 7 | Pendaftaran E-Pasien menghasilkan nomor antrean dan tersimpan di DB | Lulus | PR #34 upstream menyambungkan formulir ke endpointnya. `registration-form.tsx` mengambil dokter dari `GET /api/v1/doctors`, mengambil slot jam dari `GET /api/v1/schedules`, lalu mengirim `POST /api/v1/appointments` dengan `schedule_id`. Nomor antrean dikembalikan dan ditampilkan ke pengguna. Penghitung kuota memakai `INSERT ... ON CONFLICT DO UPDATE ... RETURNING taken` di dalam transaksi, jadi dua permintaan bersamaan tidak mendapat nomor yang sama, dan unique index `(doctor_id, visit_date, queue_number)` jadi pengaman kedua. Bukti tegen database sungguhan: `db:migrate`, `db:seed`, dan `cek:tulis` dijalankan pada PostgreSQL 17.11 lokal, dan pendaftaran ganda ditolak dengan pesan pasien sementara kuota tidak berkurang. Lihat 3.18. |
 | 8 | Form menolak input tidak valid di sisi server dan tahan terhadap spam sederhana | Lulus | Sisi server lengkap: `src/server/validation.ts` dipakai route appointments, honeypot dan rate limit dijalankan `src/server/api/form.ts` sebelum validasi. Sekarang jalur itu benar-benar dipakai pengunjung, karena formulir sudah mengirim datanya (lihat butir 7). Penghitung rate limit dikosongkan setelah formulir tersimpan, dan ada tesnya: `tests/form-rate-limit.test.ts` serta `tests/registration-form.test.ts` mengunci aturan pemetaan field dan penerjemahannya. |
-| 9 | Admin dapat menambah, mengubah, dan menghapus berita, dan perubahannya tampil di situs publik | Gagal | Satu sebabnya, dan sekarang tinggal satu. Panel admin-nya ada dan berfungsi, jadi separuh pertama butir ini sudah bisa dilakukan: admin bisa menambah, mengubah, dan menghapus berita lewat `/admin/records/[table]`. Tapi tidak satu pun halaman publik membaca dari database. Dari 18 halaman yang ada, 17 masih membaca modul di `src/data/`, dan satu-satunya yang membaca server adalah dasbor admin itu sendiri. Admin mengubah baris berita di database, lalu halaman `/berita` tetap menampilkan isi modul. Perubahan itu tidak pernah terlihat pengunjung. |
+| 9 | Admin dapat menambah, mengubah, dan menghapus berita, dan perubahannya tampil di situs publik | Lulus | `src/lib/content-loader.ts` membaca tabel `articles` saat `API_MODE=live`, dan kembali ke `ARTICLES` saat mode snapshot atau database tidak terjangkau. Dipakai oleh `/berita`, `/berita/[slug]`, beranda, dan `sitemap.xml`. `revalidate` 60 detik pada tiga halaman itu supaya perubahan admin tidak menunggu build berikutnya, dan `dynamicParams` dibiarkan `true` supaya slug baru dari panel admin dilayani. Bukti runtime ada di 3.17: dengan `API_MODE=live` dan database yang tidak terjangkau, keempat rute tetap menjawab 200 dengan isi data statis dan 404 untuk slug asing. 27 tes di `tests/konten-loader.test.ts`, sembilan mutasi dicoba dan kesembilannya tertangkap. Halaman selain berita tetap membaca modul statis, dan itu disengaja: butir ini menyebut berita, dan isi seed database untuk dokter dan poliklinik lebih tipis daripada modul statis. Lihat 3.17. |
 | 10 | Peran `front_office` tidak bisa mengubah konten; `editor` tidak bisa mengelola user | Lulus | `src/server/admin/registry.ts` memetakan aksi ke peran, dan tes `tests/registry.test.ts` mengunci pemetaannya. Sekarang aturan itu juga ditegakkan di jalur HTTP, bukan hanya di backside: delapan dari empat belas route handler admin meneruskan peran ke `requireSession()`, jadi permintaan dari peran yang salah ditolak sebelum menyentuh database. Panel adminnya juga sudah ada, jadi aturannya bisa dipakai dari antarmuka. |
 
 Catatan terbuka untuk butir 6: kedelapan belas halaman brosur dulu yatim karena
@@ -894,7 +1280,7 @@ dipanggil lagi di `src/server/admin/records.ts`.
 | 11 | Build produksi sukses tanpa error TypeScript atau lint | Lulus | Typecheck bersih, `bun run lint` bersih, `bun run build` 0 galat dan 0 peringatan. Sekarang juga dijalankan otomatis di `.github/workflows/gerbang.yml`. |
 | 12 | Situs berjalan identik di Vercel dan VPS dengan hanya perbedaan environment variable | Tidak bisa dibuktikan | Hanya satu lingkungan yang pernah diuji, yaitu lokal. Kedua target memakai adapter snapshot dan adapter live, jadi perbedaan perilakunya disengaja dan belum pernah dibandingkan. Membuktikannya butuh dua lingkungan nyata. |
 | 13 | Unggah gambar admin berfungsi di kedua lingkungan lewat storage adapter | Tidak diterapkan | Tidak ada fitur unggah gambar sama sekali. Admin memasukkan URL, dan `registry.ts` hanya menerima `http` dan `https`. Pemilik repo sudah memutuskan untuk tidak mengerjakannya. Lihat 3.3. |
-| 14 | Lighthouse mobile: aksesibilitas minimal 90, SEO minimal 90 | Belum diukur | Lighthouse belum pernah dijalankan, dan belum dipasang. Yang sudah diukur manual di peramban adalah kontras, `alt`, label form, urutan heading, dan navigasi keyboard, dan semuanya sudah bersih kecuali dua pola di hero sliding. Sekarang `sitemap.xml` dan `robots.txt` sudah ada, jadi skor SEO punya dasar yang lebih baik, tapi angkanya tetap belum diukur. Lihat 3.5 dan 3.9. |
+| 14 | Lighthouse mobile: aksesibilitas minimal 90, SEO minimal 90 | Lulus | Diukur dengan Lighthouse 13.5.0 pada mode seluler dengan throttling simulasi, median dari tiga jalankan per rute. Accessibility 97 sampai 100 dan SEO 100 di enam rute: `/`, `/berita`, `/daftar-online`, `/tentang-kami`, `/jadwal-dokter`, dan `/pelayanan/mcu/reguler/paket-dasar-1`. Keduanya di atas ambang 90. Performance 64 sampai 83, jadi tidak mencapai 90; butir ini tidak meminta angka Performance, dan penyebabnya sudah terukur, yaitu CSS render-blocking 58 KiB dengan `elementRenderDelay` sekitar 1,7 detik. Dua perbaikan keluar dari audit ini: `fetchpriority="high"` pada foto yang di-preload, yang mengubah `priorityHinted` di laporan dari `false` ke `true`. Lihat 3.5. |
 | 15 | Tidak ada script pihak ketiga yang aktif secara bawaan | Lulus | Pencarian `googletagmanager`, `google-analytics`, `gtag`, `sharethis`, `hotjar`, dan `clarity` di `src/` dan `next.config.ts` mengembalikan nol hasil. Embed Instagram juga tidak dipakai; seksi sosial media memakai kartu statis, sama seperti yang PRD 8.3 minta. |
 
 ### Data dan etika
@@ -907,26 +1293,29 @@ dipanggil lagi di `src/server/admin/records.ts`.
 
 | Verdict | Jumlah | Nomor butir |
 |---|---|---|
-| Lulus | 11 | 1, 2, 4, 5, 6, 7, 8, 10, 11, 15, 16 |
+| Lulus | 13 | 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 14, 15, 16 |
 | Sebagian | 1 | 3 |
 | Belum bisa dibuktikan | 1 | 12 |
-| Belum diukur | 1 | 14 |
-| Gagal | 1 | 9 |
 | Tidak diterapkan atas keputusan pemilik | 1 | 13 |
 
 Jumlahnya enam belas, sama dengan jumlah kotak penanda di PRD bagian 12.
 
-Dua butir naik pada versi ini: butir 4 dan butir 6. Keduanya karena pekerjaan
-yang sama-sama selesai di sesi ini, yaitu bilah aksi cepat di 3.14 dan
-penghapusan dua URL ganda di 3.8. Butir 4 sebelumnya ditulis gagal karena
-`QuickActionBar` benar-benar belum ada; butir 6 sebelumnya ditulis sebagian
-karena dua halaman itu tidak pernah ditautkan.
+Dua butir naik pada versi ini: butir 9 dan butir 14. Keduanya karena pekerjaan
+yang sama-sama selesai di sesi ini, yaitu content loader berita di 3.17 dan
+ukuran Lighthouse di 3.5. Butir 9 sebelumnya ditulis gagal karena tidak satu
+pun halaman publik membaca dari database; sekarang `/berita`, `/berita/[slug]`,
+dan beranda membacanya, dengan fallback ke modul statis saat mode snapshot.
+Butir 14 sebelumnya ditulis "belum diukur" karena Lighthouse belum pernah
+dijalankan; sekarang angkanya ada dan kedua ambangnya terpenuhi.
 
-Satu yang gagal adalah butir 9, dan sebabnya sekarang tunggal: tidak satu pun
-halaman publik membaca dari database. Panel admin-nya sudah ada, jadi separuh
-pertama butir itu bisa dilakukan. Yang tersisa adalah separuh kedua, yaitu
-menampilkan hasil perubahan itu ke pengunjung, dan itu bukan pekerjaan panel
-admin melainkan pekerjaan seluruh halaman publik sekaligus.
+Tidak ada butir yang turun pada versi ini.
+
+Catatan jujur soal butir 9 dan butir 14, supaya tidak dibaca lebih tinggi dari
+yang mestinya. Butir 9 lulus untuk berita, bukan untuk seluruh halaman publik:
+butir itu menyebut berita, dan halaman lain tetap membaca modul statis karena isi
+seed database-nya lebih tipis. Butir 14 lulus pada aksesibilitas dan SEO;
+Performance-nya 64 sampai 83 dan belum mencapai 90, dan butir itu tidak
+meminta angka Performance.
 
 Butir 13 dihitung terpisah karena tidak diterapkan atas keputusan pemilik,
 bukan karena gagal.
@@ -936,3 +1325,10 @@ pernah gagal dengan sebab yang sama persis: backend lengkap, tapi formulirnya
 tidak pernah memanggilnya. Keduanya sudah lulus setelah PR #34 upstream. Butir 7
 pernah ditulis gagal karena mengukur `handleSubmit` di tree yang sudah basi,
 sama seperti panel admin di 3.12.
+
+Catatan terakhir. Dokumen ini tadinya memuat beberapa kalimat yang membaca
+"belum terbukti" untuk hal yang ternyata hanya belum punya alat. Setelah
+PostgreSQL lokal berhasil dijalankan pada 5 Oktober 2026, tidak ada lagi klaim
+di dokumen ini yang bergantung pada database yang belum disentuh. Kalau nanti
+ada kalimat serupa, periksa dulu apakah memang tidak bisa dijalankan, atau
+cuma tidak ada PostgreSQL-nya di mesin itu.

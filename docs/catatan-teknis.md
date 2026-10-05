@@ -95,3 +95,99 @@ biarkan template yang menambahkannya.
 Kalau suatu saat dibalik, `generateMetadata` harus mengembalikan objek dengan
 `default` dan `template`, bukan judul polos. Yang sekarang dipakai adalah pola
 `template` di `layout.tsx`, jadi keduanya tidak boleh hidup bersamaan.
+
+---
+
+## Foto berita dari database sengaja tidak dioptimasi
+
+### Gejala
+
+Admin mengisi kolom `cover_url` di `/admin/records/articles` dengan URL dari
+host mana pun. Halaman `/berita` lalu menampilkan foto itu, dan gambarnya
+rusak: kotak kosong dengan ikon gambar silang.
+
+### Sebabnya
+
+`next/image` hanya memuat host yang terdaftar di `remotePatterns` pada
+`next.config.ts`. Repo ini mendaftarkan Unsplash dan picsum saja, karena itu
+satu-satunya host yang memang dipakai `src/data/images.ts`. `registry.ts`
+menerima `http` dan `https` apa pun untuk `cover_url`, jadi keduanya tidak
+sepadan.
+
+Yang terjadi di peramban: `next/image` menuliskan `src="/_next/image?url=..."`,
+permintaan itu masuk ke perkakas optimasi, perkakasnya menolak host yang tidak
+terdaftar, dan hasilnya galat. Bukan gambar yang gagal dimuat dari host aslinya,
+tetapi permintaan ke server sendiri yang ditolak.
+
+### Kenapa tidak menambah host-nya
+
+Host tidak bisa diprediksi. `remotePatterns` memang ada sebagai daftar putih
+justru supaya server tidak ikut mengambil URL dari mana pun. Membuka lebar
+daftar itu hanya untuk satu kolom membatalkan maksud daftar putihnya.
+
+### Yang dipakai
+
+`Photo` sekarang menerima prop `unoptimized`, dan `fotoBerita()` menyalakannya
+hanya untuk URL yang benar-benar berasal dari database. Dengan `unoptimized`,
+komponen menulis `src` apa adanya ke `img` dan permintaan ke `/_next/image`
+tidak pernah dibuat, jadi daftar host tidak berlaku lagi. Foto stok dari
+`src/data/images.ts` tetap dioptimasi seperti sebelumnya.
+
+Konsekuensinya foto dari database tidak dapat dioptimasi: tidak ada resize
+otomatis, tidak ada format WebP, dan ukurannya sebesar berkas yang diunggah
+admin. Itu trade-off yang diterima secara sadar, karena foto rusak sama sekali
+lebih buruk daripada foto besar.
+
+### Cara memastikan tidak rusak lagi
+
+Ada tes di `tests/konten-loader.test.ts` yang menuntut `fotoBerita()`
+mengembalikan `unoptimized: true` tepat ketika `imageUrl` terisi, dan `false`
+saat tidak. Mengubahnya jadi selalu `false` membuat tes itu gagal.
+
+---
+
+## Database tidak terjangkau bukan alasan halaman kosong
+
+### Gejala
+
+`API_MODE=live`, tapi `DATABASE_URL` menunjuk ke PostgreSQL yang tidak ada, atau
+`next build` dijalankan di lingkungan tanpa environment sama sekali. Halaman
+berita tetap harus punya isi.
+
+### Keputusan
+
+`getPublicArticles()` dan `getPublicArticle()` mengembalikan data statis di dua
+keadaan yang berbeda, dan keduanya tercatat di log:
+
+1. `API_MODE=snapshot`. Ini yang dipakai CI dan pratinjau Vercel. `dbOrNull()`
+   mengembalikan `null` dan database tidak pernah disentuh sama sekali.
+2. Mode live, tapi koneksi gagal. `koneksiKonten()` menangkap galat dari
+   `dbOrNull()`, termasuk galat konfigurasi "`DATABASE_URL` wajib diisi", dan
+   `peringatkan()` menuliskannya sebagai satu baris.
+
+Alasan keduanya adalah sama: halaman publik harus punya isi, dan isi itu harus
+dapat dipratinjau tanpa PostgreSQL. Yang tidak boleh terjadi adalah fallback
+yang diam-diam, karena begitu `API_MODE=live` bisa berhenti membaca database
+tanpa ada yang tahu.
+
+### Peringatan yang disengaja
+
+Satu baris per kegagalan, dan isinya nama operasi serta pesan galat, tidak
+pernah nilai environment. `DATABASE_URL` tidak boleh masuk log, jadi pesan dari
+`postgres.js` yang menyebut nama basis data tidak ikut ditulis; yang ditulis
+cuma pesan operatornya.
+
+### Bukti bahwa fallback-nya jalan
+
+Server produksi dijalankan dengan `API_MODE=live` dan `DATABASE_URL` yang
+menunjuk ke port tertutup, lalu keempat rute diuji:
+
+```text
+/                                     200   enam belas kartu berita
+/berita                               200   enam belas kartu berita
+/berita/layanan-stroke-terpadu        200   lima paragraf
+/berita/tidak-ada                     404
+```
+
+`[konten] ... data statis dipakai` muncul tujuh kali di log. Kalau fallback-nya
+tidak berjalan, keempatnya akan 500.

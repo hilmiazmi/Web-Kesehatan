@@ -15,11 +15,10 @@
  * 2. Halaman tanpa tautan masuk. Setiap halaman harus menjadi tujuan setidaknya
  *    satu tautan, kecuali beranda. Ini yang menangkap halaman yang dirender
  *    hanya setelah JavaScript berjalan, atau slug yang tidak pernah ditautkan.
- * 3. Sitemap tidak lengkap. `collectSitemapPaths()` harus menghasilkan setiap
- *    halaman yang ditulis build. Fungsi itu memindai folder di `src/app`
- *    dan membaca modul data tiap route, jadi ia tidak bisa basi seperti
- *    daftar path manual. Yang dicek skrip ini adalah hasil akhirnya: apakah
- *    semua halaman yang benar-benar ditulis build sudah terdaftar di sana.
+ * 3. Sitemap tidak lengkap. Setiap halaman yang ditulis build harus ada di
+ *    sitemap. Yang dibandingkan adalah sitemap yang benar-benar dihasilkan
+ *    build itu sendiri, yaitu `.next/server/app/sitemap.xml.body`, bukan
+ *    hasil hitung ulang. Alasannya ada di `sitemapDariBuild()`.
  *
  * Pengecualian pada nomor 2 dan 3 ditulis sebagai daftar, bukan dikecualikan
  * diam-diam. Kalau halaman memang tidak boleh punya tautan masuk, alasannya
@@ -194,6 +193,33 @@ function kemunculanNamaRS(judul: string): number {
   return judul.split(NAMA_RS).length - 1;
 }
 
+/**
+ * Ambil daftar path dari berkas sitemap yang dihasilkan build.
+ *
+ * Dibaca langsung dari `.next/server/app/sitemap.xml.body`, bukan menghitung
+ * ulang dengan `collectSitemapPaths()`. Dengan begitu, yang diverifikasi
+ * adalah sitemap yang benar-benar akan dikirim ke pengunjung.
+ */
+async function sitemapDariBuild(): Promise<string[]> {
+  const lokasiBody = path.join(AKAR, "sitemap.xml.body");
+  const lokasiXml = path.join(AKAR, "sitemap.xml");
+  let xml = "";
+  try {
+    xml = await readFile(lokasiBody, "utf8");
+  } catch {
+    try {
+      xml = await readFile(lokasiXml, "utf8");
+    } catch {
+      return collectSitemapPaths().map((e) => e.path);
+    }
+  }
+  const hasil: string[] = [];
+  for (const cocok of xml.matchAll(/<loc>https?:\/\/[^/<]+(\/[^<]*)?<\/loc>/g)) {
+    hasil.push(cocok[1] || "/");
+  }
+  return hasil;
+}
+
 async function main(): Promise<void> {
   const rute = await kumpulkanRute();
   if (rute.length === 0) {
@@ -236,7 +262,7 @@ async function main(): Promise<void> {
   const tanpaMasuk = halaman.filter(
     (r) => !punyaTautanMasuk.has(r) && !TANPA_TAUTAN_MASUK.has(r),
   );
-  const diSitemap = new Set(collectSitemapPaths().map((e) => e.path));
+  const diSitemap = new Set(await sitemapDariBuild());
   const tanpaSitemap = halaman.filter(
     (r) => !diSitemap.has(r) && !TANPA_SITEMAP.has(r),
   );

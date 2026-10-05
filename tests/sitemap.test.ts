@@ -1,7 +1,19 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
-import sitemap from "@/app/sitemap";
+
+/**
+ * `sitemap()` sekarang async karena daftar beritanya dibaca lewat loader, bukan
+ * dari modul statis. Tanpa mock di bawah, setiap pemanggilan di berkas ini akan
+ * mencoba membuka soket PostgreSQL yang memang tidak ada di lingkungan test.
+ * `null` berarti mode snapshot, jadi loader mengembalikan data statis dan
+ * hasilnya persis sama seperti sebelumnya modul statis dibaca langsung.
+ */
+vi.mock("@/server/db/client", () => ({
+  dbOrNull: () => null,
+}));
+
+const { default: sitemap } = await import("@/app/sitemap");
 import { collectSitemapPaths } from "@/lib/sitemap";
 import { collectNavPaths, hasOwnRoute } from "@/lib/nav-path";
 import { NAV_PPID_CHILDREN } from "@/data/ppid-nav";
@@ -153,9 +165,9 @@ describe("daftar path sitemap", () => {
 });
 
 describe("bentuk sitemap.xml", () => {
-  it("URL-nya absolut lengkap dengan domain", () => {
+  it("URL-nya absolut lengkap dengan domain", async () => {
     // `metadataBase` tidak berlaku di sitemap, jadi ini harus dibentuk sendiri.
-    const isi = sitemap();
+    const isi = await sitemap();
     expect(isi.length).toBe(semua.length);
 
     for (const entri of isi) {
@@ -165,12 +177,12 @@ describe("bentuk sitemap.xml", () => {
     }
   });
 
-  it("menghormati NEXT_PUBLIC_SITE_URL", () => {
+  it("menghormati NEXT_PUBLIC_SITE_URL", async () => {
     const lama = process.env.NEXT_PUBLIC_SITE_URL;
     process.env.NEXT_PUBLIC_SITE_URL = "https://contoh.example/";
 
     try {
-      const isi = sitemap();
+      const isi = await sitemap();
       expect(isi[0].url).toMatch(/^https:\/\/contoh\.example\//);
       // Garis miring akhir pada variabel tidak boleh menggandakan separator.
       expect(isi[0].url).not.toContain("//beranda");
