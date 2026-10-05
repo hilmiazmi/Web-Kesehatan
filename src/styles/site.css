@@ -609,52 +609,98 @@
     display: none;
   }
 
-  /* ---------- Header desktop dua baris ----------
+  /* ---------- Pita dua baris 1200-1359px ----------
    *
-   * Baris header dipaksa menjadi satu baris adalah sumber masalahnya: logo
-   * 237px + nav 894px + CTA 341px = 1496px. Di bawah angka itu satu baris
-   * tidak muat. Dua solusi lama sama-sama buruk:
-   *
-   * - Sembunyikan CTA (perubahan 4 Oktober 2026). Akibatnya nav terdorong ke
-   *   tepi kanan sampai menempel, sisa marginya 12px, dan dua tombol utama
-   *   hilang. Itu yang terlihat pada tangkapan layar dari pemilik repo.
-   * - Mengecilkan nav supaya muat. Nav harus menyusut sekitar 33% supaya
-   *   seluruhnya muat di 1200px, dan huruf 15px menjadi 10px: tidak terbaca.
-   *
-   * Yang dipakai di sini: nav mendapat baris penuh sendiri. Baris pertama
-   * logo dan CTA, baris kedua nav. Ruang baris kedua pada 1200px adalah
-   * 1176px, cukup untuk nav 894px dengan sisa 282px, dan tidak ada yang perlu
-   * disembunyikan pada lebar desktop mana pun.
+   * Di bawah 1360px satu baris tidak muat bahkan dengan gaya kompak di bawah
+   * (hasil pengukuran: kompak butuh 1269px, ruang di 1340px hanya 1301px
+   * minus variasi metrik font). Nav mendapat baris penuh sendiri: baris
+   * pertama logo dan CTA, baris kedua nav yang dipusatkan. Ruang baris kedua
+   * pada 1200px adalah 1176px, cukup untuk nav 894px dengan sisa 282px.
    *
    * `flex-wrap: wrap` dipakai, bukan hanya `order` pada dua elemen, karena
    * `order` hanya menukar urutan di dalam satu baris flex: tanpa wrap tidak
    * ada baris kedua. `flex-basis: 100%` pada nav yang memaksanya turun ke baris
-   * baru, dan `order` memastikan urutannya logo, CTA, baru nav. */
-  .header-nav-menu {
-    flex-wrap: wrap;
-    row-gap: 0.15rem;
+   * baru, dan `order` memastikan urutannya logo, CTA, baru nav.
+   *
+   * Ditulis bersarang di dalam blok desktop supaya satu blok desktop tetap
+   * utuh dibaca dari `@media (min-width: 1200px)`. */
+  @media (max-width: 1359.98px) {
+    .header-nav-menu {
+      flex-wrap: wrap;
+      row-gap: 0.15rem;
+    }
+
+    .header-nav-menu > .logo {
+      order: 1;
+    }
+
+    .header-nav-menu > .header-ctas {
+      order: 2;
+      margin-left: auto;
+    }
+
+    .header-nav-menu > .navmenu {
+      order: 3;
+      flex: 1 0 100%;
+      /* Nav di baris kedua dipusatkan, bukan menempel kiri, supaya simetris
+         dengan logo di baris pertama. */
+      justify-content: center;
+      /* Pemisah tipis antara logo dan nav, supaya dua baris terbaca sebagai
+         satu kesatuan dan bukan dua blok yang tidak sengaja berdempet. */
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+      margin-top: 0.15rem;
+      padding-top: 0.15rem;
+    }
   }
 
-  .header-nav-menu > .logo {
-    order: 1;
-  }
+  /* ---------- Pita kompak satu baris 1360-1519px ----------
+   *
+   * Batas bawahnya 1360px: total kompak 1269px muat dengan sisa ~50px di
+   * 1366px (hasil pengukuran), dan sisa itu menyerap variasi metrik font
+   * antar mesin peramban. Batas atasnya 1519.98px: di 1520px gaya penuh
+   * (tagline + 15px) kembali tampil dengan sisa ~24px.
+   *
+   * Semua yang dikompresi hanya ruang kosong dan hiasan, bukan isi: tagline
+   * logo disembunyikan (nama RS tetap ada), padding tautan dirapatkan, CTA
+   * dirampingkan. Huruf nav 13.5px masih nyaman dibaca dan sudah dibuktikan
+   * lewat tangkapan layar. Label, urutan, dan tujuan tautan tidak berubah. */
+  @media (min-width: 1360px) and (max-width: 1519.98px) {
+    .logo-mark {
+      width: 36px;
+      height: 36px;
+      font-size: 1.2rem;
+    }
 
-  .header-nav-menu > .header-ctas {
-    order: 2;
-    margin-left: auto;
-  }
+    .logo-text strong {
+      font-size: 1rem;
+    }
 
-  .header-nav-menu > .navmenu {
-    order: 3;
-    flex: 1 0 100%;
-    /* Nav di baris kedua dipusatkan, bukan menempel kiri, supaya simetris
-       dengan logo di baris pertama. */
-    justify-content: center;
-    /* Pemisah tipis antara logo dan nav, supaya dua baris terbaca sebagai satu
-       kesatuan dan bukan dua blok yang tidak sengaja berdempet. */
-    border-top: 1px solid rgba(0, 0, 0, 0.06);
-    margin-top: 0.15rem;
-    padding-top: 0.15rem;
+    /* Tagline disembunyikan hanya di pita ini. Lebar logo ditentukan nama RS
+       yang memang lebih lebar, jadi tagline tidak menambah lebar apa pun di
+       desktop penuh — menyembunyikannya di sini murni menghemat tinggi baris
+       supaya proporsinya pas dengan nav yang merapat. */
+    .logo-text small {
+      display: none;
+    }
+
+    .navmenu a {
+      font-size: 13.5px;
+      padding: 0.5rem 0.3rem;
+    }
+
+    .navmenu > ul {
+      gap: 0.05rem;
+    }
+
+    .header-ctas {
+      gap: 0.35rem;
+      margin-left: 0.5rem;
+    }
+
+    .header-ctas .btn {
+      padding: 6px 16px;
+      font-size: 13px;
+    }
   }
 }
 
