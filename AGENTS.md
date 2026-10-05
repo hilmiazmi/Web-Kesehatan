@@ -132,39 +132,42 @@ bukan tebakan. Rinciannya ada di `docs/design-tokens-terverifikasi.md`.
   `next/image` menolak SVG kecuali `dangerouslyAllowSVG` diaktifkan, dan
   mengaktifkannya melemahkan keamanan seluruh situs. Bentuknya dihasilkan oleh
   `/tmp/opencode/gen-avatar.py` supaya dapat dibangun ulang.
-- **NAVBAR BEKU DI DESKTOP. Jangan diubah tanpa diminta pemilik repo.**
-  Permintaan pemilik repo: navbar harus tetap seperti aslinya dan tidak boleh
-  diubah lagi. Keadaan yang dibekukan ada di commit `a9b5fd5`.
+- **Navbar: desktop tanpa hamburger, mobile dengan hamburger.** Permintaan
+  pemilik repo 4 Oktober 2026: pembekuan navbar dicabut. Nav desktop harus
+  tampil penuh tanpa hamburger dan tanpa ada yang terpotong; hamburger +
+  panel off-canvas hanya untuk mobile di bawah `1200px`.
   - Batas desktop `1200px`, dengan panel off-canvas `translateX(100%)` dan
     tombol hamburger `d-xl-none` di bawahnya.
   - Font nav `15px` seragam untuk desktop, submenu dropdown, dan panel.
-  - Delapan butir nav butuh `894px`, tidak pernah membungkus dan tidak pernah
-    menyusut. Angka itu adalah lebar elemen `.navmenu` pada viewport 1920px,
+  - Delapan butir nav butuh `894px`, tidak membungkus dan tidak menyusut.
+    Angka itu adalah lebar elemen `.navmenu` pada viewport 1920px,
     hasil `getBoundingClientRect()`, bukan perkiraan.
+  - **Header desktop dua baris.** Baris pertama logo + dua CTA, baris kedua
+    nav penuh dan dipusatkan. Alasannya angka: satu baris butuh `1496px`
+    (logo 237 + nav 894 + CTA 341 + padding 24), sedangkan viewport terkecil
+    yang masih desktop adalah `1200px`. Menambah tinggi header dari `53px`
+    menjadi `100px` memberi ruang yang cukup tanpa harus mengecilkan huruf nav.
+  - **Sudah dicoba dan ditolak, jangan diulang:**
+    - Memaksa satu baris dengan menyembunyikan CTA di bawah `1496px`.
+      Akibatnya nav terdorong ke tepi kanan sampai menempel (`12px`) dan dua
+      tombol utama hilang. Persis cacat yang dilaporkan pemilik repo
+      4 Oktober 2026 lewat tangkapan layar.
+    - Mengecilkan nav supaya muat di `1200px`. Nav harus menyusut sekitar 33%
+      supaya seluruhnya muat, dan huruf `15px` menjadi `10px`: tidak terbaca.
+  - Yang menyembunyikan CTA hanyalah lebar di bawah `1200px`, di mana header
+    memang sedang berpanel off-canvas. Di mobile CTA tetap terjangkau lewat
+    panel, bilah aksi cepat, dan footer.
+  - Diukur ulang lewat CDP pada 1200, 1280, 1366, 1440, 1496, 1920, dan
+    2560px: tinggi `.branding` `100px`, nav tetap `894px` di semua lebar itu,
+    `scrollWidth` sama dengan `clientWidth` (tidak ada gulir horizontal), dan
+    CTA `display: flex` di semua lebar itu.
+  - `tests/header-ctas.test.ts` mengunci semua angka di atas;
+    `tests/panel-nav-mobile.test.ts` mengunci panel mobile.
 
-  Yang **telah dicoba dan ditolak**, jangan diulang:
-  - Batas desktop dinaikkan ke `1550px` (commit `160687e`).
-  - Batas desktop diturunkan ke `1360px` (commit `27ff149`).
-  - Nav desktop dirapatkan ke `14px` dengan padding `2px`. Jarak antar butir
-    jadi `0px` sehingga nav sulit dibaca.
-  - Nav diturunkan ke baris kedua di bawah batas, tanpa tombol hamburger.
-
-  Cacat yang **sengaja diterima** pada keadaan beku: pada lebar 1200-1495px
-  tombol "Administrasi Pasien" terpotong di tepi kanan. Satu baris membutuhkan
-  1496px, dan di 1496px tombolnya pas tanpa sisa ruang. Rentang itu hasil
-  pencarian biner di peramban, bukan perkiraan; angka 1499px yang tadinya
-  tertulis di sini keliru empat piksel. Akibat cacat ini sudah dilaporkan dan
-  dibiarkan.
-
-  `tests/navbar-beku.test.ts` mengunci semua angka di atas. Tes itu gagal kalau
-  navbar disentuh. Jangan dihapus atau dilonggarkan tanpa diminta.
-
-  **Pengecualian yang sudah ada: panel off-canvas mobile, diperbaiki 4 Oktober
-  2026 atas izin pemilik repo.** Semua aturan barunya hanya ada di dalam
-  `@media (max-width: 1199.98px)`. `.navmenu` diukur ulang di 1920, 1440, dan
+  **Panel off-canvas mobile, diperbaiki 4 Oktober 2026 atas izin pemilik repo.**
+  Semua aturan barunya hanya ada di dalam `@media (max-width: 1199.98px)`. `.navmenu` diukur ulang di 1920, 1440, dan
   1200px: tetap `894px`, font `15px`, `flex-wrap: nowrap`, tinggi `.branding`
-  53px. Kalau angka itu berubah, berarti keadaan beku dilanggar, bukan berarti
-  perbaikannya salah.
+  53px. Angka itu masih dijaga `tests/panel-nav-mobile.test.ts`.
   - Panel yang tertutup memakai `visibility: hidden`, bukan hanya
     `translateX(100%)`. Tanpa itu, 74 tautan di dalam panel tetap bisa difokus
     padahal tidak terlihat, jadi Tab masuk ke menu yang tidak kelihatan.
