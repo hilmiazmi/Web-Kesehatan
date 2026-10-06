@@ -36,9 +36,9 @@ export default function DoctorSearchCard() {
   const belumAdaDokter = Boolean(specialty) && doctorOptions.length === 0;
 
   return (
-    <section id="cari-dokter" className="dokter section pb-3">
+    <section id="cari-dokter" className="section pb-3">
       <div className="container position-relative cari-dokter mt-3">
-        <div className="content row gy-4">
+        <div className="row gy-4">
           <div className="col-md-12">
             <div className="row">
               <div className="card">
@@ -48,7 +48,7 @@ export default function DoctorSearchCard() {
 
                 <div className="card-body">
                   <div className="row">
-                    <div className="col-md-4 form-group">
+                    <div className="col-md-4">
                       <label className="form-label" htmlFor="spesialis">
                         Spesialis
                       </label>
@@ -68,7 +68,7 @@ export default function DoctorSearchCard() {
                       </select>
                     </div>
 
-                    <div className="col-md-4 form-group mt-3 mt-md-0">
+                    <div className="col-md-4 mt-3 mt-md-0">
                       <label className="form-label" htmlFor="dokter">
                         Dokter
                       </label>
@@ -95,7 +95,7 @@ export default function DoctorSearchCard() {
                       </select>
                     </div>
 
-                    <div className="col-md-4 form-group mt-3 mt-md-0">
+                    <div className="col-md-4 mt-3 mt-md-0">
                       <label className="form-label" htmlFor="hari">
                         Pilihan Hari
                       </label>

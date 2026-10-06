@@ -184,7 +184,7 @@ export default function GalleryLightbox({
 
             <button
               type="button"
-              className="lightbox-navigasi lightbox-navigasi--sebelum"
+              className="lightbox-navigasi"
               onClick={() => geser(-1)}
               aria-label="Foto sebelumnya"
             >
@@ -210,7 +210,7 @@ export default function GalleryLightbox({
 
             <button
               type="button"
-              className="lightbox-navigasi lightbox-navigasi--sesudah"
+              className="lightbox-navigasi"
               onClick={() => geser(1)}
               aria-label="Foto berikutnya"
             >

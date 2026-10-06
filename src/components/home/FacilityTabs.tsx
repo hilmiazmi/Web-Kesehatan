@@ -18,7 +18,7 @@ export default function FacilityTabs() {
   const current = FACILITIES[active];
 
   return (
-    <section id="fasilitas" className="departments section light-background">
+    <section id="fasilitas" className="section light-background">
       <div className="container section-title pb-4">
         <h2>Fasilitas &amp; Layanan</h2>
         <p>

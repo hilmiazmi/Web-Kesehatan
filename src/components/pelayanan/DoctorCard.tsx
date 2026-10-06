@@ -4,7 +4,7 @@ import { sortSchedule } from "@/lib/poliklinik";
 /** Kartu dokter dengan jadwal praktik per hari (server component). */
 export default function DoctorCard({ doctor }: { doctor: Doctor }) {
   return (
-    <article className="card doctor-card">
+    <article className="card">
       <div className="card-content">
         <div className="poliklinik-icon" aria-hidden="true">
           <i className="bi bi-person-circle" />

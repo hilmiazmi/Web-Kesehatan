@@ -16,7 +16,7 @@ import { PRIORITY_PHOTOS, photo } from "@/data/images";
  */
 export default function PriorityServices() {
   return (
-    <section id="layanan" className="layanan section pb-3">
+    <section id="layanan" className="section pb-3">
       <div className="container section-title pb-4">
         <h2>Layanan Unggulan &amp; Prioritas</h2>
         <p>&quot;Layanan Terbaik Untuk Kesehatan Anda&quot;</p>

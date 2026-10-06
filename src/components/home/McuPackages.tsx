@@ -16,7 +16,7 @@ import { formatIDR } from "@/lib/format";
  */
 export default function McuPackages() {
   return (
-    <section id="mcu" className="mcu section pb-3">
+    <section id="mcu" className="section pb-3">
       <div className="container section-title pb-4">
         <h2>Paket MCU &amp; Promosi</h2>
         <p>&quot;Berbagai penawaran istimewa untuk Anda&quot;</p>

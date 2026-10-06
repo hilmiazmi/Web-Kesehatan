@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
-import "bootstrap/dist/css/bootstrap.min.css";
+import "@/styles/bootstrap-subset.scss";
 import "@/styles/icons/bootstrap-icons.css";
 import "@/styles/tokens.css";
 import "@/styles/site.css";

@@ -19,7 +19,7 @@ import { GALLERY_PHOTOS, photo, randomPhoto } from "@/data/images";
  */
 export function AwardsSection() {
   return (
-    <section id="akreditasi" className="penghargaan section">
+    <section id="akreditasi" className="section">
       {/* Situs referensi tidak memakai sub-judul di section ini
           (`section-title pb-0` hanya berisi h2). */}
       <div className="container section-title pb-0">
@@ -46,7 +46,7 @@ export function AwardsSection() {
 
 export function GallerySection() {
   return (
-    <section id="galeri" className="gallery section light-background">
+    <section id="galeri" className="section light-background">
       <div className="container section-title pb-0">
         <h2>Gallery</h2>
       </div>

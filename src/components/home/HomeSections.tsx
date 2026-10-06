@@ -13,7 +13,7 @@ import { TESTIMONIAL_PHOTOS, photo } from "@/data/images";
 /** Section 9 — "Pendaftaran": tiga tombol JAKSEHAT, JKN, E-Pasien. */
 export function RegistrationSection() {
   return (
-    <section id="pendaftaran" className="pendaftaran section">
+    <section id="pendaftaran" className="section">
       {/* Situs referensi tidak memakai sub-judul di section ini
           (`section-title pb-0` hanya berisi h2). */}
       <div className="container section-title pb-0">
@@ -51,7 +51,7 @@ export function RegistrationSection() {
  */
 export function SocialMediaSection() {
   return (
-    <section id="sosial-media" className="about section light-background">
+    <section id="sosial-media" className="section light-background">
       <div className="container section-title pb-0">
         <h2>Sosial Media</h2>
       </div>
@@ -144,7 +144,7 @@ export function TestimonialsSection() {
 /** Section 12 — "Asuransi". Nama mitra generik, bukan logo asli. */
 export function InsuranceSection() {
   return (
-    <section id="asuransi" className="asuransi section light-background">
+    <section id="asuransi" className="section light-background">
       <div className="container section-title pb-0">
         <h2>Asuransi</h2>
       </div>
@@ -173,7 +173,7 @@ export function InsuranceSection() {
  */
 export function FaqSection() {
   return (
-    <section id="faq" className="faq section light-background">
+    <section id="faq" className="section light-background">
       <div className="container section-title pb-0">
         <h2>Frequently Asked Questions</h2>
       </div>

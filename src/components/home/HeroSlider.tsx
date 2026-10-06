@@ -20,7 +20,7 @@ import { HERO_PHOTOS, photo } from "@/data/images";
  */
 export default function HeroSlider() {
   return (
-    <section className="slider section p-0" aria-label="Promosi layanan">
+    <section className="section p-0" aria-label="Promosi layanan">
       <Swiper
         modules={[Autoplay, Pagination]}
         slidesPerView={1}
