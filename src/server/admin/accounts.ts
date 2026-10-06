@@ -36,6 +36,15 @@ const KOLOM_AKUN = sql`
   to_char(last_login_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS last_login_at
 `;
 
+/**
+ * Koneksi database atau transaksi yang sedang berjalan.
+ *
+ * Semua fungsi di modul ini hanya memakai `execute`, jadi penjaga dan tulis
+ * bisa berbagi satu transaksi lewat tipe ini tanpa mengubah pemanggil yang
+ * meneruskan `Db` biasa.
+ */
+type Executor = Pick<Db, "execute">;
+
 /** Daftar akun, tanpa kolom `password_hash`. */
 export async function listAccounts(db: Db): Promise<Account[]> {
   const rows = await db.execute(sql`SELECT ${KOLOM_AKUN} FROM users ORDER BY created_at`);
@@ -43,7 +52,7 @@ export async function listAccounts(db: Db): Promise<Account[]> {
 }
 
 /** Satu akun berdasarkan ID. */
-export async function findAccount(db: Db, id: string): Promise<Account | null> {
+export async function findAccount(db: Executor, id: string): Promise<Account | null> {
   const rows = await db.execute(sql`SELECT ${KOLOM_AKUN} FROM users WHERE id = ${id}::uuid`);
   return rows[0] ? (rows[0] as unknown as Account) : null;
 }
@@ -229,34 +238,41 @@ export async function updateAccount(
     );
   }
 
-  await jagaSuperAdminAktif(db, id, patch.role ?? null);
+  // Penjaga dan tulis berjalan dalam satu transaksi dengan kunci baris.
+  // Tanpa ini, dua penurunan peran super admin terakhir yang datang
+  // bersamaan bisa sama-sama lolos penjaga lalu menyisakan nol super admin
+  // aktif. `FOR UPDATE` di penjaga membuat transaksi kedua menunggu yang
+  // pertama selesai sebelum menghitung ulang.
+  return db.transaction(async (tx) => {
+    await jagaSuperAdminAktif(tx, id, patch.role ?? null);
 
-  // Sesi dicabut kalau peran atau status aktif berubah, karena keduanya
-  // menentukan boleh-tidaknya orang itu masuk. Mengubah nama atau surel tidak
-  // mengubah hak akses, jadi tidak memutus sesi yang sedang berjalan.
-  const hakAksesBerubah = patch.role != null || patch.is_active != null;
+    // Sesi dicabut kalau peran atau status aktif berubah, karena keduanya
+    // menentukan boleh-tidaknya orang itu masuk. Mengubah nama atau surel tidak
+    // mengubah hak akses, jadi tidak memutus sesi yang sedang berjalan.
+    const hakAksesBerubah = patch.role != null || patch.is_active != null;
 
-  let rows;
-  try {
-    rows = await db.execute(sql`
-      UPDATE users
-         SET email     = coalesce(${surel}, email),
-             name      = coalesce(${nama}, name),
-             role      = coalesce(${patch.role ?? null}, role),
-             is_active = coalesce(${patch.is_active ?? null}, is_active),
-             session_version = session_version + ${hakAksesBerubah ? 1 : 0}
-       WHERE id = ${id}::uuid
-      RETURNING id
-    `);
-  } catch (err) {
-    throw mapUniqueEmail(err);
-  }
+    let rows;
+    try {
+      rows = await tx.execute(sql`
+        UPDATE users
+           SET email     = coalesce(${surel}, email),
+               name      = coalesce(${nama}, name),
+               role      = coalesce(${patch.role ?? null}, role),
+               is_active = coalesce(${patch.is_active ?? null}, is_active),
+               session_version = session_version + ${hakAksesBerubah ? 1 : 0}
+         WHERE id = ${id}::uuid
+        RETURNING id
+      `);
+    } catch (err) {
+      throw mapUniqueEmail(err);
+    }
 
-  if (rows.length === 0) throw ApiError.notFound("akun");
+    if (rows.length === 0) throw ApiError.notFound("akun");
 
-  const akun = await findAccount(db, id);
-  if (!akun) throw ApiError.internal("akun hilang setelah pembaruan");
-  return akun;
+    const akun = await findAccount(tx, id);
+    if (!akun) throw ApiError.internal("akun hilang setelah pembaruan");
+    return akun;
+  });
 }
 
 /**
@@ -270,11 +286,11 @@ export async function updateAccount(
  * Hanya diperiksa saat peran memang berubah. Menaikkan peran tidak pernah
  * diperhatikan, dan `null` berarti panel tidak mengirim peran sama sekali.
  */
-async function jagaSuperAdminAktif(db: Db, id: string, peranBaru: Role | null): Promise<void> {
+async function jagaSuperAdminAktif(db: Executor, id: string, peranBaru: Role | null): Promise<void> {
   if (peranBaru === null) return;
 
   const baris = await db.execute(
-    sql`SELECT role::text AS role, is_active FROM users WHERE id = ${id}::uuid`,
+    sql`SELECT role::text AS role, is_active FROM users WHERE id = ${id}::uuid FOR UPDATE`,
   );
   const sekarang = baris[0] as { role: string; is_active: boolean } | undefined;
   if (!sekarang) throw ApiError.notFound("akun");
@@ -283,13 +299,16 @@ async function jagaSuperAdminAktif(db: Db, id: string, peranBaru: Role | null): 
   if (sekarang.role !== "super_admin" || !sekarang.is_active) return;
   if (peranBaru === "super_admin") return;
 
+  // Kunci barisnya, bukan `count(*)`: `FOR UPDATE` tidak boleh dipakai bersama
+  // fungsi agregat, jadi yang dikunci adalah baris super admin lainnya, lalu
+  // jumlahnya dihitung di sini. Dipanggil di dalam transaksi oleh pemanggil.
   const sisa = await db.execute(sql`
-    SELECT count(*)::int AS total
-      FROM users
+    SELECT id FROM users
      WHERE role = 'super_admin' AND is_active AND id <> ${id}::uuid
+     FOR UPDATE
   `);
 
-  if (Number((sisa[0] as { total: number }).total) === 0) {
+  if (sisa.length === 0) {
     throw ApiError.badRequest(
       "Ini satu-satunya akun super admin aktif. Buat akun lain dulu sebelum menurunkan perannya.",
     );
@@ -360,24 +379,31 @@ export async function deleteAccount(db: Db, id: string, actingUser: string): Pro
     throw ApiError.badRequest("Akun yang sedang dipakai tidak bisa dihapus.");
   }
 
-  const rows = await db.execute(sql`SELECT role::text AS role FROM users WHERE id = ${id}::uuid`);
-  const role = (rows[0] as { role: string } | undefined)?.role;
-  if (role === undefined) throw ApiError.notFound("akun");
+  // Sama seperti `updateAccount`: baca penjaga dan hapusnya satu transaksi
+  // dengan kunci baris, supaya dua penghapusan super admin terakhir yang
+  // bersamaan tidak bisa sama-sama lolos.
+  await db.transaction(async (tx) => {
+    const rows = await tx.execute(
+      sql`SELECT role::text AS role FROM users WHERE id = ${id}::uuid FOR UPDATE`,
+    );
+    const role = (rows[0] as { role: string } | undefined)?.role;
+    if (role === undefined) throw ApiError.notFound("akun");
 
-  if (role === "super_admin") {
-    const sisa = await db.execute(sql`
-      SELECT count(*)::int AS total FROM users WHERE role = 'super_admin' AND is_active
-    `);
+    if (role === "super_admin") {
+      const sisa = await tx.execute(sql`
+        SELECT id FROM users WHERE role = 'super_admin' AND is_active FOR UPDATE
+      `);
 
-    if (Number((sisa[0] as { total: number }).total) <= 1) {
-      throw ApiError.badRequest(
-        "Ini satu-satunya akun super admin aktif. Buat akun lain dulu sebelum menghapusnya.",
-      );
+      if (sisa.length <= 1) {
+        throw ApiError.badRequest(
+          "Ini satu-satunya akun super admin aktif. Buat akun lain dulu sebelum menghapusnya.",
+        );
+      }
     }
-  }
 
-  const terhapus = await db.execute(sql`DELETE FROM users WHERE id = ${id}::uuid RETURNING id`);
-  if (terhapus.length === 0) throw ApiError.notFound("akun");
+    const terhapus = await tx.execute(sql`DELETE FROM users WHERE id = ${id}::uuid RETURNING id`);
+    if (terhapus.length === 0) throw ApiError.notFound("akun");
+  });
 }
 
 /**

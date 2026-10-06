@@ -5,16 +5,27 @@ import {
   bedTotal,
 } from "@/data/kapasitas-bed";
 import { CONTACT, FOOTER_ADDRESS } from "@/data/navigation";
-import { collectNavPaths, humanize, resolveTrail } from "@/lib/nav-path";
+import { humanize, resolveTrail } from "@/lib/nav-path";
+import { collectSitemapPaths } from "@/lib/sitemap";
 import type { IsiHalaman } from "./types";
 
-/** Baris tabel sitemap, diturunkan dari pohon navigasi. */
-const PETA_SITUS = collectNavPaths()
-  .map((p) => {
-    const path = "/" + p.slug.join("/");
-    const trail = resolveTrail(path);
-    const label = trail?.at(-1)?.label ?? humanize(p.slug.at(-1) ?? "");
-    return [label, path];
+/**
+ * Baris tabel peta situs, diturunkan dari sumber yang sama dengan
+ * `sitemap.xml`.
+ *
+ * Sebelumnya memakai `collectNavPaths()` (30 halaman generik saja) sehingga
+ * halaman indeks berfolder (`/berita`, `/ppid`, ...) dan seluruh halaman
+ * detail `[slug]` (~110 URL) hilang dari tabel meski judulnya mengklaim
+ * "seluruh halaman". Bentuk baris `[label, path]` dipertahankan supaya
+ * render tabel dan `tests/halaman.test.ts` tidak berubah.
+ */
+const PETA_SITUS = collectSitemapPaths()
+  .map((e) => {
+    if (e.path === "/") return ["Beranda", "/"];
+    const trail = resolveTrail(e.path);
+    const segmen = e.path.split("/").filter(Boolean).at(-1) ?? "";
+    const label = trail?.at(-1)?.label ?? humanize(segmen);
+    return [label, e.path];
   })
   .sort((a, b) => String(a[1]).localeCompare(String(b[1]), "id"));
 
@@ -87,7 +98,7 @@ export const UTAMA: Record<string, IsiHalaman> = {
     blok: [
       {
         jenis: "paragraf",
-        teks: "Daftar di bawah diambil dari menu navigasi.",
+        teks: "Daftar di bawah sama isinya dengan sitemap.xml untuk mesin pencari.",
       },
       {
         jenis: "tabel",

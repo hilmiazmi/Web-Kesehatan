@@ -25,15 +25,16 @@ export default function McuPackages() {
       <CardCarousel label="Paket medical check up dan promosi">
         {MCU_PACKAGES.map((p, i) => (
           <div className="card" key={p.slug}>
-            <div className="image-content">
-              <Photo
-                src={photo(NEWS_PHOTOS[i % NEWS_PHOTOS.length], 600, 400)}
-                alt={p.title}
-                sizes="(max-width: 576px) 100vw, (max-width: 992px) 50vw, 300px"
-                height={150}
-                radius="top"
-              />
-            </div>
+            {/* `Photo` sudah membawa wrapper `.photo-box` sendiri; membungkus
+                lagi membuat aturan `.image-content img` (tinggi 190px tetap)
+                mengalahkan prop `height` di bawah. */}
+            <Photo
+              src={photo(NEWS_PHOTOS[i % NEWS_PHOTOS.length], 600, 400)}
+              alt={p.title}
+              sizes="(max-width: 576px) 100vw, (max-width: 992px) 50vw, 300px"
+              height={150}
+              radius="top"
+            />
 
             <div className="card-content">
               <h3 className="card-title">{p.title}</h3>

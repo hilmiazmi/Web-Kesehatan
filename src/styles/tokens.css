@@ -49,8 +49,9 @@
   /* --- Ukuran tipografi (hasil pengukuran) --- */
   --rs-fs-body: 16px; /* line-height 24px */
   --rs-lh-body: 24px;
-  /* Ukuran dasar ini berlaku seragam untuk nav desktop, submenu dropdown,
-     dan panel off-canvas. */
+  /* Ukuran dasar nav desktop dan submenu dropdown. Panel off-canvas mobile
+     menaikannya menjadi 17px lewat override di `site.css` (keterbacaan di
+     layar sentuh), jadi "seragam" di sini berarti desktop saja. */
   --rs-fs-nav: 15px;
   --rs-lh-nav: 22.5px;
   --rs-fs-btn: 16px; /* tombol di dalam kartu, line-height 24px */
@@ -264,44 +265,15 @@ h6 {
   outline-offset: 2px;
 }
 
-/* Tombol kembali ke atas, PRD bagian 8 butir 1.
- *
- * Muncul lewat atribut `hidden` dari komponen, bukan lewat kelas, supaya
- * hilang dari urutan Tab sekaligus dari tampilan. */
-.back-to-top {
-  position: fixed;
-  right: 1rem;
-  bottom: 1rem;
-  z-index: 1019;
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--rs-gray-300);
-  border-radius: 50%;
-  background-color: var(--rs-white);
-  color: var(--rs-accent);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-.back-to-top:hover,
-.back-to-top:focus {
-  background-color: var(--rs-accent);
-  color: var(--rs-white);
-  border-color: var(--rs-accent);
-}
-
-.back-to-top:focus-visible {
-  outline: 3px solid rgba(var(--rs-accent-rgb), 0.4);
-  outline-offset: 2px;
-}
+/* Aturan `.back-to-top` yang lama sudah dibuang: tidak ada komponen yang
+ * memakainya (`BackToTop` memakai `.scroll-top` di `site.css` dengan
+ * `z-index: 1199`, bukan 1019 di sini). Menyimpannya hanya membingungkan
+ * karena namanya mirip tapi z-index-nya beda. */
 
 /* Di bawah 768px ruang vertikal sempit dan tombol Daftar Online sudah ada
    menapak di header, jadi keduanya disembunyikan. */
 @media (max-width: 767.98px) {
-  .quick-action,
-  .back-to-top {
+  .quick-action {
     display: none;
   }
 }

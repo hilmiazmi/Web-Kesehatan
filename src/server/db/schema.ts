@@ -164,8 +164,8 @@ export const users = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     email: varchar("email", { length: 255 }).notNull(),
     /**
-     * Format argon2id dari `src/server/auth/password.ts`:
-     * `$argon2id$v=19$m=...$salt$hash`.
+     * Format scrypt dari `src/server/auth/password.ts`:
+     * `scrypt$N$r$p$salt$hash`.
      *
      * Panjangnya variabel dan bertambah kalau parameternya dinaikkan, jadi
      * `text` bukan `varchar(255)`.

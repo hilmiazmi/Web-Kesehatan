@@ -347,7 +347,7 @@ export function isHoneypotTrap(value: string): boolean {
 function isEmail(value: string): boolean {
   if (/\s/.test(value)) return false;
 
-  // Satu `@` saja. Dua tanda oath tidak pernah sah, dan kalau hanya yang
+  // Satu `@` saja. Dua tanda `@` tidak pernah sah, dan kalau hanya yang
   // pertama yang diperiksa, `dua@@at.com` lolos karena bagian domainnya
   // `@at.com` masih mengandung titik.
   if (value.split("@").length !== 2) return false;
@@ -379,7 +379,7 @@ function isEmail(value: string): boolean {
  * Hasil yang dikembalikan selalu objek. Body kosong, body `null`, dan body
  * berupa larik semuanya menjadi objek kosong, karena pengirim formulir dari
  * panel admin dan skrip uji sama-sama mengirim `{}` saat tidak ada yang mau
- * diubah, dan_itSebauh galat untuk kasus itu akan sangat membingungkan.
+ * diubah, dan sebuah galat untuk kasus itu akan sangat membingungkan.
  */
 export async function readJsonBody(request: Request): Promise<Record<string, unknown>> {
   const batas = config().bodyLimitBytes;

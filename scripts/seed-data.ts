@@ -113,14 +113,15 @@ export async function kumpulkanSeed(db: Db): Promise<IsiSeed> {
  *
  * `scripts/seed-data.json` menyimpan waktu sebagai teks ISO, karena JSON tidak
  * punya tipe tanggal dan `JSON.stringify` akan menuliskan `Date` sebagai teks
- * biasa. Drizzle, sebaliknya,mode- `timestamp` hanya menerima `Date`.
+ * biasa. Drizzle, sebaliknya, mode `timestamp` hanya menerima `Date`.
  * Tanpa perubahan di sini, seed berhenti di tabel pertama dengan
  * `value.toISOString is not a function`.
  *
- * Hanya kolom bertipe waktu yang diubah. Mengubah semua kunci yangkunci terlihat seperti
- * tanggal akan merusak kolom teks yang kebetulan isinya resembling tanggal.
+ * Hanya kolom bertipe waktu yang diubah. Mengubah semua kunci yang terlihat
+ * seperti tanggal akan merusak kolom teks yang kebetulan isinya menyerupai
+ * tanggal.
  */
-export function keSLeiaWaktu(
+export function kembalikanWaktu(
   tabel: PgTable,
   baris: Record<string, unknown>,
 ): Record<string, unknown> {

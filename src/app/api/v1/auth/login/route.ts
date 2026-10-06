@@ -21,15 +21,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   return handle(async () => {
     const body = await readJsonBody(request);
 
+    // Rate limit dulu, honeypot kemudian, sama seperti `jalankanForm`. Kalau
+    // dibalik, bot yang mengisi field `website` mendapat respons `ok` tanpa
+    // batas, dan limiter bisa dilewati persis oleh lalu lintas yang ingin
+    // disaring.
+    limitRequest(request.headers, "login");
+
     if (isHoneypotTrap(String(body.website ?? ""))) {
       return ok({ status: "received" });
     }
-
-    // Rate limit per alamat dipasang sebelum menyentuh database. Tanpa itu,
-    // daftar email dan kata sandi bisa dicoba ribuan kali per menit dari satu
-    // mesin, dan setiap percobaan menampilkan halaman login tanpa satu pun
-    // memberi tahu bahwa ada pembatas.
-    limitRequest(request.headers, "login");
 
     const errors = new Errors();
     const surel = validateEmail(errors, "email", String(body.email ?? ""), true);

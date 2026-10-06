@@ -72,6 +72,10 @@ export function config(): Config {
   }
 
   const authSecret = env("AUTH_SECRET", "");
+  // Panjang minimum hanya ditegakkan di mode `live`. Di mode `snapshot` login
+  // selalu ditolak 503 sebelum token sempat diterbitkan, jadi secret yang
+  // kosong tidak bisa dipakai untuk menandatangani apa pun. Pengecualian ini
+  // disengaja supaya pratinjau snapshot tidak butuh secret sungguhan.
   if (apiMode === "live" && authSecret.length < AUTH_SECRET_MIN) {
     throw new ConfigError(
       `AUTH_SECRET wajib diisi dan minimal ${AUTH_SECRET_MIN} karakter (nilai sekarang ${authSecret.length}).`,

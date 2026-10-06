@@ -20,6 +20,48 @@ function segments(pathname: string): string[] {
   return pathname.split("/").filter(Boolean);
 }
 
+/** Gabung href relatif terhadap induknya, sama seperti `collectNavPaths`. */
+function hrefPenuh(href: string, induk: string): string {
+  const segs = segments(href);
+  const penuh = segs.length > 1 ? href : `${induk}/${segs[0] ?? ""}`;
+  return penuh.replace(/\/+$/, "") || "/";
+}
+
+/**
+ * Cari jalur breadcrumb berdasarkan href persis di seluruh sumber navigasi.
+ *
+ * `NAV_ITEMS` saja tidak cukup: `/dokumen/*` href-nya tidak diawali segmen
+ * induk menunya, dan `/administrasi`, `/kontak`, `/sitemap` hanya ada di
+ * `HEADER_CTAS` atau `FOOTER_LINKS`. Tanpa ini semuanya jatuh ke fallback
+ * satu butir `humanize()` di halaman generik.
+ */
+function cariJalurTepat(pathname: string): { label: string; href: string }[] | null {
+  const target = pathname.replace(/\/+$/, "") || "/";
+
+  const telusur = (
+    nodes: (NavItem | NavChild)[],
+    induk: string,
+    jejak: { label: string; href: string }[],
+  ): { label: string; href: string }[] | null => {
+    for (const node of nodes) {
+      const penuh = hrefPenuh(node.href, induk);
+      const berikutnya = [...jejak, { label: node.label, href: penuh }];
+      if (penuh === target) return berikutnya;
+      if (node.children) {
+        const dalam = telusur(node.children, penuh, berikutnya);
+        if (dalam) return dalam;
+      }
+    }
+    return null;
+  };
+
+  return (
+    telusur(NAV_ITEMS, "", []) ??
+    telusur(HEADER_CTAS as NavChild[], "", []) ??
+    telusur(FOOTER_LINKS as NavChild[], "", [])
+  );
+}
+
 /**
  * Telusuri pohon navigasi dari level-1 sampai bawah, lalu kembalikan
  * [{"label","href"}] untuk setiap segmen yang ditemukan.
@@ -28,6 +70,13 @@ function segments(pathname: string): string[] {
  * memakai fallback berupa breadcrumb sederhana.
  */
 export function resolveTrail(pathname: string): { label: string; href: string }[] | null {
+  // Cari dulu berdasarkan href persis di seluruh sumber navigasi. Ini menangani
+  // tautan yang href-nya tidak diawali segmen induknya di menu, mis.
+  // `/dokumen/standar-pelayanan` yang merupakan anak "Informasi Publik", serta
+  // tautan CTA header (`/administrasi`) dan footer (`/kontak`, `/sitemap`).
+  const tepat = cariJalurTepat(pathname);
+  if (tepat) return tepat;
+
   const segs = segments(pathname);
   if (segs.length === 0) return null;
 

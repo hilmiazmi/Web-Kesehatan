@@ -363,6 +363,17 @@ await lapis("hapus akun uji", async () => {
   return row;
 });
 
+// `akunLain` dibuat sebagai super_admin untuk keperluan uji di atas. Tanpa
+// baris ini setiap menjalankan skrip meninggalkan satu super admin yatim di
+// database dev. Dihapus terakhir karena penghapusan super admin butuh sisa
+// minimal satu super admin aktif (akun seed), dan akun seed tidak disentuh.
+await lapis("hapus akun pemanggil uji", async () => {
+  await deleteAccount(db, (akunLain as { id: string }).id, "00000000-0000-0000-0000-000000000000");
+  const row = await findAccount(db, (akunLain as { id: string }).id);
+  if (row !== null) throw new Error("akun masih ada");
+  return row;
+});
+
 // --------------------------------------------------------------------- dasbor
 console.log("\n== dasbor ==");
 const statistik = await lapis("loadStats", async () => {

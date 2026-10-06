@@ -7,6 +7,12 @@ import { DETAIL_CONTENT, DETAIL_INTRO_TAIL } from "@/data/detail-content";
 import { FACILITIES } from "@/data/home";
 import { FACILITY_PHOTOS, photo } from "@/data/images";
 
+/**
+ * Hanya slug yang sudah ada yang boleh dibuka; slug asing menjawab 404
+ * sungguhan, bukan halaman yang di-render saat diminta.
+ */
+export const dynamicParams = false;
+
 /** Prerender semua fasilitas medis saat build. */
 export function generateStaticParams() {
   return FACILITIES.map((f) => ({ slug: f.slug }));

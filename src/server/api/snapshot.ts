@@ -96,10 +96,30 @@ export async function denganSnapshot<T>(
  * pada enum yang tidak memuatnya adalah kesalahan permintaan, dan menjawabnya
  * dari snapshot hanya menyembunyikan kesalahannya.
  */
+/**
+ * Kode galat jaringan dari Node (`node:net`, `node:dns`), bukan SQLSTATE.
+ *
+ * Driver meneruskan galat koneksi apa adanya, jadi database yang mati terlihat
+ * sebagai `ECONNREFUSED`, bukan `08006`. Tanpa daftar ini fallback snapshot
+ * tidak pernah terpicu pada kasus paling umum: database tidak hidup sama
+ * sekali (terlihat langsung sebagai `code: "ECONNREFUSED"` di log).
+ */
+const KODE_JARINGAN = new Set([
+  "ECONNREFUSED", // database mati atau port salah
+  "ECONNRESET", // koneksi diputus di tengah jalan
+  "ENOTFOUND", // nama host tidak bisa di-resolve
+  "ETIMEDOUT", // handshake tidak selesai
+  "EHOSTUNREACH", // host tidak terjangkau
+  "ENETUNREACH", // jaringan tidak terjangkau
+  "EPIPE", // menulis ke koneksi yang sudah mati
+  "EAI_AGAIN", // DNS timeout sementara
+]);
+
 function bisaKonek(err: unknown): boolean {
   const kode = dbErrorCode(err);
 
   if (kode === undefined) return false;
+  if (KODE_JARINGAN.has(kode)) return true;
 
   return (
     kode.startsWith("08") || // connection exception

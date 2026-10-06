@@ -19,6 +19,15 @@ const SKALA_MAKS = 5;
 /** Batas jumlah pertanyaan satu isian, mengikuti CHECK `jsonb` di database. */
 const JUMLAH_MAKS = 30;
 
+/**
+ * Batas panjang nama kunci jawaban.
+ *
+ * CHECK di database hanya memastikan isinya objek, jadi tanpa batas ini satu
+ * kunci raksasa (sampai 256 KiB body limit) bisa tersimpan. 80 karakter cukup
+ * untuk id pertanyaan yang wajar.
+ */
+const KUNCI_MAKS = 80;
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
   return handle(async () => {
     const hasil = await jalankanForm(
@@ -97,6 +106,11 @@ function bersihkanJawaban(errors: Errors, mentah: unknown): Record<string, numbe
 
   for (const nama of kunci) {
     const nilai = masukan[nama];
+
+    if (nama.length > KUNCI_MAKS) {
+      errors.add("answers", `Nama jawaban tidak boleh lebih dari ${KUNCI_MAKS} karakter.`);
+      return {};
+    }
 
     if (typeof nilai !== "number" || !Number.isFinite(nilai)) {
       errors.add("answers", `Jawaban '${nama}' harus berupa angka 1 sampai 5.`);

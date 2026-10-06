@@ -72,7 +72,7 @@ Mode database ditentukan `API_MODE`, bukan oleh isi `DATABASE_URL`:
 
 ### Backend
 
-- **43 Route Handler** di bawah `/api/v1`, endpoint publik dan admin. Semua
+- **44 Route Handler** di bawah `/api/v1`, endpoint publik dan admin. Semua
   path lain dibalas 404 sungguhan oleh catcher di `[...path]/route.ts`.
 - **27 tabel** PostgreSQL lewat Drizzle ORM, dengan migrasi SQL dan trigger
   `set_updated_at`.
@@ -87,14 +87,14 @@ Mode database ditentukan `API_MODE`, bukan oleh isi `DATABASE_URL`:
 ### Layout global
 
 - `Topbar` — kontak (telepon/WhatsApp/email) + ikon sosial, latar `#1977cc`
-- `Navbar` — 11 item level-1, dropdown 3 tingkat (hover di desktop, accordion di mobile)
+- `Navbar` — 8 item level-1, dropdown 3 tingkat (hover di desktop, accordion di mobile)
 - `Footer` — identitas, link terkait, media pengaduan, blok lokasi, penanda demo
 - Tombol CTA header: **Daftar Online** dan **Administrasi Pasien**
 - Skip-link untuk aksesibilitas keyboard
 
 ### Halaman
 
-**151 halaman** ter-build. Selain beranda, sudah ada katalog pelayanan
+**163 halaman** ter-build. Selain beranda, sudah ada katalog pelayanan
 (poliklinik, medis, diagnostik, MCU), PPID bercabang, berita, informasi
 publik, laboratorium, radiologi, tentang-kami, dan daftar online.
 

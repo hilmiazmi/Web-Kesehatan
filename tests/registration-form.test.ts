@@ -150,12 +150,18 @@ describe("validate", () => {
   });
 
   it("menolak tanggal yang sudah lewat", () => {
+    // Dikunci ke jam palsu supaya deterministik: tanpa ini hasilnya tergantung
+    // jam mesin saat suite berjalan.
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-03-10T10:00:00Z")); // 17:00 WIB
     expect(validate({ ...SAH, tanggal: tanggalSetempat(-1) }).tanggal).toBeTruthy();
   });
 
   it("menerima tanggal hari ini dan sesudahnya", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-03-10T10:00:00Z")); // 17:00 WIB
     expect(validate({ ...SAH, tanggal: tanggalSetempat(0) }).tanggal).toBeUndefined();
-    expect(validate({ ...SAH, tanggal: BESOK }).tanggal).toBeUndefined();
+    expect(validate({ ...SAH, tanggal: tanggalSetempat(1) }).tanggal).toBeUndefined();
   });
 
   /*
@@ -184,12 +190,12 @@ describe("validate", () => {
     expect(validate({ ...SAH, tanggal: "2026-03-10" }).tanggal).toBeTruthy();
   });
 
-  it("mewahajibkan dokter dan jam kunjungan", () => {
+  it("mewajibkan dokter dan jam kunjungan", () => {
     expect(validate({ ...SAH, dokter: "" }).dokter).toBeTruthy();
     expect(validate({ ...SAH, slot: "" }).slot).toBeTruthy();
   });
 
-  it("me mewajibkan persetujuan dicentang", () => {
+  it("mewajibkan persetujuan dicentang", () => {
     expect(validate({ ...SAH, setuju: false }).setuju).toBeTruthy();
   });
 

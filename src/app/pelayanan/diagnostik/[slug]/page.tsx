@@ -7,6 +7,12 @@ import { DetailLayout } from "@/components/pelayanan/DetailLayout";
 import { DIAGNOSTIC_SERVICES } from "@/data/informasi";
 import { FACILITY_PHOTOS, photo } from "@/data/images";
 
+/**
+ * Hanya slug yang sudah ada yang boleh dibuka; slug asing menjawab 404
+ * sungguhan, bukan halaman yang di-render saat diminta.
+ */
+export const dynamicParams = false;
+
 /** Prerender semua layanan diagnostik saat build. */
 export function generateStaticParams() {
   return DIAGNOSTIC_SERVICES.map((d) => ({ slug: d.slug }));

@@ -6,6 +6,12 @@ yang dihasilkan hanya menyusun parameter dan mengembalikan respons.
 Jalankan ulang setiap kali bentuk respons berubah, lalu periksa hasilnya dengan
 `git diff`. Hasil generate yang berbeda dari yang di-commit berarti ada yang
 lupa ditulis ulang.
+
+Dua route SENGAJA tidak dihasilkan di sini dan ditulis tangan:
+- `documents/[slug]/route.ts`: polanya sama dengan `detail()` di bawah, tapi
+  berkasnya membawa komentar dokumentasi yang akan hilang kalau ditulis ulang.
+- `schedules/route.ts`: logika kuota per tanggal plus tanggal WIB, tidak muat
+  di template mana pun di berkas ini.
 """
 
 import io

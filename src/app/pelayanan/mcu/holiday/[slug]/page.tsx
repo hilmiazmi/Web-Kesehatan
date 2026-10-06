@@ -10,6 +10,12 @@ import { formatIDR } from "@/lib/format";
 
 const BASE = "/pelayanan/mcu/holiday";
 
+/**
+ * Hanya slug yang sudah ada yang boleh dibuka; slug asing menjawab 404
+ * sungguhan, bukan halaman yang di-render saat diminta.
+ */
+export const dynamicParams = false;
+
 /** Prerender semua paket holiday saat build. */
 export function generateStaticParams() {
   return MCU_HOLIDAY_PACKAGES.map((p) => ({ slug: p.slug }));

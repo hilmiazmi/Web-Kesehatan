@@ -25,6 +25,7 @@ import {
 import { render, truncateWords } from "../../markdown";
 import { isoWeekday } from "./appointments";
 import { parseIsoDate } from "../../validation";
+import { ApiError } from "../../api/error";
 import { iso } from "./iso";
 
 /**
@@ -1056,7 +1057,10 @@ export async function saveSettings(db: Db, input: SettingsInput): Promise<Settin
   }
 
   if (Object.keys(prepared).length === 0) {
-    throw new Error("Tidak ada pengaturan yang dikirim.");
+    // Body kosong atau hanya berisi kunci asing adalah kesalahan permintaan
+    // (400), bukan kegagalan server (500). `toApiError` membungkus `Error`
+    // biasa menjadi 500, jadi di sini harus `ApiError` eksplisit.
+    throw ApiError.badRequest("Tidak ada pengaturan yang dikirim.");
   }
 
   await db.transaction(async (tx) => {

@@ -187,7 +187,7 @@ describe("isi yang diturunkan, bukan disalin", () => {
     expect(kartu.butir.map((k) => k.href)).toEqual([...dariData]);
 
     // Setiap butir harus punya tautan dan deskripsi, kalau tidak daftar ini
-    // cuma teks yang malaria.
+    // cuma teks pajangan yang tidak bisa diklik.
     for (const butir of kartu.butir) {
       expect(butir.href, butir.judul).toBeTruthy();
       expect(butir.isi.length, butir.judul).toBeGreaterThan(20);

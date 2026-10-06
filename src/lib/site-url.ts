@@ -25,9 +25,10 @@ export function siteUrl(): string {
 /**
  * Gabungan URL dasar dan path internal.
  *
- * Path harus diawali satu garis miring. Path tanpa garis miring akan
- * menggabungkan dua segmen terakhir, jadi `siteUrlFor("berita")` menghasilkan
- * domain saja dan halaman `/berita` hilang dari sitemap tanpa pesan galat.
+ * Kedua bentuk path diterima: yang tanpa garis miring di awal otomatis
+ * diberi pemisah, jadi `siteUrlFor("berita")` sama dengan
+ * `siteUrlFor("/berita")`. Tetap kirim bentuk bergaris miring supaya
+ * konsisten dengan pemanggil lain.
  */
 export function siteUrlFor(path: string): string {
   return path.startsWith("/") ? `${siteUrl()}${path}` : `${siteUrl()}/${path}`;

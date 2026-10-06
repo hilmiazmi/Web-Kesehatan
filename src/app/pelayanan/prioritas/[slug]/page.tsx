@@ -8,6 +8,12 @@ import { PRIORITY_SERVICES } from "@/data/home";
 import { DETAIL_CONTENT, DETAIL_INTRO_TAIL } from "@/data/detail-content";
 import { PRIORITY_PHOTOS, photo } from "@/data/images";
 
+/**
+ * Hanya slug yang sudah ada yang boleh dibuka; slug asing menjawab 404
+ * sungguhan, bukan halaman yang di-render saat diminta.
+ */
+export const dynamicParams = false;
+
 /** Prerender semua layanan prioritas saat build. */
 export function generateStaticParams() {
   return PRIORITY_SERVICES.map((s) => ({ slug: s.slug }));

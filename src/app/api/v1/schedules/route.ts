@@ -11,6 +11,14 @@ import { isoWeekday, weekdayName } from "@/server/db/repo/appointments";
 export const dynamic = "force-dynamic";
 
 /**
+ * Selisih WIB terhadap UTC dalam jam.
+ *
+ * Sama seperti `WIB_OFFSET_JAM` di formulir pendaftaran: dihitung dari UTC
+ * ditambah offset eksplisit supaya hasilnya sama di zona waktu mesin mana pun.
+ */
+const WIB_OFFSET_JAM = 7;
+
+/**
  * Jadwal satu dokter pada satu tanggal, lengkap dengan sisa kuota.
  *
  * Tanpa parameter `date`, jadwal hari ini yang ditampilkan. Ini yang dipakai
@@ -25,13 +33,18 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const dokter = uuid(params.get("doctor") ?? undefined, "doctor");
 
     const diminta = tanggal(params, "date");
-    const hariDipakai = diminta.ada ? diminta.nilai : formatIsoDate(new Date());
+    // Tanpa parameter berarti hari ini menurut WIB, bukan UTC: `toISOString`
+    // memakai UTC sehingga pukul 00:00-06:59 WIB masih tanggal kemarin dan
+    // widget "jadwal hari ini" menampilkan jadwal yang salah.
+    const hariDipakai = diminta.ada
+      ? diminta.nilai
+      : formatIsoDate(new Date(Date.now() + WIB_OFFSET_JAM * 3_600_000));
 
     // Snapshot tidak punya jadwal per tanggal, karena sisa kuota untuk tanggal
-    // tertentu akan basi begitu lewat. Mode snapshot menjawab dari daftar
-    // jadwal umum yang tersimpan di berkas.
+    // tertentu akan basi begitu lewat. Menjawab 503 baca-saja, bukan 404:
+    // masalahnya mode yang tidak bisa melayani, bukan tanggal yang tidak ada.
     const db = dbOrNull();
-    if (db === null) throw ApiError.notFound("jadwal");
+    if (db === null) throw ApiError.readOnly();
 
     const items = await jadwalOnDate(db, dokter, hariDipakai);
 

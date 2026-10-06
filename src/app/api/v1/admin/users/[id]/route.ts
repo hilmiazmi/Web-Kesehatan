@@ -29,6 +29,12 @@ export async function PATCH(request: NextRequest, context: Konteks): Promise<Nex
     const peranDiminta = body.role;
     const peran =
       typeof peranDiminta === "string" && isRole(peranDiminta) ? peranDiminta : null;
+    if (typeof peranDiminta === "string" && peran === null) {
+      // Typo seperti "super-admin" terlihat berhasil padahal perannya tidak
+      // berubah. Catat di log server supaya bisa dilacak tanpa mengubah
+      // kontrak respons (tetap 200 untuk field lain yang sah).
+      console.warn(`[users] peran tidak dikenal diabaikan: "${peranDiminta}"`);
+    }
 
     return ok(
       await updateAccount(db, uuid(id, "id"), aktor.sub, {

@@ -10,6 +10,12 @@ import { formatIDR } from "@/lib/format";
 
 const BASE = "/pelayanan/mcu/reguler";
 
+/**
+ * Hanya slug yang sudah ada yang boleh dibuka; slug asing menjawab 404
+ * sungguhan, bukan halaman yang di-render saat diminta.
+ */
+export const dynamicParams = false;
+
 /** Prerender semua paket MCU reguler saat build. */
 export function generateStaticParams() {
   return MCU_PACKAGES.map((p) => ({ slug: p.slug }));
