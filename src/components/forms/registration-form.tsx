@@ -1,7 +1,20 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
-import Swal from "sweetalert2";
+import type { SweetAlertOptions } from "sweetalert2";
+
+/**
+ * Tampilkan dialog SweetAlert2.
+ *
+ * `sweetalert2` TIDAK diimpor statis di berkas ini supaya tidak ikut ke
+ * bundle halaman. Pustaka ~40 KB itu hanya dibutuhkan saat pengguna menekan
+ * tombol kirim, jadi dimuat malas di dalam handler yang memang async. `import
+ * type` di atas terhapus saat kompilasi dan tidak menambah satu byte pun.
+ */
+async function beriTahu(pilihan: SweetAlertOptions): Promise<void> {
+  const { default: Swal } = await import("sweetalert2");
+  await Swal.fire(pilihan);
+}
 
 /**
  * Formulir pendaftaran online (E-Pasien).
@@ -382,7 +395,7 @@ export default function RegistrationForm() {
 
     // Jangan lolos ke pengiriman kalau masih ada field bermasalah.
     if (Object.keys(next).length > 0) {
-      Swal.fire({
+      await beriTahu({
         icon: "warning",
         title: "Formulir belum lengkap",
         text: "Periksa kembali bagian yang ditandai merah.",
@@ -403,7 +416,7 @@ export default function RegistrationForm() {
       const body = (await res.json()) as GalatApi & { data?: Konfirmasi };
 
       if (res.status === 201 && body.data) {
-        Swal.fire({
+        await beriTahu({
           icon: "success",
           title: "Pendaftaran berhasil",
           html:
@@ -420,14 +433,14 @@ export default function RegistrationForm() {
       // muncul di samping field yang salah, bukan cuma di modal.
       if (body.error?.fields) setErrors(petakanKolomServer(body.error.fields));
 
-      Swal.fire({
+      await beriTahu({
         icon: "warning",
         title: "Pendaftaran ditolak",
         text: body.error?.message ?? "Server menolak permintaan ini.",
         confirmButtonColor: "#1977cc",
       });
     } catch {
-      Swal.fire({
+      await beriTahu({
         icon: "error",
         title: "Tidak bisa menghubungi server",
         text: "Permintaan gagal dikirim. Periksa koneksi lalu coba lagi.",
