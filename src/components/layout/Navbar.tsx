@@ -23,11 +23,11 @@ import { HEADER_CTAS, NAV_ITEMS, SITE, type NavChild, type NavItem } from "@/dat
  * - Tombol tutup di dalam panel.
  * - Tombol Escape.
  *
- * Tata letak desktop tampil penuh tanpa hamburger: delapan butir nav dan
- * (di 1496px ke atas) dua CTA header selalu terlihat. Semua aturan panel
- * hanya ada di dalam `@media (max-width: 1199.98px)`, dan
- * `tests/header-ctas.test.ts` mengunci perilaku CTA sementara
- * `tests/panel-nav-mobile.test.ts` mengunci panel mobile.
+ * Tata letak desktop tampil penuh tanpa hamburger: delapan butir nav selalu
+ * terlihat; dua CTA header terlihat di 1520px ke atas dan dalam pita kompak
+ * 1360-1519px. Semua aturan panel hanya ada di dalam
+ * `@media (max-width: 1199.98px)`; aturan dua baris dan kompak bersarang di
+ * dalam blok desktop `@media (min-width: 1200px)`.
  *
  * Komponen ini client karena butuh interaksi; sisanya tetap Server Component.
  */
@@ -128,10 +128,9 @@ export default function Navbar() {
         >
           {/* Tombol tutup.
 
-              Namanya sengaja tidak memakai kelas tombol hamburger.
-              `tests/header-ctas.test.ts` menolak kelas hamburger itu kalau
-              muncul di dalam blok `<nav>`, karena kalau hamburger ikut masuk
-              ke sini ia ikut tergeser bersama panel dan tidak bisa diklik.
+              Namanya sengaja tidak memakai kelas tombol hamburger. Kalau
+              hamburger ikut masuk ke sini ia ikut tergeser bersama panel dan
+              tidak bisa diklik.
               Sekalian, kelas hamburger disembunyikan di desktop dengan
               `d-xl-none`; tombol ini juga perlu disembunyikan, dan itu
               ditangani aturan `.navmenu-close` di media query 1200px. */}
