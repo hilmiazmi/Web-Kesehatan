@@ -19,7 +19,8 @@
     "cek:tautan": "bun run scripts/cek-tautan.ts",
     "cek:tulis": "bun run scripts/cek-tulis.ts",
     "cek:admin": "bun run scripts/cek-admin.ts",
-    "audit:teks": "bun run scripts/audit-teks.ts"
+    "audit:teks": "bun run scripts/audit-teks.ts",
+    "subset-ikon": "bun run scripts/subset-ikon.ts"
   },
   "dependencies": {
     "bootstrap": "5.3.3",

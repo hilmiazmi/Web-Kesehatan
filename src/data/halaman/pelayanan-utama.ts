@@ -21,7 +21,11 @@ export const PELAYANAN_UTAMA: Record<string, IsiHalaman> = {
         jenis: "kartu",
         butir: [
           {
-            ikon: "bi-stethoscope",
+            // Ikon stethoscope tidak ada di bootstrap-icons 1.13.1, jadi
+            // kelas itu merender kotak kosong. `bi-heart-pulse` ada di versi
+            // itu dan maknanya sama untuk halaman poliklinik. Jalankan
+            // `bun run subset-ikon` untuk melihat daftar ikon yang terpakai.
+            ikon: "bi-heart-pulse",
             judul: "Poliklinik",
             isi: "Pemeriksaan oleh dokter spesialis tanpa perlu rawat inap.",
             href: "/pelayanan/poliklinik",

@@ -1,0 +1,97 @@
+/* DIHASILKAN OLEH scripts/subset-ikon.ts. Jangan disunting manual. */
+/* Sumber: node_modules/bootstrap-icons/font/bootstrap-icons.css */
+/* Isi 72 ikon yang dipakai dari 2078 yang tersedia. */
+
+@font-face {
+  font-display: block;
+  font-family: "bootstrap-icons";
+  src: url("./fonts/bootstrap-icons-subset.woff") format("woff");
+}
+
+.bi::before,
+[class^="bi-"]::before,
+[class*=" bi-"]::before {
+  display: inline-block;
+  font-family: bootstrap-icons !important;
+  font-style: normal;
+  font-weight: normal !important;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  vertical-align: -.125em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.bi-activity::before { content: "\f66b"; }
+.bi-arrow-left::before { content: "\f12f"; }
+.bi-arrow-repeat::before { content: "\f130"; }
+.bi-arrow-right-circle::before { content: "\f134"; }
+.bi-arrow-up-short::before { content: "\f145"; }
+.bi-bounding-box::before { content: "\f1b6"; }
+.bi-bounding-box-circles::before { content: "\f1b5"; }
+.bi-box-arrow-right::before { content: "\f1c3"; }
+.bi-briefcase::before { content: "\f1cc"; }
+.bi-bug::before { content: "\f1dc"; }
+.bi-building::before { content: "\f1dd"; }
+.bi-bullseye::before { content: "\f1de"; }
+.bi-calendar-event::before { content: "\f1e8"; }
+.bi-calendar-plus::before { content: "\f1ef"; }
+.bi-camera-video::before { content: "\f21f"; }
+.bi-cash-coin::before { content: "\f632"; }
+.bi-chat-square-text::before { content: "\f264"; }
+.bi-check-circle::before { content: "\f26b"; }
+.bi-check2::before { content: "\f272"; }
+.bi-check2-circle::before { content: "\f270"; }
+.bi-chevron-down::before { content: "\f282"; }
+.bi-chevron-left::before { content: "\f284"; }
+.bi-chevron-right::before { content: "\f285"; }
+.bi-clipboard2-check::before { content: "\f725"; }
+.bi-clipboard2-pulse::before { content: "\f730"; }
+.bi-clock::before { content: "\f293"; }
+.bi-disc::before { content: "\f2ff"; }
+.bi-door-open::before { content: "\f308"; }
+.bi-droplet::before { content: "\f30d"; }
+.bi-droplet-fill::before { content: "\f30b"; }
+.bi-emoji-smile::before { content: "\f327"; }
+.bi-envelope::before { content: "\f32f"; }
+.bi-eyedropper::before { content: "\f342"; }
+.bi-facebook::before { content: "\f344"; }
+.bi-file-earmark-medical::before { content: "\f373"; }
+.bi-file-earmark-text::before { content: "\f38b"; }
+.bi-file-medical::before { content: "\f3a1"; }
+.bi-geo-alt::before { content: "\f3e8"; }
+.bi-heart-pulse::before { content: "\f76f"; }
+.bi-hospital::before { content: "\f774"; }
+.bi-inbox::before { content: "\f42d"; }
+.bi-info-circle::before { content: "\f431"; }
+.bi-instagram::before { content: "\f437"; }
+.bi-journal-text::before { content: "\f444"; }
+.bi-link-45deg::before { content: "\f470"; }
+.bi-list::before { content: "\f479"; }
+.bi-magnet::before { content: "\f779"; }
+.bi-mortarboard::before { content: "\f6fe"; }
+.bi-people::before { content: "\f4d0"; }
+.bi-person-badge::before { content: "\f4d3"; }
+.bi-person-bounding-box::before { content: "\f4d4"; }
+.bi-person-circle::before { content: "\f4d7"; }
+.bi-person-vcard::before { content: "\f8c9"; }
+.bi-phone::before { content: "\f4e7"; }
+.bi-play-btn::before { content: "\f4f1"; }
+.bi-play-circle::before { content: "\f4f3"; }
+.bi-plus-lg::before { content: "\f64d"; }
+.bi-quote::before { content: "\f6b0"; }
+.bi-shield-check::before { content: "\f52f"; }
+.bi-shield-plus::before { content: "\f53a"; }
+.bi-sort-down::before { content: "\f575"; }
+.bi-sort-up::before { content: "\f57b"; }
+.bi-soundwave::before { content: "\f57c"; }
+.bi-speedometer2::before { content: "\f580"; }
+.bi-table::before { content: "\f5aa"; }
+.bi-tag::before { content: "\f5b0"; }
+.bi-telephone::before { content: "\f5c1"; }
+.bi-twitter::before { content: "\f5ef"; }
+.bi-ui-checks::before { content: "\f5f9"; }
+.bi-whatsapp::before { content: "\f618"; }
+.bi-x-lg::before { content: "\f659"; }
+.bi-youtube::before { content: "\f62b"; }

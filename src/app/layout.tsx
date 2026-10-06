@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap-icons/font/bootstrap-icons.css";
+import "@/styles/icons/bootstrap-icons.css";
 import "@/styles/tokens.css";
 import "@/styles/site.css";
 import "@/styles/pages.css";
@@ -17,6 +17,15 @@ import { siteUrl } from "@/lib/site-url";
  * Font asli situs referensi berdesain lisensi komersial sehingga tidak boleh
  * disalin. Poppins dipilih karena paling dekat: sama-sama geometris dan bulat.
  * Lihat docs/design-tokens-terverifikasi.md bagian 2.
+ *
+ * Ikon memakai subset hasil `bun run subset-ikon`, bukan
+ * `bootstrap-icons/font/bootstrap-icons.css` yang penuh. Alasannya pengukuran:
+ * situs memakai 72 ikon dari 2078 yang tersedia, tapi CSS penuh 97 KB dan
+ * font-nya 131 KB yang dikirim apa adanya ke setiap halaman tanpa bisa dikecilkan
+ * gzip karena font sudah terkompresi. Setelah dissubset: CSS 3,9 KB dan font
+ * 7,9 KB. Jangan mengganti import ini kembali tanpa menjalankan
+ * `bun run subset-ikon` lebih dulu, dan baca `tests/subset-ikon.test.ts`
+ * sebelum menyentuh ikon di mana pun.
  */
 const poppins = Poppins({
   subsets: ["latin"],
