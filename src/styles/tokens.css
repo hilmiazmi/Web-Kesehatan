@@ -221,6 +221,11 @@ h6 {
 
 /* Bilah aksi cepat, PRD bagian 8.4.
  *
+ * Bentuknya tombol plus yang membuka menu (`.quick-action-fab`), mengikuti
+ * situs acuan (`#toggle-btn` + `#toggle-menu`). Menu yang tertutup hanya
+ * menempati satu tombol 44px, bukan tiga tombol menumpuk yang menutupi isi
+ * halaman di layar kecil.
+ *
  * Ditaruh di `site.css` bersama komponen layout-nya, bukan di `pages.css`,
  * karena `pages.css` hanya diimpor oleh halaman yang butuh. Tombol kembali
  * ke atas memakai warna tombol yang sama, jadi aturannya di sini juga. */
@@ -229,15 +234,35 @@ h6 {
   right: 1rem;
   bottom: 1rem;
   z-index: 1020;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
 }
 
+/* Menu tersembunyi: `display: none` mengeluarkan butirnya dari urutan Tab
+   sekaligus dari tampilan, jadi tidak ada fokus yang nyasar ke menu yang
+   tidak kelihatan. Kelas `.quick-action-terbuka` dari komponen menghidupkan
+   transisinya; `visibility` dianimasikan sebagai langkah diskret supaya menu
+   tetap terlihat sepanjang durasi menutup. */
 .quick-action-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
   gap: 0.5rem;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+
+.quick-action-list.quick-action-terbuka {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
 }
 
 .quick-action-item {
@@ -252,6 +277,7 @@ h6 {
   line-height: var(--rs-lh-btn);
   white-space: nowrap;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  text-decoration: none;
 }
 
 /* Ikon di dalam bilah aksi cepat tidak mewarisi ukuran font teks. */
@@ -265,18 +291,45 @@ h6 {
   outline-offset: 2px;
 }
 
+/* Tombol plus/buka-tutup. 44px mengikuti target sentuh yang sama dengan tombol
+   navigasi lightbox; bentuk bundar penuh membedakannya dari tombol pill dan
+   tombol kartu di halaman. */
+.quick-action-fab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background-color: var(--rs-accent);
+  color: var(--rs-white);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.quick-action-fab:hover {
+  background-color: rgba(var(--rs-accent-rgb), 0.85);
+}
+
+.quick-action-fab:focus-visible {
+  outline: 3px solid rgba(var(--rs-accent-rgb), 0.4);
+  outline-offset: 2px;
+}
+
 /* Aturan `.back-to-top` yang lama sudah dibuang: tidak ada komponen yang
  * memakainya (`BackToTop` memakai `.scroll-top` di `site.css` dengan
  * `z-index: 1199`, bukan 1019 di sini). Menyimpannya hanya membingungkan
  * karena namanya mirip tapi z-index-nya beda. */
 
-/* Di bawah 768px ruang vertikal sempit dan tombol Daftar Online sudah ada
-   menapak di header, jadi keduanya disembunyikan. */
-@media (max-width: 767.98px) {
-  .quick-action {
-    display: none;
-  }
-}
+/* Bilah aksi cepat tampil di semua lebar: yang melayang hanya satu tombol
+ * 44px saat menu tertutup, jadi tidak ada lagi alasan menyembunyikannya di
+ * layar kecil seperti aturan lama. Justru di layar kecil tombol ini paling
+ * berguna, karena CTA header disembunyikan di bawah 576px. */
 
 /* Latar biru aksen. */
 .bg-rs {

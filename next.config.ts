@@ -1,6 +1,32 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  /**
+   * Bungkam peringatan deprecation Sass.
+   *
+   * `src/styles/bootstrap-subset.scss` mengimpor source SCSS Bootstrap 5.3.3,
+   * dan source itu memakai sintaks Sass lama di mana-mana: fungsi global
+   * (`unit()`, `red()`, `mix()`), sintaks `if()`, dan aturan `@import` itu
+   * sendiri. Semuanya deprecated di Dart Sass modern dan setiap kompilasi
+   * (dev maupun build) membanjiri terminal dengan 259+ peringatan yang sama.
+   *
+   * Tidak ada yang bisa diperbaiki dari sisi repo ini: source Bootstrap ada di
+   * `node_modules` (jangan disentuh), dan Bootstrap 5.3.3 belum mendukung
+   * `@use` sehingga `@import` tetap wajib dipakai. Satu-satunya yang benar
+   * adalah membungkam kategorinya di sini:
+   *
+   * - `quietDeps: true` — peringatan dari dalam `node_modules` (semua kecuali
+   *   milik sendiri) tidak ditampilkan sama sekali.
+   * - `silenceDeprecations` — empat kategori di atas tidak ditampilkan, baik
+   *   dari dependensi maupun dari berkas sendiri.
+   *
+   * Peringatan deprecation dari kode SCSS milik sendiri (kalau suatu hari ada)
+   * tetap tampil, karena kategorinya di luar empat ini.
+   */
+  sassOptions: {
+    quietDeps: true,
+    silenceDeprecations: ["import", "global-builtin", "color-functions", "if-function"],
+  },
   images: {
     // Foto dummy diambil dari Unsplash (lisensi gratis untuk penggunaan).
     // Daftar ID sudah diverifikasi aktif (HTTP 200) pada 2 Oktober 2026.

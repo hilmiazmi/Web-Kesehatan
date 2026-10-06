@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { SPECIALTIES } from "@/data/home";
-import { DOCTORS_BY_SPECIALTY } from "@/data/doctors";
+import { DOCTORS, DOCTORS_BY_SPECIALTY } from "@/data/doctors";
 
 /**
  * Widget "Cari Jadwal Dokter" (section 2).
@@ -19,9 +19,9 @@ export default function DoctorSearchCard() {
   const [doctor, setDoctor] = useState("");
   const [day, setDay] = useState("");
 
-  // Pilihan dokter jadi tidak berlaku begitu spesialisasi diganti.
-  // Disesuaikan saat render, bukan di useEffect, mengikuti pola React
-  // untuk state turunan.
+  // Pilihan dokter jadi tidak berlaku begitu spesialisasi diganti, dan pilihan
+  // hari jadi tidak berlaku begitu dokternya diganti. Keduanya disesuaikan
+  // saat render, bukan di useEffect, mengikuti pola React untuk state turunan.
   const [lastSpecialty, setLastSpecialty] = useState(specialty);
   if (specialty !== lastSpecialty) {
     setLastSpecialty(specialty);
@@ -29,6 +29,20 @@ export default function DoctorSearchCard() {
   }
 
   const doctorOptions = specialty ? (DOCTORS_BY_SPECIALTY[specialty] ?? []) : [];
+
+  const dokterTerpilih = doctor
+    ? DOCTORS.find((d) => d.name === doctor)
+    : undefined;
+  const [lastDoctor, setLastDoctor] = useState(doctor);
+  if (doctor !== lastDoctor) {
+    setLastDoctor(doctor);
+    setDay("");
+  }
+
+  // Hari yang ditawarkan hanya hari praktik dokter yang dipilih, bukan semua
+  // hari kerja. Tanpa ini pengunjung bisa memilih hari saat dokternya tidak
+  // praktik, lalu menekan Daftar Online untuk jadwal yang tidak ada.
+  const hariDokter = dokterTerpilih ? dokterTerpilih.schedule.map((s) => s.day) : [];
 
   // Tidak semua spesialisasi punya daftar dokter di data lokal. Kalau yang
   // dipilih tidak punya, dropdown-nya diberi tahu, bukan dibiarkan
@@ -110,7 +124,7 @@ export default function DoctorSearchCard() {
                         <option value="">
                           {doctor ? "Pilih Hari" : "Pilih dokter dahulu"}
                         </option>
-                        {["Senin", "Selasa", "Rabu", "Kamis", "Jumat"].map((d) => (
+                        {hariDokter.map((d) => (
                           <option key={d} value={d}>
                             {d}
                           </option>
