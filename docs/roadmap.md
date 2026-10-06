@@ -327,16 +327,45 @@ Sekarang memakai `visibility: hidden`. Lihat 3.11.
 ### 3.6 Dua angka lebar navbar tidak cocok
 
 **Selesai.** Sudah diukur di peramban oleh sesi lain, dan sekarang hanya satu
-angka yang dipakai di dua tempat. Rinciannya ada di blok "NAVBAR BEKU"
-pada `AGENTS.md`.
+angka yang dipakai di dua tempat. Rinciannya ada di blok navbar pada
+`AGENTS.md`.
 
-### 3.7 Cacat navbar yang sengaja dibekukan
+### 3.7 Cacat navbar: pembekuan dicabut, tangga lebar dipakai
 
-**Tetap ada dan sengaja diterima.** Pada lebar 1200 sampai 1495px tombol
-"Administrasi Pasien" terpotong di tepi kanan.
+**Selesai. Pembekuan navbar dicabut atas permintaan pemilik repo, 6 Oktober
+2026.**
 
-Ini hasil keputusan pemilik repo untuk membekukan navbar, dan sudah tercatat
-di `AGENTS.md`. Dicatat di sini supaya tidak mengejutkan saat diuji di laptop.
+Dulu bagian ini menulis bahwa tombol "Administrasi Pasien" terpotong pada lebar
+1200 sampai 1495px dan sengaja diterima. Sekarang tidak berlaku lagi.
+
+Penyebabnya satu baris header butuh `1496px` (logo 237 + nav 894 + CTA 341 +
+padding 24), sedangkan viewport terkecil yang masih desktop adalah `1200px`.
+Tiga pendekatan sudah dicoba:
+
+- **Sembunyikan CTA di bawah 1496px.** Nav terdorong ke tepi kanan sampai
+  menempel (`12px`) dan dua tombol utama hilang. Ditolak.
+- **Mengecilkan nav supaya muat di 1200px.** Nav harus menyusut sekitar 33%
+  supaya seluruhnya muat, dan huruf `15px` menjadi `10px`: tidak terbaca.
+  Ditolak.
+- **Paksa satu baris.** Sama saja tidak muat.
+
+Yang dipakai sekarang adalah tangga lebar, diukur lewat CDP pada 1200, 1280,
+1360, 1366, 1400, 1440, 1519, 1520, 1560, 1600, dan 1920px:
+
+| Lebar | Tampilan |
+|---|---|
+| `1520px` ke atas | Satu baris penuh: logo + tagline, nav `15px`, CTA |
+| `1360-1519px` | Satu baris kompak: logo merapat, nav `13.5px`, CTA ramping |
+| `1200-1359px` | Dua baris: baris pertama logo dan CTA, baris kedua nav dipusatkan |
+| Di bawah `1200px` | Hamburger + panel off-canvas (tidak berubah) |
+
+Batas `1520px` dipakai, bukan `1496px`, supaya ada sisa sekitar 24px untuk
+perbedaan metrik font antar mesin peramban: Zen memakai Gecko, Helium memakai
+Chromium. Pada semua lebar di atas, `scrollWidth` sama dengan `clientWidth`,
+jadi tidak ada gulir horizontal.
+
+`tests/navbar-beku.test.ts` sudah dihapus atas permintaan pemilik repo, jadi
+tidak ada lagi test yang mengunci angka navbar.
 
 ### 3.8 Halaman tanpa satu pun tautan masuk
 
@@ -544,7 +573,10 @@ Karena itu `body.navmenu-terbuka .scroll-top` memakai `visibility: hidden`.
 `z-index` tombol itu tidak disentuh, karena `tests/kembali-ke-atas.test.ts`
 mengunci 1199 sebagai satu-satunya nilai.
 
-Seluruh perilaku di atas dikunci `tests/panel-nav-mobile.test.ts`.
+Perilaku panel itu sendiri tidak lagi dikunci tes: `tests/panel-nav-mobile.test.ts`
+ikut dihapus bersama `tests/navbar-beku.test.ts` dan `tests/header-ctas.test.ts`
+atas permintaan pemilik repo. Perilaku yang dijelaskan di atas masih bisa
+diperiksa manual di peramban pada lebar 390px.
 
 Catatan perubahan: versi sebelumnya bagian ini merekomendasikan atribut
 `inert` sebagai perbaikannya. Pendekatan itu sudah dicabut, karena pemilik repo
@@ -1175,12 +1207,11 @@ Yang **tidak** ada di daftar ini, karena sudah selesai atau sudah gugur:
 
 ## 5. Yang perlu diketahui sebelum lanjut
 
-- **Navbar dibekuan.** Jangan diubah tanpa diminta pemilik repo.
-  `tests/navbar-beku.test.ts` mengunci keadaan itu, dan sengaja gagal kalau
-  navbar disentuh. Pengecualiannya satu: panel off-canvas mobile, dengan
-  persetujuan pemilik repo, dan perbaikannya dijelaskan di 3.11. Perbaikan itu
-  sudah masuk `main`. Semua aturan barunya hanya ada di dalam
-  `@media (max-width: 1199.98px)`, jadi keadaan desktop tidak tersentuh.
+- **Navbar tidak lagi dibekukan.** Pembekuan dicabut pemilik repo 6 Oktober
+  2026, dan `tests/navbar-beku.test.ts` dihapus. Navbar sekarang memakai tangga
+  lebar yang dijelaskan di 3.7: satu baris penuh di `1520px` ke atas, satu baris
+  kompak di `1360-1519px`, dua baris di `1200-1359px`, dan hamburger + panel
+  off-canvas di bawah `1200px`. Angka pengukurannya ada di `AGENTS.md`.
 - **`collectSitemapPaths()` di `src/lib/sitemap.ts` adalah sumber sitemap.**
   Ia memindai folder `src/app` dari filesystem, jadi route baru ikut masuk
   begitu foldernya dibuat dan tidak bisa basi seperti daftar manual. Modul ini
@@ -1264,14 +1295,22 @@ dan yang tidak aktif diberi atribut `hidden`. Dua URL ganda, `/laboratorium` dan
 tidak pernah ditautkan; keduanya sekarang dihapus, jadi isinya tidak lagi
 diminta dua kali oleh mesin pencari.
 
-Catatan terbuka untuk butir 10: enam route admin lainnya tidak meneruskan
-peran sama sekali. Lima di antaranya hanya membaca (`stats`, `tables`,
-`appointments-per-day`, `survey-by-unit`, dan `inbox/[kind]`), jadi risikonya
-kecil. Yang keenam, `inbox/[kind]/[id]`, menulis dan tidak punya pemeriksaan
-peran. Itu bukan alasan butir 10 gagal, karena butirnya bicara soal
-`front_office` dan `editor` sedangkan route inbox tidak menyentuh konten sama
-sekali. `records` punya dua lapis: route-nya meneruskan peran, dan `rolehanya()`
-dipanggil lagi di `src/server/admin/records.ts`.
+Catatan terbuka untuk butir 10: versi sebelumnya bagian ini menulis ada enam
+route admin yang tidak meneruskan peran sama sekali, termasuk `inbox/[kind]/[id]`
+yang menulis tanpa pemeriksaan. Itu sudah diperbaiki. Sekarang keempat belas
+route di `src/app/api/v1/admin` memanggil `requireSession()`, dan enam route yang
+menulis konten atau mengelola user memakai fungsi peran (`canEditContent` atau
+`canManageUsers`), bukan sekadar memeriksa sesi. `inbox/[kind]/[id]` tetap memakai
+`requireSession()` tanpa peran karena route itu hanya mengubah status pesan
+masuk, yang memang pekerjaan front office, dan tidak ada endpoint mana pun yang
+mengubah isi pesan.
+
+Kesemuanya dikunci `tests/peran-admin.test.ts`, termasuk urutannya: pemeriksaan
+sesi harus muncul sebelum `dbOrNull()`. Urutan itu penting karena `dbOrNull()`
+hanya membuka koneksi, jadi permintaan tanpa sesi tetap akan sampai ke kueri
+kalau pemeriksaannya diletakkan setelahnya. Jalur itu memang tidak terlihat
+selama pengujian dengan database kosong, karena `dbOrNull()` mengembalikan `null`
+di mode snapshot dan menutup jalur lebih dulu.
 
 ### Non-fungsional
 
