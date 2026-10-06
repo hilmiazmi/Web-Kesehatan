@@ -298,7 +298,13 @@ export const ARTICLES = [
   { slug: "kerja-sama-dengan-universitas", title: "Kerja Sama Dengan Universitas", date: "2026-06-24", excerpt: "Pendidikan dan penelitian bersama mitra universitas." },
 ];
 
-/** Penghargaan & akreditasi (section 7). Placeholder generik. */
+/**
+ * Penghargaan & akreditasi (section 7). Nama generik karangan sendiri.
+ *
+ * Jumlahnya 22, sama seperti situs referensi. Situs referensi memakai logo
+ * dan foto piagam asli yang tidak boleh disalin (PRD bagian 12), jadi di sini
+ * hanya judul generik dengan gambar pola acak dari picsum.
+ */
 export const AWARDS = [
   "Penghargaan Beta Template 2026",
   "Akreditasi Rumah Sakit 2025",
@@ -307,6 +313,21 @@ export const AWARDS = [
   "Sertifikat Akreditasi Utama 2024",
   "Penghargaan Pelayanan Terbaik 2024",
   "Sertifikat ISO 9001 2024",
+  "Penghargaan Pelayanan Prima 2025",
+  "Sertifikat Akreditasi Paripurna 2024",
+  "Penghargaan Inovasi Pelayanan 2025",
+  "Penghargaan Keselamatan Pasien 2024",
+  "Sertifikat Manajemen Mutu 2024",
+  "Penghargaan Kebersihan Lingkungan 2025",
+  "Penghargaan Kepuasan Pasien 2024",
+  "Sertifikat Pelayanan Unggul 2025",
+  "Penghargaan Tertib Administrasi 2024",
+  "Penghargaan Gawat Darurat Siaga 2025",
+  "Sertifikat Layanan Ibu dan Anak 2024",
+  "Penghargaan Keterbukaan Informasi 2024",
+  "Sertifikat Pencegahan Infeksi 2025",
+  "Penghargaan Pengabdian Masyarakat 2024",
+  "Penghargaan Rumah Sakit Bersih 2025",
 ];
 
 /** Galeri (section 8). Placeholder. */
@@ -396,18 +417,49 @@ export const TESTIMONIALS = [
   },
 ];
 
-/** Mitra asuransi (section 12). Nama generik, bukan logo/asuransi nyata. */
+/**
+ * Mitra asuransi (section 12). Nama generik karangan sendiri, bukan
+ * perusahaan asuransi nyata.
+ *
+ * Jumlahnya 19, sama seperti situs referensi. Situs referensi memakai logo
+ * perusahaan asli yang tidak boleh disalin (PRD bagian 12), jadi di sini
+ * hanya nama generik dengan ikon perisai.
+ */
 export const INSURANCES = [
   "Asuransi Alfa",
   "Asuransi Beta",
   "Asuransi Cakra",
   "Asuransi Delta",
+  "Asuransi Eka",
+  "Asuransi Wira",
+  "Asuransi Surya",
+  "Asuransi Bayu",
+  "Asuransi Candra",
+  "Asuransi Fajar",
+  "Asuransi Gita",
+  "Asuransi Hasta",
+  "Asuransi Indah",
+  "Asuransi Jaya",
+  "Asuransi Kirana",
+  "Asuransi Lestari",
+  "Asuransi Mega",
+  "Asuransi Nusa",
+  "Asuransi Prima",
 ];
 
-/** 3 tombol pendaftaran (section 9). */
+/**
+ * 3 kanal pendaftaran (section 9).
+ *
+ * Situs referensi menautkan ketiganya ke luar (toko aplikasi dan sistem
+ * antrean daring milik mereka). Tautan luar itu tidak disalin karena
+ * identitas situs ini fiktif (PRD bagian 12): menautkan identitas fiktif ke
+ * aplikasi resmi milik instansi nyata akan menyesatkan. Ketiganya mengarah
+ * ke halaman Daftar Online situs ini, yang memang muara seluruh alur
+ * pendaftaran.
+ */
 export const REGISTRATION_OPTIONS = [
-  { title: "JAKSEHAT", description: "Aplikasi Jaminan Kesehatan", icon: "bi-phone", href: "#" },
-  { title: "JKN", description: "Jaminan Kesehatan Nasional", icon: "bi-shield-check", href: "#" },
+  { title: "JAKSEHAT", description: "Aplikasi Jaminan Kesehatan", icon: "bi-phone", href: "/daftar-online" },
+  { title: "JKN", description: "Jaminan Kesehatan Nasional", icon: "bi-shield-check", href: "/daftar-online" },
   { title: "E-Pasien", description: "RSUD Contoh Sehat", icon: "bi-hospital", href: "/daftar-online" },
 ];
 

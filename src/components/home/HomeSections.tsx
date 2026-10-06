@@ -14,33 +14,28 @@ import { TESTIMONIAL_PHOTOS, photo } from "@/data/images";
 export function RegistrationSection() {
   return (
     <section id="pendaftaran" className="pendaftaran section">
-      <div className="container section-title pb-4">
+      {/* Situs referensi tidak memakai sub-judul di section ini
+          (`section-title pb-0` hanya berisi h2). */}
+      <div className="container section-title pb-0">
         <h2>Pendaftaran</h2>
-        <p>&quot;Pilih cara mendaftar yang sesuai dengan kebutuhan Anda&quot;</p>
       </div>
 
       <div className="container">
         <div className="row gy-4 gx-4">
-          {REGISTRATION_OPTIONS.map((o) => {
-            const inner = (
-              <>
+          {/* Ketiga kanal menaut ke halaman Daftar Online (lihat
+              REGISTRATION_OPTIONS): tidak ada lagi kartu mati berbentuk span. */}
+          {REGISTRATION_OPTIONS.map((o) => (
+            <div className="col-md-4" key={o.title}>
+              <Link
+                href={o.href}
+                className="registrasi-card text-decoration-none"
+              >
                 <i className={`bi ${o.icon}`} aria-hidden="true" />
                 <h3 className="registrasi-title">{o.title}</h3>
                 <p className="registrasi-desc">{o.description}</p>
-              </>
-            );
-            return (
-              <div className="col-md-4" key={o.title}>
-                {o.href.startsWith("/") ? (
-                  <Link href={o.href} className="registrasi-card text-decoration-none">
-                    {inner}
-                  </Link>
-                ) : (
-                  <span className="registrasi-card">{inner}</span>
-                )}
-              </div>
-            );
-          })}
+              </Link>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -57,9 +52,8 @@ export function RegistrationSection() {
 export function SocialMediaSection() {
   return (
     <section id="sosial-media" className="about section light-background">
-      <div className="container section-title pb-4">
+      <div className="container section-title pb-0">
         <h2>Sosial Media</h2>
-        <p>&quot;Ikuti kanal resmi kami untuk informasi terbaru&quot;</p>
       </div>
 
       <div className="container">
@@ -95,14 +89,18 @@ export function TestimonialsSection() {
     <section id="testimoni" className="testimonials section">
       <div className="container">
         <div className="row align-items-center gy-4">
-          <div className="col-lg-4">
+          {/* Pembagian kolom 5/7 mengikuti situs referensi (col-lg-5 info,
+              col-lg-7 slider). Judulnya tetap h2, bukan h3 seperti di situs
+              asal, supaya outline heading halaman tetap berurutan untuk
+              pembaca layar. */}
+          <div className="col-lg-5">
             <h2 className="testimonials-title">Patient Experience</h2>
             <p className="testimonials-sub">
               Cerita penuh inspirasi dari mereka yang telah mempercayai kami
             </p>
           </div>
 
-          <div className="col-lg-8">
+          <div className="col-lg-7">
             <CardCarousel
               label="Testimoni pasien"
               className="testimonial-carousel"
@@ -147,9 +145,8 @@ export function TestimonialsSection() {
 export function InsuranceSection() {
   return (
     <section id="asuransi" className="asuransi section light-background">
-      <div className="container section-title pb-4">
+      <div className="container section-title pb-0">
         <h2>Asuransi</h2>
-        <p>&quot;Mitra asuransi yang kami layani&quot;</p>
       </div>
 
       <CardCarousel label="Mitra asuransi yang dilayani">
@@ -177,9 +174,8 @@ export function InsuranceSection() {
 export function FaqSection() {
   return (
     <section id="faq" className="faq section light-background">
-      <div className="container section-title pb-4">
+      <div className="container section-title pb-0">
         <h2>Frequently Asked Questions</h2>
-        <p>&quot;Pertanyaan yang sering diajukan&quot;</p>
       </div>
 
       <div className="container">
