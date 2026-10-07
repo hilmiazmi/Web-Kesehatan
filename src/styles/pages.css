@@ -1083,3 +1083,159 @@ a.halaman-kartu-ringkas:focus-visible .halaman-kartu-panah {
   color: var(--rs-text-nav);
   padding-bottom: 0.75rem;
 }
+
+/* ---------- Pemilih tanggal pendaftaran ----------
+ *
+ * Input `type="date"` bawaan peramban tidak dipakai karena formatnya
+ * mengikuti bahasa peramban (`mm/dd/yyyy` di mesin berbahasa Inggris) dan
+ * tidak bisa membatasi tanggal. Komponennya ada di
+ * `src/components/ui/DatePicker.tsx`.
+ */
+.tanggal-pilih {
+  position: relative;
+}
+
+/* Kotak yang ditampilkan di atas kalender. */
+.tanggal-pilih-kotak {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--rs-gray-300);
+  border-radius: var(--rs-radius-btn);
+  background-color: var(--rs-white);
+  color: var(--rs-text-body);
+  font-size: 1rem;
+  text-align: left;
+}
+
+.tanggal-pilih-kotak:focus-visible {
+  outline: 3px solid rgba(var(--rs-accent-rgb), 0.4);
+  outline-offset: 1px;
+  border-color: var(--rs-accent);
+}
+
+.tanggal-pilih-label {
+  font-weight: 500;
+}
+
+.tanggal-kalender {
+  margin-top: 0.6rem;
+  padding: 0.85rem;
+  border: 1px solid var(--rs-gray-300);
+  border-radius: var(--rs-radius-card);
+  background-color: var(--rs-white);
+}
+
+.tanggal-kalender-kepala {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+}
+
+.tanggal-kalender-judul {
+  font-weight: 600;
+  color: var(--rs-text-card-title);
+}
+
+.tanggal-kalender-nav {
+  border: 0;
+  background: transparent;
+  color: var(--rs-accent);
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--rs-radius-btn);
+}
+
+.tanggal-kalender-nav:disabled {
+  color: var(--rs-gray-400);
+  cursor: not-allowed;
+}
+
+.tanggal-kalender-hari,
+.tanggal-kalender-kisi {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.2rem;
+}
+
+.tanggal-kalender-kepala-hari {
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--rs-text-card-desc);
+  padding-bottom: 0.35rem;
+}
+
+.tanggal-kalender-sel {
+  aspect-ratio: 1 / 1;
+  border: 1px solid transparent;
+  border-radius: var(--rs-radius-btn);
+  background: transparent;
+  font-size: 0.85rem;
+  color: var(--rs-text-body);
+}
+
+/* Tanggal di luar bulan ini tetap terlihat supaya posisi tanggal tidak
+ * bergeser, tapi tidak bisa dipilih. */
+.tanggal-kalender-sel.di-luar-bulan {
+  color: var(--rs-gray-400);
+}
+
+/* Hari praktik dokter boleh dipilih, berwarna aksen. */
+.tanggal-kalender-sel:not(.tidak-bisa):not(.di-luar-bulan) {
+  border-color: var(--rs-accent);
+  color: var(--rs-accent);
+  font-weight: 600;
+}
+
+.tanggal-kalender-sel.dipilih {
+  background-color: var(--rs-accent);
+  border-color: var(--rs-accent);
+  color: var(--rs-white);
+}
+
+.tanggal-kalender-sel:not(.tidak-bisa):hover,
+.tanggal-kalender-sel:not(.tidak-bisa):focus-visible {
+  background-color: rgba(var(--rs-accent-rgb), 0.12);
+}
+
+.tanggal-kalender-sel.dipilih:hover {
+  background-color: var(--rs-accent);
+}
+
+.tanggal-kalender-keterangan {
+  margin: 0.7rem 0 0;
+  font-size: 0.78rem;
+  color: var(--rs-text-card-desc);
+}
+
+/* Konteks yang dibawa dari halaman asal ke formulir pendaftaran. */
+.form-konteks {
+  margin: 0 0 1.1rem;
+  padding: 0.7rem 0.9rem;
+  border-left: 3px solid var(--rs-accent);
+  background-color: rgba(var(--rs-accent-rgb), 0.06);
+  border-radius: 0 var(--rs-radius-btn) var(--rs-radius-btn) 0;
+  font-size: 0.9rem;
+  color: var(--rs-text-body);
+}
+
+/* Pemberitahuan paket MCU yang dipilih di halaman sebelumnya. */
+.form-alert {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-bottom: 1.1rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--rs-accent);
+  border-radius: var(--rs-radius-btn);
+  background-color: rgba(var(--rs-accent-rgb), 0.08);
+}
+
+.form-alert span {
+  font-size: 0.88rem;
+  color: var(--rs-text-body);
+}

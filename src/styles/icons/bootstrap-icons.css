@@ -1,6 +1,6 @@
 /* DIHASILKAN OLEH scripts/subset-ikon.ts. Jangan disunting manual. */
 /* Sumber: node_modules/bootstrap-icons/font/bootstrap-icons.css */
-/* Isi 74 ikon yang dipakai dari 2078 yang tersedia. */
+/* Isi 75 ikon yang dipakai dari 2078 yang tersedia. */
 
 @font-face {
   font-display: block;
@@ -39,6 +39,7 @@
 .bi-calendar-event::before { content: "\f1e8"; }
 .bi-calendar-plus::before { content: "\f1ef"; }
 .bi-calendar-week::before { content: "\f1f3"; }
+.bi-calendar3::before { content: "\f214"; }
 .bi-camera-video::before { content: "\f21f"; }
 .bi-cash-coin::before { content: "\f632"; }
 .bi-chat-square-text::before { content: "\f264"; }

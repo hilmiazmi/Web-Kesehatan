@@ -1,7 +1,11 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useSearchParams } from "next/navigation";
 import type { SweetAlertOptions } from "sweetalert2";
+import DatePicker from "@/components/ui/DatePicker";
+import { MCU_HOLIDAY_PACKAGES, MCU_PACKAGES } from "@/data/home";
+import { hariPraktik, isoHariIni } from "@/lib/jadwal";
 
 /**
  * Tampilkan dialog SweetAlert2.
@@ -315,7 +319,42 @@ async function ambilJson<T>(url: string): Promise<T> {
 }
 
 export default function RegistrationForm() {
-  const [values, setValues] = useState<Fields>(INITIAL);
+  /**
+   * Konteks yang dibawa dari halaman asal lewat query string.
+   *
+   * Halaman unit rawat jalan dan paket MCU mengirim `?spesialis=` atau
+   * `?paket=`, widget beranda mengirim `?dokter=` dan `?tanggal=`. Tanpa
+   * pembacaan di sini semua parameter itu masuk ke halaman lalu diabaikan,
+   * dan orang yang sudah memilihrie harus mengulang pilihannya.
+   *
+   * Dibaca sekali pada render pertama lewat `useState` dengan fungsi
+   * inisialisasi, bukan di dalam `useEffect`, supaya tidak ada render kedua
+   * yang memantulkan form kosong sebelum query terbaca.
+   */
+  const query = useSearchParams();
+  const [awal] = useState(() => {
+    const hariIni = isoHariIni();
+    const tanggal = query.get("tanggal");
+    return {
+      dokter: query.get("dokter") ?? "",
+      tanggal: tanggal !== null && tanggal >= hariIni ? tanggal : "",
+      spesialitas: query.get("spesialis") ?? "",
+      paket: query.get("paket") ?? "",
+    };
+  });
+
+  const paketDipilih = useMemo(
+    () =>
+      [...MCU_PACKAGES, ...MCU_HOLIDAY_PACKAGES].find((p) => p.slug === awal.paket) ??
+      null,
+    [awal.paket],
+  );
+
+  const [values, setValues] = useState<Fields>({
+    ...INITIAL,
+    dokter: awal.dokter,
+    tanggal: awal.tanggal,
+  });
   const [errors, setErrors] = useState<Partial<Record<keyof Fields, string>>>({});
   const [dokter, setDokter] = useState<Muat<Dokter[]>>({
     kunci: "",
@@ -323,6 +362,11 @@ export default function RegistrationForm() {
     data: [],
   });
   const [slot, setSlot] = useState<Muat<Slot[]>>({ kunci: "", status: "memuat", data: [] });
+  /** Jadwal mingguan dokter terpilih, dipakai untuk mengaktifkan kalender. */
+  const [praktik, setPraktik] = useState<{ dokter: string; hari: number[] }>({
+    dokter: "",
+    hari: [],
+  });
   const [kirim, setKirim] = useState(false);
 
   // Daftar dokter tidak bergantung pada pilihan lain, jadi dibaca sekali.
@@ -367,6 +411,45 @@ export default function RegistrationForm() {
       hidup = false;
     };
   }, [idDokter, hariKunjungan, kunciSlot]);
+
+  /**
+   * Jadwal mingguan dokter terpilih.
+   *
+   * Endpoint `/doctors/<id>/schedules` mengembalikan seluruh jadwal
+   * mingguan, bukan hanya satu tanggal, dan itulah yang dibutuhkan kalender:
+   * hanya hari yang ada di daftar itu yang boleh diklik. Tanpa ini pengguna
+   * bisa memilih tanggal yang memang tidak ada praktiknya dan baru tahu
+   * setelah mengisi separuh formulir.
+   */
+  useEffect(() => {
+    if (idDokter === "") return;
+
+    let hidup = true;
+    ambilJson<{ day_of_week: number }[]>(`/api/v1/doctors/${idDokter}/schedules`)
+      .then((data) => {
+        if (hidup) setPraktik({ dokter: idDokter, hari: hariPraktik(data.map((s) => s.day_of_week)) });
+      })
+      .catch(() => {
+        // Kalender tetap boleh semua hari kalau jadwalnya gagal dibaca; yang
+        // salahnya penanda di bawah slot, bukan tidak bisa memilih tanggal.
+        if (hidup) setPraktik({ dokter: idDokter, hari: [] });
+      });
+
+    return () => {
+      hidup = false;
+    };
+  }, [idDokter]);
+
+  /**
+   * Hari yang boleh diklik di kalender.
+   *
+   * Diturunkan, bukan disimpan: `praktik` dibaca Effect yang berjalan
+   * sesudah render pertama, jadi dokter yang baru dipilih masih punya
+   * jadwal dokter sebelumnya. Membandingkan kunci dokter membuat kalender
+   * kembali kosong daripada memakai jadwal yang salah.
+   */
+  const hariBoleh =
+    values.dokter !== "" && praktik.dokter === values.dokter ? praktik.hari : [];
 
   const set = <K extends keyof Fields>(key: K, value: Fields[K]) => {
     setValues((prev) => ({ ...prev, [key]: value }));
@@ -451,6 +534,28 @@ export default function RegistrationForm() {
     }
   }
 
+  /**
+   * Daftar dokter dikelompok per spesialitas, terurut nama spesialisasinya.
+   *
+   * Dulu semua dokter ditumpuk dalam satu `<select>`. Dengan 54 dokter
+   * itu daftar jadi panjang tanpa judul, dan membaca "dr. Sp.N Bagus Prakoso
+   * — Saraf dan Otak" di antara dua dozen nama lain butuh waktu lama.
+   * `<optgroup>` memunculkan judul spesialitas sebagai baris sendiri.
+   *
+   * Dokter tanpa spesialitas dikumpulkan di satu kelompok terakhir supaya
+   * tidak ada yang tersesat ke grup pertama.
+   */
+  const kelompokDokter = useMemo(() => {
+    const peta = new Map<string, Dokter[]>();
+    for (const d of dokter.data) {
+      const kunci = d.specialty && d.specialty.trim() !== "" ? d.specialty : "Lainnya";
+      const isi = peta.get(kunci);
+      if (isi) isi.push(d);
+      else peta.set(kunci, [d]);
+    }
+    return [...peta.entries()].sort(([a], [b]) => a.localeCompare(b, "id"));
+  }, [dokter.data]);
+
   const err = (k: keyof Fields) =>
     errors[k] ? (
       <div className="invalid-feedback d-block" id={`err-${k}`}>
@@ -460,6 +565,25 @@ export default function RegistrationForm() {
 
   return (
     <form onSubmit={handleSubmit} noValidate>
+      {paketDipilih ? (
+        <div className="form-alert" role="status">
+          <strong>{paketDipilih.title}</strong>
+          <span>
+            Paket ini dipilih di halaman MCU. Daftar di bawah untuk kunjungan rawat
+            jalan per dokter; bila yang ingin didaftarkan adalah pemeriksaan
+            paket, sebutkan nama paketnya saat datang ke loket.
+          </span>
+        </div>
+      ) : null}
+
+      {awal.spesialitas ? (
+        <p className="form-konteks" role="status">
+          Anda datang dari halaman layanan <strong>{awal.spesialitas}</strong>.
+          Daftar di bawah sudah dipisah menurut spesialitas, jadi dokter yang
+          dicari bisa ditemukan lebih cepat.
+        </p>
+      ) : null}
+
       <div className="row g-3">
         <div className="col-md-6">
           <label className="form-label" htmlFor="dokter">
@@ -482,34 +606,33 @@ export default function RegistrationForm() {
                   ? "Daftar dokter gagal dimuat"
                   : "Pilih Dokter"}
             </option>
-            {dokter.data.map((d) => (
-              <option key={d.id} value={d.id}>
-                {labelDokter(d)}
-              </option>
+            {/* Daftar dokter dikelompok per spesialitas lewat `optgroup`. */}
+            {kelompokDokter.map(([spesialitas, isi]) => (
+              <optgroup key={spesialitas} label={spesialitas}>
+                {isi.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {labelDokter(d)}
+                  </option>
+                ))}
+              </optgroup>
             ))}
           </select>
           {err("dokter")}
         </div>
 
         <div className="col-md-6">
-          <label className="form-label" htmlFor="tanggal">
+          <label className="form-label" htmlFor="tanggal-kotak">
             Tanggal Rencana
           </label>
-          <input
-            id="tanggal"
-            name="tanggal"
-            type="date"
-            min={tanggalHariIni()}
-            className={`form-control${errors.tanggal ? " is-invalid" : ""}`}
-            value={values.tanggal}
-            onChange={(e) => {
+          <DatePicker
+            nilai={values.tanggal}
+            hariBoleh={hariBoleh}
+            onUbah={(iso) => {
               // Slot milik tanggal lama tidak berlaku lagi, jadi ikut
               // dikosongkan supaya tidak pernah terkirim ke server.
-              setValues((prev) => ({ ...prev, tanggal: e.target.value, slot: "" }));
+              setValues((prev) => ({ ...prev, tanggal: iso, slot: "" }));
               setErrors((prev) => ({ ...prev, tanggal: undefined, slot: undefined }));
             }}
-            aria-describedby={errors.tanggal ? "err-tanggal" : undefined}
-            required
           />
           {err("tanggal")}
         </div>
@@ -597,7 +720,10 @@ export default function RegistrationForm() {
             type="tel"
             className={`form-control${errors.telepon ? " is-invalid" : ""}`}
             value={values.telepon}
-            onChange={(e) => set("telepon", e.target.value)}
+            onChange={(e) => set("telepon", e.target.value.replace(/[^\d+]/g, ""))}
+            pattern="[0-9+]*"
+            maxLength={15}
+            placeholder="08123456789"
             aria-describedby={errors.telepon ? "err-telepon" : undefined}
             required
           />
