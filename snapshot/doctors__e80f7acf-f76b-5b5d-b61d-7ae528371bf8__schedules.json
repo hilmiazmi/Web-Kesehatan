@@ -1,0 +1,26 @@
+[
+ {
+  "id": "8ede5dc7-ec1d-544f-91e9-d95eb2bfb910",
+  "doctor_id": "e80f7acf-f76b-5b5d-b61d-7ae528371bf8",
+  "doctor_name": "Zaki Maulana",
+  "polyclinic": "Poliklinik Umum",
+  "day_of_week": 2,
+  "start_time": "09:00:00",
+  "end_time": "13:00:00",
+  "room": "A1-01",
+  "quota": 40,
+  "note": null
+ },
+ {
+  "id": "092fbdb5-154a-567f-ab18-03f35c5216ad",
+  "doctor_id": "e80f7acf-f76b-5b5d-b61d-7ae528371bf8",
+  "doctor_name": "Zaki Maulana",
+  "polyclinic": "Poliklinik Umum",
+  "day_of_week": 5,
+  "start_time": "09:00:00",
+  "end_time": "12:00:00",
+  "room": "A1-01",
+  "quota": 40,
+  "note": null
+ }
+]

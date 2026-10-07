@@ -1,0 +1,26 @@
+[
+ {
+  "id": "9c95796f-2409-55be-a6f2-767d954cbf6e",
+  "doctor_id": "85673466-eb75-51fe-936e-c5a007a00c4f",
+  "doctor_name": "Oktavia Sari",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 2,
+  "start_time": "09:00:00",
+  "end_time": "13:00:00",
+  "room": "B3-03",
+  "quota": 40,
+  "note": null
+ },
+ {
+  "id": "5cc982c0-cae5-52a3-a11e-591100fc5177",
+  "doctor_id": "85673466-eb75-51fe-936e-c5a007a00c4f",
+  "doctor_name": "Oktavia Sari",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 5,
+  "start_time": "09:00:00",
+  "end_time": "12:00:00",
+  "room": "B3-03",
+  "quota": 40,
+  "note": null
+ }
+]

@@ -1,0 +1,14 @@
+[
+ {
+  "id": "2cf421ed-1f75-5169-a66c-90ecffd05f53",
+  "doctor_id": "8f70a2fa-eb96-50e7-a88f-c2c7df1326ae",
+  "doctor_name": "Bunga Lestari",
+  "polyclinic": "Poliklinik Ibu dan Anak",
+  "day_of_week": 3,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "B3-03",
+  "quota": 50,
+  "note": null
+ }
+]

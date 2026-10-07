@@ -1,0 +1,14 @@
+[
+ {
+  "id": "c10081b3-9378-52e1-a46f-678474312169",
+  "doctor_id": "81f9468a-414d-5a7b-b619-6fc8de2176a6",
+  "doctor_name": "Qori Amelia",
+  "polyclinic": "Instalasi Gawat Darurat",
+  "day_of_week": 5,
+  "start_time": "08:00:00",
+  "end_time": "11:00:00",
+  "room": "B2-01",
+  "quota": 50,
+  "note": null
+ }
+]

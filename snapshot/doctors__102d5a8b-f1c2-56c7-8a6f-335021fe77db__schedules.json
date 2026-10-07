@@ -1,0 +1,14 @@
+[
+ {
+  "id": "ccd9f623-d6d8-54dd-bb2a-7c36c39b2100",
+  "doctor_id": "102d5a8b-f1c2-56c7-8a6f-335021fe77db",
+  "doctor_name": "Citra Lestari",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 2,
+  "start_time": "09:00:00",
+  "end_time": "13:00:00",
+  "room": "B2-02",
+  "quota": 50,
+  "note": null
+ }
+]

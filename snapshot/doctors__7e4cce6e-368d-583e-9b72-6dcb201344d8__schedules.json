@@ -1,0 +1,14 @@
+[
+ {
+  "id": "1808a6a0-9c4d-5ed0-b933-c675fda519e0",
+  "doctor_id": "7e4cce6e-368d-583e-9b72-6dcb201344d8",
+  "doctor_name": "Wahyu Setiawan",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 5,
+  "start_time": "08:00:00",
+  "end_time": "11:00:00",
+  "room": "D1-08",
+  "quota": 50,
+  "note": null
+ }
+]

@@ -1,0 +1,26 @@
+[
+ {
+  "id": "3a3c6ba2-a21e-5aa9-b983-227f0a8a3ac8",
+  "doctor_id": "c2524031-8b91-5da0-a92b-802a6db31ac9",
+  "doctor_name": "Anisa Rahma",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 1,
+  "start_time": "10:00:00",
+  "end_time": "14:00:00",
+  "room": "A1-02",
+  "quota": 40,
+  "note": null
+ },
+ {
+  "id": "29748073-1cf0-58bb-a74f-8effaa28b739",
+  "doctor_id": "c2524031-8b91-5da0-a92b-802a6db31ac9",
+  "doctor_name": "Anisa Rahma",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 3,
+  "start_time": "10:00:00",
+  "end_time": "14:00:00",
+  "room": "A1-02",
+  "quota": 40,
+  "note": null
+ }
+]

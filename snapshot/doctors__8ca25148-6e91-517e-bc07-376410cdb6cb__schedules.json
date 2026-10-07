@@ -1,0 +1,14 @@
+[
+ {
+  "id": "3e2ace80-2bd6-5f66-bdbd-4caf0f112cd1",
+  "doctor_id": "8ca25148-6e91-517e-bc07-376410cdb6cb",
+  "doctor_name": "Mega Sari",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 2,
+  "start_time": "09:00:00",
+  "end_time": "13:00:00",
+  "room": "D2-09",
+  "quota": 50,
+  "note": null
+ }
+]

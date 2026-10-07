@@ -1,0 +1,26 @@
+[
+ {
+  "id": "41f4dc0c-36d9-5e29-87d6-41081ecb08c7",
+  "doctor_id": "92e62810-c94e-5113-aa93-4286b6941cd3",
+  "doctor_name": "Eko Purnomo",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 1,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "C1-05",
+  "quota": 40,
+  "note": null
+ },
+ {
+  "id": "8b3d4f5b-afe9-5b51-9d5b-f659b9b8ebcd",
+  "doctor_id": "92e62810-c94e-5113-aa93-4286b6941cd3",
+  "doctor_name": "Eko Purnomo",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 4,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "C1-05",
+  "quota": 40,
+  "note": null
+ }
+]

@@ -853,6 +853,43 @@ a.halaman-kartu:focus-visible {
   line-height: 1.6;
 }
 
+/*
+ * Kartu ringkas untuk daftar anak halaman.
+ *
+ * Kartu biasa punya tiga baris: ikon, judul, lalu penjelasan. Daftar anak
+ * halaman tidak punya penjelasan, dan memaksakan baris kosong membuat kartu
+ * terlihat rusak. Bentuk ini karena itu hanya judul dan panah, dengan tinggi
+ * rata supaya barisnya forming rapi.
+ */
+.halaman-kartu-ringkas {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 0;
+  padding: 0.9rem 1.15rem;
+}
+
+.halaman-kartu-panah {
+  flex-shrink: 0;
+  font-size: 0.95rem;
+  color: var(--rs-accent);
+  transition: transform 0.2s ease;
+}
+
+/* Jam praktik dicetak kecil di bawah deskripsi kartu klinik. */
+.halaman-kartu-jam {
+  margin-top: auto;
+  padding-top: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--rs-text-card-desc);
+}
+
+a.halaman-kartu-ringkas:hover .halaman-kartu-panah,
+a.halaman-kartu-ringkas:focus-visible .halaman-kartu-panah {
+  transform: translateX(3px);
+}
+
 .halaman-galeri {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));

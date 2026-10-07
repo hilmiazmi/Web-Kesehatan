@@ -1,0 +1,26 @@
+[
+ {
+  "id": "71a1d189-cffc-5a7a-87db-33202df319d5",
+  "doctor_id": "8d10dace-4af3-553d-8464-f2d692a29fcd",
+  "doctor_name": "Sari Wulandari",
+  "polyclinic": "Instalasi Gawat Darurat",
+  "day_of_week": 1,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "B2-02",
+  "quota": 40,
+  "note": null
+ },
+ {
+  "id": "9f5a30ce-301a-5ee4-ba80-9077cac897ef",
+  "doctor_id": "8d10dace-4af3-553d-8464-f2d692a29fcd",
+  "doctor_name": "Sari Wulandari",
+  "polyclinic": "Instalasi Gawat Darurat",
+  "day_of_week": 4,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "B2-02",
+  "quota": 40,
+  "note": null
+ }
+]

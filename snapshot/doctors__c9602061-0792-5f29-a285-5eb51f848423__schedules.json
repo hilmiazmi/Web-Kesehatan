@@ -1,0 +1,26 @@
+[
+ {
+  "id": "be0539c8-73be-51af-94bf-364fb75e7566",
+  "doctor_id": "c9602061-0792-5f29-a285-5eb51f848423",
+  "doctor_name": "Panji Nugroho",
+  "polyclinic": "Poliklinik Ibu dan Anak",
+  "day_of_week": 1,
+  "start_time": "10:00:00",
+  "end_time": "14:00:00",
+  "room": "B3-04",
+  "quota": 40,
+  "note": null
+ },
+ {
+  "id": "6d8b783d-5b8a-57b8-a3f4-5acb8f29312a",
+  "doctor_id": "c9602061-0792-5f29-a285-5eb51f848423",
+  "doctor_name": "Panji Nugroho",
+  "polyclinic": "Poliklinik Ibu dan Anak",
+  "day_of_week": 3,
+  "start_time": "10:00:00",
+  "end_time": "14:00:00",
+  "room": "B3-04",
+  "quota": 40,
+  "note": null
+ }
+]

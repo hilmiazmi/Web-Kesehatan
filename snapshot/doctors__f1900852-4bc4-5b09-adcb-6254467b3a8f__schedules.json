@@ -1,0 +1,14 @@
+[
+ {
+  "id": "76030c76-bd19-5999-9350-cae5b418e4aa",
+  "doctor_id": "f1900852-4bc4-5b09-adcb-6254467b3a8f",
+  "doctor_name": "Aditya Pranata",
+  "polyclinic": "Poliklinik Ibu dan Anak",
+  "day_of_week": 2,
+  "start_time": "09:00:00",
+  "end_time": "13:00:00",
+  "room": "B2-02",
+  "quota": 50,
+  "note": null
+ }
+]

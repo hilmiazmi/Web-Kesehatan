@@ -1,0 +1,14 @@
+[
+ {
+  "id": "f72cfa95-6d24-5ad5-9dc9-b8dc0c4919ba",
+  "doctor_id": "bf6baa83-8b46-55c9-a68a-b0ba6fdfe47d",
+  "doctor_name": "Maya Puspitasari",
+  "polyclinic": "Instalasi Gawat Darurat",
+  "day_of_week": 5,
+  "start_time": "08:00:00",
+  "end_time": "11:00:00",
+  "room": "B2-01",
+  "quota": 50,
+  "note": null
+ }
+]
