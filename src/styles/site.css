@@ -331,6 +331,21 @@
   transform: rotate(0deg);
 }
 
+/* Setiap butir menu menjadi acuan posisi bagi submenu-nya sendiri.
+ *
+ * Tanpa ini, submenu bersarang diposisikan relatif ke menu induknya (rata
+ * atas menu), bukan ke baris induknya — kursor harus menempuh diagonal
+ * panjang dari baris "MCU" naik ke submenu yang sejajar "Poliklinik".
+ * Dengan ini, submenu rata dengan baris yang membukanya dan terowongannya
+ * menjadi lompatan horizontal pendek, sama seperti situs acuan yang menulis
+ * `position: relative` pada setiap `.navmenu li`.
+ *
+ * Tidak berpengaruh ke mobile: submenu di sana `position: static`, jadi
+ * `top`/`left` tidak berlaku. */
+.navmenu li {
+  position: relative;
+}
+
 /* Submenu disembunyikan secara default, dibuka lewat hover di desktop. */
 .navmenu li > ul {
   list-style: none;
@@ -346,7 +361,15 @@
   top: 100%;
   left: 0;
   z-index: 1050;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  /* `visibility` ikut ditransisikan dengan jeda 0,3 detik, sama seperti situs
+     acuan (`transition: 0.3s`). Tanpa jeda ini, menu lenyap seketika saat
+     kursor keluar — gerakan diagonal sedikit saja dari baris induk ke
+     submenu langsung menutupnya, dan itulah keluhan "sulit menjangkau menu
+     selanjutnya". Dengan jeda, kursor yang terpeleset masih sempat masuk
+     kembali sebelum menu benar-benar hilang. Aturan buka di bawah
+     mengembalikan `transition-delay: 0s` supaya menu tidak ikut terlambat
+     muncul. */
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0.3s;
   transform: translateY(6px);
 }
 
@@ -354,6 +377,7 @@
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
+  transition-delay: 0s;
 }
 
 /* Submenu di dalam submenu muncul ke samping, bukan ke bawah. */
@@ -367,11 +391,21 @@
   transform: translateX(0);
 }
 
-/* Putuskan rantai hover supaya submenu tetap terbuka saat kursor bergerak ke
-  area submenu. Tanpa ini, submenu tertutup sebelum kursor sampai ke sana. */
+/* Submenu tetap terbuka saat kursor bergerak di dalam areanya. Tanpa ini,
+   submenu tertutup sebelum kursor sampai ke sana. `transition-delay: 0s`
+   mengikuti aturan buka di atas: tanpanya, masuk kembali ke menu yang sedang
+   memudar justru menunggu jeda tutup dulu. */
 .navmenu li > ul:hover {
   opacity: 1;
   visibility: visible;
+  transition-delay: 0s;
+}
+
+/* Submenu yang state-nya expanded (kelas .show dari Navbar, dipakai panel
+   mobile yang tidak punya hover). Penundanya ikut dinolkan supaya ketukan
+   membuka submenu seketika, bukan 0,3 detik kemudian. */
+.navmenu li > ul.show {
+  transition-delay: 0s;
 }
 
 .navmenu li > ul a {
@@ -570,9 +604,15 @@
     display: none;
   }
 
-  /* Submenu yang state-nya expanded (kelas .show dari Navbar). */
+  /* Submenu yang state-nya expanded (kelas .show dari Navbar). Opacity dan
+     visibility ditulis eksplisit supaya tidak bergantung pada :hover dari
+     ketukan (tap men-trigger :hover, tapi fokus keyboard tidak), dan
+     penundanya dinolkan supaya ketukan membuka seketika. */
   .navmenu li > ul.show {
     display: block;
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
   }
 
   .navmobile {
@@ -607,6 +647,51 @@
   .navmenu-close,
   .navmenu-backdrop {
     display: none;
+  }
+
+  /* Jembatan hover: pita tak terlihat yang menutup celah di sudut.
+   *
+   * Submenu memakai `border-radius: 25px`, dan sudut yang membulat
+   * meninggalkan piksel mati tepat di sambungan menu induk dan submenu.
+   * Kursor yang lewat sudut itu sesaat kehilangan hover dan — sebelum ada
+   * masa tenggang — langsung menutup menu. Pita ini memperlebar area hover
+   * 10px ke arah datangnya kursor (ke atas untuk menu turun, ke kiri untuk
+   * menu samping), jadi tidak ada satu piksel pun yang mematikan menu.
+   * Transparan dan di luar kotak menu, jadi tidak menutupi apa pun yang bisa
+   * diklik. Hanya desktop: di mobile submenu `position: static` dan aturan
+   * ini tidak ada artinya. */
+  .navmenu > ul > li > ul::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: 0;
+    right: 0;
+    height: 10px;
+  }
+
+  .navmenu li li > ul::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -10px;
+    width: 10px;
+  }
+
+  /* Keyboard: fokus membuka submenu seperti hover. Tanpa ini, pengguna Tab
+     tidak bisa membuka dropdown sama sekali — tautan submenu `visibility:
+     hidden` sehingga tidak masuk urutan Tab, dan tidak ada yang membukanya.
+     Dicakup ke desktop supaya logika accordion mobile (klik sebagai toggle
+     lewat state) tidak diganggu. */
+  .navmenu li:focus-within > ul {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    transition-delay: 0s;
+  }
+
+  .navmenu li:focus-within > ul ul {
+    transform: translateX(0);
   }
 
   /* ---------- Pita dua baris 1200-1359px ----------

@@ -193,6 +193,14 @@ bukan tebakan. Rinciannya ada di `docs/design-tokens-terverifikasi.md`.
 - Submenu navbar: hover di desktop dan tautan induk tetap dinavigasi; accordion
   di mobile. Percabangan ini lewat `isDesktopNav()` dengan batas `1200px` yang
   **harus sama** dengan media query `.navmenu` di `site.css`.
+  - Setiap `li` memakai `position: relative` supaya submenu bersarang sejajar
+    baris induknya, bukan rata atas menu. Tanpa ini kursor menempuh diagonal
+    panjang dan menu keburu tertutup.
+  - Menutup memakai masa tenggang `0,3 detik` (`visibility` ikut ditransisikan,
+    `transition-delay` dinolkan ulang di semua aturan buka). Gerakan diagonal
+    yang terpeleset masih sempat masuk kembali.
+  - Jembatan hover `::before` 10px menutup celah sudut membulat (`25px`).
+  - Keyboard: `:focus-within` membuka submenu seperti hover (khusus desktop).
 - **`validate()` di `registration-form.tsx` sengaja di-export** supaya aturan
   validasinya bisa diuji tanpa merender komponen. Jangan dibuat lokal lagi.
 - Form dan komponen lain tidak boleh memanggil `setState` di dalam `useEffect`;
