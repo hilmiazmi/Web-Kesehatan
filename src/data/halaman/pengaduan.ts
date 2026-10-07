@@ -9,7 +9,7 @@ export const PENGADUAN: Record<string, IsiHalaman> = {
       {
         jenis: "paragraf",
         teks:
-          "Pengaduan diterima setiap hari kerja, pukul 08.00 sampai 16.00.",
+          "Pengaduan diterima setiap hari kerja, pukul 08.00 sampai 16.00. Setiap pengaduan dicatat, diberi nomor, dan ditindaklanjuti sampai dinyatakan selesai oleh pelapor.",
       },
       { jenis: "sub", teks: "Alur pengaduan" },
       {
@@ -17,7 +17,7 @@ export const PENGADUAN: Record<string, IsiHalaman> = {
         butir: [
           "Mengirim pengaduan lewat salah satu kanal di bawah.",
           "Menyertakan nama, waktu, dan hal yang dikeluhkan.",
-          "Menunggu konfirmasi penerimaan pengaduan.",
+          "Menunggu konfirmasi penerimaan pengaduan beserta nomornya.",
           "Mengikuti perbaikan sampai pengaduan ditutup.",
         ],
       },
@@ -39,6 +39,11 @@ export const PENGADUAN: Record<string, IsiHalaman> = {
           ["Telepon", CONTACT.phone],
           ["Surel", CONTACT.email],
         ],
+      },
+      {
+        jenis: "catatan",
+        teks:
+          "Pengaduan yang memuat identitas jelas diprioritaskan karena bisa dikonfirmasi ulang. Pengaduan tanpa identitas tetap dibaca dan dipakai sebagai bahan evaluasi.",
       },
     ],
   },

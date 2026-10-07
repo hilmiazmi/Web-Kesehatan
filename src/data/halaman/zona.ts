@@ -8,7 +8,8 @@ export const ZONA: Record<string, IsiHalaman> = {
     blok: [
       {
         jenis: "paragraf",
-        teks: "Zona integritas adalah janji kerja yang bisa diuji.",
+        teks:
+          "Zona integritas adalah janji kerja yang bisa diuji. Rumah sakit menyatakan wilayah kerjanya bebas dari pungutan dan kepentingan pribadi, lalu membuka diri untuk dinilai.",
       },
       { jenis: "sub", teks: "Prinsip yang dijalankan" },
       {
@@ -21,6 +22,20 @@ export const ZONA: Record<string, IsiHalaman> = {
           "Data pasien tidak dibuka di luar kewajiban.",
         ],
       },
+      { jenis: "sub", teks: "Dua tahap pembangunan" },
+      {
+        jenis: "daftar-tebal",
+        butir: [
+          {
+            tebal: "Menuju bebas korupsi.",
+            isi: "Seluruh pungutan dihapus, alur dibuat transparan, dan pengawasan diperketat.",
+          },
+          {
+            tebal: "Menuju birokrasi bersih.",
+            isi: "Pelayanan diperbaiki terus sampai kepuasan masyarakat terukur naik.",
+          },
+        ],
+      },
       { jenis: "tautan-anak", judul: "Halaman di bagian ini" },
     ],
   },
@@ -30,7 +45,8 @@ export const ZONA: Record<string, IsiHalaman> = {
     blok: [
       {
         jenis: "paragraf",
-        teks: "Nama pelapor tidak perlu dipublikasikan.",
+        teks:
+          "Nama pelapor tidak perlu dipublikasikan. Sistem ini dibuat supaya pegawai maupun masyarakat berani melapor tanpa takut dikenali.",
       },
       { jenis: "sub", teks: "Alur pelaporan" },
       {
@@ -49,6 +65,11 @@ export const ZONA: Record<string, IsiHalaman> = {
           ["Telepon", CONTACT.phone],
           ["Surel", CONTACT.email],
         ],
+      },
+      {
+        jenis: "catatan",
+        teks:
+          "Laporan yang baik menyebut kapan, di mana, siapa yang terlibat, dan apa buktinya. Semakin lengkap, semakin cepat diperiksa.",
       },
     ],
   },

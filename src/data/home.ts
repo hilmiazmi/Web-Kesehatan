@@ -66,34 +66,38 @@ export const PRIORITY_SERVICES = [
   {
     slug: "jantung-terpadu",
     title: "Jantung Terpadu",
-    description: "Pelayanan katerisasi jantung dan pemasangan ring",
+    description:
+      "Pelayanan katerisasi jantung dan pemasangan ring dalam satu alur, dari skrining sampai rehabilitasi. Pasien tidak dirujuk ke luar untuk tindakan utama.",
   },
   {
     slug: "kanker-terpadu",
     title: "Kanker Terpadu",
     description:
-      "Layanan radioterapi, pembedahan onkologi, bedah saraf, dan bedah onkologi",
+      "Layanan radioterapi, pembedahan onkologi, bedah saraf, dan bedah onkologi. Deteksi dini dibuka lewat poliklinik, terapi lanjutan dijadwalkan oleh tim yang sama.",
   },
   {
     slug: "medical-check-up",
     title: "Medical Check Up",
-    description: "Layanan pengecekan kesehatan secara komprehensif",
+    description:
+      "Layanan pengecekan kesehatan secara komprehensif, untuk perorangan maupun rombongan perusahaan. Hasilnya diserahkan tertulis beserta saran tindak lanjut.",
   },
   {
     slug: "stroke-terpadu",
     title: "Stroke Terpadu",
-    description: "Sistem penanganan stroke yang dilakukan secara cepat dan tepat",
+    description:
+      "Sistem penanganan stroke yang dilakukan secara cepat dan tepat, terutama pada jam-jam pertama. Pascaperawatan dilanjut fisioterapi sampai kontrol rutin.",
   },
   {
     slug: "uro-nefrologi",
     title: "Uro Nefrologi",
     description:
-      "Layanan medis yang berfokus untuk menangani penyakit pada sistem saluran kemih, ginjal, dan organ terkait",
+      "Layanan medis yang berfokus untuk menangani penyakit pada sistem saluran kemih, ginjal, dan organ terkait, termasuk tindakan tanpa pembedahan.",
   },
   {
     slug: "maternal-center",
     title: "Maternal Center",
-    description: "Pelayanan ibu dan anak terpadu",
+    description:
+      "Pelayanan ibu dan anak terpadu, dari pemeriksaan kehamilan sampai perawatan bayi baru lahir. Kelas ibu hamil dibuka berkala untuk calon orang tua.",
   },
 ];
 
@@ -106,7 +110,7 @@ export const FACILITIES = [
     slug: "instalasi-gawat-darurat",
     title: "Instalasi Gawat Darurat",
     description:
-    "RSUD Contoh Sehat berkomitmen memberikan pelayanan terbaik dalam situasi darurat",
+      "RSUD Contoh Sehat berkomitmen memberikan pelayanan terbaik dalam situasi darurat, buka 24 jam termasuk malam hari dan hari libur",
   },
   {
     slug: "rawat-jalan",
@@ -136,19 +140,19 @@ export const FACILITIES = [
     slug: "eswl",
     title: "ESWL (Extracorporeal Shock Wave Lithotripsy)",
     description:
-      "Layanan penghancuran batu kanal kemih menggunakan gelombang kejut tanpa pembedahan",
+      "Layanan penghancuran batu kanal kemih menggunakan gelombang kejut tanpa pembedahan, dilanjutkan pemeriksaan ulang dan perawatan pasca tindakan",
   },
   {
     slug: "mri",
     title: "MRI",
     description:
-      "Pencitraan resonansi magnetik resolusi tinggi untuk membantu diagnosis yang lebih akurat",
+      "Pencitraan resonansi magnetik resolusi tinggi untuk membantu diagnosis yang lebih akurat, untuk otak, tulang dan sendi, tulang belakang, serta perut",
   },
   {
     slug: "klinik-eksekutif",
     title: "Klinik Eksekutif",
     description:
-      "Layanan konsultasi cepat bagi pasien yang membutuhkan langsung bertemu dokter spesialis",
+      "Layanan konsultasi cepat bagi pasien yang membutuhkan langsung bertemu dokter spesialis, dengan jadwal lebih fleksibel dan ruang tunggu terpisah",
   },
 ];
 
@@ -375,12 +379,12 @@ export const FAQS = [
   {
     question: "Apakah saya bisa menggunakan asuransi swasta?",
     answer:
-      "Kami bekerja sama dengan berbagai perusahaan asuransi swasta. Anda dapat menghubungi bagian konfirmasi untuk memastikan procedur yang berlaku sebelum datang.",
+      "Kami bekerja sama dengan berbagai perusahaan asuransi swasta. Anda dapat menghubungi bagian konfirmasi untuk memastikan prosedur yang berlaku sebelum datang.",
   },
   {
-    question: "Bagaimana cara menyampaikan keluhan atau keluhan?",
+    question: "Bagaimana cara menyampaikan keluhan terhadap pelayanan?",
     answer:
-      "Anda dapat menyampaikan masukan melalui halaman Kritik dan Saran. Setiap masukan yang terkirim akan diberi kode tiket sehingga dapat ditindaklanjuti oleh tim.front office.",
+      "Anda dapat menyampaikan keluhan lewat halaman Pengaduan Masyarakat. Setiap keluhan yang terkirim akan diberi nomor tiket sehingga dapat ditindaklanjuti oleh tim bagian pelayanan.",
   },
   {
     question: "Di mana lokasi RSUD Contoh Sehat dan jam bukanya?",

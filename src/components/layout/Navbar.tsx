@@ -43,10 +43,24 @@ export default function Navbar() {
   // Tutup menu mobile setiap kali pindah halaman, kalau tidak menu tetap
   // terbuka di atas konten baru. Penyesuaian dilakukan saat render, bukan di
   // useEffect, supaya tidak memicu render berantai.
+  //
+  // Pada saat yang sama dropdown desktop ikut ditutup paksa lewat kelas
+  // `navigasi-baru`. Tanpa ini, `:hover` tidak hilang selama kursor diam di
+  // tempat: pengguna mengklik isi submenu, halaman di belakang berganti, tapi
+  // menunya tetap terbuka menutupi konten baru. Kelas itu menekan semua aturan
+  // buka (`:hover` dan `:has(:focus-visible)`) sampai kursor keluar dari nav
+  // atau fokus masuk kembali ke nav, lalu perilaku hover normal berlanjut.
+  //
+  // Kelas dipasang dari DUA tempat. Yang utama handler `onClick` setiap tautan
+  // (prop `onNavigasiMulai`): event handler selalu jalan saat tautan diklik,
+  // apa pun inputnya. Blok `pathname` di bawah cadangannya untuk navigasi yang
+  // tidak lewat klik — tombol back, address bar, atau navigasi programatik.
   const [lastPath, setLastPath] = useState(pathname);
+  const [navigasiBaru, setNavigasiBaru] = useState(false);
   if (pathname !== lastPath) {
     setLastPath(pathname);
     setMobileOpen(false);
+    setNavigasiBaru(true);
   }
 
   // Escape menutup panel, dan halaman berhenti bisa digulir selama panel
@@ -123,8 +137,16 @@ export default function Navbar() {
 
         <nav
           id="navmenu"
-          className={`navmenu ${mobileOpen ? "navmenu-open" : ""}`}
+          className={`navmenu ${mobileOpen ? "navmenu-open" : ""} ${navigasiBaru ? "navigasi-baru" : ""}`}
           aria-label="Navigasi utama"
+          // Penekanan buka paksa di atas berakhir begitu kursor keluar dari
+          // nav (pengguna selesai dengan menu yang baru diklik), masuk kembali
+          // ke nav (kursornya sudah di luar sejak menu menghilang di bawahnya,
+          // jadi tidak ada leave yang akan datang), atau fokus masuk kembali
+          // (pengguna keyboard mulai memakai menu lagi).
+          onPointerLeave={() => setNavigasiBaru(false)}
+          onPointerEnter={() => setNavigasiBaru(false)}
+          onFocus={() => setNavigasiBaru(false)}
         >
           {/* Tombol tutup.
 
@@ -143,7 +165,12 @@ export default function Navbar() {
 
           <ul>
             {NAV_ITEMS.map((item) => (
-              <NavListItem key={item.label} item={item} depth={0} />
+              <NavListItem
+                key={item.label}
+                item={item}
+                depth={0}
+                onNavigasiMulai={() => setNavigasiBaru(true)}
+              />
             ))}
 
             {/* Dua tombol CTA ini disembunyikan di desktop karena sudah tampil
@@ -198,8 +225,37 @@ function isDesktopNav(): boolean {
   return window.matchMedia("(min-width: 1200px)").matches;
 }
 
+/**
+ * True kalau klik ini benar-benar berpindah halaman di tab yang sama.
+ *
+ * Klik tengah, Ctrl/Cmd-klik, dan Shift-klik membuka tab/jendela baru:
+ * halaman sekarang tidak berganti, jadi tidak ada alasan menutup menunya.
+ * Enter keyboard (detail 0, tanpa modifier) ikut ditandai karena memang
+ * berpindah halaman.
+ */
+function klikPindahHalaman(e: {
+  button: number;
+  metaKey: boolean;
+  ctrlKey: boolean;
+  shiftKey: boolean;
+  altKey: boolean;
+}): boolean {
+  return (
+    e.button !== 1 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey
+  );
+}
+
 /** Satu item menu beserta turunannya, rekursif sampai kedalaman berapa pun. */
-function NavListItem({ item, depth }: { item: NavItem | NavChild; depth: number }) {
+function NavListItem({
+  item,
+  depth,
+  onNavigasiMulai,
+}: {
+  item: NavItem | NavChild;
+  depth: number;
+  /** Dipanggil setiap tautan diklik untuk berpindah halaman. */
+  onNavigasiMulai: () => void;
+}) {
   const pathname = usePathname();
   const hasChildren = Boolean(item.children?.length);
   const [expanded, setExpanded] = useState(false);
@@ -217,6 +273,9 @@ function NavListItem({ item, depth }: { item: NavItem | NavChild; depth: number 
           href={item.href}
           className={isActive ? "active" : ""}
           aria-current={isActive ? "page" : undefined}
+          onClick={(e) => {
+            if (klikPindahHalaman(e)) onNavigasiMulai();
+          }}
         >
           {item.label}
         </Link>
@@ -235,7 +294,10 @@ function NavListItem({ item, depth }: { item: NavItem | NavChild; depth: number 
         aria-current={isActive ? "page" : undefined}
         onClick={(e) => {
           // Desktop: biarkan tautan dinavigasi (submenu sudah terbuka via hover).
-          if (isDesktopNav()) return;
+          if (isDesktopNav()) {
+            if (klikPindahHalaman(e)) onNavigasiMulai();
+            return;
+          }
           e.preventDefault();
           setExpanded((v) => !v);
         }}
@@ -251,7 +313,12 @@ function NavListItem({ item, depth }: { item: NavItem | NavChild; depth: number 
 
       <ul className={`${childListClass ?? ""} ${expanded ? "show" : ""}`.trim()}>
         {item.children!.map((child) => (
-          <NavListItem key={child.label} item={child} depth={depth + 1} />
+          <NavListItem
+            key={child.label}
+            item={child}
+            depth={depth + 1}
+            onNavigasiMulai={onNavigasiMulai}
+          />
         ))}
       </ul>
     </li>

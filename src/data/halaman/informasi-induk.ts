@@ -30,7 +30,12 @@ export const INFORMASI_INDUK: Record<string, IsiHalaman> = {
       {
         jenis: "paragraf",
         teks:
-          "Semua halaman di bawah ini terbuka tanpa perlu login.",
+          "Semua halaman di bawah ini terbuka tanpa perlu login. Isinya dokumen dan penjelasan yang memang ditujukan untuk dibaca publik, bukan arsip internal.",
+      },
+      {
+        jenis: "paragraf",
+        teks:
+          "Kalau yang dicari adalah layanan medis, mulai dari halaman Pelayanan. Kalau yang dicari adalah dokumen resmi, jabatan, atau cara menghubungi rumah sakit, lanjutkan ke daftar di bawah.",
       },
       { jenis: "tautan-anak", judul: "Semua informasi publik" },
     ],
@@ -43,7 +48,7 @@ export const INFORMASI_INDUK: Record<string, IsiHalaman> = {
       {
         jenis: "paragraf",
         teks:
-          "Fasilitas dibagi menurut cara pasien memakainya, supaya mudah dicari saat dibutuhkan.",
+          "Fasilitas dibagi menurut cara pasien memakainya, supaya mudah dicari saat dibutuhkan. Delapan unit medis melayani langsung, dua unit penunjang memastikan diagnosisnya tepat.",
       },
       {
         // Kartu, bukan blok `daftar`. Blok `daftar` hanya menghasilkan teks
@@ -67,6 +72,12 @@ export const INFORMASI_INDUK: Record<string, IsiHalaman> = {
             href: `/pelayanan/diagnostik/${d.slug}`,
           })),
         ],
+      },
+      {
+        jenis: "catatan",
+        judul: "Jam layanan",
+        teks:
+          "Gawat darurat buka 24 jam. Poliklinik dan unit penunjang buka Senin sampai Jumat, pukul 07.30 sampai 14.00, kecuali hari libur nasional.",
       },
     ],
   },

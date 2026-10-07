@@ -352,7 +352,18 @@
   margin: 0;
   padding: 0;
   background-color: var(--rs-white);
-  border-radius: var(--rs-radius-card);
+  /* `border-radius: 4px`, mengikuti acuan (`.navmenu .dropdown ul`). Bukan 0
+   * dan bukan 25px seperti `.card`.
+   *
+   * 25px terlalu besar: bagian transparan di dalam radius tidak termasuk area
+   * hover, jadi kursor yang lewat sudut kehilangan hover tepat di sambungan
+   * baris induk dan submenu. Untuk menutupnya dulu dibuat jembatan `::before`
+   * 10px, dan jembatan itu justru bocor ke baris saudara sehingga dua submenu
+   * tingkat ketiga menyala bersamaan di koordinat yang sama.
+   *
+   * 4px cukup kecil sehingga celah sudutnya tidak terasa, dan sambungan baris
+   * induk tetap rata sehingga jembatan samping tidak perlu ada. */
+  border-radius: 4px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   min-width: 230px;
   opacity: 0;
@@ -651,15 +662,23 @@
 
   /* Jembatan hover: pita tak terlihat yang menutup celah di sudut.
    *
-   * Submenu memakai `border-radius: 25px`, dan sudut yang membulat
-   * meninggalkan piksel mati tepat di sambungan menu induk dan submenu.
-   * Kursor yang lewat sudut itu sesaat kehilangan hover dan — sebelum ada
-   * masa tenggang — langsung menutup menu. Pita ini memperlebar area hover
-   * 10px ke arah datangnya kursor (ke atas untuk menu turun, ke kiri untuk
-   * menu samping), jadi tidak ada satu piksel pun yang mematikan menu.
+   * Hanya untuk submenu tingkat pertama, yang muncul DI BAWAH baris induk.
+   * Pita ini menutup celah vertikal 10px ke arah atas, jadi tidak ada satu
+   * piksel pun yang mematikan menu saat kursor menyeberang dari baris induk ke
+   * submenu.
+   *
+   * Submenu tingkat kedua ke bawah TIDAK memakai jembatan samping. Jembatan itu
+   * pernah ada (10px ke kiri, setinggi penuh) dan justru inilah sumber bug
+   * "dua isi sekaligus": submenu tingkat ketiga menempel di `left: 100%`, jadi
+   * pita 10px di kirinya menumpang tindih dengan baris saudara di panel yang
+   * sama. Kursor di ujung kanan "Paket Health Meets Holiday" lalu menyalakan
+   * submenu "Paket Reguler" juga, dan keduanya berada di koordinat x yang sama
+   * sehingga isinya saling menimpa. Sekarang sudutnya siku dan sambungannya
+   * rata, jadi tidak ada celah yang perlu ditutup.
+   *
    * Transparan dan di luar kotak menu, jadi tidak menutupi apa pun yang bisa
-   * diklik. Hanya desktop: di mobile submenu `position: static` dan aturan
-   * ini tidak ada artinya. */
+   * diklik. Hanya desktop: di mobile submenu `position: static` dan aturan ini
+   * tidak ada artinya. */
   .navmenu > ul > li > ul::before {
     content: "";
     position: absolute;
@@ -669,29 +688,62 @@
     height: 10px;
   }
 
-  .navmenu li li > ul::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: -10px;
-    width: 10px;
-  }
-
   /* Keyboard: fokus membuka submenu seperti hover. Tanpa ini, pengguna Tab
      tidak bisa membuka dropdown sama sekali — tautan submenu `visibility:
      hidden` sehingga tidak masuk urutan Tab, dan tidak ada yang membukanya.
      Dicakup ke desktop supaya logika accordion mobile (klik sebagai toggle
-     lewat state) tidak diganggu. */
-  .navmenu li:focus-within > ul {
+     lewat state) tidak diganggu.
+   *
+   * Selektornya `:has(:focus-visible)`, bukan `:focus-within`. Bedanya
+   * menentukan hidup-matinya bug "menu menempel setelah diklik": klik mouse
+   * memberi `:focus` tapi BUKAN `:focus-visible` (terukur di Chromium 1243:
+   * `activeElement.matches(":focus-visible") === false` setelah klik), dan
+   * fokus itu bertahan melewati navigasi client-side. Dengan `:focus-within`,
+   * submenu milik link yang baru saja diklik tetap terbuka di halaman baru,
+   * lalu tumpang tindih dengan submenu yang di-hover. Dengan
+   * `:focus-visible`, hanya fokus keyboard (Tab/Enter) yang membuka menu;
+   * fokus sisa klik mouse diabaikan.
+   *
+   * Situs acuan tidak punya aturan fokus sama sekali — tiap navigasi di sana
+   * me-load ulang halaman sehingga tidak ada fokus yang bisa menempel. */
+  .navmenu li:has(:focus-visible) > ul {
     opacity: 1;
     visibility: visible;
     transform: translateY(0);
     transition-delay: 0s;
   }
 
-  .navmenu li:focus-within > ul ul {
+  .navmenu li:has(:focus-visible) > ul ul {
     transform: translateX(0);
+  }
+
+  /* Dropdown desktop menutup paksa tepat setelah pindah halaman.
+   *
+   * `:hover` tidak hilang selama kursor diam: pengguna mengklik isi submenu,
+   * halaman di belakang berganti, tapi menu tetap terbuka menutupi konten baru
+   * sampai kursor digerakkan. Kelas `navigasi-baru` (dipasang Navbar setiap
+   * `pathname` berubah, dilepas saat kursor keluar nav atau fokus masuk lagi)
+   * menekan ketiga aturan buka di atas sekaligus.
+   *
+   * Spesifisitasnya (0,3,2) mengalahkan aturan buka (0,2,2), dan penundanya
+   * dinolkan supaya menutupnya seketika, bukan menunggu masa tenggang 0,3
+   * detik. Aturan `.show` milik accordion mobile tidak disentuh: panel mobile
+   * sudah ditutup lewat state, dan aturan ini hanya ada di blok desktop.
+   *
+   * Penekanan ini saja tidak cukup tanpa `:has(:focus-visible)` di atas:
+   * submenu yang hilang membuat kursor "jatuh" ke konten sehingga
+   * `pointerleave` terpicu dan penekanan lepas, lalu fokus basi di link yang
+   * baru diklik membuka kembali semuanya. Keduanya satu paket.
+   *
+   * Jangan menambah `display: none` di sini. `display` mematikan transisi,
+   * sedangkan `visibility`/`opacity` membuat menu memudar seperti saat
+   * ditutup normal. */
+  .navmenu.navigasi-baru li:hover > ul,
+  .navmenu.navigasi-baru li > ul:hover,
+  .navmenu.navigasi-baru li:has(:focus-visible) > ul {
+    opacity: 0;
+    visibility: hidden;
+    transition-delay: 0s;
   }
 
   /* ---------- Pita dua baris 1200-1359px ----------

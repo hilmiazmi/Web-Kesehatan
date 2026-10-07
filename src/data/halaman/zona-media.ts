@@ -8,7 +8,8 @@ export const ZONA_MEDIA: Record<string, IsiHalaman> = {
     blok: [
       {
         jenis: "paragraf",
-        teks: "Daftar video yang tersedia untuk dipublikasikan.",
+        teks:
+          "Daftar video yang tersedia untuk dipublikasikan. Video dibuat oleh tim humas dan boleh disebar untuk keperluan edukasi.",
       },
       { jenis: "sub", teks: "Daftar video" },
       {
@@ -28,7 +29,8 @@ export const ZONA_MEDIA: Record<string, IsiHalaman> = {
     blok: [
       {
         jenis: "paragraf",
-        teks: "Foto kegiatan yang dipublikasikan.",
+        teks:
+          "Foto kegiatan yang dipublikasikan. Seluruh foto memakai aset stok karena dokumentasi internal tidak diterbitkan di situs demo ini.",
       },
       {
         jenis: "galeri",

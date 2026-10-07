@@ -7,7 +7,8 @@ export const BUDAYA_KESELAMATAN: Record<string, IsiHalaman> = {
     blok: [
       {
         jenis: "paragraf",
-        teks: "Keselamatan pasien tidak bergantung pada satu orang.",
+        teks:
+          "Keselamatan pasien tidak bergantung pada satu orang. Ia dijaga oleh kebiasaan kecil yang dilakukan berulang oleh seluruh petugas, dari dokter sampai pramuhusada.",
       },
       { jenis: "sub", teks: "Lima sikap dasar" },
       {
@@ -19,7 +20,18 @@ export const BUDAYA_KESELAMATAN: Record<string, IsiHalaman> = {
           "Cuci tangan sebelum dan sesudah kontak dengan pasien.",
           "Periksa ulang obat sebelum pemberian.",
           "Catat setiap perubahan kondisi yang diamati.",
-        ].slice(0, 3),
+        ],
+      },
+      { jenis: "sub", teks: "Melapor tanpa takut" },
+      {
+        jenis: "paragraf",
+        teks:
+          "Petugas yang melihat kejadian nyaris celaka wajib melaporkannya, dan laporan itu tidak dipakai untuk menghukum pelapor. Tanpa laporan, celaka yang sama akan terulang pada pasien berikutnya.",
+      },
+      {
+        jenis: "catatan",
+        teks:
+          "Pasien dan keluarga ikut menjaga keselamatan: tanyakan nama obat yang diberikan, pastikan identitas diperiksa sebelum tindakan, dan sampaikan alergi yang dimiliki.",
       },
     ],
   },

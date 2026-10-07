@@ -199,8 +199,37 @@ bukan tebakan. Rinciannya ada di `docs/design-tokens-terverifikasi.md`.
   - Menutup memakai masa tenggang `0,3 detik` (`visibility` ikut ditransisikan,
     `transition-delay` dinolkan ulang di semua aturan buka). Gerakan diagonal
     yang terpeleset masih sempat masuk kembali.
-  - Jembatan hover `::before` 10px menutup celah sudut membulat (`25px`).
-  - Keyboard: `:focus-within` membuka submenu seperti hover (khusus desktop).
+  - **Submenu memakai `border-radius: 4px`, mengikuti acuan**
+    (`.navmenu .dropdown ul`), bukan `25px` seperti `.card` dan bukan `0`.
+    `25px` meninggalkan celah hover di sudut sambungan baris induk dan submenu,
+    dan jembatan `::before` yang dibuat untuk menutup celah itu justru bocor
+    ke baris saudara sehingga dua submenu tingkat ketiga menyala bersamaan di
+    koordinat yang sama. `4px` cukup kecil sehingga sambungan tetap rata dan
+    jembatan samping tidak perlu ada.
+  - **Submenu tingkat kedua ke bawah TIDAK boleh punya jembatan samping
+    `::before`.** Ini sumber bug "dua isi sekaligus": submenu tingkat ketiga
+    menempel di `left: 100%`, jadi pita 10px di kirinya menumpang tindih dengan
+    baris saudara di panel yang sama. Kursor di ujung kanan "Paket Health Meets
+    Holiday" menyalakan submenu "Paket Reguler" juga, dan keduanya di koordinat x
+    yang sama (terukur `left: 952` untuk keduanya) sehingga isinya saling
+    menimpa. Jembatan hanya boleh di `.navmenu > ul > li > ul::before` (10px ke
+    atas, untuk submenu yang muncul di bawah induknya).
+  - **Dropdown desktop menutup paksa setiap `pathname` berubah.** `:hover` tidak
+    hilang selama kursor diam, jadi tanpa ini menu tetap terbuka menutupi konten
+    baru. `Navbar` memasang kelas `navigasi-baru` (spesifisitas penekannya
+    `(0,3,2)` mengalahkan aturan buka `(0,2,2)`) dan melepasnya di
+    `onPointerLeave`/`onPointerEnter`/`onFocus`. `onPointerEnter` wajib ada:
+    setelah klik isi submenu, kursor sudah berada di luar nav (di atas konten),
+    jadi tidak ada `leave` yang akan datang melepas penekanan. Jangan menutup
+    lewat `display: none`: itu mematikan transisi memudar.
+  - Keyboard: `:has(:focus-visible)` membuka submenu seperti hover (khusus
+    desktop), **bukan** `:focus-within`. Klik mouse memberi `:focus` tapi bukan
+    `:focus-visible`, dan fokus itu bertahan melewati navigasi client-side —
+    dengan `:focus-within`, submenu milik link yang baru diklik tetap terbuka
+    di halaman baru lalu tumpang tindih dengan submenu yang di-hover
+    (terukur: rantai "Pelayanan > MCU > Paket Reguler" + submenu "Paket
+    Health Meets Holiday" di `left` yang sama). Situs acuan tidak punya aturan
+    fokus sama sekali (tiap navigasi me-load ulang halaman).
 - **`validate()` di `registration-form.tsx` sengaja di-export** supaya aturan
   validasinya bisa diuji tanpa merender komponen. Jangan dibuat lokal lagi.
 - Form dan komponen lain tidak boleh memanggil `setState` di dalam `useEffect`;

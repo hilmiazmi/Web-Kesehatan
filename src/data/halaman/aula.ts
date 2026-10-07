@@ -10,7 +10,7 @@ export const AULA: Record<string, IsiHalaman> = {
       {
         jenis: "paragraf",
         teks:
-          "Aula dirancang untuk kegiatan yang butuh ruang luas, bukan ruang inap.",
+          "Aula dirancang untuk kegiatan yang butuh ruang luas, bukan ruang inap. Letaknya terpisah dari area perawatan supaya acara tidak mengganggu pasien.",
       },
       { jenis: "sub", teks: "Fasilitas yang tersedia" },
       {
@@ -23,6 +23,10 @@ export const AULA: Record<string, IsiHalaman> = {
           {
             tebal: "Peralatan audio visual",
             isi: "Layar besar dan sistem suara untuk presentasi.",
+          },
+          {
+            tebal: "Ruang persiapan",
+            isi: "Ruang kecil di samping aula untuk pembicara dan panitia.",
           },
           {
             tebal: "Dukungan tim",
