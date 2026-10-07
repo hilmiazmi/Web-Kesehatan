@@ -1239,3 +1239,11 @@ a.halaman-kartu-ringkas:focus-visible .halaman-kartu-panah {
   font-size: 0.88rem;
   color: var(--rs-text-body);
 }
+
+/* Jabatan pimpinan dicetak kecil di bawah nama pada kartu manajemen. */
+.kartu-jabatan {
+  margin: 0 0 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--rs-accent);
+}

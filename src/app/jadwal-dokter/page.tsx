@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { hrefDaftarOnline } from "@/lib/daftar-online";
 import PageHeader from "@/components/layout/PageHeader";
 import CariDokter from "@/components/jadwal/CariDokter";
 import JadwalTabel from "@/components/jadwal/JadwalTabel";
@@ -47,7 +48,7 @@ export default function JadwalDokterPage() {
           <JadwalTabel doctors={doctors} />
 
           <div className="d-flex gap-2 flex-wrap mt-4">
-            <Link href="/daftar-online" className="btn btn-primary">
+            <Link href={hrefDaftarOnline("/jadwal-dokter")} className="btn btn-primary">
               Daftar Online
             </Link>
             <Link href="/pelayanan/poliklinik" className="btn btn-tertiary">

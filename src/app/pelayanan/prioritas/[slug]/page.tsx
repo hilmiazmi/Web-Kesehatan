@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { hrefDaftarOnline } from "@/lib/daftar-online";
 import { notFound } from "next/navigation";
 import PageHeader from "@/components/layout/PageHeader";
 import { DetailBody, DetailLayout } from "@/components/pelayanan/DetailLayout";
@@ -90,7 +91,7 @@ export default async function PriorityServicePage({
             <DetailContact />
 
             <div className="d-flex gap-2 flex-wrap mt-4">
-              <Link href="/daftar-online" className="btn btn-primary">
+              <Link href={hrefDaftarOnline(href)} className="btn btn-primary">
                 Daftar Online
               </Link>
               <Link href="/pelayanan/prioritas" className="btn btn-tertiary">

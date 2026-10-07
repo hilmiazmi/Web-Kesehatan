@@ -59,14 +59,22 @@ export function spesialitasUntuk(pathname: string): string | null {
   const bersih = pathname.replace(/^\//, "").replace(/\/$/, "");
   if (PETA[bersih]) return PETA[bersih];
 
-  // Halaman paket MCU berada dua sampai tiga segmen di bawah `/pelayanan/mcu`.
+  // Paket MCU berada dua sampai tiga segmen di bawah `/pelayanan/mcu`.
   if (bersih.startsWith("pelayanan/mcu/")) return UMUM;
+
+  // Delapan unit rawat inap dan alatnya dilayani lebih dari satu
+  // spesialisasi, jadi tidak ada satu pun yang paling relevan. Poliklinik
+  // sama: isinya 25 subspesialisasi berbeda. Keduanya memakai dokter umum
+  // supaya tidak mengunci orang ke spesialitas yang salah.
+  if (bersih === "pelayanan/poliklinik" || bersih.startsWith("pelayanan/medis/")) {
+    return UMUM;
+  }
 
   return null;
 }
 
 /**
- * Tautan "Daftar Online" yang membawa konteks页面 asal.
+ * Tautan "Daftar Online" yang membawa konteks halaman asal.
  *
  * `dokter` dan `tanggal` dipakai widget beranda yang sudah memilih
  * dokter dan hari. Halaman layanan hanya membawa spesialitas, karena satu
@@ -74,10 +82,14 @@ export function spesialitasUntuk(pathname: string): string | null {
  */
 export function hrefDaftarOnline(
   pathname?: string,
-  pilihan: { dokter?: string; tanggal?: string } = {},
+  pilihan: { dokter?: string; tanggal?: string; spesialitas?: string } = {},
 ): string {
   const p = new URLSearchParams();
-  const spesialitas = pathname ? spesialitasUntuk(pathname) : null;
+  // `pilihan.spesialitas` menang karena pemanggil sudah tahu nama
+  // spesialitasnya, misalnya dari `detail.specialty` pada halaman klinik.
+  // Peta statis tidak bisa tahu itu: ada 25 halaman detail klinik dan daftarnya
+  // hidup di `src/data/clinics.ts`, bukan di sini.
+  const spesialitas = pilihan.spesialitas ?? (pathname ? spesialitasUntuk(pathname) : null);
   if (spesialitas) p.set("spesialis", spesialitas);
   if (pilihan.dokter) p.set("dokter", pilihan.dokter);
   if (pilihan.tanggal) p.set("tanggal", pilihan.tanggal);

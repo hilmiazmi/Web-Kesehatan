@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { hrefDaftarOnline } from "@/lib/daftar-online";
 import PageHeader from "@/components/layout/PageHeader";
 import ClinicDirectory from "@/components/pelayanan/ClinicDirectory";
 import { CLINIC_DETAILS, CLINICS } from "@/data/clinics";
@@ -67,7 +68,7 @@ export default function PoliklinikPage() {
           <ClinicDirectory clinics={clinics} details={details} doctors={doctors} />
 
           <div className="d-flex gap-2 flex-wrap mt-5">
-            <Link href="/daftar-online" className="btn btn-primary">
+            <Link href={hrefDaftarOnline("/pelayanan/poliklinik")} className="btn btn-primary">
               Daftar Online
             </Link>
             <Link href="/pelayanan" className="btn btn-tertiary">

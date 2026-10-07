@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { hrefDaftarOnline } from "@/lib/daftar-online";
 import { notFound } from "next/navigation";
 import PageHeader from "@/components/layout/PageHeader";
 import Photo from "@/components/ui/Photo";
@@ -162,7 +163,7 @@ export default async function DiagnosticServicePage({
               ))}
 
               <div className="d-flex gap-2 flex-wrap mt-4">
-                <Link href="/daftar-online" className="btn btn-primary">
+                <Link href={hrefDaftarOnline(href)} className="btn btn-primary">
                   Daftar Online
                 </Link>
                 <Link href="/pelayanan/diagnostik" className="btn btn-tertiary">
