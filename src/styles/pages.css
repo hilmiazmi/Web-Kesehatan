@@ -1121,12 +1121,19 @@ a.halaman-kartu-ringkas:focus-visible .halaman-kartu-panah {
   font-weight: 500;
 }
 
+/* Kalender muncul sebagai lapisan di atas kotak tanggal, bukan mendorong
+ * isi ke bawah. Sebelumnya selalu terbuka dan berukuran penuh, jadi
+ * menutupi "Jam Kunjungan" dan seluruh isinya tidak punya cara menutup. */
 .tanggal-kalender {
-  margin-top: 0.6rem;
-  padding: 0.85rem;
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 0.4rem);
+  left: 0;
+  padding: 0.7rem;
   border: 1px solid var(--rs-gray-300);
-  border-radius: var(--rs-radius-card);
+  border-radius: var(--rs-radius-btn);
   background-color: var(--rs-white);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
 }
 
 .tanggal-kalender-kepala {
@@ -1154,27 +1161,33 @@ a.halaman-kartu-ringkas:focus-visible .halaman-kartu-panah {
   cursor: not-allowed;
 }
 
+/* Lebar kolom ditetapkan, bukan `1fr`. Dengan `1fr` kosi ikut melar
+ * mengikuti lebar popover, dan kotak tanggal jadi lebar berlebihan. */
 .tanggal-kalender-hari,
 .tanggal-kalender-kisi {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, 1.85rem);
   gap: 0.2rem;
 }
 
 .tanggal-kalender-kepala-hari {
   text-align: center;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 600;
   color: var(--rs-text-card-desc);
   padding-bottom: 0.35rem;
 }
 
 .tanggal-kalender-sel {
-  aspect-ratio: 1 / 1;
+  /* Persegi dengan tinggi tetap, bukan `aspect-ratio`: lebar sel ikut
+   * berubah-ubah menurut lebar kolom, dan rasio bujur sangkar membuat
+   * tinggi kalender ikut bergeser saat lebar jendela sedikit berubah. */
+  height: 1.85rem;
   border: 1px solid transparent;
   border-radius: var(--rs-radius-btn);
   background: transparent;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
+  line-height: 1;
   color: var(--rs-text-body);
 }
 
@@ -1185,13 +1198,21 @@ a.halaman-kartu-ringkas:focus-visible .halaman-kartu-panah {
 }
 
 /* Hari praktik dokter boleh dipilih, berwarna aksen. */
-.tanggal-kalender-sel:not(.tidak-bisa):not(.di-luar-bulan) {
+/* Garis biru berarti "hari dokter praktik". Kalau dokter belum dipilih,
+ * jadwalnya belum diketahui dan hampir semua hari boleh diklik; menandai
+ * semuanya membuat hari practice days kehilangan artinya. */
+.tanggal-kalender.ada-praktik .tanggal-kalender-sel:not(.tidak-bisa):not(.di-luar-bulan) {
   border-color: var(--rs-accent);
   color: var(--rs-accent);
   font-weight: 600;
 }
 
-.tanggal-kalender-sel.dipilih {
+/* Selektor ikut sepanjang aturan "hari praktik" supaya menang. Dengan
+ * hanya `.tanggal-kalender-sel.dipilih` (0,2,0)输给 aturan itu (0,3,0),
+ * warna huruf tetap biru aksen di atas latar biru aksen dan angkanya tidak
+ * terlihat sama sekali. */
+.tanggal-kalender-sel.dipilih,
+.tanggal-kalender-sel:not(.tidak-bisa):not(.di-luar-bulan).dipilih {
   background-color: var(--rs-accent);
   border-color: var(--rs-accent);
   color: var(--rs-white);
@@ -1207,8 +1228,8 @@ a.halaman-kartu-ringkas:focus-visible .halaman-kartu-panah {
 }
 
 .tanggal-kalender-keterangan {
-  margin: 0.7rem 0 0;
-  font-size: 0.78rem;
+  margin: 0.55rem 0 0;
+  font-size: 0.7rem;
   color: var(--rs-text-card-desc);
 }
 
