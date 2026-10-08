@@ -1,0 +1,78 @@
+# syntax=docker/dockerfile:1
+#
+# Image produksi Web-Kesehatan.
+#
+# Tiga tahap: dependensi diisolir supaya cache bun tidak batal setiap kali
+# berkas sumber berubah; build dipisah supaya perkakas build tidak ikut ke
+# image akhir.
+#
+# Semua tahap memakai bun karena repo ini dikunci ke bun (packageManager
+# bun@1.4.2, lockfile bun.lock). Alpine dipilih agar image kecil, dan sharp
+# yang dipakai next/image punya binding native di alpine.
+#
+# CATATAN: docker di mesin tempat berkas ini ditulis tidak punya izin
+# (`permission denied` pada /var/run/docker.sock), jadi build image ini
+# BELUM pernah diverifikasi. Lihat docs/DEPLOY-VPS.md bagian "Belum teruji".
+
+ARG BUN_VERSION=1.4.2
+ARG PORT=3000
+
+# --- 1. dependensi --------------------------------------------------------
+FROM oven/bun:${BUN_VERSION}-alpine AS deps
+WORKDIR /app
+
+# Hanya dua berkas ini disalin supaya layer instalasi paket tetap ter-cache
+# selama bun.lock dan package.json tidak berubah.
+COPY bun.lock package.json ./
+
+# --frozen-lockfile: gagal kalau bun.lock tidak cocok dengan package.json,
+# sehingga versi paket di image sama persis dengan yang tercatat di repo.
+RUN bun install --frozen-lockfile
+
+# --- 2. build -------------------------------------------------------------
+FROM oven/bun:${BUN_VERSION}-alpine AS builder
+WORKDIR /app
+
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# next-env.d.ts dibuat oleh Next sendiri; abaikan kalau ada yang benar-benar
+# dikomit, supaya build tidak gagal karena berkas itu tidak konsisten.
+RUN rm -f next-env.d.ts
+
+# Build tidak menyentuh database: halaman dengan API_MODE=snapshot membaca
+# berkas di snapshot/, dan halaman biasa membaca src/data/ yang sudah dibundel.
+# snapshots dibaca saat runtime, bukan build, jadi tetap disalin apa adanya.
+RUN bun run build
+
+# --- 3. runtime -----------------------------------------------------------
+FROM oven/bun:${BUN_VERSION}-alpine AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    PORT=${PORT}
+
+# Yang benar-benar dipakai `next start`: hasil build, node_modules, berkas
+# statis publik, dan snapshot untuk mode snapshot.
+COPY --from=builder --chown=bun:bun /app/.next ./.next
+COPY --from=builder --chown=bun:bun /app/public ./public
+COPY --from=deps --chown=bun:bun /app/node_modules ./node_modules
+COPY --from=builder --chown=bun:bun /app/package.json ./package.json
+# snapshot/ dibaca runtime oleh src/server/api/snapshot.ts saat
+# API_MODE=snapshot, jadi harus ikut meski tidak dipakai di mode live.
+COPY --from=builder --chown=bun:bun /app/snapshot ./snapshot
+
+# Jalankan sebagai pengguna tanpa hak root. Image oven/bun sudah punya
+# pengguna `bun`, tidak perlu membuat sendiri.
+USER bun
+
+EXPOSE ${PORT}
+
+# Health check menembak "/" karena halaman beranda membaca src/data/ yang
+# sudah dibundel, bukan database. Jadi health check tetap hijau saat database
+# sedang mati, dan tidak mengira aplikasi sehat padahal gagal render.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD wget --spider -q "http://127.0.0.1:${PORT}/" || exit 1
+
+CMD ["bun", "run", "start"]

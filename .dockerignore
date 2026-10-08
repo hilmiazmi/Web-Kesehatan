@@ -1,0 +1,31 @@
+# Berkas yang tidak boleh ikut ke context build.
+#
+# Dua hal yang sengaja TIDAK diabaikan, karena keduanya dibaca saat runtime
+# dan tanpa keduanya aplikasi gagal di container:
+#   snapshot/  dibaca src/server/api/snapshot.ts saat API_MODE=snapshot
+#   drizzle/   dipakai drizzle-kit migrate untuk migrasi di server
+
+# dependensi dan artefak build lokal
+node_modules
+.next
+
+# git dan perkakas CI
+.git
+.github
+
+# rahasia — jangan pernah masuk ke layer image.
+# Nilai produksi dikirim sebagai environment variable saat `docker run`,
+# bukan dibakar ke dalam image.
+.env
+.env.*
+!.env.example
+
+# tidak dipakai aplikasi yang berjalan
+tests
+docs
+archive
+coverage
+
+# berkas rahasia lain
+*.pem
+*.key

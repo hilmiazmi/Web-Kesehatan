@@ -48,9 +48,9 @@ Ringkasan. Bukti lengkap di `docs/STATUS-PROYEK.md` bagian 3.
 | Form Kritik-Saran, SKM, WBS, MCU | Selesai | mengirim ke server |
 | Daftar Online (poli, dokter, jam) | Selesai | `schedule_id` terisi |
 | Panel admin | Selesai | 7 halaman, 9 kelompok API |
-| Form E-Pasien | Belum | tidak ada sama sekali |
+| Form E-Pasien | Selesai | **Sama dengan Daftar Online.** `src/data/home.ts` mengirim tautan "E-Pasien" ke `/daftar-online`, dan `registration-form.tsx:24` menyebut dirinya "Formulir pendaftaran online (E-Pasien)". Checklist lama bilang "Belum" karena salah baca |
 | Uji E2E (Playwright) | Belum | lihat bagian 4 |
-| Dual deploy Vercel + VPS | Belum | tidak ada konfigurasi |
+| Dual deploy Vercel + VPS | Sebagian | `Dockerfile`, `.dockerignore`, `docs/DEPLOY-VERCEL.md`, `docs/DEPLOY-VPS.md` sudah ada; build Docker **belum diverifikasi** (mesin tanpa izin Docker) |
 
 ---
 
@@ -213,3 +213,54 @@ Saat sesi ini berjalan, HEAD berubah dari `ee112a3` ke `35c65cf`
 menerapkan usulan AGENTS.md (baca `docs/HANDOFF.md` di awal sesi).
 **Selalu jalankan `git status` + `git log --oneline -3` sebelum
 mengklaim sesuatu; jangan pakai angka dari HANDOFF tanpa verifikasi ulang.**
+
+---
+
+## Status tahap C setelah verifikasi ulang (2026-10-08)
+
+Semua klaim di bawah dihitung dari kode di HEAD, bukan dari README atau dari
+daftar HANDOFF sebelumnya.
+
+| Sub-tahap | Status sebelum | Status nyata | Bukti |
+|---|---|---|---|
+| C1 form | sebagian | **Cukup** | 6 komponen formulir, semuanya POST ke server |
+| C2 Daftar Online | sebagian | **Cukup** | `schedule_id` terkirim, endpoint mewajibkan |
+| C3 panel admin | sebagian | **Cukup** | 9 dari 9 kelompok API punya tampilan, sesi dijaga terminal layout |
+| C4 dual deploy | belum | **Sebagian** | berkas konfigurasi dibuat, belum teruji |
+
+C1, enam formulir yang sudah mengirim: `feedback-form.tsx` (Kritik-Saran) ke
+`/api/v1/feedbacks`, `survey-form.tsx` (SKM) ke `/api/v1/survey-responses`,
+`wbs-form.tsx` ke `/api/v1/wbs-reports`, `admission-form.tsx` (Rawat Inap) ke
+`/api/v1/admissions`, `mcu-form.tsx` ke `/api/v1/mcu-registrations`, dan
+`registration-form.tsx` ke `/api/v1/appointments`.
+
+C2, alur Daftar Online: `registration-form.tsx:262` mengirim hanya
+`schedule_id`, dan `appointments/route.ts:62` membacanya sebagai UUID wajib.
+Urutannya poli ke dokter ke tanggal ke slot jam
+(`registration-form.tsx:26-27`).
+
+C3, sembilan kelompok API dan tempatnya: `beds`, `inbox`, `records`+`tables`,
+`settings`, `stats`, `users` punya halaman sendiri di `src/app/admin/`, lalu
+`appointments-per-day` dan `survey-by-unit` masuk dasbor lewat pemanggilan
+server-side (`(panel)/page.tsx:69,74`). Proteksi sesi satu tempat, di
+`(panel)/layout.tsx:25`: `readSession()` null langsung mengarahkan ke
+`/admin/login`.
+
+**Koreksi klaim HANDOFF lama:** "Form E-Pasien — Belum" salah, karena E-Pasien
+adalah nama lain Daftar Online; "UI panel admin 4 dari 9" salah; "2 halaman
+tidak cek sesi" salah.
+
+### C4, apa yang dikerjakan sesi ini
+
+Dibuat `Dockerfile` (tiga tahap, pengguna non-root, health check di `/`),
+`.dockerignore`, `docs/DEPLOY-VERCEL.md`, dan `docs/DEPLOY-VPS.md`.
+
+Ditambahkan juga perbaikan satu cacat dokumentasi: komentar `DATABASE_URL`
+kosong di `.env.example` tadinya mengatakan "berarti mode snapshot", padahal
+`src/server/config.ts:68` justru melempar error kalau `API_MODE=live` dengan
+`DATABASE_URL` kosong. Mode snapshot harus eksplisit.
+
+**BELUM DIVERIFIKASI:** Docker di mesin ini tidak punya izin
+(`permission denied` pada `/var/run/docker.sock`), jadi image belum pernah
+dibangun. Jangan pakai untuk deploy sebelum sekali build berhasil. Deploy
+Vercel juga belum pernah dicoba dari repo ini.
