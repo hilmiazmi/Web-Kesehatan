@@ -74,15 +74,35 @@ Mode database ditentukan `API_MODE`, bukan oleh isi `DATABASE_URL`:
 
 - **44 Route Handler** di bawah `/api/v1`, endpoint publik dan admin. Semua
   path lain dibalas 404 sungguhan oleh catcher di `[...path]/route.ts`.
-- **27 tabel** PostgreSQL lewat Drizzle ORM, dengan migrasi SQL dan trigger
+- **28 tabel** PostgreSQL lewat Drizzle ORM, dengan 5 migrasi SQL dan trigger
   `set_updated_at`.
 - Auth admin: kata sandi di-hash dengan `scrypt`, token sesi ditandatangani
-  HMAC-SHA256, endpoint login, logout, dan sesi.
+  HMAC-SHA256, endpoint login, logout, dan sesi. Perbandingan signature memakai
+  `timingSafeEqual`.
 - Sanitasi Markdown di server, memakai allow-list tag dan atribut.
-- API panel admin, sembilan kelompok endpoint: appointments-per-day, beds,
-  inbox, records, settings, stats, survey-by-unit, tables, dan users, plus
-  autentikasinya. **Belum ada halaman antarmukanya.**
-- Mode snapshot, supaya build pratinjau tidak perlu database.
+- 9 kelompok endpoint panel admin: appointments-per-day, beds, inbox, records,
+  settings, stats, survey-by-unit, tables, dan users, plus autentikasinya.
+- Mode snapshot, supaya build pratinjau tidak perlu database dan menolak
+  setiap permintaan yang mengubah data.
+
+### Panel admin
+
+Tujuh halaman di bawah `/admin`, semuanya di balik gate server di
+`src/app/admin/(panel)/layout.tsx`:
+
+| Halaman | Isi |
+|---|---|
+| `/admin/login` | Masuk |
+| `/admin` | Dasbor: ringkasan, pendaftaran 14 hari terakhir, survei per unit |
+| `/admin/records/[table]` | CRUD isi konten, mengikuti peran |
+| `/admin/beds` | Kapasitas tempat tidur |
+| `/admin/inbox/[kind]` | Antrean pengajuan: pendaftaran, rawat inap, kritik, WBS, survei |
+| `/admin/akun` | Kelola akun admin, hanya `super_admin` |
+| `/admin/pengaturan` | Nama, kontak, jam layanan, tautan sosial |
+
+Sembilan kelompok API sudah punya Representasi di antarmuka di antarmuka:
+`tables` lewat `records/[table]`, `stats`, `appointments-per-day`, dan
+`survey-by-unit` lewat dasbor, `settings` lewat `/admin/pengaturan`.
 
 ### Layout global
 
@@ -94,9 +114,14 @@ Mode database ditentukan `API_MODE`, bukan oleh isi `DATABASE_URL`:
 
 ### Halaman
 
-**163 halaman** ter-build. Selain beranda, sudah ada katalog pelayanan
-(poliklinik, medis, diagnostik, MCU), PPID bercabang, berita, informasi
-publik, laboratorium, radiologi, tentang-kami, dan daftar online.
+**163 halaman HTML** ter-build, plus `opengraph-image`, `robots.txt`, dan
+`sitemap.xml`. Selain beranda, sudah ada katalog pelayanan (poliklinik, medis,
+diagnostik, MCU), PPID bercabang, berita, informasi publik, laboratorium,
+radiologi, tentang-kami, dan daftar online.
+
+Angka ini dihitung dari `.next/prerender-manifest.json`, bukan dikira.
+`bun run build` mencetak `Generating static pages (179/179)`; selisihnya
+karena route `[slug]` menghasilkan banyak halaman dari satu pola.
 
 ### Home — 13 section
 
@@ -139,17 +164,59 @@ Next.js 16 (App Router, Turbopack) · React 19 · TypeScript strict ·
 Bootstrap 5.3.3 · Bootstrap Icons · Swiper · SweetAlert2 · Poppins via
 `next/font` · Drizzle ORM · driver `postgres`
 
+### Keamanan
+
+Tujuh header keamanan dikirim ke setiap respons, dikonfigurasi di
+`next.config.ts`: Content-Security-Policy, Strict-Transport-Security,
+X-Content-Type-Options, Referrer-Policy, Permissions-Policy, X-Frame-Options,
+dan `frame-ancestors` di dalam CSP.
+
+CSP disusun dari pengukuran: tidak ada `<iframe>`, tidak ada `form action` ke
+host lain, semua permintaan dari klien hanya ke origin sendiri, dan foto hanya
+dari dua host yang terdaftar di `remotePatterns`. Dua kelonggaran yang tersisa
+dicatat terbuka di [`docs/AUDIT-KEAMANAN.md`](docs/AUDIT-KEAMANAN.md):
+`script-src` dan `style-src` masih memakai `'unsafe-inline'`, karena menghapusnya
+butuh nonce, dan nonce hanya bisa terbit di middleware, yang akan mengubah
+seluruh halaman statis menjadi dinamis.
+
+Rincian temuan keamanan ada di
+[`docs/AUDIT-KEAMANAN.md`](docs/AUDIT-KEAMANAN.md).
+
+### Pengujian
+
+813 test di 60 berkas, memakai Vitest. Cakupannya logika murni: bentuk data
+konten, validasi formulir, sanitasi Markdown, hashing dan verifikasi sesi,
+penelusuran path menu, fungsi tanggal, dan penolakan mode snapshot atas
+permintaan yang mengubah data.
+
+Yang **tidak** diuji dan harus diperiksa manual: tata letak responsif,
+carousel Swiper, panel navigasi off-canvas, dan interaksi SweetAlert2.
+
 ---
 
 ## Yang belum dikerjakan
 
-- [ ] Halaman antarmuka panel admin. API-nya sudah ada, halaman belum.
-- [ ] Formulir yang benar-benar mengirim ke server. `POST /api/v1/appointments`
-      sudah ada, tapi endpoint itu menuntut `schedule_id` berupa UUID jadwal
-      dokter, sedangkan formulir pendaftaran hanya menanyakan tanggal.
-      Menyambungkannya berarti menambah langkah pilih dokter lalu pilih jam.
-- [ ] Form: E-Pasien, Registrasi MCU, Kritik-Saran, WBS, SKM (P2)
-- [ ] Dual deploy Vercel + VPS
+- [ ] Menaikkan `swiper` ke 12.1.2. Versi 11.2.6 punya advisori prototype
+      pollution ([GHSA-hmx5-qpq5-p643](https://github.com/advisories/GHSA-hmx5-qpq5-p643)).
+      Perlu naik versi utama dan pengujian carousel di browser, jadi tidak
+      bisa ditutup diam-diam. Lihat [`docs/AUDIT-KEAMANAN.md`](docs/AUDIT-KEAMANAN.md).
+- [ ] Menaikkan `sweetalert2` ke 11.22.4 untuk advisori tingkat rendah.
+- [ ] Formulir **E-Pasien**.
+- [ ] Dual deploy Vercel + VPS.
+- [ ] Uji end-to-end dengan Playwright. Yang diuji sekarang adalah logika
+      murni; tata letak responsif, carousel, panel navigasi off-canvas, dan
+      interaksi SweetAlert2 masih harus diperiksa manual lewat browser.
+
+Yang **sudah** selesai dan dulu tercatat belum, diperbarui 8 Oktober 2026:
+
+| Perluasan | Status |
+|---|---|
+| Formulir Kritik-Saran | Mengirim ke `POST /api/v1/feedbacks` |
+| Formulir SKM | Mengirim ke `POST /api/v1/survey-responses` |
+| Formulir WBS | Mengirim ke `POST /api/v1/wbs-reports` |
+| Formulir MCU | Mengirim ke `POST /api/v1/mcu-registrations` |
+| Daftar Online | Sudah punya langkah pilih poli, dokter, dan jam, jadi `schedule_id` terisi |
+| Panel admin | Tujuh halaman, mencakup 9 kelompok API |
 
 Halaman publik masih membaca `src/data/`, bukan Route Handler. Itu pilihan
 sengaja: isi situs tidak boleh ikut hilang saat database tidak bisa dijangkau,
