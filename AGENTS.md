@@ -15,6 +15,11 @@ konten, foto, dan nama orang semua dibuat sendiri - jangan salin logo, nama dokt
 testimoni, kontak, atau foto milik rumah sakit nyata mana pun (PRD di `docs/`
 bagian 12 dan 13).
 
+## Awal sesi
+
+Baca `docs/HANDOFF.md` sebelum menyentuh kode. Isinya posisi kerja sekarang,
+keputusan yang sudah diambil, dan masalah yang masih terbuka.
+
 ## Lokasi aplikasi
 
 Aplikasi ada di **root repo**: `src/`, `package.json`, `next.config.ts` semuanya
