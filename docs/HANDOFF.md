@@ -4,9 +4,9 @@
 dokumen lain untuk mencari tahu posisi kerja sekarang.
 
 Tanggal pembaruan: **8 Oktober 2026**
-Commit saat serah-terima: **`32f5ed9`**, di branch
-`fix/header-keamanan-dan-audit`.
-Branch `main` masih di `c89f250`.
+Commit saat serah-terima: **`35c65cf`**, di branch
+`fix/header-keamanan-dan-audit` (13 commit di atas `main`).
+Branch `main` masih di `c154306`.
 
 ---
 
@@ -118,14 +118,9 @@ Ringkasan. Bukti lengkap di `docs/STATUS-PROYEK.md` bagian 3.
    persetujuan sebelum digabung ke `main`.
 2. **Dua kenaikan versi dependensi** (swiper, sweetalert2) belum dikerjakan,
    karena keduanya perubahan dependensi yang perlu disetujui lebih dulu.
-3. **Satu baris untuk `AGENTS.md`**, diusulkan tapi belum ditulis:
-
-   ```markdown
-   ## Awal sesi
-
-   Baca `docs/HANDOFF.md` sebelum menyentuh kode. Isinya posisi kerja
-   sekarang, keputusan yang sudah diambil, dan masalah yang masih terbuka.
-   ```
+3. **Baris "Awal sesi" untuk `AGENTS.md` sudah diterapkan** di commit
+   `5bcf2ad` (Baca `docs/HANDOFF.md` sebelum menyentuh kode), jadi usulan
+   itu tidak lagi menggantung.
 
 ---
 
@@ -143,16 +138,14 @@ Konsekuensinya:
 - Jalankan `git status` dan `git log --oneline -3` sebelum mulai.
 - Hitung ulang angka apa pun sebelum menuliskannya ke dokumen.
 
-### Dua bug pemblokir build ditemukan di berkas pekerjaan paralel
+### Dua bug pemblokir build di berkas pekerjaan paralel — SUDAH BERES
 
-Keduanya sudah diperbaiki **di working tree tapi tidak di-commit**, karena
-berkasnya juga memuat perubahan lain yang belum selesai:
-
-1. `McuPackageDetail.tsx` memakai `<McuForm>` tanpa import.
-2. `McuPackageDetail.tsx` kehilangan tag pembuka `<a href="#daftar-mcu">`.
-
-Kalau berkas itu di-commit oleh pemiliknya, kedua perbaikan itu ikut terbawa.
-Kalau tidak, build akan gagal lagi.
+Sempat ditemukan di `McuPackageDetail.tsx` (memakai `<McuForm>` tanpa
+import, kehilangan tag pembuka `<a href="#daftar-mcu">`), lalu ada di
+working tree tanpa commit sehingga build bisa gagal. Keduanya sekarang
+sudah ikut di-commit `6602a7d`
+`feat(mcu): formulir pendaftaran paket MCU di halaman paket`. Nama paket
+yang salah ketik ("Nafrotik") juga sudah diperbaiki oleh `35c65cf`.
 
 ### Jebakan `*/` di dalam komentar
 
@@ -184,3 +177,39 @@ berkas, build 179 halaman statis (163 HTML).
 `docker compose up -d postgres` gagal dengan `permission denied` pada
 `/var/run/docker.sock`. Aturan repo melarang `sudo` tanpa diminta eksplisit.
 Jadi uji yang butuh database harus dilakukan di sesi yang punya akses.
+
+---
+
+## Review diff (Prompt 4) — 2026-10-08, SUDAH DIBERESKAN
+
+**Lingkup saat review:** working tree belum di-commit (11 modified +
+12 untracked) berisi fitur pendaftaran paket MCU: `McuForm` di halaman
+paket, migrasi slug, snapshot baru. Semua gerbang tetap hijau: build
+179/179 exit 0, test 813 lulus, lint 0 error, scan rahasia bersih.
+
+**Status sekarang:** ketiga temuan sudah diperbaiki dan di-commit
+oleh pemilik repo, jadi tabel di bawah hanya arsip.
+
+| # | Lokasi | Tingkat | Temuan | Nasib |
+|---|---|---|---|---|
+| 1 | `drizzle/0005_slug_paket_mcu.sql:16`, `scripts/seed-data.json`, snapshot | **Blocker** | `name = 'MCU Paket Periksaan Bebas Nafrotik'` (salah ketik). Nilai ini jadi `<h1>` halaman paket dan `namaPaket` form, jadi terlihat publik. | ✅ Diperbaiki jadi "Narkoba" — commit `35c65cf` |
+| 2 | `drizzle/0005_slug_paket_mcu.sql:15` | Minor | `--_effectif sama.` — kata rusak ("efektif") + spasi hilang setelah `--`. | ✅ Diperbaiki jadi `-- efektif sama.` — `35c65cf` |
+| 3 | turunan #1 di seed + snapshot | **Blocker** | Nama sama ikut ke seed dan snapshot API. | ✅ Diperbaiki bersama #1 |
+
+Fitur MCU itu sendiri sudah di-commit sebagai `6602a7d`
+`feat(mcu): formulir pendaftaran paket MCU di halaman paket`.
+
+### Yang dinilai baik saat review (tetap berlaku)
+- Komentar `McuPackageDetail.tsx` menjelaskan kenapa tombol lama salah
+  (mengarah ke form rawat jalan yang minta slot dokter/jam).
+- Migrasi idempoten: `UPDATE ... WHERE slug=...` + `ON CONFLICT DO NOTHING`.
+- Tidak ada rahasia/kredensial di diff.
+- `dynamicParams=false` + `collectNavPaths` di `[...slug]` → tidak tambah
+  tautan mati (terverifikasi lewat `.next/prerender-manifest.json`).
+
+### Catatan repo bergerak sendiri
+Saat sesi ini berjalan, HEAD berubah dari `ee112a3` ke `35c65cf`
+(branch `fix/header-keamanan-dan-audit`). Commit `5bcf2ad` juga sudah
+menerapkan usulan AGENTS.md (baca `docs/HANDOFF.md` di awal sesi).
+**Selalu jalankan `git status` + `git log --oneline -3` sebelum
+mengklaim sesuatu; jangan pakai angka dari HANDOFF tanpa verifikasi ulang.**
