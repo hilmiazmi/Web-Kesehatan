@@ -1,8 +1,12 @@
+import { existsSync } from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { BROSUR_CATEGORIES, BROSURS } from "@/data/brosur";
 import { CLINICS, CLINIC_DETAILS } from "@/data/clinics";
 import { PPID_SUBPAGES } from "@/data/ppid";
 import { NAV_PPID_CHILDREN } from "@/data/ppid-nav";
+
+const akar = path.resolve(import.meta.dirname, "..");
 
 /**
  * Bentuk data brosur, klinik, dan PPID.
@@ -95,6 +99,34 @@ describe("halaman PPID", () => {
       expect(p.form!.fields.length, p.slug).toBeGreaterThan(0);
       expect(p.form!.submitLabel.trim(), p.slug).not.toBe("");
     }
+  });
+
+  it("endpoint yang diisi formulir PPID benar-benar ada", () => {
+    // Endpoint yang ditulis tapi tidak ada Route Handler-nya lebih berbahaya
+    // daripada tidak ada sama sekali: formulirnya terlihat bisa dipakai, lalu
+    // gagal diam-diam saat dikirim.
+    //
+    // Daftar ini diperiksa sebagai teks terhadap folder Route Handler, bukan
+    // lewat permintaan HTTP, supaya tes ini tetap jalan tanpa server.
+    const routeHandler = (endpoint: string): boolean => {
+      const jalur = endpoint.replace(/^\/api\/v1\//, "src/app/api/v1/");
+      return existsSync(path.join(akar, `${jalur}/route.ts`));
+    };
+
+    const berendpoint = PPID_SUBPAGES.filter((p) => p.form?.endpoint);
+    expect(berendpoint.length).toBeGreaterThan(0);
+    for (const p of berendpoint) {
+      expect(routeHandler(p.form!.endpoint!), `${p.slug} -> ${p.form!.endpoint}`).toBe(true);
+    }
+  });
+
+  it("hanya formulir WBS yang punya endpoint, dan itu untuk WBS", () => {
+    // Formulir permohonan informasi dan keberatan masih diisi di loket karena
+    // Route Handler-nya belum ada. Kalau ini berubah, tes di atas yang akan
+    // gagal lebih dulu; tes ini menjaga arah sebaliknya, yaitu tidak ada
+    // endpoint yang dipakai untuk halaman yang tidak.pertains.
+    const slugDenganEndpoint = PPID_SUBPAGES.filter((p) => p.form?.endpoint).map((p) => p.slug);
+    expect(slugDenganEndpoint).toEqual(["form-whistle-blowing-system"]);
   });
 
   it("setiap halaman punya isi, bukan cuma judul", () => {

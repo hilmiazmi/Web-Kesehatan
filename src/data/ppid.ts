@@ -32,7 +32,24 @@ export type PpidSubpage = {
   /** Kalimat pembuka, ditampilkan sendiri di bawah remah roti. */
   lead: string;
   blok: BlokHalaman[];
-  form?: { submitLabel: string; note: string; fields: PpidField[] };
+  form?: {
+    submitLabel: string;
+    note: string;
+    fields: PpidField[];
+    /**
+     * Endpoint yang menerima isian halaman ini, kalau ada.
+     *
+     * Hanya diisi bila Route Handler-nya benar-benar ada. Dua formulir
+     * permohonan informasi dan keberatan belum punya endpoint, jadi tombolnya
+     * tetap dimatikan dan hanya menampilkan isiannya. Formulir WBS punya, dan
+     * halaman itu merender `WbsForm`.
+     *
+     * Endpoint yang diisi tapi tidak ada Route Handler-nya lebih berbahaya
+     * daripada tidak ada sama sekali: formulirnya kelihatan bisa dipakai lalu
+     * gagal diam-diam.
+     */
+    endpoint?: string;
+  };
 };
 
 /** Isi field formulir yang sama untuk dua halaman pemohon. */
@@ -363,6 +380,7 @@ export const PPID_SUBPAGES: PpidSubpage[] = [
     form: {
       submitLabel: "Kirim Laporan",
       note: "Identitas pelapor dapat dirahasiakan dan tidak dipublikasikan.",
+      endpoint: "/api/v1/wbs-reports",
       fields: [
         { label: "Nama pelapor, boleh dikosongkan", type: "text" },
         { label: "Nomor telepon, boleh dikosongkan", type: "text" },

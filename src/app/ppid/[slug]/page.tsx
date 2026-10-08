@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import PageHeader from "@/components/layout/PageHeader";
 import PageBlocks from "@/components/halaman/PageBlocks";
+import WbsForm from "@/components/forms/wbs-form";
 import { DetailLayout } from "@/components/pelayanan/DetailLayout";
 import { PPID_SUBPAGES } from "@/data/ppid";
 import { NAV_PPID_CHILDREN } from "@/data/ppid-nav";
@@ -31,8 +32,11 @@ export async function generateMetadata({
  * dengan halaman generik, sehingga PPID bisa memakai tabel waktu dan biaya
  * tanpa bentuk tata letak baru.
  *
- * Yang belum tersedia di repo ini adalah endpoint pendaftaran PPID, jadi form
- * di bawah hanya menampilkan isinya dan tidak mengirim apa pun.
+ * Endpoint yang dipakai hanya Satu: `POST /api/v1/wbs-reports` untuk laporan
+ * Whistle Blowing System. Dua formulir lain, permohonan informasi dan
+ * keberatan, belum punya Route Handler, jadi isiannya tetap ditampilkan dan
+ * tombolnya dimatikan. Menyalakan tombol tanpa endpoint sama dengan menyuruh
+ * orang mengisi form yang tidak pernah sampai.
  */
 export default async function PpidSubpage({
   params,
@@ -66,10 +70,8 @@ export default async function PpidSubpage({
                   <h2 className="detail-subheading">Formulir</h2>
                   <p className="detail-lead">{page.form.note}</p>
 
-                  {/* Endpoint pendaftaran belum ada di repo ini, jadi halaman
-                      ini hanya menampilkan apa yang akan diisi. Tombolnya
-                      sengaja dimatikan: tombol yang bisa diklik tapi tidak
-                      melakukan apa pun lebih buruk daripada tidak ada. */}
+                  {/* Hanya WBS yang punya endpoint. Yang lain masih menampilkan
+                      isian saja karena Route Handler-nya belum ada. */}
                   <ul className="detail-list">
                     {page.form.fields.map((f) => (
                       <li key={f.label}>
@@ -84,15 +86,34 @@ export default async function PpidSubpage({
                     ))}
                   </ul>
 
-                  <button type="button" className="btn btn-primary mt-3" disabled>
-                    {page.form.submitLabel}
-                  </button>
+                  {page.form.endpoint === "/api/v1/wbs-reports" ? (
+                    <>
+                      <div className="card mt-3">
+                        <div className="card-content">
+                          <WbsForm />
+                        </div>
+                      </div>
+                      <p className="form-footnote">
+                        <i className="bi bi-info-circle" aria-hidden="true" />
+                        Formulir ini mengirim data ke{" "}
+                        <code>POST /api/v1/wbs-reports</code>. Laporan yang
+                        dikirim masuk ke inbox WBS di panel admin dan kode
+                        tiketnya dipakai untuk mengecek perkembangan.
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <button type="button" className="btn btn-primary mt-3" disabled>
+                        {page.form.submitLabel}
+                      </button>
 
-                  <p className="form-footnote">
-                    <i className="bi bi-info-circle" aria-hidden="true" />
-                    Formulir belum dapat dikirim. Pengisian data PR hanya
-                    tersedia di loket.
-                  </p>
+                      <p className="form-footnote">
+                        <i className="bi bi-info-circle" aria-hidden="true" />
+                        Formulir belum dapat dikirim dari halaman ini.
+                        Pengisiannya dilakukan di loket PPID pada jam kerja.
+                      </p>
+                    </>
+                  )}
                 </section>
               ) : null}
             </article>
