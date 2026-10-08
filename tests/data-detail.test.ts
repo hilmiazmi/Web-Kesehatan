@@ -96,4 +96,85 @@ describe("halaman PPID", () => {
       expect(p.form!.submitLabel.trim(), p.slug).not.toBe("");
     }
   });
+
+  it("setiap halaman punya isi, bukan cuma judul", () => {
+    // Tiga halaman formulir pernah punya `sections: []`, jadi yang tampil hanya
+    // daftar isian. Halaman PPID tanpa penjelasan tidak bisa dipakai untuk
+    // menjawab pertanyaan pemohon.
+    for (const p of PPID_SUBPAGES) {
+      expect(p.lead.trim(), p.slug).not.toBe("");
+      expect(p.blok.length, p.slug).toBeGreaterThan(0);
+      expect(p.blok.some((b) => b.jenis !== "catatan"), p.slug).toBe(true);
+    }
+  });
+
+  it("halaman tanpa formulir punya minimal satu tabel atau langkah", () => {
+    // Tanpa tabel atau langkah bernomor, halaman penjelasan berubah jadi daftar
+    // kalimat yang tidak bisa dipakai: tidak ada angka target waktu, tidak ada
+    // urutan kerja.
+    const tanpaForm = PPID_SUBPAGES.filter((p) => !p.form);
+    expect(tanpaForm.length).toBeGreaterThan(0);
+    for (const p of tanpaForm) {
+      const punya = p.blok.some((b) => b.jenis === "tabel" || b.jenis === "langkah");
+      expect(punya, p.slug).toBe(true);
+    }
+  });
+
+  it("tiap butir daftar punya teks yang tidak kosong", () => {
+    // Butir kosong dirender sebagai elemen `<li>` kosong yang tetap menambah
+    // tinggi baris, jadi halaman terlihat punya lebih banyak isi daripada
+    // yang sebenarnya ada.
+    const kosong: string[] = [];
+    for (const p of PPID_SUBPAGES) {
+      for (const b of p.blok) {
+        if (b.jenis === "daftar") {
+          b.butir.forEach((t, i) => {
+            if (t.trim() === "") kosong.push(`${p.slug} daftar[${i}]`);
+          });
+        }
+        if (b.jenis === "daftar-tebal") {
+          b.butir.forEach((t, i) => {
+            if (t.tebal.trim() === "" || t.isi.trim() === "") kosong.push(`${p.slug} tebal[${i}]`);
+          });
+        }
+        if (b.jenis === "langkah") {
+          b.butir.forEach((t, i) => {
+            if (t.trim() === "") kosong.push(`${p.slug} langkah[${i}]`);
+          });
+        }
+      }
+    }
+    expect(kosong).toEqual([]);
+  });
+
+  it("angka laporan PPID konsisten dengan tabel penyelesaannya", () => {
+    // Angka rekapitulasi dan angka tabel harus saling cocok: total
+    // permintaan harus sama dengan jumlah yang diberikan ditambah yang tidak
+    // dapat diberikan.
+    const laporan = PPID_SUBPAGES.find((p) => p.slug === "laporan-ppid")!;
+    const statistik = laporan.blok.find((b) => b.jenis === "statistik");
+    const tabel = laporan.blok.find((b) => b.jenis === "tabel");
+    if (statistik?.jenis !== "statistik" || tabel?.jenis !== "tabel") {
+      throw new Error("blok laporan tidak ditemukan");
+    }
+
+    const angka = (label: string): number => {
+      const butir = statistik.butir.find((b) => b.label === label);
+      if (butir === undefined) throw new Error(`statistik "${label}" tidak ada`);
+      return Number(butir.nilai);
+    };
+    const jumlah = (kolom: number): number =>
+      tabel.baris.reduce((n, b) => n + Number(b[kolom]), 0);
+
+    const diminta = jumlah(1);
+    const diberikan = jumlah(2);
+    const ditolak = jumlah(3);
+
+    expect(diminta).toBe(angka("Permintaan diterima"));
+    expect(diberikan).toBe(angka("Dijawab sesuai jangka waktu"));
+    expect(ditolak).toBe(angka("Tidak dapat diberikan"));
+    // Permintaan yang tidak dijelaskan jawabnya harus nol, kalau tidak
+    // ada kategori yang belum tercatat.
+    expect(diberikan + ditolak).toBe(diminta);
+  });
 });

@@ -31,6 +31,7 @@ const PUNYA_ROUTE_SENDIRI = new Set([
   "/informasi-publik/brosur",
   "/kapasitas-bed",
   "/jadwal-dokter",
+  "/kontak",
   "/pelayanan/poliklinik",
   "/ppid",
   "/tentang-kami/manajemen",
@@ -40,6 +41,16 @@ const PUNYA_ROUTE_SENDIRI = new Set([
 /** Path yang benar-benar dilayani route generik. */
 const pathGenerik = pathDariNav.filter((p) => !PUNYA_ROUTE_SENDIRI.has(`/${p}`));
 
+/**
+ * Isi yang boleh dipakai route sendiri, bukan hanya catch-all.
+ *
+ * `/kontak` punya route sendiri karena formulirnya tidak bisa berasal dari
+ * blok statis, tapi teks alamat dan kanal kontak tetap satu-satunya salinannya
+ * di `HALAMAN`. Kalau isi seperti ini ikut dipindahkan ke berkas halamannya,
+ * ada dua sumber untuk alamat yang sama dan keduanya bisa berbeda.
+ */
+const ISI_YANG_BOLEH_DIPAKAI_ROUTE_SENDIRI = new Set(["kontak"]);
+
 describe("cakupan isi halaman", () => {
   it("setiap path generik dari navigasi punya isi", () => {
     const tanpa = pathGenerik.filter((p) => !HALAMAN[p]);
@@ -47,12 +58,16 @@ describe("cakupan isi halaman", () => {
   });
 
   it("tidak ada isi untuk path yang tidak dilayani", () => {
-    const ekstra = Object.keys(HALAMAN).filter((p) => !pathGenerik.includes(p));
+    const ekstra = Object.keys(HALAMAN).filter(
+      (p) => !pathGenerik.includes(p) && !ISI_YANG_BOLEH_DIPAKAI_ROUTE_SENDIRI.has(p),
+    );
     expect(ekstra).toEqual([]);
   });
 
-  it("jumlah halaman sama dengan jumlah path generik", () => {
-    expect(Object.keys(HALAMAN).length).toBe(pathGenerik.length);
+  it("jumlah isi sama dengan jumlah path generik ditambah isi route sendiri", () => {
+    expect(Object.keys(HALAMAN).length).toBe(
+      pathGenerik.length + ISI_YANG_BOLEH_DIPAKAI_ROUTE_SENDIRI.size,
+    );
   });
 
   it("kapasitas bed tidak punya isi generik lagi", () => {
@@ -265,6 +280,7 @@ describe("tautan di footer", () => {
       "/daftar-online",
       "/berita",
       "/admin",
+      "/kontak",
     ]);
     for (const l of FOOTER_RELATED) {
       const ok = semua.has(l.href.slice(1)) || routeSendiri.has(l.href);

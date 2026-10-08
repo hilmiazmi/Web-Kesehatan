@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import PageHeader from "@/components/layout/PageHeader";
+import PageBlocks from "@/components/halaman/PageBlocks";
 import { DetailLayout } from "@/components/pelayanan/DetailLayout";
 import { PPID_SUBPAGES } from "@/data/ppid";
 import { NAV_PPID_CHILDREN } from "@/data/ppid-nav";
@@ -26,9 +27,12 @@ export async function generateMetadata({
  * Satu halaman anak PPID.
  *
  * Susunannya sama dengan halaman detail layanan: daftar halaman saudara di
- * kolom kiri, isi di kolom kanan. Yang belum tersedia di repo ini adalah
- * endpoint pendaftaran, jadi form di bawah hanya menampilkan isinya dan
- * tidak mengirim apa pun.
+ * kolom kiri, isi di kolom kanan. Isinya dirender `PageBlocks`, yang sama
+ * dengan halaman generik, sehingga PPID bisa memakai tabel waktu dan biaya
+ * tanpa bentuk tata letak baru.
+ *
+ * Yang belum tersedia di repo ini adalah endpoint pendaftaran PPID, jadi form
+ * di bawah hanya menampilkan isinya dan tidak mengirim apa pun.
  */
 export default async function PpidSubpage({
   params,
@@ -55,19 +59,7 @@ export default async function PpidSubpage({
               <h1 className="detail-title">{page.title}</h1>
               <p className="detail-lead">{page.lead}</p>
 
-              {page.sections.map((s) => (
-                <section key={s.heading}>
-                  <h2 className="detail-subheading">{s.heading}</h2>
-                  <ul className="detail-list">
-                    {s.points.map((p) => (
-                      <li key={p}>
-                        <i className="bi bi-check-circle" aria-hidden="true" />
-                        {p}
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              ))}
+              <PageBlocks blok={page.blok} pathname={`/ppid/${page.slug}`} />
 
               {page.form ? (
                 <section>
@@ -80,7 +72,15 @@ export default async function PpidSubpage({
                       melakukan apa pun lebih buruk daripada tidak ada. */}
                   <ul className="detail-list">
                     {page.form.fields.map((f) => (
-                      <li key={f.label}>{f.label}</li>
+                      <li key={f.label}>
+                        {f.label}
+                        {f.petunjuk ? (
+                          <>
+                            {" — "}
+                            <span className="text-body-secondary">{f.petunjuk}</span>
+                          </>
+                        ) : null}
+                      </li>
                     ))}
                   </ul>
 
