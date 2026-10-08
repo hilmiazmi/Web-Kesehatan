@@ -2501,9 +2501,9 @@
       {
         "id": "3d4d8b61-6385-440f-b789-4e08ef4a4b45",
         "slug": "paket-pemeriksaan-bebas-narkoba",
-        "name": "MCU Paket Pemeriksaan Bebas Nafrotik",
+        "name": "MCU Paket Pemeriksaan Bebas Narkoba",
         "category": "reguler",
-        "summary": "Pemeriksaan untuk keperluan administratif dan tester kerja.",
+        "summary": "Pemeriksaan untuk keperluan administratif dan tes kerja.",
         "description": "Digunakan untuk keperluan pengajuan kerja dan pemeriksaan tambahan.",
         "price": 300000,
         "imageUrl": "https://picsum.photos/seed/paket-pemeriksaan-bebas-narkoba/960/640",

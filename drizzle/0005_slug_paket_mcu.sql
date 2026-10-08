@@ -12,8 +12,8 @@
 -- `scripts/seed-data.json` diperbarui dengan isi yang sama. Database yang
 -- sudah punya baris tidak akan ikut berubah dari seed karena `db:seed`
 -- memakai `onConflictDoNothing`, jadi migrasi ini yang membuat keduanya
---_effectif sama.
-UPDATE "mcu_packages" SET "slug" = 'paket-pemeriksaan-bebas-narkoba', "name" = 'MCU Paket Pemeriksaan Bebas Nafrotik' WHERE "slug" = 'paket-pemeriksaan-bebas-namot' OR "slug" = 'paket-pemeriksaan-bebas-narkotik';--> statement-breakpoint
+-- efektif sama.
+UPDATE "mcu_packages" SET "slug" = 'paket-pemeriksaan-bebas-narkoba', "name" = 'MCU Paket Pemeriksaan Bebas Narkoba' WHERE "slug" = 'paket-pemeriksaan-bebas-namot' OR "slug" = 'paket-pemeriksaan-bebas-narkotik';--> statement-breakpoint
 UPDATE "mcu_packages" SET "slug" = 'anak-sekolah-basic-health-fun' WHERE "slug" = 'anak-sekolah-basic';--> statement-breakpoint
 UPDATE "mcu_packages" SET "slug" = 'anak-sekolah-medical-explore' WHERE "slug" = 'anak-sekolah-medical';--> statement-breakpoint
 INSERT INTO "mcu_packages" ("id", "slug", "name", "category", "summary", "description", "price", "image_url", "preparation", "is_active", "sort_order", "created_at", "updated_at")
