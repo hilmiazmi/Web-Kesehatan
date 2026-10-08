@@ -76,9 +76,14 @@ export function config(): Config {
   // selalu ditolak 503 sebelum token sempat diterbitkan, jadi secret yang
   // kosong tidak bisa dipakai untuk menandatangani apa pun. Pengecualian ini
   // disengaja supaya pratinjau snapshot tidak butuh secret sungguhan.
+  //
+  // Pesannya sengaja tidak menyebut panjang nilai yang sebenarnya. Panjang
+  // secret adalah informasi yang membantu penyerang: ia mempersempit tebakan
+  // dari "apa pun" jadi "tebakan dengan panjang yang pas", dan tidak ada
+  // kebutuhan operasional untuk mengetahuinya. Cukup sebutkan batasnya.
   if (apiMode === "live" && authSecret.length < AUTH_SECRET_MIN) {
     throw new ConfigError(
-      `AUTH_SECRET wajib diisi dan minimal ${AUTH_SECRET_MIN} karakter (nilai sekarang ${authSecret.length}).`,
+      `AUTH_SECRET wajib diisi dan minimal ${AUTH_SECRET_MIN} karakter. Nilai tidak dicetak demi keamanan.`,
     );
   }
 
