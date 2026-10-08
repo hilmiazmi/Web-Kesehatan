@@ -219,12 +219,21 @@
    "description_html": "<p>Sama dengan paket eksekutif pria, ditambah mammografi dan pemeriksaan ginekologi.</p>\n"
   },
   {
-   "slug": "paket-pemeriksaan-bebas-narkotik",
-   "name": "MCU Pemeriksaan Bebas Narkotik",
+   "slug": "paket-pemeriksaan-bebas-narkoba",
+   "name": "MCU Paket Pemeriksaan Bebas Nafrotik",
    "category": "reguler",
    "summary": "Pemeriksaan untuk keperluan administratif dan tester kerja.",
    "image_url": "https://picsum.photos/seed/paket-pemeriksaan-bebas-narkotik/960/640",
    "price": 300000,
+   "description_html": "<p>Digunakan untuk keperluan pengajuan kerja dan pemeriksaan tambahan.</p>\n"
+  },
+  {
+   "slug": "paket-pemeriksaan-sehat-rohani",
+   "name": "MCU Paket Pemeriksaan Sehat Rohani",
+   "category": "reguler",
+   "summary": "Pemeriksaan kesehatan yang disertai pemeriksaan oleh psikolog.",
+   "image_url": "https://picsum.photos/seed/paket-pemeriksaan-sehat-rohani/960/640",
+   "price": 400000,
    "description_html": "<p>Digunakan untuk keperluan pengajuan kerja dan pemeriksaan tambahan.</p>\n"
   }
  ],

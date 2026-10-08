@@ -54,8 +54,8 @@
   "description_html": "<p>Sama dengan paket eksekutif pria, ditambah mammografi dan pemeriksaan ginekologi.</p>\n"
  },
  {
-  "slug": "paket-pemeriksaan-bebas-narkotik",
-  "name": "MCU Pemeriksaan Bebas Narkotik",
+  "slug": "paket-pemeriksaan-bebas-narkoba",
+  "name": "MCU Paket Pemeriksaan Bebas Nafrotik",
   "category": "reguler",
   "summary": "Pemeriksaan untuk keperluan administratif dan tester kerja.",
   "image_url": "https://picsum.photos/seed/paket-pemeriksaan-bebas-narkotik/960/640",
@@ -63,7 +63,7 @@
   "description_html": "<p>Digunakan untuk keperluan pengajuan kerja dan pemeriksaan tambahan.</p>\n"
  },
  {
-  "slug": "anak-sekolah-basic",
+  "slug": "anak-sekolah-basic-health-fun",
   "name": "MCU Anak Sekolah Basic",
   "category": "health_meets_holiday",
   "summary": "Pemeriksaan kesehatan yang mudah dilakukan pada hari sekolah.",
@@ -72,13 +72,31 @@
   "description_html": "<p>Program pemeriksaan anak sekolah dengan metode yang cepat.</p>\n"
  },
  {
-  "slug": "anak-sekolah-medical",
+  "slug": "paket-pemeriksaan-sehat-rohani",
+  "name": "MCU Paket Pemeriksaan Sehat Rohani",
+  "category": "reguler",
+  "summary": "Pemeriksaan kesehatan yang disertai pemeriksaan oleh psikolog.",
+  "image_url": "https://picsum.photos/seed/paket-pemeriksaan-sehat-rohani/960/640",
+  "price": 400000,
+  "description_html": "<p>Digunakan untuk keperluan pengajuan kerja dan pemeriksaan tambahan.</p>\n"
+ },
+ {
+  "slug": "anak-sekolah-medical-explore",
   "name": "MCU Anak Sekolah Medical",
   "category": "health_meets_holiday",
   "summary": "Pemeriksaan kesehatan anak sekolah dengan pemeriksaan darah.",
   "image_url": "https://picsum.photos/seed/anak-sekolah-medical/960/640",
   "price": 95000,
   "description_html": "<p>Program pemeriksaan anak sekolah yang sudah termasuk pemeriksaan darah.</p>\n"
+ },
+ {
+  "slug": "anak-sekolah-fun-talent",
+  "name": "MCU Anak Sekolah Fun Talent",
+  "category": "health_meets_holiday",
+  "summary": "Pemeriksaan kesehatan untuk peserta kegiatan sekolah.",
+  "image_url": "https://picsum.photos/seed/anak-sekolah-fun-talent/960/640",
+  "price": 700000,
+  "description_html": "<p>Digunakan untuk pemeriksaan kesehatan sebelum kegiatan sekolah.</p>\n"
  },
  {
   "slug": "screening-cancer-male",
@@ -88,5 +106,14 @@
   "image_url": "https://picsum.photos/seed/screening-cancer-male/960/640",
   "price": 150000,
   "description_html": "<p>Program skrining untuk pria dengan usia 40 tahun atau lebih.</p>\n"
+ },
+ {
+  "slug": "screening-cancer-female",
+  "name": "Skrining Kanker Wanita",
+  "category": "health_meets_holiday",
+  "summary": "Pemeriksaan untuk deteksi dini kanker pada wanita.",
+  "image_url": "https://picsum.photos/seed/screening-cancer-female/960/640",
+  "price": 950000,
+  "description_html": "<p>Digunakan untuk pemeriksaan deteksi dini pada wanita.</p>\n"
  }
 ]

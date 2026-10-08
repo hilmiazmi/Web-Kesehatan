@@ -667,9 +667,10 @@ useEffect(() => {
         <div className="form-alert" role="status">
           <strong>{paketDipilih.title}</strong>
           <span>
-            Paket ini dipilih di halaman MCU. Daftar di bawah untuk kunjungan rawat
-            jalan per dokter; bila yang ingin didaftarkan adalah pemeriksaan
-            paket, sebutkan nama paketnya saat datang ke loket.
+            Paket ini dipilih di halaman MCU. Formulir di bawah untuk kunjungan
+            rawat jalan per dokter. Pendaftaran pemeriksaan paket memakai
+            formulirnya sendiri di halaman paket itu, karena tidak ada slot
+            dokter maupun jam yang dipilih.
           </span>
         </div>
       ) : null}
