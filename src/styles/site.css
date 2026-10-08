@@ -1022,6 +1022,75 @@
   text-decoration: underline;
 }
 
+/* ---------- Skala penilaian survei ----------
+ *
+ * Lima pilihan dalam satu baris. Tiap pilihan adalah `form-check` Bootstrap,
+ * jadi tampilan tombol radio dan area sentuhnya sudah benar; yang ditambah
+ * hanya tata letak dan nama nilai di bawah angkanya.
+ *
+ * Nama nilai disembunyikan di bawah 768px. Lima nama penuh membutuhkan sekitar
+ * 520px, dan pada 390px hanya tersedia 366px, jadi Screen-reader tetap
+ * membacakan lewat `aria-label` sementara yang dilihat cukup angkanya. */
+.skm-pertanyaan {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+
+.skm-skala {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.skm-skala .form-check {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--rs-gray-300);
+  border-radius: 6px;
+  margin: 0;
+  min-width: 0;
+}
+
+.skm-skala .form-check-input {
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.skm-skala .form-check-label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.85rem;
+  color: var(--rs-text-body);
+  cursor: pointer;
+}
+
+.skm-skala-nama {
+  font-size: 0.72rem;
+  color: var(--rs-text-nav);
+}
+
+@media (max-width: 768px) {
+  .skm-skala-nama {
+    /* Di layar sempit hanya angka yang tampil. Label penuhnya tetap ada di
+       `aria-label`, jadi pembaca layar tetap tahu apa arti angkanya. */
+    display: none;
+  }
+
+  .skm-skala {
+    gap: 0.35rem;
+  }
+
+  .skm-skala .form-check {
+    align-items: center;
+    padding: 0.5rem 0.25rem;
+  }
+}
+
 /* ---------- Target sentuh di layar sentuh ----------
 
  * Batasnya 768px, bukan 767.98px, karena aturan topbar yang menyembunyikan

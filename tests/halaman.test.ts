@@ -29,6 +29,7 @@ const PUNYA_ROUTE_SENDIRI = new Set([
   "/berita",
   "/daftar-online",
   "/informasi-publik/brosur",
+  "/informasi-publik/skm",
   "/kapasitas-bed",
   "/jadwal-dokter",
   "/kontak",
@@ -49,7 +50,7 @@ const pathGenerik = pathDariNav.filter((p) => !PUNYA_ROUTE_SENDIRI.has(`/${p}`))
  * di `HALAMAN`. Kalau isi seperti ini ikut dipindahkan ke berkas halamannya,
  * ada dua sumber untuk alamat yang sama dan keduanya bisa berbeda.
  */
-const ISI_YANG_BOLEH_DIPAKAI_ROUTE_SENDIRI = new Set(["kontak"]);
+const ISI_YANG_BOLEH_DIPAKAI_ROUTE_SENDIRI = new Set(["kontak", "informasi-publik/skm"]);
 
 describe("cakupan isi halaman", () => {
   it("setiap path generik dari navigasi punya isi", () => {

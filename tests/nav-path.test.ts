@@ -227,7 +227,11 @@ describe("collectNavPaths", () => {
     // anak-anaknya tetap ikut terdaftar sebagai path utuh, bukan "/prioritas".
     expect(slugs.has("pelayanan/prioritas/jantung-terpadu")).toBe(false);
     expect(hasOwnRoute("/pelayanan/prioritas/jantung-terpadu")).toBe(true);
-    expect(slugs.has("informasi-publik/skm")).toBe(true);
+
+    // `/informasi-publik/skm` punya route sendiri karena form surveinya tidak
+    // bisa berasal dari blok statis, jadi ia tidak lagi di-prerender catch-all.
+    expect(hasOwnRoute("/informasi-publik/skm")).toBe(true);
+    expect(slugs.has("informasi-publik/skm")).toBe(false);
   });
 });
 
