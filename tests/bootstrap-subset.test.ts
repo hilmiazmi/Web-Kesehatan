@@ -87,7 +87,17 @@ function cssSubset(): string {
     // Next.js mengisi ini otomatis saat build; kompilasi manual harus
     // menyebutkannya sendiri supaya `@import "bootstrap/scss/..."` resolve.
     loadPaths: [path.join(AKAR, "node_modules")],
-    silenceDeprecations: ["import", "global-builtin", "color-functions"],
+    // `if-function` ikut dibungkam karena Bootstrap 5.3.3 masih memakai `if()`
+    // lama di `_functions.scss`. Build Next membungkamnya lewat `sassOptions`
+    // di `next.config.ts`, sedangkan tes ini mengompilasi SCSS-nya sendiri lewat
+    // `sass.compile`, jadi daftarnya harus disebut di sini juga. Tanpa itu
+    // setiap `bun run test` mencetak warning yang bukan berasal dari kode repo.
+    silenceDeprecations: [
+      "import",
+      "global-builtin",
+      "color-functions",
+      "if-function",
+    ],
   }).css;
 }
 
