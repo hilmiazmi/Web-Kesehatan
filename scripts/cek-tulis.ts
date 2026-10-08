@@ -13,6 +13,12 @@ import {
   insertSurveyResponse,
   insertWbsReport,
 } from "@/server/db/repo/submissions";
+import {
+  BIAYA_KELAS,
+  createAdmission,
+  listAdmissions,
+  sisaTempatTidur,
+} from "@/server/db/repo/admissions";
 
 const db = dbOrNull();
 if (!db) throw new Error("tidak ada db");
@@ -289,6 +295,85 @@ console.log(
     overall_score: 5,
     comment: "Pelayanan baik.",
   }),
+);
+
+// Rawat inap punya aturannya sendiri, terpisah dari pendaftaran rawat jalan.
+//
+// Yang diperiksa di sini bukan hanya "bisa disimpan", melainkan dua hal yang
+// tidak terlihat dari luar: NIK yang dikirim diganti digit nol, dan permintaan
+// dengan jumlah malam tidak valid ditolak oleh check constraint database. Kalau
+// salah satunya hilang, data pasien ikut tersimpan dan perkiraan kebutuhan
+// tempat tidur jadi tidak bisa dipercaya.
+const inapMasuk = new Date();
+inapMasuk.setUTCDate(inapMasuk.getUTCDate() + 7);
+const inapTanggal = inapMasuk.toISOString().slice(0, 10);
+
+console.log(
+  "rawat inap:",
+  await createAdmission(db, {
+    ticket_code: `RI-UJIKONTEN${suntik}`,
+    patient_name: "Pasien Uji",
+    phone: teleponUji(4),
+    email: "inap@contoh.test",
+    address: "Jl. Uji 2",
+    referral_source: "Poliklinik Umum",
+    requested_class: "regular",
+    entry_date: inapTanggal,
+    estimated_nights: 3,
+    complaint: "Keluhan inap uji",
+    payment_type: "general",
+  }),
+);
+
+const nikTersimpan = (
+  await db.execute(
+    sql`SELECT nik FROM admissions WHERE ticket_code = ${`RI-UJIKONTEN${suntik}`}`,
+  )
+)[0] as { nik: string };
+console.log(
+  `NIK tersimpan: ${nikTersimpan.nik}` +
+    (nikTersimpan.nik === "0000000000000000" ? " (benar, tidak ada identitas tersimpan)" : " (BAHAYA)"),
+);
+
+// Malam nol harus ditolak database, bukan hanya oleh validasi rute. Jalur ini
+// yang menutup celah kalau ada pemanggil lain yang menulis langsung ke tabel.
+try {
+  await db.execute(
+    sql`INSERT INTO admissions (ticket_code, patient_name, nik, phone, requested_class, entry_date, estimated_nights, payment_type)
+        VALUES (${`RI-UJINOL${suntik}`}, 'Pasien Uji', '0000000000000000', ${teleponUji(5)}, 'regular', ${inapTanggal}, 0, 'general')`,
+  );
+  console.log("BOCOR: rawat inap dengan 0 malam diterima");
+} catch (err) {
+  console.log("0 malam ditolak:", (err as Error).message);
+}
+
+console.log(
+  "menunggu inap:",
+  JSON.stringify(await listAdmissions(db, 3)),
+  "| biaya/malam regular:",
+  BIAYA_KELAS.regular,
+);
+
+// Sisa tempat tidur dilaporkan apa adanya, termasuk kalau tabelnya belum diisi.
+// Nilai null berarti "tidak diketahui", dan itu informasi yang berbeda dari nol:
+// nol berarti kelas itu benar-benar penuh.
+//
+// Tapi null untuk kelas yang memang ada di seed berarti pemetaan label di
+// `repo/admissions.ts` tidak cocok dengan isi tabel, jadi itu diberi peringatan.
+// Tanpa peringatan, kelas yang salah petakan akan selalu terbaca sebagai
+// "tidak diketahui" dan tidak pernah diperbaiki.
+const sisaRegular = await sisaTempatTidur(db, "regular");
+console.log(
+  "sisa tempat tidur regular:",
+  sisaRegular === null
+    ? "PERINGATAN: tidak diketahui, cek pemetaan label kelas di repo/admissions.ts"
+    : JSON.stringify(sisaRegular),
+);
+
+const kelasTanpaPeta = await sisaTempatTidur(db, "kelas-yang-tidak-ada");
+console.log(
+  "sisa tempat tidur kelas tak dikenal:",
+  kelasTanpaPeta === null ? "null (benar, kelas di luar enum)" : "BAHAYA: mengembalikan nilai",
 );
 
 await closeDb();

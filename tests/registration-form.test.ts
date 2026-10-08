@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   buildPayload,
+  dokterUntukPoliklinik,
   labelDokter,
   labelSlot,
   paymentTypeFor,
@@ -49,6 +50,7 @@ const SAH: Fields = {
   nik: "3201234567890123",
   telepon: "081234567890",
   email: "budi@contoh.id",
+  poliklinik: "Poliklinik Ibu dan Anak",
   dokter: "34c4cf92-5522-56f9-af90-c16b9eaf1e43",
   tanggal: BESOK,
   slot: "ae8a406c-bd85-400c-8b9f-af1916733c6a",
@@ -94,6 +96,7 @@ describe("validate", () => {
       nik: "",
       telepon: "",
       email: "",
+      poliklinik: "",
       dokter: "",
       tanggal: "",
       slot: "",
@@ -106,7 +109,7 @@ describe("validate", () => {
     // Semua field wajib terisi. Keluhan tidak masuk daftar karena kosongnya
     // itu jawaban yang sah, begitu juga metode yang punya nilai bawaan.
     expect(Object.keys(e).sort()).toEqual(
-      ["dokter", "email", "nama", "nik", "setuju", "slot", "tanggal", "telepon"].sort(),
+      ["dokter", "email", "nama", "nik", "poliklinik", "setuju", "slot", "tanggal", "telepon"].sort(),
     );
   });
 
@@ -190,7 +193,10 @@ describe("validate", () => {
     expect(validate({ ...SAH, tanggal: "2026-03-10" }).tanggal).toBeTruthy();
   });
 
-  it("mewajibkan dokter dan jam kunjungan", () => {
+  it("mewajibkan poliklinik, dokter, dan jam kunjungan", () => {
+    // Poliklinik wajib karena ia menentukan dokter mana yang bisa dipilih, dan
+    // pilihan dokter yang tidak ada di poliklinik itu berarti tidak ada jadwal.
+    expect(validate({ ...SAH, poliklinik: "" }).poliklinik).toBeTruthy();
     expect(validate({ ...SAH, dokter: "" }).dokter).toBeTruthy();
     expect(validate({ ...SAH, slot: "" }).slot).toBeTruthy();
   });
@@ -310,6 +316,52 @@ describe("waktuPendek", () => {
     // Jadwal tanpa jam selesai masih punya jam mulai, tapi label tidak boleh
     // menampilkan "undefined" di depan pengunjung.
     expect(waktuPendek(null)).toBe("");
+  });
+});
+
+describe("dokterUntukPoliklinik", () => {
+  const IBU_ANAK: Dokter = {
+    ...DOKTER,
+    polyclinics: ["Poliklinik Ibu dan Anak", "Poliklinik Gigi"],
+  };
+  const GIGI: Dokter = {
+    id: "aaaa1111-2222-4333-8444-555566667777",
+    full_name: "Sari Wulandari",
+    title: "dr. Sp.P",
+    specialty: "Gigi",
+    polyclinics: ["Poliklinik Gigi"],
+  };
+  /** Dokter tanpa jadwal sama sekali, jadi `polyclinics`-nya tidak ada. */
+  const TANPA_JADWAL: Dokter = {
+    id: "bbbb1111-2222-4333-8444-555566667777",
+    full_name: "Budi Raharjo",
+    title: "dr.",
+  };
+
+  const SEMUA = [IBU_ANAK, GIGI, TANPA_JADWAL];
+
+  it("menampilkan semua dokter sebelum poliklinik dipilih", () => {
+    expect(dokterUntukPoliklinik(SEMUA, "")).toEqual(SEMUA);
+  });
+
+  it("menyaring dokter yang praktik di poliklinik itu", () => {
+    expect(dokterUntukPoliklinik(SEMUA, "Poliklinik Gigi")).toEqual([IBU_ANAK, GIGI]);
+  });
+
+  it("menyembunyikan dokter tanpa jadwal begitu poliklinik dipilih", () => {
+    // Dokter tanpa jadwal tidak punya slot untuk dipilih di langkah berikutnya,
+    // jadi menampilkannya hanya menambah pilihan yang pasti menggantung.
+    expect(dokterUntukPoliklinik(SEMUA, "Poliklinik Ibu dan Anak")).toEqual([IBU_ANAK]);
+  });
+
+  it("mengembalikan daftar kosong untuk poliklinic yang tidak dikenal", () => {
+    expect(dokterUntukPoliklinik(SEMUA, "Poliklinik Tidak Ada")).toEqual([]);
+  });
+
+  it("tidak mengubah daftar yang diberikan", () => {
+    const asal = [...SEMUA];
+    dokterUntukPoliklinik(asal, "Poliklinik Gigi");
+    expect(asal).toEqual(SEMUA);
   });
 });
 

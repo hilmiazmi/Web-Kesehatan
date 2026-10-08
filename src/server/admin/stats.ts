@@ -23,6 +23,7 @@ const PENGAJUAN_BELUM_DITANGANI = STATUSES_PENGAJUAN[0]; // "new"
 
 export type InboxCounts = {
   appointments: number;
+  admissions: number;
   mcu_registrations: number;
   feedbacks: number;
   wbs_reports: number;
@@ -79,6 +80,8 @@ export async function loadStats(db: Db): Promise<Stats> {
           WHERE status = ${PENGAJUAN_BELUM_DITANGANI}::submission_status)        AS kritik_baru,
         (SELECT count(*) FROM wbs_reports
           WHERE status = ${PENGAJUAN_BELUM_DITANGANI}::submission_status)        AS wbs_baru,
+        (SELECT count(*) FROM admissions
+          WHERE status = ${PENDAFTARAN_BELUM_DITANGANI}::admission_status)       AS inap_baru,
         (SELECT count(*) FROM survey_responses)                                   AS survei_total,
         (SELECT count(*) FROM appointments WHERE visit_date = CURRENT_DATE)       AS pendaftaran_hari_ini,
         (SELECT count(*) FROM appointments WHERE visit_date > CURRENT_DATE)       AS pendaftaran_akan_datang,
@@ -92,6 +95,7 @@ export async function loadStats(db: Db): Promise<Stats> {
 
     const inbox_by_kind: InboxCounts = {
       appointments: Number(baris.pendaftaran_baru),
+      admissions: Number(baris.inap_baru),
       mcu_registrations: Number(baris.mcu_baru),
       feedbacks: Number(baris.kritik_baru),
       wbs_reports: Number(baris.wbs_baru),
@@ -111,6 +115,7 @@ export async function loadStats(db: Db): Promise<Stats> {
       hero_slides: Number(baris.hero_slides),
       inbox_unread:
         inbox_by_kind.appointments +
+        inbox_by_kind.admissions +
         inbox_by_kind.mcu_registrations +
         inbox_by_kind.feedbacks +
         inbox_by_kind.wbs_reports,

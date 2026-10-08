@@ -16,8 +16,15 @@ import { closeDb, dbOrNull } from "@/server/db/client";
 import { config } from "@/server/config";
 import { AUTH_SECRET_MIN } from "@/server/config";
 
-/** Jumlah tabel yang harus ada setelah migrasi. */
-const TABEL_HARAP = 27;
+/**
+ * Jumlah tabel yang harus ada setelah migrasi.
+ *
+ * Dihitung dari `schema.ts`: 28 tabel, termasuk `admissions` dan `bed_capacity`
+ * yang ikut migrations rawat inap. Angka ini sengaja ditulis tangan supaya
+ * penyimpangan ketikanya terlihat langsung di berkas ini, bukan tersembunyi di
+ * hasil hitungan yang selalu ikut berubah sendiri.
+ */
+const TABEL_HARAP = 28;
 
 async function main(): Promise<void> {
   const c = config();

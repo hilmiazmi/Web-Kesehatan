@@ -4,23 +4,17 @@ import { readSession } from "@/server/auth/session";
 import { all as semuaTabel } from "@/server/admin/registry";
 import { allKinds } from "@/server/admin/inbox";
 import { dbOrNull } from "@/server/db/client";
+import { inboxLabel } from "@/lib/admin-inbox-label";
 import { loadStats } from "@/server/admin/stats";
 
 /**
  * Layout halaman panel yang butuh sesi.
  *
  * Gate-nya di sini, bukan di `admin/layout.tsx`, supaya `/admin/login` tetap
- * bisa dibuka tanpa sesi. Label inbox ditulis di sini, bukan diambil dari
- * backend, karena backend hanya menyimpan slug teknis; nama yang tampil ke
- * operator adalah urusan tampilan.
+ * bisa dibuka tanpa sesi. Label inbox diambil dari `inboxLabel`, yang juga
+ * dipakai judul halaman inbox, supaya sidebar dan judulnya tidak bisa
+ * menampilkan nama berbeda untuk jenis yang sama.
  */
-const INBOX_LABEL: Record<string, string> = {
-  appointments: "Pendaftaran Pasien",
-  "mcu-registrations": "Registrasi MCU",
-  feedbacks: "Kritik dan Saran",
-  "wbs-reports": "Laporan WBS",
-  "survey-responses": "Respons Survei",
-};
 
 export default async function AdminPanelLayout({
   children,
@@ -40,7 +34,7 @@ export default async function AdminPanelLayout({
 
   const inboxKinds = allKinds().map((k) => ({
     slug: k.slug,
-    label: INBOX_LABEL[k.slug] ?? k.slug,
+    label: inboxLabel(k.slug),
   }));
 
   // Jumlah belum ditangani gagal dimuat tanpa menggagalkan seluruh sidebar.

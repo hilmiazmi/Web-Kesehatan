@@ -37,6 +37,14 @@ export default function DatePicker({
   hariBoleh,
   /** Kalau diisi, hanya tanggal sampai nilai ini yang boleh dipilih. */
   batas,
+  /**
+   * Id tombol pemicu.
+   *
+   * Ada supaya `<label htmlFor={id}>` di formulir benar-benar tertaut ke
+   * tombolnya. Tanpa itu labelnya menunjuk ke elemen yang tidak ada, dan
+   * pembaca layar membacakan "Tanggal Rencana" tanpa tahu kontrol mana yang
+   * dimaksud.
+   */
   id = "tanggal",
 }: {
   nilai: string;
@@ -111,6 +119,7 @@ export default function DatePicker({
     <div className="tanggal-pilih" ref={akarRef}>
       <button
         type="button"
+        id={id}
         className="tanggal-pilih-kotak"
         onClick={() => {
           bukaKe(nilai || hariIni);

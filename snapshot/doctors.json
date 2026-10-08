@@ -5,7 +5,10 @@
   "title": "dr. Sp.A",
   "photo_url": "https://picsum.photos/seed/dokter-aditya-pranata/480/600",
   "specialty": "Anak",
-  "specialty_slug": "anak"
+  "specialty_slug": "anak",
+  "polyclinics": [
+   "Poliklinik Ibu dan Anak"
+  ]
  },
  {
   "id": "8f70a2fa-eb96-50e7-a88f-c2c7df1326ae",
@@ -13,7 +16,10 @@
   "title": "dr. Sp.A",
   "photo_url": "https://picsum.photos/seed/dokter-bunga-lestari/480/600",
   "specialty": "Anak",
-  "specialty_slug": "anak"
+  "specialty_slug": "anak",
+  "polyclinics": [
+   "Poliklinik Ibu dan Anak"
+  ]
  },
  {
   "id": "34c4cf92-5522-56f9-af90-c16b9eaf1e43",
@@ -21,7 +27,10 @@
   "title": "dr. Sp.A",
   "photo_url": "https://picsum.photos/seed/dokter-fajar-setiawan/480/600",
   "specialty": "Anak",
-  "specialty_slug": "anak"
+  "specialty_slug": "anak",
+  "polyclinics": [
+   "Poliklinik Ibu dan Anak"
+  ]
  },
  {
   "id": "280be2c6-1cca-5aba-bbb3-6e54c5dcba8e",
@@ -29,7 +38,10 @@
   "title": "dr. Sp.B",
   "photo_url": "https://picsum.photos/seed/dokter-candra-wibowo/480/600",
   "specialty": "Bedah Umum",
-  "specialty_slug": "bedah"
+  "specialty_slug": "bedah",
+  "polyclinics": [
+   "Poliklinik Spesialis"
+  ]
  },
  {
   "id": "93f99d6e-7760-5744-ba8b-9b3a48b60adc",
@@ -37,7 +49,10 @@
   "title": "dr. Sp.B",
   "photo_url": "https://picsum.photos/seed/dokter-dewi-anggraini/480/600",
   "specialty": "Bedah Umum",
-  "specialty_slug": "bedah"
+  "specialty_slug": "bedah",
+  "polyclinics": [
+   "Poliklinik Spesialis"
+  ]
  },
  {
   "id": "39fc741e-ec1b-511f-97c7-e6e1725b1b22",
@@ -45,7 +60,10 @@
   "title": "dr. Sp.B",
   "photo_url": "https://picsum.photos/seed/dokter-dimas-nugroho/480/600",
   "specialty": "Bedah Umum",
-  "specialty_slug": "bedah"
+  "specialty_slug": "bedah",
+  "polyclinics": [
+   "Poliklinik Spesialis"
+  ]
  },
  {
   "id": "7a0625d9-2252-5fdd-83e8-e94fd5774163",
@@ -53,7 +71,10 @@
   "title": "dr. Sp.OG",
   "photo_url": "https://picsum.photos/seed/dokter-indira-puspita/480/600",
   "specialty": "Ginekologi",
-  "specialty_slug": "ginekologi"
+  "specialty_slug": "ginekologi",
+  "polyclinics": [
+   "Poliklinik Ibu dan Anak"
+  ]
  },
  {
   "id": "10ee1411-1f67-5b25-b338-3c4a6716f6c6",
@@ -61,7 +82,10 @@
   "title": "dr. Sp.OG",
   "photo_url": "https://picsum.photos/seed/dokter-kirana-melati/480/600",
   "specialty": "Ginekologi",
-  "specialty_slug": "ginekologi"
+  "specialty_slug": "ginekologi",
+  "polyclinics": [
+   "Poliklinik Ibu dan Anak"
+  ]
  },
  {
   "id": "57474606-867c-5d7b-be2b-46a43327c04c",
@@ -69,7 +93,10 @@
   "title": "dr. Sp.OG",
   "photo_url": "https://picsum.photos/seed/dokter-oki-prasetyo/480/600",
   "specialty": "Ginekologi",
-  "specialty_slug": "ginekologi"
+  "specialty_slug": "ginekologi",
+  "polyclinics": [
+   "Poliklinik Ibu dan Anak"
+  ]
  },
  {
   "id": "80476aeb-fe31-50d5-9aee-24f5b4b6a84f",
@@ -77,7 +104,10 @@
   "title": "dr. Sp.D",
   "photo_url": "https://picsum.photos/seed/dokter-lukman-hakim/480/600",
   "specialty": "Hemodialisa",
-  "specialty_slug": "hemodialisa"
+  "specialty_slug": "hemodialisa",
+  "polyclinics": [
+   "Instalasi Gawat Darurat"
+  ]
  },
  {
   "id": "bf6baa83-8b46-55c9-a68a-b0ba6fdfe47d",
@@ -85,7 +115,10 @@
   "title": "dr. Sp.D",
   "photo_url": "https://picsum.photos/seed/dokter-maya-puspitasari/480/600",
   "specialty": "Hemodialisa",
-  "specialty_slug": "hemodialisa"
+  "specialty_slug": "hemodialisa",
+  "polyclinics": [
+   "Instalasi Gawat Darurat"
+  ]
  },
  {
   "id": "510625a7-7236-5dbd-91dd-43f2e1dfbc29",
@@ -93,7 +126,10 @@
   "title": "dr.",
   "photo_url": "https://picsum.photos/seed/dokter-putri-anggraini/480/600",
   "specialty": "Hemodialisa",
-  "specialty_slug": "hemodialisa"
+  "specialty_slug": "hemodialisa",
+  "polyclinics": [
+   "Poliklinik Umum"
+  ]
  },
  {
   "id": "2207cc2f-fde8-55bc-b2d7-bfa3e9c5e312",
@@ -101,7 +137,10 @@
   "title": "dr. Sp.JK",
   "photo_url": "https://picsum.photos/seed/dokter-ayu-lestari/480/600",
   "specialty": "Jantung dan Pembuluh Darah",
-  "specialty_slug": "jantung"
+  "specialty_slug": "jantung",
+  "polyclinics": [
+   "Poliklinik Spesialis"
+  ]
  },
  {
   "id": "9c2189a1-8bd2-5fb8-9a0f-cc27db827a5c",
@@ -109,7 +148,10 @@
   "title": "dr. Sp.JP",
   "photo_url": "https://picsum.photos/seed/dokter-nanda-prasetyo/480/600",
   "specialty": "Jantung dan Pembuluh Darah",
-  "specialty_slug": "jantung"
+  "specialty_slug": "jantung",
+  "polyclinics": [
+   "Poliklinik Spesialis"
+  ]
  },
  {
   "id": "85673466-eb75-51fe-936e-c5a007a00c4f",
@@ -117,7 +159,10 @@
   "title": "dr. Sp.JP",
   "photo_url": "https://picsum.photos/seed/dokter-oktavia-sari/480/600",
   "specialty": "Jantung dan Pembuluh Darah",
-  "specialty_slug": "jantung"
+  "specialty_slug": "jantung",
+  "polyclinics": [
+   "Poliklinik Spesialis"
+  ]
  },
  {
   "id": "28a59fc0-2f56-5eee-a744-ef8ec299bde1",
@@ -125,7 +170,10 @@
   "title": "dr. Sp.OG",
   "photo_url": "https://picsum.photos/seed/dokter-endah-permata/480/600",
   "specialty": "Kebidanian dan Kandungan",
-  "specialty_slug": "kandungan"
+  "specialty_slug": "kandungan",
+  "polyclinics": [
+   "Poliklinik Ibu dan Anak"
+  ]
  },
  {
   "id": "c9602061-0792-5f29-a285-5eb51f848423",
@@ -133,7 +181,10 @@
   "title": "dr. Sp.OG",
   "photo_url": "https://picsum.photos/seed/dokter-panji-nugroho/480/600",
   "specialty": "Kebidanian dan Kandungan",
-  "specialty_slug": "kandungan"
+  "specialty_slug": "kandungan",
+  "polyclinics": [
+   "Poliklinik Ibu dan Anak"
+  ]
  },
  {
   "id": "8ae3a4d3-5a3e-588f-8c4d-033482d36fbf",
@@ -141,7 +192,10 @@
   "title": "dr. Sp.OG",
   "photo_url": "https://picsum.photos/seed/dokter-ratna-dewi/480/600",
   "specialty": "Kebidanian dan Kandungan",
-  "specialty_slug": "kandungan"
+  "specialty_slug": "kandungan",
+  "polyclinics": [
+   "Poliklinik Ibu dan Anak"
+  ]
  },
  {
   "id": "ca12d06b-c5e1-5217-9cc7-7e56505d68ff",
@@ -149,7 +203,10 @@
   "title": "dr. Sp.KK",
   "photo_url": "https://picsum.photos/seed/dokter-lina-marlina/480/600",
   "specialty": "Kulit dan Kelamin",
-  "specialty_slug": "kulit"
+  "specialty_slug": "kulit",
+  "polyclinics": [
+   "Poliklinik Umum"
+  ]
  },
  {
   "id": "9741ac87-eaa2-5b72-86cf-f027ea521ee0",
@@ -157,7 +214,10 @@
   "title": "dr. Sp.KK",
   "photo_url": "https://picsum.photos/seed/dokter-setiawan-budi/480/600",
   "specialty": "Kulit dan Kelamin",
-  "specialty_slug": "kulit"
+  "specialty_slug": "kulit",
+  "polyclinics": [
+   "Poliklinik Spesialis"
+  ]
  },
  {
   "id": "5e28158c-a3c0-5570-abc3-d0eb1120944d",
@@ -165,7 +225,10 @@
   "title": "dr. Sp.KK",
   "photo_url": "https://picsum.photos/seed/dokter-taufik-hidayat/480/600",
   "specialty": "Kulit dan Kelamin",
-  "specialty_slug": "kulit"
+  "specialty_slug": "kulit",
+  "polyclinics": [
+   "Poliklinik Spesialis"
+  ]
  },
  {
   "id": "cdb6c52f-85e7-5889-a24a-441c8c83257c",
@@ -173,7 +236,10 @@
   "title": "dr. Sp.M",
   "photo_url": "https://picsum.photos/seed/dokter-citra-wulandari/480/600",
   "specialty": "Mata",
-  "specialty_slug": "mata"
+  "specialty_slug": "mata",
+  "polyclinics": [
+   "Poliklinik Umum"
+  ]
  },
  {
   "id": "d13be29c-1bb3-57bb-b855-6a3f44267664",
@@ -181,7 +247,10 @@
   "title": "dr. Sp.M",
   "photo_url": "https://picsum.photos/seed/dokter-utami-rani/480/600",
   "specialty": "Mata",
-  "specialty_slug": "mata"
+  "specialty_slug": "mata",
+  "polyclinics": [
+   "Poliklinik Spesialis"
+  ]
  },
  {
   "id": "7e4cce6e-368d-583e-9b72-6dcb201344d8",
@@ -189,7 +258,10 @@
   "title": "dr. Sp.M",
   "photo_url": "https://picsum.photos/seed/dokter-wahyu-setiawan/480/600",
   "specialty": "Mata",
-  "specialty_slug": "mata"
+  "specialty_slug": "mata",
+  "polyclinics": [
+   "Poliklinik Spesialis"
+  ]
  },
  {
   "id": "d6fc647a-3239-5d09-8901-9c6c79388c91",
@@ -197,7 +269,10 @@
   "title": "dr.",
   "photo_url": "https://picsum.photos/seed/dokter-rizky-ramadhan/480/600",
   "specialty": "Nutrisi Klinik",
-  "specialty_slug": "nutrisi"
+  "specialty_slug": "nutrisi",
+  "polyclinics": [
+   "Instalasi Gawat Darurat"
+  ]
  },
  {
   "id": "e0e85b9b-aa6c-557b-b27f-0525ad217a2a",
@@ -205,7 +280,10 @@
   "title": "dr. Sp.GK",
   "photo_url": "https://picsum.photos/seed/dokter-yuni-astuti/480/600",
   "specialty": "Nutrisi Klinik",
-  "specialty_slug": "nutrisi"
+  "specialty_slug": "nutrisi",
+  "polyclinics": [
+   "Poliklinik Umum"
+  ]
  },
  {
   "id": "e80f7acf-f76b-5b5d-b61d-7ae528371bf8",
@@ -213,7 +291,10 @@
   "title": "dr. Sp.GK",
   "photo_url": "https://picsum.photos/seed/dokter-zaki-maulana/480/600",
   "specialty": "Nutrisi Klinik",
-  "specialty_slug": "nutrisi"
+  "specialty_slug": "nutrisi",
+  "polyclinics": [
+   "Poliklinik Umum"
+  ]
  },
  {
   "id": "102d5a8b-f1c2-56c7-8a6f-335021fe77db",
@@ -221,7 +302,10 @@
   "title": "dr. Sp.Orth",
   "photo_url": "https://picsum.photos/seed/dokter-citra-lestari/480/600",
   "specialty": "Ortopedi dan Trauma",
-  "specialty_slug": "ortopedi"
+  "specialty_slug": "ortopedi",
+  "polyclinics": [
+   "Poliklinik Spesialis"
+  ]
  },
  {
   "id": "8891b1f4-e858-51c9-b2a6-8d97c95bdc90",
@@ -229,7 +313,10 @@
   "title": "dr. Sp.Orth",
   "photo_url": "https://picsum.photos/seed/dokter-dimas-ardi/480/600",
   "specialty": "Ortopedi dan Trauma",
-  "specialty_slug": "ortopedi"
+  "specialty_slug": "ortopedi",
+  "polyclinics": [
+   "Poliklinik Spesialis"
+  ]
  },
  {
   "id": "7656676d-06bb-55f3-bad9-dfe67f349aba",
@@ -237,7 +324,10 @@
   "title": "dr. Sp.Orth",
   "photo_url": "https://picsum.photos/seed/dokter-indah-safitri/480/600",
   "specialty": "Ortopedi dan Trauma",
-  "specialty_slug": "ortopedi"
+  "specialty_slug": "ortopedi",
+  "polyclinics": [
+   "Poliklinik Spesialis"
+  ]
  },
  {
   "id": "b65d2d17-a9d1-5ee8-a5be-1692a8921543",
@@ -245,7 +335,10 @@
   "title": "dr. Sp.P",
   "photo_url": "https://picsum.photos/seed/dokter-eni-sukmawati/480/600",
   "specialty": "Paru-paru",
-  "specialty_slug": "paru"
+  "specialty_slug": "paru",
+  "polyclinics": [
+   "Poliklinik Spesialis"
+  ]
  },
  {
   "id": "c97c268e-a11c-5ff8-a886-924b0c0792b2",
@@ -253,7 +346,10 @@
   "title": "dr. Sp.P",
   "photo_url": "https://picsum.photos/seed/dokter-farhan-maulana/480/600",
   "specialty": "Paru-paru",
-  "specialty_slug": "paru"
+  "specialty_slug": "paru",
+  "polyclinics": [
+   "Poliklinik Spesialis"
+  ]
  },
  {
   "id": "c5657f35-df9e-5672-bf08-06adbca94f9e",
@@ -261,7 +357,10 @@
   "title": "dr. Sp.P",
   "photo_url": "https://picsum.photos/seed/dokter-hesti-rahmawati/480/600",
   "specialty": "Paru-paru",
-  "specialty_slug": "paru"
+  "specialty_slug": "paru",
+  "polyclinics": [
+   "Poliklinik Spesialis"
+  ]
  },
  {
   "id": "082a95ba-6544-5358-b8aa-b1f4cdcd0961",
@@ -269,7 +368,10 @@
   "title": "dr. Sp.PD",
   "photo_url": "https://picsum.photos/seed/dokter-gita-maharani/480/600",
   "specialty": "Penyakit Dalam",
-  "specialty_slug": "penyakit-dalam"
+  "specialty_slug": "penyakit-dalam",
+  "polyclinics": [
+   "Poliklinik Penyakit Dalam"
+  ]
  },
  {
   "id": "2391238a-4eed-5a5f-af72-a9622a9bd820",
@@ -277,7 +379,10 @@
   "title": "dr. Sp.PD",
   "photo_url": "https://picsum.photos/seed/dokter-hendra-kusuma/480/600",
   "specialty": "Penyakit Dalam",
-  "specialty_slug": "penyakit-dalam"
+  "specialty_slug": "penyakit-dalam",
+  "polyclinics": [
+   "Poliklinik Penyakit Dalam"
+  ]
  },
  {
   "id": "836b638b-19da-52a8-9ac2-b4be9c24b6ba",
@@ -285,7 +390,10 @@
   "title": "dr. Sp.PD",
   "photo_url": "https://picsum.photos/seed/dokter-imam-saputra/480/600",
   "specialty": "Penyakit Dalam",
-  "specialty_slug": "penyakit-dalam"
+  "specialty_slug": "penyakit-dalam",
+  "polyclinics": [
+   "Poliklinik Penyakit Dalam"
+  ]
  },
  {
   "id": "00b5f58d-9ebf-57e2-858d-2d96a904230a",
@@ -293,7 +401,10 @@
   "title": "dr. Sp.BM",
   "photo_url": "https://picsum.photos/seed/dokter-gilang-ramadhan/480/600",
   "specialty": "Penyakit Gigi dan Mulut",
-  "specialty_slug": "gigi"
+  "specialty_slug": "gigi",
+  "polyclinics": [
+   "Poliklinik Umum"
+  ]
  },
  {
   "id": "51cd3874-a133-5f30-9985-987ce04ba282",
@@ -301,7 +412,10 @@
   "title": "dr. Sp.BM",
   "photo_url": "https://picsum.photos/seed/dokter-hesti-nuraini/480/600",
   "specialty": "Penyakit Gigi dan Mulut",
-  "specialty_slug": "gigi"
+  "specialty_slug": "gigi",
+  "polyclinics": [
+   "Poliklinik Umum"
+  ]
  },
  {
   "id": "e458d6b7-5bd2-524a-90e7-3f4fe7972c98",
@@ -309,7 +423,10 @@
   "title": "dr. Sp.BM",
   "photo_url": "https://picsum.photos/seed/dokter-joko-santoso/480/600",
   "specialty": "Penyakit Gigi dan Mulut",
-  "specialty_slug": "gigi"
+  "specialty_slug": "gigi",
+  "polyclinics": [
+   "Poliklinik Umum"
+  ]
  },
  {
   "id": "19f26f72-824d-51ae-a4bc-8da7621bb714",
@@ -317,7 +434,10 @@
   "title": "dr. Sp.REH",
   "photo_url": "https://picsum.photos/seed/dokter-jihan-andriani/480/600",
   "specialty": "Rehabilitasi Medis",
-  "specialty_slug": "rehabilitasi"
+  "specialty_slug": "rehabilitasi",
+  "polyclinics": [
+   "Poliklinik Umum"
+  ]
  },
  {
   "id": "08ba9fc3-ff90-5649-92cc-25e330ec96e4",
@@ -325,7 +445,10 @@
   "title": "dr. Sp.REH",
   "photo_url": "https://picsum.photos/seed/dokter-laras-wulan/480/600",
   "specialty": "Rehabilitasi Medis",
-  "specialty_slug": "rehabilitasi"
+  "specialty_slug": "rehabilitasi",
+  "polyclinics": [
+   "Poliklinik Umum"
+  ]
  },
  {
   "id": "f445db33-3b07-541e-b6cb-c1080439335f",
@@ -333,7 +456,10 @@
   "title": "dr. Sp.REH",
   "photo_url": "https://picsum.photos/seed/dokter-nining-rahmawati/480/600",
   "specialty": "Rehabilitasi Medis",
-  "specialty_slug": "rehabilitasi"
+  "specialty_slug": "rehabilitasi",
+  "polyclinics": [
+   "Poliklinik Umum"
+  ]
  },
  {
   "id": "0acdc5c3-9f16-518c-a831-6f4ac4e4f45d",
@@ -341,7 +467,10 @@
   "title": "dr. Sp.N",
   "photo_url": "https://picsum.photos/seed/dokter-bagus-prakoso/480/600",
   "specialty": "Saraf dan Otak",
-  "specialty_slug": "saraf"
+  "specialty_slug": "saraf",
+  "polyclinics": [
+   "Poliklinik Spesialis"
+  ]
  },
  {
   "id": "8ca25148-6e91-517e-bc07-376410cdb6cb",
@@ -349,7 +478,10 @@
   "title": "dr. Sp.N",
   "photo_url": "https://picsum.photos/seed/dokter-mega-sari/480/600",
   "specialty": "Saraf dan Otak",
-  "specialty_slug": "saraf"
+  "specialty_slug": "saraf",
+  "polyclinics": [
+   "Poliklinik Spesialis"
+  ]
  },
  {
   "id": "7054b14f-8a6c-5462-a1c0-daa33986178b",
@@ -357,7 +489,10 @@
   "title": "dr. Sp.N",
   "photo_url": "https://picsum.photos/seed/dokter-nadia-oktaviani/480/600",
   "specialty": "Saraf dan Otak",
-  "specialty_slug": "saraf"
+  "specialty_slug": "saraf",
+  "polyclinics": [
+   "Poliklinik Spesialis"
+  ]
  },
  {
   "id": "92e62810-c94e-5113-aa93-4286b6941cd3",
@@ -365,7 +500,10 @@
   "title": "dr. Sp.THT-KL",
   "photo_url": "https://picsum.photos/seed/dokter-eko-purnomo/480/600",
   "specialty": "Telinga Hidung Tenggorok",
-  "specialty_slug": "ent"
+  "specialty_slug": "ent",
+  "polyclinics": [
+   "Poliklinik Spesialis"
+  ]
  },
  {
   "id": "ee2a1109-f022-5f15-bfec-582c4b250d11",
@@ -373,7 +511,10 @@
   "title": "dr. Sp.THT-KL",
   "photo_url": "https://picsum.photos/seed/dokter-fitri-handayani/480/600",
   "specialty": "Telinga Hidung Tenggorok",
-  "specialty_slug": "ent"
+  "specialty_slug": "ent",
+  "polyclinics": [
+   "Poliklinik Spesialis"
+  ]
  },
  {
   "id": "8ff250e2-6a10-5e7b-ad08-81f37ac1906d",
@@ -381,7 +522,10 @@
   "title": "dr. Sp.THT-KL",
   "photo_url": "https://picsum.photos/seed/dokter-kartika-dewi/480/600",
   "specialty": "Telinga Hidung Tenggorok",
-  "specialty_slug": "ent"
+  "specialty_slug": "ent",
+  "polyclinics": [
+   "Poliklinik Umum"
+  ]
  },
  {
   "id": "dfc42484-a03e-54d3-9a8e-80d88f843771",
@@ -389,7 +533,10 @@
   "title": "dr. Sp.T",
   "photo_url": "https://picsum.photos/seed/dokter-ony-wijaya/480/600",
   "specialty": "Toksikologi",
-  "specialty_slug": "toksikologi"
+  "specialty_slug": "toksikologi",
+  "polyclinics": [
+   "Instalasi Gawat Darurat"
+  ]
  },
  {
   "id": "81f9468a-414d-5a7b-b619-6fc8de2176a6",
@@ -397,7 +544,10 @@
   "title": "dr. Sp.T",
   "photo_url": "https://picsum.photos/seed/dokter-qori-amelia/480/600",
   "specialty": "Toksikologi",
-  "specialty_slug": "toksikologi"
+  "specialty_slug": "toksikologi",
+  "polyclinics": [
+   "Instalasi Gawat Darurat"
+  ]
  },
  {
   "id": "8d10dace-4af3-553d-8464-f2d692a29fcd",
@@ -405,7 +555,10 @@
   "title": "dr. Sp.T",
   "photo_url": "https://picsum.photos/seed/dokter-sari-wulandari/480/600",
   "specialty": "Toksikologi",
-  "specialty_slug": "toksikologi"
+  "specialty_slug": "toksikologi",
+  "polyclinics": [
+   "Instalasi Gawat Darurat"
+  ]
  },
  {
   "id": "c2524031-8b91-5da0-a92b-802a6db31ac9",
@@ -413,7 +566,10 @@
   "title": "dr. Sp.Onk",
   "photo_url": "https://picsum.photos/seed/dokter-anisa-rahma/480/600",
   "specialty": "Tumor dan Kanker",
-  "specialty_slug": "onkologi"
+  "specialty_slug": "onkologi",
+  "polyclinics": [
+   "Poliklinik Spesialis"
+  ]
  },
  {
   "id": "613a4b81-997d-5ab4-9336-2a5d52f61cd3",
@@ -421,7 +577,10 @@
   "title": "dr. Sp.Onk",
   "photo_url": "https://picsum.photos/seed/dokter-bagus-pratama/480/600",
   "specialty": "Tumor dan Kanker",
-  "specialty_slug": "onkologi"
+  "specialty_slug": "onkologi",
+  "polyclinics": [
+   "Poliklinik Spesialis"
+  ]
  },
  {
   "id": "3cdbd28d-b37e-5d34-92e6-0b573f73a165",
@@ -429,6 +588,9 @@
   "title": "dr. Sp.Onk",
   "photo_url": "https://picsum.photos/seed/dokter-mahendra-yoga/480/600",
   "specialty": "Tumor dan Kanker",
-  "specialty_slug": "onkologi"
+  "specialty_slug": "onkologi",
+  "polyclinics": [
+   "Poliklinik Spesialis"
+  ]
  }
 ]

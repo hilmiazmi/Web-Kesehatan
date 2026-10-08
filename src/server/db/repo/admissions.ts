@@ -2,12 +2,12 @@
  * Penyimpanan permintaan rawat inap.
  *
  * Berbeda dari `appointments`, tidak ada nomor antrean dan tidak ada slot per
- * dokter yang perluurangi. Yang benar-benar dikurangi adalah tempat tidur, dan itu
- * sudah tercatat di `bed_capacity.reserved_beds` supaya tidak dihitung dua
- * kali di sini.
+ * dokter yang perlu dikurangi. Yang benar-benar dikurangi adalah tempat tidur,
+ * dan itu sudah tercatat di `bed_capacity.reserved_beds` supaya tidak dihitung
+ * dua kali di sini.
  */
 
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import type { Db } from "@/server/db/client";
 import { admissions, bedCapacity } from "@/server/db/schema";
 import { NIK_SIMULASI } from "./appointments";
@@ -102,10 +102,11 @@ export async function createAdmission(
 }
 
 /**
- * Permintaan inap terbaru, untuk pemeriksaan internal dan tes.
+ * Permintaan inap terbaru yang masih menunggu, untuk pemeriksaan internal.
  *
- * Dipakai oleh `tests/api-detail-dan-rate-limit.test.ts` dan skrip
- * `cek:tulis`. Halaman publik tidak memanggilnya.
+ * Dipakai oleh skrip `cek:tulis`. Halaman publik tidak memanggilnya: pengunjung
+ * mengecek lewat `/api/v1/tickets/admissions/{kode}`, yang mencari satu baris
+ * berdasarkan kode tiket, bukan daftar.
  */
 export async function listAdmissions(
   db: Db,
@@ -137,23 +138,59 @@ export async function listAdmissions(
   return baris;
 }
 
-/** Sisa tempat tidur pada satu kelas perawatan. */
+/**
+ * Terjemahan kelas perawatan dari enum `ward_class` ke label `bed_capacity`.
+ *
+ * Dua kosakata ini memang berbeda dan tidak boleh disamakan diam-diam.
+ * `ward_class` adalah kategori yang diminta pengunjung di formulir, sedangkan
+ * `class_name` adalah label per ruang yang dibaca petugas, memakai sistem
+ * kelas rumah sakit Indonesia. Satu label bisa dipetakan ke lebih dari satu
+ * kategori: "Kelas 1" dan "Kelas 2" sama-sama bukan VIP dan bukan perawatan
+ * intensive, jadi keduanya dihitung untuk `intermediate`.
+ *
+ * Peta ini ditulis di sini, satu-satunya tempat yang boleh menghubungkan
+ * keduanya. Tanpa peta ini, `sisaTempatTidur` selalu mengembalikan `null` karena
+ * tidak ada baris dengan `class_name = 'regular'`, dan hasilnya terbaca sebagai
+ * "kelas itu tidak punya tempat tidur" padahal sebenarnya barisnya ada dengan
+ * label lain.
+ */
+const LABEL_BED_PER_KELAS: Record<string, readonly string[]> = {
+  intensive: ["Kelas Khusus"],
+  intermediate: ["Kelas 1", "Kelas 2"],
+  regular: ["Kelas 3"],
+  private: ["Kelas VIP"],
+};
+
+/**
+ * Sisa tempat tidur untuk satu kelas perawatan.
+ *
+ * Dijumlahkan dari semua ruang yang labelnya terpetakan ke kelas itu, bukan
+ * diambil dari satu baris, karena satu kelas bisa punya beberapa ruang.
+ *
+ * `null` berarti kelasnya tidak dikenal atau belum ada ruang yang terdaftar,
+ * dan itu berbeda dari nol: nol berarti ruangnya tercatat dan semuanya penuh.
+ */
 export async function sisaTempatTidur(
   db: Db,
   kelas: string,
 ): Promise<{ total: number; terisi: number; tersedia: number } | null> {
+  const labels = LABEL_BED_PER_KELAS[kelas];
+  if (labels === undefined) return null;
+
   const baris = await db
     .select()
     .from(bedCapacity)
-    .where(eq(bedCapacity.className, kelas as never))
-    .limit(1);
+    .where(inArray(bedCapacity.className, [...labels]));
 
-  const row = baris[0];
-  if (!row) return null;
+  if (baris.length === 0) return null;
+
+  const total = baris.reduce((n, b) => n + b.totalBeds, 0);
+  const terisi = baris.reduce((n, b) => n + b.occupiedBeds, 0);
+  const dipesan = baris.reduce((n, b) => n + b.reservedBeds, 0);
 
   return {
-    total: row.totalBeds,
-    terisi: row.occupiedBeds,
-    tersedia: Math.max(0, row.totalBeds - row.occupiedBeds - row.reservedBeds),
+    total,
+    terisi,
+    tersedia: Math.max(0, total - terisi - dipesan),
   };
 }

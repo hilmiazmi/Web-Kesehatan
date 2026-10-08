@@ -23,8 +23,15 @@ async function beriTahu(pilihan: SweetAlertOptions): Promise<void> {
 /**
  * Formulir pendaftaran online (E-Pasien).
  *
- * Alurnya mengikuti PRD bagian 5.2: pilih dokter, pilih tanggal kunjungan, pilih
- * slot jam, isi data diri, pilih cara pembayaran, lalu mendapat nomor antrean.
+ * Alurnya: pilih poliklinik, pilih dokter, pilih tanggal kunjungan, pilih slot
+ * jam, isi data diri, pilih cara pembayaran, lalu mendapat nomor antrean.
+ *
+ * Urutannya mulai dari poliklinik, bukan dokter seperti di PRD bagian 5.2.
+ * Poliklinik menentukan dokter mana yang bisa dipilih, jadi sebaliknya orang
+ * harus menggulir 54 nama dokter untuk mencari satu yang praktik di tempat
+ * yang ia tuju. Nama poliklinik yang dikirim ke server tetap tidak ada: yang
+ * terkirim hanya `schedule_id`, dan poliklinik pada pendaftaran diturunkan dari
+ * jadwal itu. Jadi kolom poliklinik di sini murni penyaring untuk layar.
  *
  * Endpoint-nya `POST /api/v1/appointments`. Bentuk kirimannya bukan sama
  * dengan nama field di formulir ini, jadi penerjemahannya dilakukan di
@@ -33,8 +40,8 @@ async function beriTahu(pilihan: SweetAlertOptions): Promise<void> {
  *
  * Slot jam diambil dari `GET /api/v1/schedules`, yang sudah memfilter jadwal
  * menurut hari praktik. Karena itu tanggal yang dipilih selalu cocok dengan
- * slot yang ditawarkan, dan validasi
- * tidak perlu menghitung sendiri hari apa.
+ * slot yang ditawarkan, dan formulir tidak perlu menghitung sendiri hari
+ * praktik dokter.
  */
 
 /** Bentuk nilai formulir. */
@@ -43,6 +50,14 @@ export type Fields = {
   nik: string;
   telepon: string;
   email: string;
+  /**
+   * Nama poliklinik, bukan id-nya.
+   *
+   * Yang dikirim ke server tetap hanya `schedule_id`: poliklinik pada
+   * pendaftaran diturunkan dari jadwal yang dipilih, jadi kolom ini murni untuk
+   * menyaring daftar dokter di layar.
+   */
+  poliklinik: string;
   /** UUID dokter, bukan namanya. */
   dokter: string;
   tanggal: string;
@@ -71,6 +86,17 @@ export type Dokter = {
   full_name: string;
   title: string | null;
   specialty?: string;
+  /** Nama poliklinik tempat dokter ini praktik. */
+  polyclinics?: string[];
+};
+
+/** Satu poliklinik dari `GET /api/v1/polyclinics`. */
+export type Poliklinik = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  location: string | null;
 };
 
 /** Satu jadwal dari `GET /api/v1/schedules`. */
@@ -85,6 +111,25 @@ export type Slot = {
   /** Hanya terisi kalau jadwalnya diminta untuk satu tanggal tertentu. */
   remaining?: number;
 };
+
+/**
+ * Saring dokter menurut poliklinik yang dipilih pengunjung.
+ *
+ * Poliklinik kosong berarti semua dokter, bukan daftar kosong: kolom dokter
+ * yang kosong sebelum ada yang menyentuh apa pun terlihat seperti halaman rusak,
+ * dan orang yang datang dengan `?dokter=` dari widget beranda perlu tetap
+ * melihat dokter yang sudah dipilih untuknya.
+ *
+ * Dokter tanpa `polyclinics` disembunyikan begitu poliklinik dipilih. Ia tidak
+ * punya jadwal, jadi tidak akan punya slot untuk dipilih di langkah berikutnya.
+ */
+export function dokterUntukPoliklinik(
+  daftar: readonly Dokter[],
+  namaPoliklinik: string,
+): Dokter[] {
+  if (namaPoliklinik === "") return [...daftar];
+  return daftar.filter((d) => d.polyclinics?.includes(namaPoliklinik));
+}
 
 /** Hasil `POST /api/v1/appointments` kalau diminta. */
 export type Konfirmasi = {
@@ -116,6 +161,7 @@ const INITIAL: Fields = {
   nik: "",
   telepon: "",
   email: "",
+  poliklinik: "",
   dokter: "",
   tanggal: "",
   slot: "",
@@ -172,6 +218,7 @@ export function validate(v: Fields): Partial<Record<keyof Fields, string>> {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.email)) {
     e.email = "Format email tidak valid.";
   }
+  if (!v.poliklinik) e.poliklinik = "Pilih poliklinik.";
   if (!v.dokter) e.dokter = "Pilih dokter.";
   if (!v.tanggal || v.tanggal < today) {
     e.tanggal = "Pilih tanggal yang tidak sudah lewat.";
@@ -303,6 +350,7 @@ type Muat<T> = {
 };
 
 const KUNCI_DOKTER = "dokter";
+const KUNCI_POLIKLINIK = "poliklinik";
 
 /**
  * Ambil satu amplop `{ data }` dari API.
@@ -325,7 +373,7 @@ export default function RegistrationForm() {
    * Halaman unit rawat jalan dan paket MCU mengirim `?spesialis=` atau
    * `?paket=`, widget beranda mengirim `?dokter=` dan `?tanggal=`. Tanpa
    * pembacaan di sini semua parameter itu masuk ke halaman lalu diabaikan,
-   * dan orang yang sudah memilihrie harus mengulang pilihannya.
+   * dan orang yang sudah memilih harus mengulang pilihannya.
    *
    * Dibaca sekali pada render pertama lewat `useState` dengan fungsi
    * inisialisasi, bukan di dalam `useEffect`, supaya tidak ada render kedua
@@ -356,6 +404,11 @@ export default function RegistrationForm() {
     tanggal: awal.tanggal,
   });
   const [errors, setErrors] = useState<Partial<Record<keyof Fields, string>>>({});
+  const [poliklinik, setPoliklinik] = useState<Muat<Poliklinik[]>>({
+    kunci: "",
+    status: "memuat",
+    data: [],
+  });
   const [dokter, setDokter] = useState<Muat<Dokter[]>>({
     kunci: "",
     status: "memuat",
@@ -369,7 +422,24 @@ export default function RegistrationForm() {
   });
   const [kirim, setKirim] = useState(false);
 
-  // Daftar dokter tidak bergantung pada pilihan lain, jadi dibaca sekali.
+  // Daftar dokter dan daftar poliklinik tidak bergantung pada pilihan lain, jadi
+// keduanya dibaca sekali.
+useEffect(() => {
+    let hidup = true;
+
+    ambilJson<Poliklinik[]>("/api/v1/polyclinics")
+      .then((data) => {
+        if (hidup) setPoliklinik({ kunci: KUNCI_POLIKLINIK, status: "siap", data });
+      })
+      .catch(() => {
+        if (hidup) setPoliklinik({ kunci: KUNCI_POLIKLINIK, status: "gagal", data: [] });
+      });
+
+    return () => {
+      hidup = false;
+    };
+  }, []);
+
   useEffect(() => {
     let hidup = true;
 
@@ -535,7 +605,8 @@ export default function RegistrationForm() {
   }
 
   /**
-   * Daftar dokter dikelompok per spesialitas, terurut nama spesialisasinya.
+   * Daftar dokter dikelompok per spesialitas, setelah disaring oleh poliklinik
+   * yang dipilih.
    *
    * Dulu semua dokter ditumpuk dalam satu `<select>`. Dengan 54 dokter
    * itu daftar jadi panjang tanpa judul, dan membaca "dr. Sp.N Bagus Prakoso
@@ -546,15 +617,42 @@ export default function RegistrationForm() {
    * tidak ada yang tersesat ke grup pertama.
    */
   const kelompokDokter = useMemo(() => {
+    const terkunci = dokterUntukPoliklinik(dokter.data, values.poliklinik);
+
     const peta = new Map<string, Dokter[]>();
-    for (const d of dokter.data) {
+    for (const d of terkunci) {
       const kunci = d.specialty && d.specialty.trim() !== "" ? d.specialty : "Lainnya";
       const isi = peta.get(kunci);
       if (isi) isi.push(d);
       else peta.set(kunci, [d]);
     }
     return [...peta.entries()].sort(([a], [b]) => a.localeCompare(b, "id"));
-  }, [dokter.data]);
+  }, [dokter.data, values.poliklinik]);
+
+  /**
+   * Ganti poliklinik, lalu kosongkan pilihan yang jadi tidak berlaku.
+   *
+   * Dokter, tanggal, dan jam milik dokter sebelumnya, jadi ketiganya ikut
+   * dikosongkan. Kalau hanya slot yang dikosongkan, tanggal yang sudah dipilih
+   * bisa jatuh di hari dokter berikutnya tidak praktik, dan pilihannya lolos
+   * ke server sampai ditolak di akhir.
+   */
+  function gantiPoliklinik(nama: string) {
+    setValues((prev) => ({
+      ...prev,
+      poliklinik: nama,
+      dokter: "",
+      tanggal: "",
+      slot: "",
+    }));
+    setErrors((prev) => ({
+      ...prev,
+      poliklinik: undefined,
+      dokter: undefined,
+      tanggal: undefined,
+      slot: undefined,
+    }));
+  }
 
   const err = (k: keyof Fields) =>
     errors[k] ? (
@@ -585,6 +683,44 @@ export default function RegistrationForm() {
       ) : null}
 
       <div className="row g-3">
+        <div className="col-12">
+          <label className="form-label" htmlFor="poliklinik">
+            Poliklinik
+          </label>
+          <select
+            id="poliklinik"
+            name="poliklinik"
+            className={`form-select${errors.poliklinik ? " is-invalid" : ""}`}
+            value={values.poliklinik}
+            onChange={(e) => gantiPoliklinik(e.target.value)}
+            aria-describedby={errors.poliklinik ? "err-poliklinik" : undefined}
+            disabled={poliklinik.status !== "siap"}
+            required
+          >
+            <option value="">
+              {poliklinik.status === "memuat"
+                ? "Memuat daftar poliklinik..."
+                : poliklinik.status === "gagal"
+                  ? "Daftar poliklinik gagal dimuat"
+                  : "Pilih Poliklinik"}
+            </option>
+            {poliklinik.data.map((p) => (
+              <option key={p.id} value={p.name}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+          {/*
+            Satu baris penjelasan, bukan label kedua. Poliklinik menentukan
+            dokter mana yang bisa dipilih, jadi tanpa penjelasan orang bisa
+            mengira kolom squeeze ini tidak berpengaruh apa pun.
+          */}
+          <div className="form-text">
+            Poliklinik menentukan dokter mana yang bisa dipilih.
+          </div>
+          {err("poliklinik")}
+        </div>
+
         <div className="col-md-6">
           <label className="form-label" htmlFor="dokter">
             Dokter
@@ -621,10 +757,11 @@ export default function RegistrationForm() {
         </div>
 
         <div className="col-md-6">
-          <label className="form-label" htmlFor="tanggal-kotak">
+          <label className="form-label" htmlFor="tanggal">
             Tanggal Rencana
           </label>
           <DatePicker
+            id="tanggal"
             nilai={values.tanggal}
             hariBoleh={hariBoleh}
             onUbah={(iso) => {

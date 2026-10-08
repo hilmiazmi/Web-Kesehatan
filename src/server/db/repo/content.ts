@@ -111,6 +111,20 @@ export type DoctorRow = {
   title: string | null;
   photo_url: string | null;
   /**
+   * Nama poliklinik tempat dokter ini praktik, urut nama.
+   *
+   * Disimpan sebagai daftar nama, bukan daftar id, karena pemakainya hanya
+   * menyaring: formulir pendaftaran menampilkan dokter yang praktik di poliklinik
+   * yang dipilih pengunjung, dan nama yang tampil di situ adalah nama poliklinik
+   * yang juga muncul di slot jadwal. Id tidak perlu keluar ke peramban karena
+   * poliklinik pada pendaftaran diturunkan dari jadwal yang dipilih, bukan dari
+   * pilihan sendiri.
+   *
+   * Field ini dihapus kalau dokter belum punya jadwal sama sekali, bukan
+   * dikirim sebagai daftar kosong, mengikuti aturan `specialty` di bawah.
+   */
+  polyclinics?: string[];
+  /**
    * `specialty` dan `specialty_slug` dihapus seluruhnya kalau dokter belum
    * ditugaskan ke spesialis mana pun, bukan dikirim sebagai `null`.
    *
@@ -149,7 +163,46 @@ export async function listDoctors(
     // halaman yang acak.
     .orderBy(asc(specialties.name), asc(doctors.fullName));
 
-  return rows.map(intoDoctor);
+  const klinikPerDokter = await clinicsPerDoctor(db);
+
+  return rows.map((raw) => {
+    const baris = intoDoctor(raw);
+    const daftar = klinikPerDokter.get(raw.id);
+    return daftar === undefined ? baris : { ...baris, polyclinics: daftar };
+  });
+}
+
+/**
+ * Poliklinik tempat tiap dokter praktik, diambil dari jadwalnya.
+ *
+ * Query terpisah dari `listDoctors`, bukan `join` di query itu, karena satu
+ * dokter bisa punya beberapa jadwal di poliklinic yang sama. Kalau digabung,
+ * satu dokter muncul berkali-kali di daftar dokter dan harus digabung ulang
+ * dengan memfilter `distinct` di frontend.
+ *
+ * Hanya dokter aktif yang ikut, supaya tidak ada nama poliklinik untuk dokter
+ * yang tidak muncul di `listDoctors`.
+ */
+async function clinicsPerDoctor(db: Db): Promise<Map<string, string[]>> {
+  const rows = await db
+    .selectDistinct({
+      doctor_id: doctorSchedules.doctorId,
+      nama: polyclinics.name,
+    })
+    .from(doctorSchedules)
+    .innerJoin(doctors, eq(doctorSchedules.doctorId, doctors.id))
+    .innerJoin(polyclinics, eq(doctorSchedules.polyclinicId, polyclinics.id))
+    .where(eq(doctors.isActive, true))
+    .orderBy(asc(polyclinics.name));
+
+  const peta = new Map<string, string[]>();
+  for (const row of rows) {
+    const isi = peta.get(row.doctor_id);
+    if (isi) isi.push(row.nama);
+    else peta.set(row.doctor_id, [row.nama]);
+  }
+
+  return peta;
 }
 
 export type ScheduleRow = {

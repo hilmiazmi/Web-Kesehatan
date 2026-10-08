@@ -13,12 +13,14 @@ export const metadata: Metadata = {
 /**
  * Halaman rawat jalan.
  *
- * Alurnya dibalik dari `/daftar-online`. Di formulir pendaftaran, yang pertama
- * dipilih adalah dokter, lalu jam kunjungan. Urutan itu hanya masuk akal
- * kalau orang sudah tahu nama dokter yang dicari. Pengunjung unit rawat jalan
- * biasanya datang dengan kondisi yang ingin ditangani, bukan dengan nama dokter,
- * jadi halaman ini memulai dari klinik: pilih klinik, lihat dokter yang
- * praktik, baru pilih jam.
+ * Halaman ini dan formulir `/daftar-online` sama-sama memulai dari klinik.
+ * Urutan itu dimulai dari kondisi yang ingin ditangani, bukan dari nama
+ * dokter: pengunjung unit rawat jalan biasanya belum tahu dokter mana yang
+ * dicari, jadi yang ditanyakan lebih dulu adalah tempat dan dokter mana yang
+ * praktik di sana. Formulir memakai daftar poliklinik dari
+ * `GET /api/v1/polyclinics`, sedangkan kartu di halaman ini memakai
+ * `src/data/clinics.ts`, jadi keduanya menampilkan kelompok poliklinik yang
+ * sama dengan rincian yang berbeda.
  *
  * Isinya mengikuti cakupan halaman rawat jalan di situs acuan: klinik
  * spesialis dan unit pelayanan. Nama klinik diambil dari `src/data/clinics.ts`,

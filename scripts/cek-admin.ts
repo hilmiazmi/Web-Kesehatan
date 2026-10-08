@@ -248,6 +248,48 @@ await lapis("cari tiket", async () => {
 
 console.log("bentuk tiket:", ["EP-ABCD1234", "WBS-00000000", "MCU-ABCDEFGH", "X-ABCD1234", "EP-ABCD123", "EP-ABCDEFGH", "EP-ABC1DEFG"].map((c) => `${c}=${looksLikeTicketCode(c)}`).join(" "));
 
+// Permintaan inap adalah jenis inbox dengan bentuk kolom sendiri, jadi ia diuji
+// terpisah dari kritik dan survei di atas.
+const inap = parseKind("admissions")!;
+await lapis("daftar inbox rawat inap", async () => {
+  const hasil = await listInbox(db, inap, { page: 1, pageSize: 5 });
+  console.log(`     total=${hasil.total} kind=${hasil.kind}`);
+  return hasil;
+});
+
+await harusGagal(
+  "no_show ditolak untuk rawat inap",
+  () => listInbox(db, inap, { page: 1, pageSize: 5, status: "no_show" }),
+  "Status tidak dikenal.",
+);
+
+// Pencarian memakai `referral_source` dan `complaint`. Salah ketik nama kolom di
+// sana tidak terlihat sampai petugas mengetik kata kunci, jadi kedua kolomnya
+// diuji dengan nilai yang benar-benar ada.
+await lapis("cari permintaan inap berdasarkan rujukan", async () => {
+  const hasil = await listInbox(db, inap, { page: 1, pageSize: 5, search: "Poliklinik" });
+  const total = Number(hasil.total);
+  if (total > 0) {
+    const cocok = hasil.items as { referral_source?: string | null }[];
+    const adaYangTidakCocok = cocok.some(
+      (b) => (b.referral_source ?? "").toLowerCase().includes("poliklinik") === false,
+    );
+    if (adaYangTidakCocok) throw new Error("pencarian rujukan mengembalikan baris yang tidak cocok");
+  }
+  console.log(`     total=${total}`);
+  return hasil;
+});
+
+await lapis("cari tiket inap", async () => {
+  const kode = (
+    await db.execute(sql`SELECT ticket_code FROM admissions ORDER BY created_at DESC LIMIT 1`)
+  )[0] as { ticket_code: string } | undefined;
+  if (!kode) return { dilewati: "belum ada permintaan inap" };
+  const baris = await findByTicket(db, inap, kode.ticket_code);
+  if (!baris) throw new Error("tiket inap tidak ditemukan");
+  return baris;
+});
+
 // ------------------------------------------------------------------------ akun
 console.log("\n== akun ==");
 const emailUji = `uji-${Date.now()}@contoh.test`;

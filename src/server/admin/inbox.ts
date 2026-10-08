@@ -16,6 +16,16 @@ import { isTicketShapeValid } from "../ticket";
 export const STATUSES_PENDAFTARAN = ["pending", "confirmed", "cancelled", "no_show"] as const;
 
 /**
+ * Status permintaan inap, sesuai enum `admission_status`.
+ *
+ * Tidak memakai `STATUSES_PENDAFTARAN` karena `no_show` tidak ada artinya di
+ * sini: tidak ada nomor antrean per dokter yang tidak datang, dan status itu
+ * hanya muncul pada slot Per Doctors. Percuma ada hanya menambah satu opsi
+ * yang tidak pernah dipakai.
+ */
+export const STATUSES_INAP = ["pending", "confirmed", "cancelled"] as const;
+
+/**
  * Status pengajuan, sesuai enum `submission_status`.
  *
  * Status `new` berarti pengajuan sudah masuk tapi belum ditindaklanjuti, jadi
@@ -45,6 +55,21 @@ const KINDS = {
     searchColumns: ["patient_name", "ticket_code", "phone", "complaint"],
     hasStatus: true,
     statuses: STATUSES_PENDAFTARAN,
+  },
+  admissions: {
+    slug: "admissions",
+    table: "admissions",
+    // `referral_source` ikut dicari: petugas sering mencari "IGD" atau nama
+    // poliklinik untuk melihat permintaan yang datang dari sana.
+    searchColumns: [
+      "patient_name",
+      "ticket_code",
+      "phone",
+      "referral_source",
+      "complaint",
+    ],
+    hasStatus: true,
+    statuses: STATUSES_INAP,
   },
   "mcu-registrations": {
     slug: "mcu-registrations",

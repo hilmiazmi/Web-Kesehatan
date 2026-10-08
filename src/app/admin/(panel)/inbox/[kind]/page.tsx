@@ -1,22 +1,14 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import InboxManager from "@/components/admin/InboxManager";
+import { inboxLabel } from "@/lib/admin-inbox-label";
 import { parseKind } from "@/server/admin/inbox";
 
 type Konteks = { params: Promise<{ kind: string }> };
 
-/** Nama jenis inbox yang tampil, bukan slug teknisnya. */
-const INBOX_LABEL: Record<string, string> = {
-  appointments: "Pendaftaran Pasien",
-  "mcu-registrations": "Registrasi MCU",
-  feedbacks: "Kritik dan Saran",
-  "wbs-reports": "Laporan WBS",
-  "survey-responses": "Respons Survei",
-};
-
 export async function generateMetadata({ params }: Konteks): Promise<Metadata> {
   const { kind } = await params;
-  const label = INBOX_LABEL[kind] ?? kind;
+  const label = inboxLabel(kind);
   return {
     title: `Inbox ${label}`,
     description: `Daftar ${label.toLowerCase()} yang masuk di panel admin.`,
@@ -35,7 +27,7 @@ export default async function AdminInboxPage({ params }: Konteks) {
   const jenis = parseKind(kind);
   if (jenis === undefined) notFound();
 
-  const label = INBOX_LABEL[jenis.slug] ?? jenis.slug;
+  const label = inboxLabel(jenis.slug);
 
   return (
     <div>

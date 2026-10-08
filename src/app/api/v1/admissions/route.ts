@@ -34,7 +34,12 @@ const KELAS_INAP = ["intensive", "intermediate", "regular", "private"] as const;
  */
 const MAKS_MALAM = 30;
 
-/** Perkiraan biaya kamar per malam, sesuai kelas. */
+/**
+ * Perkiraan biaya kamar per malam dan batas lama inap, untuk isi formulir.
+ *
+ * Taruh di backend, bukan ditulis ulang di komponen, supaya angka yang dilihat
+ * pengunjung sama dengan angka yang dipakai saat konfirmasi.
+ */
 export async function GET(): Promise<NextResponse> {
   return handle(async () =>
     ok({
