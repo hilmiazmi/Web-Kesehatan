@@ -1208,9 +1208,9 @@ a.halaman-kartu-ringkas:focus-visible .halaman-kartu-panah {
 }
 
 /* Selektor ikut sepanjang aturan "hari praktik" supaya menang. Dengan
- * hanya `.tanggal-kalender-sel.dipilih` (0,2,0)输给 aturan itu (0,3,0),
- * warna huruf tetap biru aksen di atas latar biru aksen dan angkanya tidak
- * terlihat sama sekali. */
+ * hanya `.tanggal-kalender-sel.dipilih` (0,2,0), aturan itu (0,3,0) akan
+ * menang dan warna huruf tetap biru aksen di atas latar biru aksen, sehingga
+ * angkanya tidak terlihat sama sekali. */
 .tanggal-kalender-sel.dipilih,
 .tanggal-kalender-sel:not(.tidak-bisa):not(.di-luar-bulan).dipilih {
   background-color: var(--rs-accent);

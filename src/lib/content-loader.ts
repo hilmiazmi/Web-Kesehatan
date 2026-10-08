@@ -120,7 +120,7 @@ export async function getPublicArticles(): Promise<PublicArticle[]> {
         .map(dariBarisArtikel)
         .filter((a): a is PublicArticle => a !== null);
 
-      if (dariDb.length > 0) return dariDb;
+      if (dariDb.length > 0) return gabung(dariDb);
 
       console.warn(
         "[konten] tabel articles kosong, data statis dipakai untuk /berita",
@@ -131,6 +131,31 @@ export async function getPublicArticles(): Promise<PublicArticle[]> {
   }
 
   return [...ARTICLES];
+}
+
+/**
+ * Gabungkan berita dari database dengan berita bawaan yang belum ada di sana.
+ *
+ * Database selalu menang untuk slug yang sama, jadi artikel yang diubah admin
+ * di panel tidak akan muncul dua kali dengan isi berbeda.
+ *
+ * Berita bawaan yang slug-nya belum ada di database tetap ikut ditampilkan.
+ * Semula tidak, dan akibatnya enam belas halaman artikel itu sempat jadi
+ * halaman yatim: `generateStaticParams` di `/berita/[slug]` tetap membuat
+ * halamannya, tapi tidak ada halaman yang menautkannya, sehingga `cek:tautan`
+ * gagal dan pengunjung tidak punya jalan masuk ke sana.
+ *
+ * Urutannya ulang berdasarkan tanggal. Tanpa itu, berita bawaan selalu
+ * menempel di bagian akhir daftar dan halaman `/berita` tampak seperti belum
+ * pernah diperbarui, padahal isinya sudah bercampur.
+ */
+function gabung(dariDb: PublicArticle[]): PublicArticle[] {
+  const adaDiDb = new Set(dariDb.map((a) => a.slug));
+  const bawaan = ARTICLES.filter((a) => !adaDiDb.has(a.slug));
+
+  return [...dariDb, ...bawaan].sort((a, b) =>
+    a.date === b.date ? a.slug.localeCompare(b.slug) : b.date.localeCompare(a.date),
+  );
 }
 
 /**

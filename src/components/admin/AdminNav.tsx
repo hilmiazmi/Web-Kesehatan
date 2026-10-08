@@ -42,6 +42,15 @@ export default function AdminNav({
               {t.label}
             </Butir>
           ))}
+          {/*
+            Menu terpisah, bukan tabel di registry. Kapasitas bed bukan isi
+            konten: ruangnya sudah ada dan tidak bisa ditambah dari panel,
+            karena server mencocokkan baris berdasarkan nama ruang dan kelas.
+          */}
+          <Butir href="/admin/beds" pathname={pathname}>
+            <i className="bi bi-hospital" aria-hidden="true" />
+            Kapasitas Bed
+          </Butir>
         </>
       ) : null}
 

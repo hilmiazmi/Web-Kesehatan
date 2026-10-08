@@ -172,6 +172,7 @@ const OWN_ROUTE_SUBTREES = new Set([
   "/berita",
   "/daftar-online",
   "/informasi-publik/brosur",
+  "/kapasitas-bed",
   "/jadwal-dokter",
   "/pelayanan/poliklinik",
   "/ppid",

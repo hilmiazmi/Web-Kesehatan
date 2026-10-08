@@ -178,14 +178,44 @@ describe("fotoBerita", () => {
 // ----------------------------------------------------------------- loader
 
 describe("getPublicArticles", () => {
-  it("mengambil dari database ketika mode live", async () => {
+  it("menampilkan berita database lebih dulu, lalu berita bawaan", async () => {
+    // Urutannya penting untuk dua hal sekaligus: database dibaca sebagai
+    // sumber utama, dan berita bawaan yang belum ada di sana tetap punya
+    // tautan masuk. Kalau bawaan tidak ikut, enam belas halamannya jadi
+    // halaman yatim yang tidak bisa ditemukan pengunjung maupun `cek:tautan`.
     keadaan.articles = [baris()];
 
     const hasil = await getPublicArticles();
 
-    expect(hasil).toHaveLength(1);
     expect(hasil[0].title).toBe("Berita dari Database");
+    expect(hasil).toHaveLength(ARTICLES.length + 1);
     expect(keadaan.panggil).toBe(1);
+  });
+
+  it("tidak menampilkan dua kali slug yang ada di kedua sumber", async () => {
+    // Berita bawaan bisa sudah tersimpan di database dengan slug yang sama. Kalau
+    // keduanya ikut, pengunjung melihat artikel yang sama dua kali dengan isi
+    // berbeda, dan detailnya hanya menampilkan versi database.
+    keadaan.articles = [baris({ slug: ARTICLES[0].slug, title: "Versi Database" })];
+
+    const hasil = await getPublicArticles();
+    const slugGanda = hasil.filter((a) => a.slug === ARTICLES[0].slug);
+
+    expect(slugGanda).toHaveLength(1);
+    expect(slugGanda[0].title).toBe("Versi Database");
+    expect(hasil).toHaveLength(ARTICLES.length);
+  });
+
+  it("mengurutkan ulang berdasarkan tanggal setelah digabung", async () => {
+    // Tanpa pengurutan ulang, berita bawaan selalu menempel di bagian akhir dan
+    // halaman `/berita` terlihat seperti belum pernah diperbarui.
+    keadaan.articles = [baris({ slug: "paling-baru", published_at: "2030-01-02T00:00:00Z" })];
+
+    const hasil = await getPublicArticles();
+    const tanggal = hasil.map((a) => a.date);
+
+    expect(tanggal).toEqual([...tanggal].sort((a, b) => b.localeCompare(a)));
+    expect(hasil[0].slug).toBe("paling-baru");
   });
 
   it("kembali ke data statis di mode snapshot tanpa menyentuh database", async () => {
@@ -222,8 +252,10 @@ describe("getPublicArticles", () => {
 
     const hasil = await getPublicArticles();
 
-    expect(hasil).toHaveLength(1);
-    expect(hasil[0].slug).toBe("yang-valid");
+    // Baris yang tanggalnya rusak tidak muncul, dan baris yang valid tetap
+    // ada. Jumlahnya tidak lagi satu karena berita bawaan ikut digabung.
+    expect(hasil.map((a) => a.slug)).toContain("yang-valid");
+    expect(hasil).toHaveLength(ARTICLES.length + 1);
   });
 });
 

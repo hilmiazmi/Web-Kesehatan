@@ -3,7 +3,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import PageHeader from "@/components/layout/PageHeader";
 import Photo from "@/components/ui/Photo";
-import { ARTICLES } from "@/data/home";
 import { formatDate, summarize } from "@/lib/format";
 import {
   fotoBerita,
@@ -25,9 +24,23 @@ export const dynamicParams = true;
 /** Sama seperti halaman `/berita`, supaya perubahan admin cepat terlihat. */
 export const revalidate = 60;
 
-/** Prerender semua artikel bawaan saat build. */
-export function generateStaticParams() {
-  return ARTICLES.map((a) => ({ slug: a.slug }));
+/**
+ * Prerender semua berita yang ada saat build.
+ *
+ * Daftar diambil dari `getPublicArticles()`, bukan hanya `ARTICLES` statis.
+ * Database menyimpan sepuluh berita dan `/berita` menautkan semuanya, tapi
+ * `generateStaticParams` yang hanya membaca data statis tidak pernah
+ * membuat berkas untuk slug itu. Akibatnya tautannya ada di halaman indeks
+ * dan `cek:tautan` melaporkan tiga puluh tautan mati, padahal halamannya hidup
+ * begitu diminta lewat `dynamicParams`.
+ *
+ * Fungsi ini async dan aman tanpa database: `getPublicArticles()` kembali ke
+ * data statis kalau koneksi ditolak, jadi `next build` di lingkungan tanpa
+ * PostgreSQL tetap berhasil.
+ */
+export async function generateStaticParams() {
+  const articles = await getPublicArticles();
+  return articles.map((a) => ({ slug: a.slug }));
 }
 
 export async function generateMetadata({

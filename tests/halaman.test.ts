@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import { HALAMAN, isiHalaman } from "@/data/halaman";
 import { FACILITIES } from "@/data/home";
 import { DIAGNOSTIC_SERVICES } from "@/data/informasi";
-import { RUANG_RAWAT } from "@/data/kapasitas-bed";
 import { FOOTER_RELATED } from "@/data/navigation";
 import { childrenOf, collectNavPaths } from "@/lib/nav-path";
 
@@ -16,19 +15,52 @@ import { childrenOf, collectNavPaths } from "@/lib/nav-path";
 
 const pathDariNav = collectNavPaths().map((p) => p.slug.join("/"));
 
+/**
+ * Path yang punya route sendiri, jadi tidak dilayani `[...slug]`.
+ *
+ * Daftar ini harus sama dengan `OWN_ROUTE_SUBTREES` di `src/lib/nav-path.ts`.
+ * BetWEEN keduanya ada yang tidak bisa diuji dari satu berkas: yang di sini
+ * hanya tahu path mana yang punya isi generik, sedangkan `nav-path.ts` juga
+ * tahu mana yang route-nya dilayani folder sendiri. Kalau satu path masuk
+ * hanya ke salah satu, tes di sini akan gagal dengan pesan yang menyebut isi
+ * halaman, padahal masalahnya di pemetaan route.
+ */
+const PUNYA_ROUTE_SENDIRI = new Set([
+  "/berita",
+  "/daftar-online",
+  "/informasi-publik/brosur",
+  "/kapasitas-bed",
+  "/jadwal-dokter",
+  "/pelayanan/poliklinik",
+  "/ppid",
+  "/tentang-kami/manajemen",
+  "/tentang-kami/profile",
+]);
+
+/** Path yang benar-benar dilayani route generik. */
+const pathGenerik = pathDariNav.filter((p) => !PUNYA_ROUTE_SENDIRI.has(`/${p}`));
+
 describe("cakupan isi halaman", () => {
-  it("setiap path dari navigasi punya isi", () => {
-    const tanpa = pathDariNav.filter((p) => !HALAMAN[p]);
+  it("setiap path generik dari navigasi punya isi", () => {
+    const tanpa = pathGenerik.filter((p) => !HALAMAN[p]);
     expect(tanpa).toEqual([]);
   });
 
   it("tidak ada isi untuk path yang tidak dilayani", () => {
-    const ekstra = Object.keys(HALAMAN).filter((p) => !pathDariNav.includes(p));
+    const ekstra = Object.keys(HALAMAN).filter((p) => !pathGenerik.includes(p));
     expect(ekstra).toEqual([]);
   });
 
-  it("jumlah halaman sama dengan jumlah path dari navigasi", () => {
-    expect(Object.keys(HALAMAN).length).toBe(pathDariNav.length);
+  it("jumlah halaman sama dengan jumlah path generik", () => {
+    expect(Object.keys(HALAMAN).length).toBe(pathGenerik.length);
+  });
+
+  it("kapasitas bed tidak punya isi generik lagi", () => {
+    // Halamannya sekarang punya route sendiri: angkanya dibaca dari
+    // `/api/v1/beds` di peramban. Kalau isi generik ditambahkan lagi, ada dua
+    // halaman dengan angka yang berbeda untuk hal yang sama, dan hanya satu
+    // yang mengikuti database.
+    expect(HALAMAN["kapasitas-bed"]).toBeUndefined();
   });
 });
 
@@ -154,12 +186,6 @@ describe("isi yang diturunkan, bukan disalin", () => {
     expect(tabel.baris.length).toBe(8);
   });
 
-  it("tabel kapasitas bed memuat seluruh ruang", () => {
-    const bed = HALAMAN["kapasitas-bed"];
-    const tabel = bed.blok.find((b) => b.jenis === "tabel");
-    if (tabel?.jenis !== "tabel") throw new Error("tabel tidak ditemukan");
-    expect(tabel.baris.length).toBe(RUANG_RAWAT.length);
-  });
 
   it("sitemap memuat seluruh path yang dilayani", () => {
     const situs = HALAMAN.sitemap;

@@ -12,7 +12,7 @@ import { PELAYANAN_UTAMA } from "./pelayanan-utama";
 import { PENGADUAN } from "./pengaduan";
 import { SKM } from "./skm";
 import { TENTANG } from "./tentang";
-import { KAPASITAS_BED, UTAMA } from "./utama";
+import { UTAMA } from "./utama";
 import { ZONA_MEDIA } from "./zona-media";
 import { ZONA } from "./zona";
 import type { IsiHalaman } from "./types";
@@ -44,7 +44,6 @@ export const HALAMAN: Record<string, IsiHalaman> = {
   ...DOKUMEN,
   ...ZONA,
   ...ZONA_MEDIA,
-  ...KAPASITAS_BED,
   ...UTAMA,
 };
 

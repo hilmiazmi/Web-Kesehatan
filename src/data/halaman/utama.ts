@@ -1,9 +1,3 @@
-import {
-  RUANG_RAWAT,
-  bedTerisi,
-  bedTersedia,
-  bedTotal,
-} from "@/data/kapasitas-bed";
 import { CONTACT, FOOTER_ADDRESS } from "@/data/navigation";
 import { humanize, resolveTrail } from "@/lib/nav-path";
 import { collectSitemapPaths } from "@/lib/sitemap";
@@ -28,41 +22,6 @@ const PETA_SITUS = collectSitemapPaths()
     return [label, e.path];
   })
   .sort((a, b) => String(a[1]).localeCompare(String(b[1]), "id"));
-
-/** Halaman "Kapasitas Bed". */
-export const KAPASITAS_BED: Record<string, IsiHalaman> = {
-  "kapasitas-bed": {
-    ringkas: "Ringkasan tempat tidur yang tersedia.",
-    blok: [
-      {
-        jenis: "statistik",
-        butir: [
-          { label: "Total tempat tidur", nilai: String(bedTotal()) },
-          { label: "Tersedia", nilai: String(bedTersedia()) },
-          { label: "Terisi", nilai: String(bedTerisi()) },
-          { label: "Ruang rawat inap", nilai: String(RUANG_RAWAT.length) },
-        ],
-        catatan: "Angka pada halaman ini adalah data fiktif untuk demo.",
-      },
-      {
-        jenis: "tabel",
-        judul: "Rincian per ruang",
-        kolom: ["Ruang", "Kelas", "Total", "Terisi", "Tersedia"],
-        baris: RUANG_RAWAT.map((r) => [
-          r.nama,
-          r.kelas,
-          String(r.total),
-          String(r.terisi),
-          String(r.total - r.terisi),
-        ]),
-      },
-      {
-        jenis: "catatan",
-        teks: "Ketersediaan tempat tidur berubah setiap jam.",
-      },
-    ],
-  },
-};
 
 /** Halaman "Kontak" dan "Peta Situs". */
 export const UTAMA: Record<string, IsiHalaman> = {
