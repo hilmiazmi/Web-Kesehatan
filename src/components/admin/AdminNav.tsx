@@ -18,11 +18,13 @@ export default function AdminNav({
   inboxKinds,
   unread,
   canEdit,
+  canManageUsers,
 }: {
   tables: readonly TableSummary[];
   inboxKinds: readonly { slug: string; label: string }[];
   unread: number;
   canEdit: boolean;
+  canManageUsers: boolean;
 }) {
   const pathname = usePathname();
 
@@ -61,6 +63,16 @@ export default function AdminNav({
           {k.label}
         </Butir>
       ))}
+
+      {/* Akun tidak ikut ke daftar tabel konten. Halamannya butuh
+          `canManageUsers`, bukan `canEditContent`, jadi tautan ini hanya
+          ditampilkan ke peran yang benar-benar boleh mengelola akun. */}
+      {canManageUsers ? (
+        <Butir href="/admin/akun" pathname={pathname}>
+          <i className="bi bi-people" aria-hidden="true" />
+          Akun Panel
+        </Butir>
+      ) : null}
 
       {unread > 0 ? (
         <div className="admin-nav-group">Total belum ditangani: {unread}</div>

@@ -1,5 +1,5 @@
 import type { Role, SessionClaims } from "@/server/auth/session";
-import { canEditContent } from "@/server/auth/session";
+import { canEditContent, canManageUsers } from "@/server/auth/session";
 import AdminNav from "@/components/admin/AdminNav";
 import LogoutButton from "@/components/admin/LogoutButton";
 import type { TableSummary } from "@/components/admin/types";
@@ -39,6 +39,7 @@ export default function AdminShell({
           inboxKinds={inboxKinds}
           unread={unread}
           canEdit={canEditContent(claims.role)}
+          canManageUsers={canManageUsers(claims.role)}
         />
 
         <div className="admin-brand">
