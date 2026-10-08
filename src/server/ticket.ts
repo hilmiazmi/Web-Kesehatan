@@ -13,6 +13,9 @@ import { randomInt } from "node:crypto";
  */
 export const PREFIX = {
   appointment: "EP",
+  // Rawat inap. Prefix sendiri supaya kode tiket rawat inap tidak tertukar
+  // dengan pendaftaran rawat jalan di loket yang sama.
+  admission: "RI",
   mcu: "MCU",
   feedback: "KS",
   wbs: "WBS",

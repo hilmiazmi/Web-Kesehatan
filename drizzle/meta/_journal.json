@@ -29,6 +29,13 @@
       "when": 1791101075807,
       "tag": "0003_anti_ganda",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791398493845,
+      "tag": "0004_slimy_vector",
+      "breakpoints": true
     }
   ]
 }

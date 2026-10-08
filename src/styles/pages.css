@@ -1268,3 +1268,54 @@ a.halaman-kartu-ringkas:focus-visible .halaman-kartu-panah {
   font-weight: 600;
   color: var(--rs-accent);
 }
+
+/* Pilihan kelas perawatan pada formulir rawat inap.
+ *
+ * Radio disembunyikan dan diganti label, supaya yang diklik adalah kotak
+ * berinformasi: nama kelas, penjelasan singkat, dan biaya per malam.
+ * `<select>` tidak bisa memuat penjelasan itu.
+ */
+.kelas-pilih {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  height: 100%;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--rs-gray-300);
+  border-radius: var(--rs-radius-btn);
+  background-color: var(--rs-white);
+  cursor: pointer;
+}
+
+.kelas-pilih:hover {
+  border-color: var(--rs-accent);
+}
+
+.kelas-pilih:focus-within {
+  outline: 3px solid rgba(var(--rs-accent-rgb), 0.4);
+  outline-offset: 1px;
+}
+
+.kelas-pilih.dipilih {
+  border-color: var(--rs-accent);
+  background-color: rgba(var(--rs-accent-rgb), 0.07);
+}
+
+.kelas-pilih-nama {
+  font-weight: 600;
+  color: var(--rs-text-card-title);
+}
+
+.kelas-pilih-ket {
+  font-size: 0.82rem;
+  color: var(--rs-text-card-desc);
+  line-height: 1.5;
+}
+
+.kelas-pilih-biaya {
+  margin-top: auto;
+  padding-top: 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--rs-accent);
+}

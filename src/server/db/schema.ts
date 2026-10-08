@@ -89,6 +89,28 @@ export const appointmentStatus = pgEnum("appointment_status", [
 
 export const paymentType = pgEnum("payment_type", ["general", "bpjs", "insurance"]);
 
+/**
+ * Status permintaan ruang inap.
+ *
+ * Dipisah dari `appointment_status` karena perawatannya berbeda: pendaftaran
+ * rawat jalan dijadwalkan ke dokter dan jam tertentu, sedangkan rawat inap
+ * bergantung pada ketersediaan tempat tidur dan tidak punya nomor antrean per
+ * dokter.
+ */
+export const admissionStatus = pgEnum("admission_status", [
+  "pending",
+  "confirmed",
+  "cancelled",
+]);
+
+/** Kelas perawatan yang bisa dipilih pasien saat meminta inap. */
+export const wardClass = pgEnum("ward_class", [
+  "intensive",
+  "intermediate",
+  "regular",
+  "private",
+]);
+
 /** Status pengajuan, kritik dan saran, laporan WBS. */
 export const submissionStatus = pgEnum("submission_status", [
   "new",
@@ -659,6 +681,63 @@ export const appointments = pgTable(
       sql`${t.email} IS NULL OR ${t.email} ~* ${sql.raw(EMAIL_PATTERN)}`,
     ),
     check("appointments_queue_positive", sql`${t.queueNumber} > 0`),
+  ],
+);
+
+/**
+ * Permintaan rawat inap.
+ *
+ * Berbeda dari `appointments`: tidak ada `doctor_id`, `polyclinic_id`, dan
+ * `queue_number` karena tidak ada slot per dokter yang diperebutkan. Yang
+ * diperebutkan adalah tempat tidur, dan itu sudah tercermin di
+ * `bed_capacity.reserved_beds`.
+ *
+ * Tidak ada `schedule_id` yang Prosedural menuju ke sini: rawat inap
+ * dijadwalkan relatif terhadap tanggal masuk, bukan jam tertentu.
+ */
+export const admissions = pgTable(
+  "admissions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    ticketCode: varchar("ticket_code", { length: 24 }).notNull(),
+    patientName: varchar("patient_name", { length: 160 }).notNull(),
+    /**
+     * 16 digit. Formulir memintanya, tapi nilainya tidak pernah disimpan: nilainya
+     * diganti `NIK_SIMULASI` seperti pada `appointments`, dan constraint di
+     * bawah hanya menerima 16 angka nol.
+     */
+    nik: varchar("nik", { length: 16 }).notNull(),
+    phone: varchar("phone", { length: 30 }).notNull(),
+    email: varchar("email", { length: 255 }),
+    address: text("address"),
+    /** Asal rujukan, sama seperti `appointments`: poliklinik, IGD, atau rujukan luar. */
+    referralSource: varchar("referral_source", { length: 160 }),
+    /** Kelas perawatan yang diminta, bukan yang dijamin diterima. */
+    requestedClass: wardClass("requested_class").notNull(),
+    /** Tanggal rencana masuk, sama dengan tanggal paling awal. */
+    entryDate: date("entry_date").notNull(),
+    /**
+     * Perkiraan lama inap dalam malam. Dipakai untuk memperkirakan
+     * kebutuhan tempat tidur, bukan untuk memotong hak pasien.
+     */
+    estimatedNights: integer("estimated_nights").notNull().default(1),
+    complaint: text("complaint"),
+    paymentType: paymentType("payment_type").notNull(),
+    status: admissionStatus("status").notNull().default("pending"),
+    adminNote: text("admin_note"),
+    createdAt,
+    updatedAt,
+  },
+  (t) => [
+    uniqueIndex("admissions_ticket_code_unique").on(t.ticketCode),
+    index("admissions_inbox_idx").on(t.status, t.createdAt.desc().nullsFirst()),
+    index("admissions_entry_date_idx").on(t.entryDate.desc().nullsFirst()),
+    check("admissions_nik_simulasi", sql`${t.nik} ~ '^[0]{16}$'`),
+    check(
+      "admissions_email_format",
+      sql`${t.email} IS NULL OR ${t.email} ~* ${sql.raw(EMAIL_PATTERN)}`,
+    ),
+    check("admissions_nights_positive", sql`${t.estimatedNights} > 0`),
   ],
 );
 
