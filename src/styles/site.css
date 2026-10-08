@@ -1122,13 +1122,24 @@
 }
 
 /* ---------- Kartu umum ---------- */
+/* `height: 100%` sengaja TIDAK dipakai di sini.
+ *
+ * Aturan itu terlihat benar untuk kartu-kartu berita yang duduk satu baris
+ * dan sengaja dibuat sama tinggi. Tapi kartu juga dipakai sendirian di dalam kolom
+ * yang isinya lebih panjang, misalnya formulir di `/kontak` yang diikuti
+ * catatan kaki. Persentase terhadap tinggi induk yang kontennya ikut dipengaruhi
+ * kartu sendiri membuat browser menyelesaikan lingkar itu dengan memakai tinggi
+ * kolom, sehingga kartu jadi setinggi seluruh kolom dan muncul kotak putih
+ * kosong sepanjang ratusan piksel di bawah isinya.
+ *
+ * Tinggi sama di dalam baris kartu tetap terjaga oleh `align-items: stretch`
+ * milik wadah flex-nya, jadi tidak perlu aturan di kartu. */
 .card {
   border: var(--rs-border-card);
   border-radius: var(--rs-radius-card);
   box-shadow: none;
   overflow: visible;
   background-color: var(--rs-white);
-  height: 100%;
   display: flex;
   flex-direction: column;
 }
