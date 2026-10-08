@@ -53,6 +53,14 @@ export default function AdminNav({
             <i className="bi bi-hospital" aria-hidden="true" />
             Kapasitas Bed
           </Butir>
+          {/* Pengaturan situs butuh `canEditContent` yang sama dengan
+              `PUT /api/v1/admin/settings`, jadi ia satu blok dengan kapasitas
+              bed: peran yang salah tidak akan melihat tautan ke halaman
+              yang halamannya hanya menampilkan permintaan. */}
+          <Butir href="/admin/pengaturan" pathname={pathname}>
+            <i className="bi bi-sliders" aria-hidden="true" />
+            Pengaturan Situs
+          </Butir>
         </>
       ) : null}
 
