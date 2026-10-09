@@ -619,3 +619,22 @@ sudah 33 commit sepanjang hari. Sekarang: peril handle 856 test, Playwright
 menyuruh kerja yang sudah selesai dilakukan.
 
 Gerbang saat ini: lint 0, 856 test lulus, build 169/169.
+
+---
+
+## Bukti tautan mati + kerentanan dependensi (2026-10-09)
+
+**Tidak ada tautan mati, kini terbukti bukan cuma disimpulkan.** Sesudah
+build, `bun run cek:tautan` dijalankan apa adanya: 150 halaman, 150 tautan
+unik, 149 entri sitemap, tidak ada tautan mati, setiap halaman punya tautan
+masuk, sitemap lengkap, tidak ada judul dobel. Ini membuktikan pernyataan
+sebelumnya bahwa 49 href nav tidak punya `page.tsx` sendiri bukan tautan mati
+melainkan ditangani catch-all.
+
+**Dua kerentanan dependensi tidak bisa ditutup dari repo.**
+`bun audit fix` menjawab "no published version fixes" untuk `braces@3.0.3`
+(tidak ada rilis patch, hanya major baru), dan esbuild ditahan
+`@esbuild-kit/core-utils@3.3.2` yang mengunci `esbuild@~0.18.20`.
+`package.json` dan `bun.lock` tidak berubah sedikit pun. Keduanya sudah
+tercatat diterima di `AUDIT-KEAMANAN.md` bagian L-1 karena hanya rantai
+perkembangan, tanpa efek ke produksi.
