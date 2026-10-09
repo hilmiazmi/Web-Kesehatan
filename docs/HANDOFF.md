@@ -310,3 +310,37 @@ dihapus lagi setelah selesai. Hasil:
 Catatan: field feedback adalah `message`/`name`/`phone`, bukan
 `pesan`/`nama`/`telepon`. Salah nama field dibalas 422 dengan
 `fields` yang menyebut field yang benar.
+
+---
+
+## Verifikasi Docker lewat VPS (2026-10-09) — BELUM SELESAI
+
+**Aturan keamanan sesi ini:** tidak satu pun alamat IP, isi log server, nama
+pengguna, atau detail mesin yang ditulis di dokumen, chat, maupun commit.
+Hanya status ringkas yang dicatat. Semua keluaran perintah jarak jauh disaring
+sebelum dibaca, dan artefak sementara di VPS dijadwalkan untuk dihapus.
+
+**Yang terjadi:**
+1. Akses SSH dengan alias yang diberikan pemilik berhasil; Docker tersedia.
+2. Snapshot kode (`git archive HEAD`, tanpa `.env*`/`.next`) terkirim utuh.
+3. Build image #1 **gagal** di tahap runner. Tiga cacat di `Dockerfile`,
+   semuanya dari berkas saya: COPY atas direktori `public/` yang tidak ada,
+   `${PORT}` kosong karena ARG global tidak dinyatakan ulang di tahap runner,
+   dan HEALTHCHECK bentuk exec yang tidak mengganti variabel.
+4. Ketiganya diperbaiki dan di-commit lokal (`4b1dda2`, belum push).
+5. Build image #2 **berjalan normal** (dependensi 404 paket selesai, kompilasi
+   Next.js sukses di dalam container) lalu **VPS tidak lagi terjangkau SSH**
+   selama belasan menit. Dugaan paling mungkin: mesin kecil kehabisan sumber
+   daya saat generate halaman statis (7 worker), bukan kesalahan perintah.
+6. Status akhir build #2 **tidak diketahui**. Direktori build sementara dan
+   container (bila sempat dibuat) masih ada di VPS menunggu pembersihan.
+
+**Gerbang lokal tetap hijau:** lint 0 error, test 825/825, build 169/169.
+
+**Keputusan:** merge dan push ke `main` **ditahan**. Syarat pemilik adalah
+"semua lolos", dan verifikasi Docker belum tuntas. Commit `4b1dda2` tetap
+lokal sampai ada kepastian.
+
+**Perlu dari pemilik:** periksa kondisi VPS dari konsol (atau tunggu lalu
+coba lagi), beri tahu bila SSH sudah pulih supaya verifikasi dilanjutkan
+dan artefak sementara dibersihkan.
