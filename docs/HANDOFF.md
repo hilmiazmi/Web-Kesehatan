@@ -291,3 +291,22 @@ sudah dipulihkan pemilik, dan saya tidak menyentuh berkas itu lagi).
 **Keputusan:** commit refactor sebagai satu perubahan logis, push branch
 langsung tanpa PR atas instruksi eksplisit pemilik
 ("jika sudah lolos testing push tanpa pr").
+
+### Verifikasi login + tulis sungguhan (9 Okt 2026, DB uji lokal)
+
+Docker tidak bisa diakses, jadi PostgreSQL 17.11 dijalankan langsung dari
+binary mise sebagai user biasa di `/tmp/opencode/pgdata`, hanya `127.0.0.1:5433`.
+Tidak menyentuh `.env.local`. Migrasi 28 tabel + seed jalan. Akun uji
+`uji-e2e@contoh.test` dibuat lewat `hashPassword` milik aplikasi, lalu
+dihapus lagi setelah selesai. Hasil:
+
+- `POST /auth/login` sandi benar → 200 + cookie `rsud_session`.
+- Sandi salah → 401.
+- `GET /api/v1/admin/stats` + `/admin/pengaturan` dengan cookie → 200.
+- `PUT /api/v1/admin/settings` tersimpan dan terbaca kembali dari DB.
+- `POST /api/v1/feedbacks` → 201 + tiket, muncul di inbox admin.
+- Data uji dihapus, postgres dihentikan. Cara mengulang ada di laporan sesi.
+
+Catatan: field feedback adalah `message`/`name`/`phone`, bukan
+`pesan`/`nama`/`telepon`. Salah nama field dibalas 422 dengan
+`fields` yang menyebut field yang benar.
