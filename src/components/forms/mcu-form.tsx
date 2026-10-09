@@ -1,5 +1,6 @@
 "use client";
 
+import { surelValid, teleponFormValid } from "@/lib/validasi-umum";
 import { useState, type FormEvent } from "react";
 import type { SweetAlertOptions } from "sweetalert2";
 
@@ -93,10 +94,10 @@ export function validate(v: Fields): Partial<Record<keyof Fields, string>> {
 
   if (v.nama.trim().length < 3) e.nama = "Nama pemohon minimal 3 karakter.";
   if (v.nama.trim().length > 160) e.nama = "Nama pemohon maksimal 160 karakter.";
-  if (!/^(\+62|62|0)\d{8,13}$/.test(telepon)) {
+  if (!teleponFormValid(telepon)) {
     e.telepon = "Nomor telepon tidak valid.";
   }
-  if (surel !== "" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(surel)) {
+  if (surel !== "" && !surelValid(surel)) {
     e.surel = "Format email tidak valid.";
   }
   if (v.perusahaan.trim().length > 180) {

@@ -1,5 +1,6 @@
 "use client";
 
+import { surelValid } from "@/lib/validasi-umum";
 import { useState, type FormEvent } from "react";
 import type { SweetAlertOptions } from "sweetalert2";
 
@@ -111,7 +112,7 @@ export function validate(v: Fields): Partial<Record<keyof Fields, string>> {
   if (dinilai.length === 0) e.jawaban = "Nilai minimal satu pertanyaan.";
   if (v.komentar.length > 2000) e.komentar = "Komentar maksimal 2000 karakter.";
   const surel = v.surel.trim();
-  if (surel !== "" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(surel)) {
+  if (surel !== "" && !surelValid(surel)) {
     e.surel = "Format email tidak valid.";
   }
 

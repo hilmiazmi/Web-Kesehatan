@@ -1,5 +1,6 @@
 "use client";
 
+import { teleponFormValid } from "@/lib/validasi-umum";
 import { useState, type FormEvent } from "react";
 import type { SweetAlertOptions } from "sweetalert2";
 import DatePicker from "@/components/ui/DatePicker";
@@ -136,7 +137,7 @@ export default function AdmissionForm() {
     const next: Partial<Record<keyof Fields, string>> = {};
     if (values.nama.trim().length < 3) next.nama = "Nama lengkap minimal 3 karakter.";
     if (!/^\d{16}$/.test(values.nik)) next.nik = "NIK harus 16 digit angka.";
-    if (!/^(\+62|62|0)\d{8,13}$/.test(values.telepon.replace(/[\s-]/g, ""))) {
+    if (!teleponFormValid(values.telepon)) {
       next.telepon = "Nomor telepon tidak valid.";
     }
     if (!values.kelas) next.kelas = "Pilih kelas perawatan.";

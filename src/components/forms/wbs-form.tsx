@@ -1,5 +1,6 @@
 "use client";
 
+import { surelValid, teleponFormValid } from "@/lib/validasi-umum";
 import { useState, type FormEvent } from "react";
 import type { SweetAlertOptions } from "sweetalert2";
 import DatePicker from "@/components/ui/DatePicker";
@@ -113,10 +114,10 @@ export function validate(v: Fields): Partial<Record<keyof Fields, string>> {
   if (kronologi.length > 10000) e.kronologi = "Uraian maksimal 10000 karakter.";
 
   if (!v.anonim) {
-    if (surel !== "" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(surel)) {
+    if (surel !== "" && !surelValid(surel)) {
       e.surel = "Format email tidak valid.";
     }
-    if (telepon !== "" && !/^(\+62|62|0)\d{8,13}$/.test(telepon)) {
+    if (telepon !== "" && !teleponFormValid(telepon)) {
       e.telepon = "Nomor telepon tidak valid.";
     }
   }

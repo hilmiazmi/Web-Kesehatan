@@ -1,5 +1,6 @@
 "use client";
 
+import { surelValid, teleponFormValid } from "@/lib/validasi-umum";
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { useSearchParams } from "next/navigation";
 import type { SweetAlertOptions } from "sweetalert2";
@@ -206,16 +207,15 @@ function tanggalHariIni(): string {
  */
 export function validate(v: Fields): Partial<Record<keyof Fields, string>> {
   const e: Partial<Record<keyof Fields, string>> = {};
-  const digits = v.telepon.replace(/[\s-]/g, "");
   const today = tanggalHariIni();
 
   if (v.nama.trim().length < 3) e.nama = "Nama lengkap minimal 3 karakter.";
   if (v.nama.trim().length > 160) e.nama = "Nama lengkap maksimal 160 karakter.";
   if (!/^\d{16}$/.test(v.nik)) e.nik = "NIK harus 16 digit angka.";
-  if (!/^(\+62|62|0)\d{8,13}$/.test(digits)) {
+  if (!teleponFormValid(v.telepon)) {
     e.telepon = "Nomor telepon tidak valid.";
   }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.email)) {
+  if (!surelValid(v.email)) {
     e.email = "Format email tidak valid.";
   }
   if (!v.poliklinik) e.poliklinik = "Pilih poliklinik.";
