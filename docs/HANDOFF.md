@@ -382,3 +382,28 @@ dan artefak sementara dibersihkan.
 
 ### Gerbang akhir sesi
 lint 0 error, test 825/825 (vitest) + 7/7 (playwright), build 169/169.
+
+---
+
+## Lanjutan agen lain + efisiensi VPS + Tahap F (2026-10-09)
+
+**Audit cabang (diminta pemilik):** `main`, `lokal-dev`, dan
+`fix/header-keamanan-dan-audit` semua sinkron dengan remote. Tiga commit
+"belum push" di feature branch ternyata sudah ada di `main`; pointer
+di-push agar bersih. Tidak ada stash, tidak ada commit hilang.
+
+**Skrip sementara:** `scripts/.uji-login-sementara.ts` (untracked, verifikasi
+login yang sudah dicatat selesai di `fba25a1`) dicadangkan ke direktori
+sementara lokal lalu dihapus dari repo, sesuai tulisannya sendiri.
+
+**Efisiensi VPS (2 GB RAM, 40 GB disk):** disk sehat (23 GB bebas), jadi
+tidak ada yang perlu dihapus selain cache builder (~5 GB kembali). Delapan
+container dan belasan image lain milik proyek lain — tidak disentuh. Swap
+2 GB sudah ada. Satu-satunya yang tersisa butuh akses root, jadi hanya
+dilaporkan, tidak dikerjakan.
+
+**Tahap F:** `docs/LAPORAN-PROGRESS.md` ditambah periode 9 Oktober dari
+riwayat git (20 commit, tanpa melebih-lebihkan). Angka README diselaraskan
+lebih dulu (migrasi 6, test 825/61).
+
+**Gerbang:** lint 0, vitest 825/825, playwright 7/7, build 169/169.

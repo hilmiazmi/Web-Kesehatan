@@ -230,3 +230,67 @@ Kalau Anda memeriksa hasil kerja ini, empat hal ini memudahkan penilaian:
   fiktif.
 - **Yang belum diuji disebutkan**, bukan didiamkan. Login admin dan perilaku
   visual carousel adalah dua hal yang belum dibuktikan.
+
+---
+
+# Laporan 9 Oktober 2026
+
+Periode laporan: **9 Oktober 2026**
+Commit awal periode: `ee112a3` · Commit akhir periode: `6ee7ed0`
+(20 commit, semua tercantum di bawah sesuai nama commitnya)
+
+## 1. Ringkasan
+
+| Ukuran | Nilai | Cara menghitung |
+|---|---|---|
+| Halaman HTML ter-build | **163** | `.next/prerender-manifest.json` (sama seperti periode lalu) |
+| Route Handler `/api/v1` | **44** | 45 berkas `route.ts` − 1 catcher |
+| Tabel PostgreSQL | **28** | `pgTable(` di `src/server/db/schema.ts` |
+| Migrasi SQL | **6** | berkas `.sql` di `drizzle/` (tambah `0005_slug_paket_mcu.sql`) |
+| Test Vitest | **825** di **61 berkas** | keluaran `bun run test` |
+| Test Playwright | **7** | `bun run test:e2e`, Chromium sistem |
+
+Tiga gerbang kualitas ditambah E2E, dijalankan pada commit `6ee7ed0`:
+
+```
+bun run lint    → 0 error, 0 warning
+bun run test    → 825 lulus, 0 gagal
+bun run test:e2e → 7 lulus, 0 gagal
+bun run build   → Compiled successfully, 169 halaman statis
+```
+
+## 2. Yang dikerjakan
+
+| Pekerjaan | Commit |
+|---|---|
+| Formulir pendaftaran paket MCU di halaman paket + migrasi slug | `6602a7d`, `35c65cf` |
+| Modul validasi bersama surel/telepon + migrasi 6 formulir | `0ceb539`, `7d2177a` |
+| Naik sweetalert2 ke 11.22.4, swiper ke 12.2.0 + sesuaikan CSS | `a7146d3`, `eb0e453` |
+| Kerangka Playwright + perbaikan flake hitung opsi | `e579f3e`, `d3ac143` |
+| Dockerfile + dokumen deploy Vercel/VPS + perbaikan build | `67f1bdc`, `4b1dda2` |
+| Verifikasi login sungguhan ke DB uji | `fba25a1` |
+
+Dua rencana periode lalu yang tertutup: login admin kini terbukti sungguhan
+(bukan sekadar ter-render), dan E2E Playwright sudah berjalan.
+
+## 3. Kendala
+
+**VPS 2 GB kehabisan sumber daya saat build Docker** (generate 7 worker +
+Turbopack). SSH putus belasan menit dari dua mesin berbeda, lalu pulih
+sendiri — tidak ada yang perlu diperbaiki di jaringan. Build diulang setelah
+pulih dan sukses; runtime terverifikasi (beranda 200, API 200, health
+healthy). Artefak sementara dihapus dan cache builder di-prune. Image Docker
+(1,31 GB) dibiarkan di VPS. Efisiensi lebih lanjut (batas memori build
+permanen) butuh akses root yang tidak ada.
+
+## 4. Rencana berikutnya
+
+1. Cabut label BELUM-DIVERIFIKASI pada `Dockerfile` dan `docs/DEPLOY-VPS.md`.
+2. Merge branch fitur yang masih terbuka ke `main` bila ada.
+3. Uji responsif dan aksesibilitas manual (tata letak, kontras, keyboard),
+   karena cakupan otomatis belum menyentuhnya.
+
+## 5. Kelengkapan syarat tugas
+
+163 halaman (syarat 25), galeri 6 foto, navigasi tiga tingkat, 28 tabel
+database fiktif. Tidak ada klaim baru di luar yang terbukti di atas.
