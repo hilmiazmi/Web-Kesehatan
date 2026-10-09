@@ -40,12 +40,25 @@ test.describe("beranda", () => {
     const slides = page.locator(".swiper .swiper-slide");
     await expect(slides.first()).toBeVisible();
 
+    // Tunggu Swiper selesai init. Slide pertama terlihat dari HTML statis
+    // sebelum hidrasi, dan atribut data-swiper-slide-index baru ditulis
+    // loopCreate saat init — tanpa tunggu ini hitungannya 0 dan flaky.
+    await page.locator(".swiperslider.swiper-initialized").waitFor({ timeout: 15000 });
+
     // Swiper menduplikasi slide dalam mode loop, jadi hitung yang asli lewat
     // atribut data-swiper-slide-index yang unik per slide sumber.
     const indeks = await page
       .locator(".swiper .swiper-slide[data-swiper-slide-index]")
       .evaluateAll((els) => new Set(els.map((e) => e.getAttribute("data-swiper-slide-index"))).size);
     expect(indeks).toBe(9);
+
+    // Autoplay 5 detik: judul slide aktif harus berganti dengan sendirinya.
+    const judulAktif = () =>
+      page.locator(".swiperslider .swiper-slide-active h2").first().textContent();
+    const pertama = await judulAktif();
+    await expect
+      .poll(judulAktif, { timeout: 12000, message: "autoplay tidak mengganti slide" })
+      .not.toBe(pertama);
   });
 });
 
@@ -92,5 +105,31 @@ test.describe("daftar online", () => {
     await expect
       .poll(async () => pilih.locator("option").count(), { timeout: 10000 })
       .toBeGreaterThan(1);
+  });
+});
+
+test.describe("mobile 390px", () => {
+  // Viewport HP paling sempit yang umum. Yang dijaga: tidak ada gulir
+  // horizontal (carousel memakai overflow di wadahnya sendiri, bukan di
+  // dokumen) dan pagination hero tetap muat tanpa meluap.
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test("beranda tidak meluap dan pagination hero muat", async ({ page }) => {
+    await page.goto("/");
+    await page.locator(".swiperslider.swiper-initialized").waitFor({ timeout: 15000 });
+
+    const ukur = await page.evaluate(() => {
+      const pag = document.querySelector(
+        ".swiperslider .swiper-pagination",
+      ) as HTMLElement | null;
+      return {
+        dokumen: document.documentElement.scrollWidth,
+        viewport: window.innerWidth,
+        pagOver: pag ? pag.scrollWidth - pag.clientWidth : -1,
+      };
+    });
+
+    expect(ukur.dokumen).toBeLessThanOrEqual(ukur.viewport);
+    expect(ukur.pagOver).toBe(0);
   });
 });
