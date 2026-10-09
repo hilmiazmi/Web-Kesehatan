@@ -230,10 +230,16 @@
   background-color: rgba(42, 37, 54, 0.75);
 }
 
-.slide-container .swiper-button-next::after,
-.slide-container .swiper-button-prev::after {
-  font-size: 18px;
-  font-weight: 700;
+/* Swiper 12 menyuntik ikon navigasi sebagai `<svg>` sebaris, bukan lagi
+   lewat font `swiper-icons` di `::after`. Aturan lama yang menata `::after`
+   akan merender panah kedua di samping SVG baru, jadi diganti dengan penataan
+   langsung pada `svg`. Ukurannya disamakan dengan `font-size: 18px` yang lama
+   supaya tampilannya tidak berubah. */
+.slide-container .swiper-button-next svg,
+.slide-container .swiper-button-prev svg {
+  width: 18px;
+  height: 18px;
+  fill: var(--rs-white);
 }
 
 .slide-container .swiper-pagination {
