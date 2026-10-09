@@ -264,3 +264,31 @@ kosong di `.env.example` tadinya mengatakan "berarti mode snapshot", padahal
 (`permission denied` pada `/var/run/docker.sock`), jadi image belum pernah
 dibangun. Jangan pakai untuk deploy sebelum sekali build berhasil. Deploy
 Vercel juga belum pernah dicoba dari repo ini.
+
+---
+
+## Checkpoint: refactor validasi bersama (2026-10-09)
+
+**Konteks:** pemilik mengerjakan refactor paralel saat sesi ini berjalan
+(modul + test berubah di tengah jalan; satu edit saya sempat merusak
+`typecheck` karena definisi yang saya hapus ternyata sedang dipakai —
+sudah dipulihkan pemilik, dan saya tidak menyentuh berkas itu lagi).
+
+**Yang dikerjakan sesi ini:**
+- Verifikasi refactor `src/lib/validasi-umum.ts` (baru) + `tests/validasi-umum.test.ts`
+  (baru): 6 formulir dan `src/server/validation.ts` kini memakai aturan bersama
+  (`surelValid`, `teleponFormValid`, `teleponServerValid`, `teleponBersih`).
+- Menemukan 4 test gagal di awal sesi (aturan surel/telepon di modul baru
+  belum cocok dengan test); pemilik memperbaiki modulnya sendiri sampai hijau.
+- Menghapus kode mati `LOKAL_SURAT` (tambahan saya yang tak jadi dipakai) —
+  lalu pemilik justru memakainya, jadi definisi dipulihkan oleh pemilik.
+- Audit karakter asing: 9 berkas BERSIH. Pindai rahasia di diff: bersih.
+
+**Bukti gerbang (`bun run verify`, HEAD sesi ini):**
+- lint: 0 error, 0 warning
+- test: 61 berkas lulus, 825 test lulus
+- build: 169/169 halaman, exit 0
+
+**Keputusan:** commit refactor sebagai satu perubahan logis, push branch
+langsung tanpa PR atas instruksi eksplisit pemilik
+("jika sudah lolos testing push tanpa pr").
