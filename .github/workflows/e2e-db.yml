@@ -1,0 +1,166 @@
+# E2E ber-database.
+#
+# Terpisah dari `gerbang.yml` karena dua alasan, keduanya soal kondisi mesin:
+#
+# 1. Butuh PostgreSQL sungguhan. Job gerbang sengaja membiarkan `DATABASE_URL`
+#    kosong supaya tidak pernah menyentuh database apa pun. Job ini justru
+#    butuhnya, jadi memakai service container dan harus berstatus PostgreSQL
+#    sebelum migrasi dijalankan.
+# 2. Butuh build produksi yang sudah ada sebelum browser dibuka. E2E menguji
+#    hasil render, bukan sumber; menjalankan `next start` tanpa `next build`
+#    menghasilkan 500 untuk chunk dan hidrasi gagal, yang tampil sebagai test
+#    gagal yang menyesatkan.
+#
+# Rahasia tidak ada di sini dan tidak boleh ditambah. Kata sandi admin uji
+# dibuat acak oleh `scripts/siapkan-admin-uji.ts` di dalam runner, dipakai
+# lewat environment proses pada langkah yang sama, lalu dihapus lagi di
+# langkah. Tidak pernah ditulis ke `$GITHUB_ENV`, jadi tidak bisa bocor ke
+# langkah lain atau ke log.
+name: E2E ber-database
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: e2e-db-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  e2e-db:
+    name: Alur ber-database
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    env:
+      TZ: Asia/Jakarta
+      NEXT_PUBLIC_SITE_URL: http://localhost:3401
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          # Kredensial service container CI. Tidak reachable dari luar runner
+          # GitHub dan hidup hanya selama job, jadi nilainya bukan rahasia yang
+          # perlu disimpan di repository.
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: rsud_uji
+        ports:
+          - 5432:5432
+        # Tanpa ini, migrasi bisa berjalan sebelum PostgreSQL benar-benar
+        # siap menerima koneksi, lalu gagal dengan pesan yang menyesatkan.
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Ambil kode
+        uses: actions/checkout@v4
+
+      - name: Pasang bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.2
+
+      - name: Pasang dependensi
+        run: bun install --frozen-lockfile
+
+      - name: Siapkan skema dan data contoh
+        env:
+          DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/rsud_uji
+        run: |
+          bun run db:migrate
+          bun run db:seed
+
+      - name: Build produksi
+        env:
+          # Build membaca environment, dan `src/server/config.ts` menolak
+          # start bila `DATABASE_URL` kosong di mode `live`. Build ini tetap
+          # mode snapshot; database dipakai hanya oleh server saat diuji.
+          API_MODE: snapshot
+          DATABASE_URL: ""
+        run: bun run build
+
+      # Satu langkah: siapkan akun, jalankan server, jalankan test, hapus akun,
+      # matikan server. Kalau dipecah jadi beberapa langkah, `E2E_UJI_EMAIL`
+      # harus lewat `$GITHUB_ENV` supaya terbaca di langkah lain, dan nilai itu
+      # lalu ikut masuk log debug yang bisa dibuka siapa pun. Satu langkah
+      # menutup jalur itu: nilainya hanya hidup di shell yang sama.
+      - name: Jalankan E2E alur ber-database
+        env:
+          DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/rsud_uji
+          AUTH_SECRET: e2e-secret-minimal-32-karakter-abcdefgh
+          API_MODE: live
+          ADMIN_ORIGIN: http://localhost:3402
+        run: |
+          set -euo pipefail
+
+          # Akun uji. Keluarannya dua baris `export KUNCI=nilai`.
+          eval "$(bun run uji:siapkan)"
+
+          # Server produksi mode live pada port sendiri, supaya tidak berebut
+          # dengan server lain yang mungkin sedang berjalan di runner.
+          bun run start --port 3402 > /tmp/server-e2e.log 2>&1 &
+          SERVER_PID=$!
+
+          # Tunggu server siap. `curl` tanpa `-f` dulu supaya 500 pun dianggap
+          # "sudah menjawab"; yang dicari adalah jawaban sama sekali, bukan
+          # jawaban sehat.
+          siap=0
+          for _ in $(seq 1 60); do
+            if curl -s -o /dev/null "http://localhost:3402/api/v1/health"; then
+              siap=1
+              break
+            fi
+            sleep 1
+          done
+          if [ "$siap" -ne 1 ]; then
+            echo "server tidak siap dalam 60 detik:"
+            cat /tmp/server-e2e.log
+            exit 1
+          fi
+
+          # Bersihkan apa pun yang tersisa, apa pun hasil test.
+          bersihkan() {
+            kill "$SERVER_PID" 2>/dev/null || true
+            bun run uji:bersihkan "$E2E_UJI_EMAIL" || true
+          }
+          trap bersihkan EXIT
+
+          # `--project=chromium` tetap dipakai, tapi `webServer` di
+          # playwright.config.ts lalu menyalakan server snapshot sendiri di 3401
+          # yang tidak pernah dipakai test ini. Itu server sia-sia: satu
+          # proses Next.js ekstra yang dijalankan lalu dibiarkan sampai job
+          # selesai.
+          # Karena `BASE_URL` sudah diisi, test ini tidak butuh server itu.
+          BASE_URL=http://localhost:3402 bunx playwright test \
+            --project=chromium e2e/alur-db.test.ts
+
+          # Log server hanya dibaca kalau test gagal; di-success dia tidak
+          # dicetak, jadi tidak ada data pribadi yang ikut ke log.
+          if [ "$?" -ne 0 ]; then
+            echo "--- log server ---"
+            cat /tmp/server-e2e.log
+          fi
+
+      - name: Pastikan tidak ada akun uji yang tertinggal
+        env:
+          DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/rsud_uji
+        run: |
+          # Jaring pengaman: apa pun yang terjadi di langkah sebelumnya, tidak boleh
+          # ada akun e2e-uji yang tersisa setelah job selesai.
+          sisa=$(psql "$DATABASE_URL" -tAc \
+            "SELECT count(*) FROM users WHERE email LIKE 'e2e-uji-%'")
+          if [ "$sisa" != "0" ]; then
+            echo "masih ada $sisa akun uji yang tertinggal"
+            exit 1
+          fi
+          echo "tidak ada akun uji yang tertinggal"
