@@ -235,9 +235,9 @@ Kalau Anda memeriksa hasil kerja ini, empat hal ini memudahkan penilaian:
 
 # Laporan 9 Oktober 2026
 
-Periode laporan: **9 Oktober 2026**
-Commit awal periode: `ee112a3` · Commit akhir periode: `6ee7ed0`
-(20 commit, semua tercantum di bawah sesuai nama commitnya)
+Periode laporan: **9 Oktober 2026** (diperbarui sepanjang hari)
+Commit awal periode: `ee112a3` · Commit akhir periode: `8ea3ffc`
+(33 commit sepanjang hari itu)
 
 ## 1. Ringkasan
 
@@ -247,16 +247,17 @@ Commit awal periode: `ee112a3` · Commit akhir periode: `6ee7ed0`
 | Route Handler `/api/v1` | **44** | 45 berkas `route.ts` − 1 catcher |
 | Tabel PostgreSQL | **28** | `pgTable(` di `src/server/db/schema.ts` |
 | Migrasi SQL | **6** | berkas `.sql` di `drizzle/` (tambah `0005_slug_paket_mcu.sql`) |
-| Test Vitest | **825** di **61 berkas** | keluaran `bun run test` |
-| Test Playwright | **7** | `bun run test:e2e`, Chromium sistem |
+| Test Vitest | **856** di **62 berkas** | keluaran `bun run test` |
+| Test Playwright | **13** | 7 publik + 5 aksesibilitas + 1 alur ber-database |
+| Skor aksesibilitas Lighthouse | **100** | beranda, daftar-online, admin/login, berita |
 
-Tiga gerbang kualitas ditambah E2E, dijalankan pada commit `6ee7ed0`:
+Tiga gerbang kualitas ditambah E2E, dijalankan pada commit `8ea3ffc`:
 
 ```
-bun run lint    → 0 error, 0 warning
-bun run test    → 825 lulus, 0 gagal
-bun run test:e2e → 7 lulus, 0 gagal
-bun run build   → Compiled successfully, 169 halaman statis
+bun run lint     → 0 error, 0 warning
+bun run test     → 856 lulus, 0 gagal
+bun run test:e2e → 12 lulus, 1 dilewati (butuh kredensial DB)
+bun run build    → 169/169 halaman statis
 ```
 
 ## 2. Yang dikerjakan
@@ -269,6 +270,13 @@ bun run build   → Compiled successfully, 169 halaman statis
 | Kerangka Playwright + perbaikan flake hitung opsi | `e579f3e`, `d3ac143` |
 | Dockerfile + dokumen deploy Vercel/VPS + perbaikan build | `67f1bdc`, `4b1dda2` |
 | Verifikasi login sungguhan ke DB uji | `fba25a1` |
+| E2E alur ber-database (login, panel, pengaturan, kritik) | `00095fb` |
+| Test integrasi 8 endpoint admin yang sebelumnya tanpa pengaman | `00b1ee6` |
+| Verifikasi snapshot dan admin sungguhan terhadap database | `fe9b2b0` |
+| Perbaikan galat auth yang menempel ke kolom yang tidak ada | `4c30a8a` |
+| Tolak `ADMIN_ORIGIN` http untuk host publik saat start | `91de5b9` |
+| Aksesibilitas: 85 temuan target-size turun, logo dan galeri diperbaiki | `7c96aa1` |
+| Daftarkan modul A11y di HeroSlider + tutup advisory | `d412a2d` |
 
 Dua rencana periode lalu yang tertutup: login admin kini terbukti sungguhan
 (bukan sekadar ter-render), dan E2E Playwright sudah berjalan.
@@ -289,6 +297,11 @@ permanen) butuh akses root yang tidak ada.
 2. Merge branch fitur yang masih terbuka ke `main` bila ada.
 3. Uji responsif dan aksesibilitas manual (tata letak, kontras, keyboard),
    karena cakupan otomatis belum menyentuhnya.
+
+Tiga butir di atas sudah selesai hari yang sama. Sisa yang tidak bisa
+dikerjakan agent tanpa peramban manusia: penilaian akhir kontras dan pembaca
+layar, dan satu temuan `target-size` Lighthouse (diukur 332x43, jauh di atas
+minimum 24x24 — artefak konteks carousel).
 
 ## 5. Kelengkapan syarat tugas
 

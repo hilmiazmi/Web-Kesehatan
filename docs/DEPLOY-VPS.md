@@ -109,8 +109,20 @@ perintah awal image dengan `bun`, lalu `run db:migrate` menjalankan
 pernah dijalankan. Volume dipasang supaya `drizzle-kit` bisa mencatat migrasi
 yang sudah diterapkan.
 
-Migrasi hanya menambah, tidak mengubah data yang ada. Tapi tetap **backup
-lebih dulu**; lihat bagian berikut.
+### Backup sebelum migrasi — jangan dilewati
+
+Migrasi hanya menambah yang belum pernah jalan. Tapi perintah di atas tidak
+punya `down`, jadi sekali jalan, satu-satunya jalan kembali adalah memulihkan
+dari backup. Backup dulu, baru migrasi:
+
+```bash
+docker exec <container-postgres> \
+  pg_dump -U <user> -d <database> -F c -f /backup/sebelum-migrasi.dump
+```
+
+`-F c` memakai format khusus PostgreSQL yang terkompresi. Kalau berkas itu
+tidak muncul di daftar, jangan lanjut ke `db:migrate`. Rincian dan cara
+memulihkannya ada di bagian 5.
 
 ## 5. Backup dan rollback
 

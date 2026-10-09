@@ -272,7 +272,7 @@ Semua nilai `.env` hanya dibaca lewat nama variabelnya, tidak pernah dicetak.
 
 | Risiko | Ringkas |
 |---|---|
-| Swiper prototype pollution | Ditutup 2026-10-09 (`swiper@12.2.0`). Sisa manual: cek visual mobile di browser. |
+| Swiper prototype pollution | Ditutup 2026-10-09 (`swiper@12.2.0`). Cek visual mobile sudah diukur: tanpa gulir horizontal di 8 lebar viewport, 0 gambar rusak, 0 alt kosong. Yang tersisa hanya penilaian mata atas animasi. |
 | `ADMIN_ORIGIN` salah di produksi | Kalau tidak `https://`, cookie sesi tidak dapat `Secure`. Tidak ada kode yang bisa mencegah ini; hanya konfigurasi. |
 | `script-src` masih `'unsafe-inline'` | CSP tidak bisa menutup XSS inline tanpa nonce. Nonce butuh middleware, yang akan mengubah 179 halaman statis menjadi dinamis. |
 | `AUTH_SECRET` tidak punya nilai bawaan | Sudah benar, tapi akibatnya aplikasi menolak start. Itu pilihan yang benar, bukan risiko. |

@@ -594,3 +594,28 @@ keluarannya dipipe ke `grep`/`tail`; build terpotong dan menghasilkan
 lalu baca setelah selesai.
 
 Gerbang akhir: lint 0, 856 test lulus, e2e 7+5 lulus, build 169/169.
+
+---
+
+## Audit aksesibilitas lintas halaman + dokumen diperbarui (2026-10-09)
+
+**Lighthouse diulang di empat halaman, semuanya 100.** Sebelumnya hanya
+beranda yang diukur. Yang diperiksa juga: `/daftar-online`, `/admin/login`,
+dan `/berita`. Tidak ada satu pun audit aksesibilitas yang gagal di
+keempatnya, jadi jangkauan sudah lebih luas dari pemeriksaan beranda.
+
+**Dua dokumen diperbaiki karena isinya sempat menyesatkan:**
+- `DEPLOY-VPS.md`: perintah backup sempat berada SETELAH migrasi, padahal
+  harus sebelumnya. Sekarang bagian 4 memuat perintah backup dengan peringatan
+  "kalau berkas tidak muncul, jangan lanjut ke `db:migrate`".
+- `AUDIT-KEAMANAN.md`: sisa risiko Swiper masih menulis "cek visual mobile
+  di browser" padahal sudah diukur (tanpa gulir horizontal di 8 lebar, 0
+  gambar rusak, 0 alt kosong). Diganti keterangan yang benar, sisanya hanya
+  penilaian mata atas animasi.
+
+**`LAPORAN-PROGRESS.md` diselaraskan.** Angka-angka masih dari `6ee7ed0` padahal
+sudah 33 commit sepanjang hari. Sekarang: peril handle 856 test, Playwright
+13, aksesibilitas Lighthouse 100. Blok "rencana berikutnya" tidak lagi
+menyuruh kerja yang sudah selesai dilakukan.
+
+Gerbang saat ini: lint 0, 856 test lulus, build 169/169.
