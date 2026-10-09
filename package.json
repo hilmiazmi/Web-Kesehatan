@@ -18,6 +18,7 @@
     "seed:ekstrak": "bun run scripts/seed-ekstrak.ts",
     "db:status": "bun run scripts/db-status.ts",
     "db:snapshot": "bun run scripts/db-snapshot.ts",
+    "db:backup": "bun run scripts/backup-db.ts",
     "cek:konten": "bun run scripts/cek-konten.ts",
     "cek:tautan": "bun run scripts/cek-tautan.ts",
     "cek:tulis": "bun run scripts/cek-tulis.ts",

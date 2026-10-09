@@ -160,6 +160,54 @@ docker exec -i <container-postgres> \
 `--clean --if-exists` menghapus objek yang sudah ada sebelum memulihkan, jadi
 hasil dump benar-benar menggantikan keadaan sekarang.
 
+### Backup berkala
+
+`pg_dump` yang ditulis manual cocok untuk sekali jalan sebelum migrasi, tapi
+tidak cocok untuk jadwal: nama berkasnya tidak bisa diurut, tidak berputar, dan
+tidak ada yang membuktikan berkasnya terisi sampai ada yang memulihkannya.
+
+```bash
+BACKUP_DIR=/srv/web-kesehatan/backup bun run db:backup
+SIMPAN_HARI=30 bun run db:backup
+```
+
+Skrip itu memberi nama berpola waktu, memutar dump lebih tua dari
+`SIMPAN_HARI` hari (bawaan 14, dan dump terbaru tidak pernah ikut dihapus),
+lalu gagal kalau dump ternyata di bawah 1 KB — dump kosong yang lulus `ls`
+adalah bentuk kegagalan paling menipu karena baru ketahuan saat dipulihkan.
+
+Cara memasang jadwal harian, sebagai user yang punya akses `.env`:
+
+```bash
+sudo tee /etc/cron.d/web-kesehatan-backup > /dev/null <<'CRON'
+# Backup harian pukul 01.00 WIB. Jalankan sebagai user mesin, bukan root.
+0 1 * * * <user> cd /srv/web-kesehatan && BACKUP_DIR=/srv/web-kesehatan/backup bun run db:backup >> /var/log/web-kesehatan-backup.log 2>&1
+CRON
+```
+
+Backup baru tidak berarti backup yang bisa dipulihkan. Pulihkan ke database
+kadung sesekali untuk membuktikan:
+
+```bash
+createdb -h 127.0.0.1 -U <user> rsud_pulih
+pg_restore -h 127.0.0.1 -p <port> -U <user> -d rsud_pulih \
+  --clean --if-exists /srv/web-kesehatan/backup/<berkas>.dump
+psql -h 127.0.0.1 -U <user> -d rsud_pulih -c "SELECT count(*) FROM doctors;"
+```
+
+Angka yang muncul harus sama dengan halaman `/admin` dasbor: 54 dokter dan 28
+tabel. Buang database percobaan itu setelah yakin:
+
+```bash
+dropdb -h 127.0.0.1 -U <user> rsud_pulih
+```
+
+Skrip backup sudah diuji lewat putaran penuh pada PostgreSQL 17 lokal:
+migrasi dan seed, backup, tabel `users` di-drop dan truncate tiga tabel, lalu
+`pg_restore`. Setelah pulih, 28 tabel, 1 users, 54 doctors, dan 12
+pengaturan kembali persis. Salinan di luar mesin tetap tanggung jawab Anda —
+direktori `/srv` tidak ikut hilang bersama mesin.
+
 ## 6. Pemeriksaan
 
 ```bash
