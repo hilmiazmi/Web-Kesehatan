@@ -344,3 +344,41 @@ lokal sampai ada kepastian.
 **Perlu dari pemilik:** periksa kondisi VPS dari konsol (atau tunggu lalu
 coba lagi), beri tahu bila SSH sudah pulih supaya verifikasi dilanjutkan
 dan artefak sementara dibersihkan.
+
+---
+
+## Audit cabang + lanjutkan kerja agen lain + Docker terverifikasi (2026-10-09)
+
+### 1. Audit cabang dan commit (diminta pemilik)
+- `main`, `lokal-dev`, `fix/header-keamanan-dan-audit`: semua sinkron dengan
+  remote masing-masing. Tidak ada commit yang hilang.
+- Ketemu 3 commit "belum push" di feature branch — diverifikasi ketiganya
+  **sudah ada di `main`** (cek ancestor), jadi hanya pointer yang basi.
+  Pointer di-push agar bersih. Tidak ada stash.
+- Skrip sementara `scripts/.uji-login-sementara.ts` (untracked, sesuai nama
+  hanya untuk verifikasi manual sekali pakai yang sudah dicatat di `fba25a1`):
+  isinya sudah selesai dipakai. Dicadangkan ke direktori sementara lokal lalu
+  dihapus dari repo, sesuai tulisannya sendiri ("lalu bereskan").
+
+### 2. Docker: TERVERIFIKASI PENUH di VPS
+- Build #3 **sukses** dengan `Dockerfile` yang diperbaiki. Image 1,31 GB ada.
+- Runtime mode snapshot: homepage 200, API paket 200, health Docker **healthy**.
+  Ini sekaligus membuktikan perbaikan HEALTHCHECK bentuk shell.
+- Pembersihan: container dihapus, direktori build + log dihapus, cache builder
+  di-prune (hampir 5 GB kembali, membantu disk 40 GB). Image dibiarkan.
+- Label BELUM-DIVERIFIKASI pada `Dockerfile`/`docs/DEPLOY-VPS.md` sekarang
+  boleh dicabut saat sunting berikut — build dan runtime sudah terbukti.
+
+### 3. E2E Playwright (kerangka milik pemilik, Tahap D)
+- Dijalankan apa adanya: 6 lulus, 1 gagal (`pilih poli` menghitung 1 opsi).
+  Penyebab: opsi dimuat async, test menghitung sebelum fetch selesai (lolos
+  saat diulang — flaky, bukan bug aplikasi; API mengembalikan data benar).
+- Diperbaiki dengan `expect.poll` + komentar alasan. Hasil: **7/7 lulus,
+  dua kali jalan berturut-turut**. Chromium sistem dipakai, tanpa unduh baru.
+
+### 4. Angka README diselaraskan
+- Migrasi SQL 5 → 6 (ada `0005_slug_paket_mcu.sql`), test 813/60 → 825/61.
+  Tabel 28 dan 44 Route Handler masih cocok, tidak diubah.
+
+### Gerbang akhir sesi
+lint 0 error, test 825/825 (vitest) + 7/7 (playwright), build 169/169.

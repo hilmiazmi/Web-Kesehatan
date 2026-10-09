@@ -74,7 +74,7 @@ Mode database ditentukan `API_MODE`, bukan oleh isi `DATABASE_URL`:
 
 - **44 Route Handler** di bawah `/api/v1`, endpoint publik dan admin. Semua
   path lain dibalas 404 sungguhan oleh catcher di `[...path]/route.ts`.
-- **28 tabel** PostgreSQL lewat Drizzle ORM, dengan 5 migrasi SQL dan trigger
+- **28 tabel** PostgreSQL lewat Drizzle ORM, dengan 6 migrasi SQL dan trigger
   `set_updated_at`.
 - Auth admin: kata sandi di-hash dengan `scrypt`, token sesi ditandatangani
   HMAC-SHA256, endpoint login, logout, dan sesi. Perbandingan signature memakai
@@ -184,7 +184,7 @@ Rincian temuan keamanan ada di
 
 ### Pengujian
 
-813 test di 60 berkas, memakai Vitest. Cakupannya logika murni: bentuk data
+825 test di 61 berkas, memakai Vitest. Cakupannya logika murni: bentuk data
 konten, validasi formulir, sanitasi Markdown, hashing dan verifikasi sesi,
 penelusuran path menu, fungsi tanggal, dan penolakan mode snapshot atas
 permintaan yang mengubah data.
