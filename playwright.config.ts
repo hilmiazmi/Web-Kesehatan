@@ -14,10 +14,18 @@ import { defineConfig, devices } from "@playwright/test";
  * Kalau Chromium sistem tidak ada, test gagal dengan pesan yang jelas, bukan
  * dengan timeout misterius.
  *
- * Server diasumsikan sudah berjalan di `BASE_URL` (bawaan port 3399 dalam mode
- * snapshot). Playwright tidak menjalankan `bun run start` sendiri, karena
- * skrip `webServer` akan menyalakan server kedua yang berebut port dan
- * `.next` dengan server yang sudah ada.
+ * Server dijalankan sendiri oleh Playwright (`webServer` di bawah), bukan
+ * mengandalkan server yang kebetulan sudah ada. Alasannya sudah terbukti:
+ * default lama menembak `:3399` milik pengembang yang `.next`-nya basi,
+ * sehingga chunk JS menjawab 500, hidrasi gagal total, dan test hero gagal
+ * dengan hitungan 0 yang terlihat seperti regresi Swiper. Server sendiri
+ * selalu build produksi yang segar di port khusus (3401) yang tidak dipakai
+ * siapa pun, jadi hasil test tidak tergantung pada keadaan mesin.
+ *
+ * Kalau `BASE_URL` diisi eksplisit (misalnya untuk `alur-db.test.ts` yang
+ * butuh server live ber-database), `webServer` tetap jalan tapi tidak
+ * dipakai oleh test itu. `reuseExistingServer: true` supaya jalan ulang
+ * tidak menyalakan server kedua kalau port 3401 sudah terisi.
  */
 export default defineConfig({
   testDir: "./e2e",
@@ -27,8 +35,14 @@ export default defineConfig({
   workers: 1,
   reporter: "line",
   use: {
-    baseURL: process.env.BASE_URL ?? "http://localhost:3399",
+    baseURL: process.env.BASE_URL ?? "http://localhost:3401",
     trace: "retain-on-failure",
+  },
+  webServer: {
+    command: "env API_MODE=snapshot bun run start --port 3401",
+    url: "http://localhost:3401/",
+    reuseExistingServer: true,
+    timeout: 60000,
   },
   projects: [
     {

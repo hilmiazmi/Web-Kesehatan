@@ -19,7 +19,7 @@ import { expect, request, test } from "@playwright/test";
  * ke nilai awal, dan kiriman kritik bisa dilacak lalu terlihat di inbox.
  */
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3399";
+const BASE = process.env.BASE_URL ?? "http://localhost:3401";
 const EMAIL = process.env.E2E_UJI_EMAIL ?? "";
 const SANDI = process.env.E2E_UJI_SANDI ?? "";
 
