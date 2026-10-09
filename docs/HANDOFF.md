@@ -562,7 +562,7 @@ dikerjakan** karena menyentuh kode auth dan perlu keputusan pemilik.
 **Temuan auth diperbaiki.** `periksaKataSandi` melapor ke field `password`,
 padahal endpoint ganti dan setel-ulang sandi mengirim `new_password`. Panel
 menampilkan galat per kolom, jadi galat itu menempel ke kolom yang tidak ada.
-Fungsi kini menerima nama field. Commt `4c30a8a`.
+Fungsi kini menerima nama field. Commit `4c30a8a`.
 
 **F1 (sebagian terukur).** Yang bisa dijawab tegas dijadikan
 `e2e/a11y.test.ts`: skip-link jadi fokus pertama dan targetnya ada, 0 gambar
