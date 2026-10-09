@@ -439,3 +439,29 @@ di lokal-dev maupun upstream/lokal-dev dibanding main, lalu dihapus
 lokal (branch -d) dan remote (push upstream --delete).
 Sisa branch: main dan fix/header-keamanan-dan-audit (sudah termerge,
 dibiarkan).
+
+---
+
+## E2E ber-database selesai (2026-10-09)
+
+**Hasil:** `e2e/alur-db.test.ts` baru — login benar/salah, panel terbuka
+dengan sesi, putaran pengaturan tulis-baca-kembali, kritik POST 201 lalu
+terlacak tiketnya dan muncul di inbox. Lolos 2/2 jalan (~1 detik, API saja).
+
+**Cara jalan (tidak merusak default):** tanpa E2E_UJI_EMAIL/SANDI seluruh
+describe di-skip, jadi `bun run test:e2e` biasa tetap hijau. Dengan kredensial
++ `BASE_URL` server live, jalan penuh. Diverifikasi dua-duanya.
+
+**Kebersihan DB (wajib):** basis `rsud_uji` milik pemilik dipakai apa adanya
+(tidak dibuat baru). Akun admin sementara acak + baris kritik uji dihapus
+sesudahnya; hitungan kembali persis baseline (users 1, feedbacks 0);
+tagline dikembalikan (PUT restore 200 dan terverifikasi isinya).
+Satu baris nyasar dari curl manual ikut terhapus (pola LIKE berbeda).
+Server uji :3400 dimatikan; server pemilik (:3399, :3300) tidak disentuh.
+
+**Dua pelajaran:**
+- `pkill -f` mencocokkan baris perintah sendiri lalu membunuh shell-nya.
+  Mulai sekarang matikan proses lewat PID eksplisit yang sudah diverifikasi.
+- Satu kegagalan awal (login 503) tidak terjelaskan tuntas; jalan ulang
+  langsung hijau 2/2. Kemungkinan kondisi pacu saat server baru nyala.
+  Kalau kambuh, tambahkan tunggu-siap sebelum login pertama.
