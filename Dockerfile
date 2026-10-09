@@ -10,9 +10,10 @@
 # bun@1.4.2, lockfile bun.lock). Alpine dipilih agar image kecil, dan sharp
 # yang dipakai next/image punya binding native di alpine.
 #
-# CATATAN: docker di mesin tempat berkas ini ditulis tidak punya izin
-# (`permission denied` pada /var/run/docker.sock), jadi build image ini
-# BELUM pernah diverifikasi. Lihat docs/DEPLOY-VPS.md bagian "Belum teruji".
+# Terverifikasi 2026-10-09 di VPS 2 GB: build sukses dari awal sampai akhir
+# (termasuk perbaikan tiga cacat tahap runner yang ditemukan build pertama),
+# container mode snapshot menjawab homepage 200 + API 200 + health healthy.
+# Lihat docs/HANDOFF.md bagian verifikasi Docker.
 
 ARG BUN_VERSION=1.4.2
 ARG PORT=3000

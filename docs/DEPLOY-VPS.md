@@ -12,13 +12,18 @@ sertifikat.
   ini, bisa layanan terkelola)
 - Nama domain yang sudah menunjuk ke VPS
 
-## Belum teruji
+## Sudah teruji
 
-Docker di mesin tempat `Dockerfile` ini ditulis tidak punya izin
-(`permission denied` pada `/var/run/docker.sock`), jadi **image belum pernah
-benar-benar dibangun**. Perintah di bawah sudah disusun sedekat mungkin dengan
-praktik yang berlaku, tapi jangan dianggap siap deploy sebelum sekali build
-berhasil. Urutan yang disarankan: build dulu, jalankan, uji, baru pasang.
+Image ini sudah dibangun dari awal sampai akhir di VPS 2 GB pada 2026-10-09
+(1,31 GB), dijalankan mode `API_MODE=snapshot`, dan lolos pemeriksaan:
+homepage 200, API paket 200, health Docker healthy. Perintah di bawah tetap
+berlaku; urutan yang disarankan sama: build dulu, jalankan, uji, baru pasang.
+
+Catatan keterbatasan yang ditemukan saat verifikasi: VPS kecil kehabisan
+sumber daya saat generate halaman statis (7 worker + Turbopack) sampai SSH
+putus belasan menit, lalu pulih sendiri. Kalau build mati di tengah jalan,
+tunggu pulih lalu ulangi — cache layer membuat percobaan berikutnya jauh
+lebih cepat.
 
 ## 1. Build image
 

@@ -407,3 +407,25 @@ riwayat git (20 commit, tanpa melebih-lebihkan). Angka README diselaraskan
 lebih dulu (migrasi 6, test 825/61).
 
 **Gerbang:** lint 0, vitest 825/825, playwright 7/7, build 169/169.
+
+---
+
+## Sudo VPS + cabut label usang (2026-10-09)
+
+**Akses sudo** diberikan pemilik dan terverifikasi bekerja tanpa kata sandi.
+Hasil pemeriksaan: journal sistem kecil (tidak perlu dikosongkan), disk sehat,
+swap 2 GB sudah ada. Tidak ada tindakan root yang dijalankan, karena
+satu-satunya yang berarti (batas log daemon Docker) mengharuskan restart
+daemon dan akan mengganggu 8 container proyek lain yang sedang berjalan.
+Diubah menjadi usulan, bukan tindakan.
+
+**Status VPS: beres.** Image terverifikasi ada, artefak sementara bersih,
+tidak ada proses build menggantung, tidak ada yang perlu dihapus lagi.
+
+**Label usang dicabut:** `Dockerfile` dan `docs/DEPLOY-VPS.md` tidak lagi
+menyatakan "belum teruji" — keduanya mencatat hasil verifikasi 2026-10-09
+beserta keterbatasan VPS kecil yang ditemukan. Label Vercel dipertahankan
+karena deploy Vercel memang belum pernah dicoba.
+
+**Gerbang:** lint 0, vitest 825/825, playwright 7/7, build 169/169
+(cek ulang sebelum commit di bawah).
