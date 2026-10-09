@@ -3,10 +3,9 @@
 **Baca berkas ini lebih dulu di awal setiap sesi.** Isinya menggantikan
 dokumen lain untuk mencari tahu posisi kerja sekarang.
 
-Tanggal pembaruan: **8 Oktober 2026**
-Commit saat serah-terima: **`35c65cf`**, di branch
-`fix/header-keamanan-dan-audit` (13 commit di atas `main`).
-Branch `main` masih di `c154306`.
+Tanggal pembaruan: **9 Oktober 2026**
+Commit saat serah-terima: **`e579f3e` = `main` = `upstream/main` (sudah di-push).**
+Branch `fix/header-keamanan-dan-audit` sudah di-merge fast-forward.
 
 ---
 
@@ -21,8 +20,9 @@ Branch `main` masih di `c154306`.
 | E | Audit keamanan | **Selesai** — `docs/AUDIT-KEAMANAN.md` |
 | F | Penutup | **Selesai** — README dan `docs/LAPORAN-PROGRESS.md` |
 
-**Pekerjaan ada di branch, belum di-merge ke `main` dan belum di-push.**
-Enam commit, dari `9a197e1` sampai `32f5ed9`.
+**Pekerjaan sudah di-merge ke `main` dan di-push ke `upstream/main`.**
+Semua gerbang hijau saat push: lint 0, unit 825 lulus, build 169 halaman,
+e2e 7 lulus.
 
 ---
 
