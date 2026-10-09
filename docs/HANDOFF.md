@@ -489,3 +489,23 @@ hari ini; baris risiko dan "sengaja tidak dikerjakan" disesuaikan. Sisa
 manual yang jujur dicatat: cek visual mobile 390px.
 
 **Gerbang:** lint 0, vitest 825/825, playwright 7/7, build 169/169.
+
+---
+
+## Uji mobile 390px carousel + koreksi ukur (2026-10-09)
+
+**Hasil (server produksi sehat, 2x jalan, stabil):** dokumen 390 = viewport
+390 (tanpa gulir horizontal); 7 kontainer pagination dengan 84 bullet, 0
+meluber; 5 tombol next (hero memang tanpa navigasi, sesuai kode). Semua
+lolos. Server uji :3400 milik sesi ini sudah dimatikan; :3399 dan :3300
+milik pemilik tidak disentuh.
+
+**Koreksi pengukuran sebelumnya:** tiga probe awal melaporkan NOL pagination
+dan sempat disimpulkan celah render. Itu artefak ukur — server sehat selalu
+menampilkan 7 kontainer + 84 bullet tanpa error konsol. Pelajaran: satu angka
+nol dari satu probe bukan temuan; ulangi sebelum menyimpulkan.
+
+**Temuan samping yang perlu pemilik tahu:** server dev di :3399 menjawab
+500 untuk chunk Turbopack (`/_next/static/...`, MIME text/plain) sehingga
+hidrasi gagal. Itu server dev milik pemilik, jadi tidak saya restart.
+Biasanya sembuh dengan hentikan dev + `rm -rf .next` + nyalakan lagi.
