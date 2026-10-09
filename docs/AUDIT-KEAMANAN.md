@@ -288,3 +288,69 @@ Semua nilai `.env` hanya dibaca lewat nama variabelnya, tidak pernah dicetak.
 | Membuat `middleware.ts` | Tidak menutup celah apa pun; hanya menambah sumber kebenaran kedua. |
 | CSP berbasis nonce | Mengubah 179 halaman statis menjadi dinamis. Harga terlalu besar. |
 | Uji beban pada rate limit | Di luar cakupan audit statis. |
+
+---
+
+## Keputusan 9 Oktober 2026: `unsafe-inline` tetap dipertahankan
+
+Keluhan yang pernah terdaftar sebagai "sisa risiko" sudah ditinjau sampai ke
+dokumentasi platform, dan putusannya adalah **biarkan apa adanya**. Penjelasan
+di sini supaya tidak diperiksa ulang tanpa data baru.
+
+### Kenapa nonce bukan jalan keluar
+
+Dokumentasi Next.js di `node_modules/next/dist/docs/01-app/02-guides/content-security-policy.md`
+baris 181 dan 391 menyebut akibatnya apa adanya:
+
+> "To use a nonce, your page must be dynamically rendered... Static pages are
+> generated at build time, when no request or response headers exist — so no
+> nonce can be injected."
+
+Dan baris 387-406 menjabarkan konsekuensinya:
+
+> "all pages must be dynamically rendered... Static optimization and
+> Incremental Static Regeneration are disabled... **Slower initial page
+> loads... Increased server load... No CDN caching... Higher hosting costs**"
+
+### Mengurangi permukaan juga tidak cukup
+
+Menghapus `style={{...}}` dari `AnimeAvatar.tsx:307` dan `global-error.tsx`
+tidak menutup apa pun, karena keduanya bukan satu-satunya sumber inline:
+
+- `global-error.tsx` **memang** harus inline: berkas itu dipakai tepat ketika
+  CSS layout tidak bisa diandalkan, jadi gayanya ditulis sendiri.
+- `AnimeAvatar` menerima prop `style` dari pemanggil, jadi atributnya harus
+  tetap ada.
+- Swiper dan payload RSC Next.js menyuntik `<style>` dan `<script>` sebaris
+  saat runtime. Keduanya tidak bisa di-hash karena nilainya berubah per permintaan.
+
+Jadi meski dua berkas itu diubah, `unsafe-inline` tetap wajib. Perubahannya
+hanya akan terlihat seperti perbaikan padahal tidak mengubah kekuatan CSP
+satu kali pun.
+
+### Apa yang sudah, dan masih, dilindungi
+
+Yang tetap berfungsi tanpa `unsafe-inline`:
+
+- `object-src 'none'` — memblokir `<object>` dan `<embed>`.
+- `base-uri 'self'` — mencegah injeksi `<base>`.
+- `form-action 'self'` — mencegah form dipaksa ke host lain.
+- `frame-ancestors 'none'` + `X-Frame-Options: DENY` — mencegah clickjacking.
+- `img-src` dibatasi dua host foto yang memang dipakai.
+- `default-src 'self'` — semua yang tidak disebutkan jatuh ke origin sendiri.
+
+XSS sendiri ditutup di lapisan lain, bukan CSP: sanitasi Markdown di
+`src/server/markdown.ts` memakai allow-list tag dan atribut, dan
+`dangerouslySetInnerHTML` hanya dipakai di satu berkas yang isinya melewatinya.
+
+### Kalau suatu saat perlu dinonaktifkan
+
+Tiga yang harus berubah bersamaan, dan satu-satunya belum dipenuhi:
+
+- Middleware penerbit nonce.
+- Semua 163 halaman menerima render dinamis.
+- Server yang mampu memikulnya: tanpa CDN caching, beban naik di VPS 2 GB
+  yang sekarang menjalankan container snapshot.
+
+Anggaran VPS 2 GB itulah yang paling menentukan. Sampai itu berubah, nonce
+adalah trade yang salah taruhnya.
