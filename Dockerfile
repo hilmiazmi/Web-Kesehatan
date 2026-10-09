@@ -47,16 +47,23 @@ RUN bun run build
 
 # --- 3. runtime -----------------------------------------------------------
 FROM oven/bun:${BUN_VERSION}-alpine AS runner
+
+# ARG global hanya berlaku untuk baris FROM; setiap tahap yang memakai nilainya
+# harus mendeklarasikan ulang tanpa nilai untuk mewarisi bawaan global.
+# Tanpa baris ini ${PORT} di bawah kosong (peringatan UndefinedVar saat build).
+ARG PORT
+
 WORKDIR /app
 
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     PORT=${PORT}
 
-# Yang benar-benar dipakai `next start`: hasil build, node_modules, berkas
-# statis publik, dan snapshot untuk mode snapshot.
+# Yang benar-benar dipakai `next start`: hasil build, node_modules, dan
+# snapshot untuk mode snapshot. Tidak ada COPY public/ karena repo ini tidak
+# punya direktori public (semua gambar dari host jarak jauh); COPY atas
+# direktori yang tidak ada menggagalkan build.
 COPY --from=builder --chown=bun:bun /app/.next ./.next
-COPY --from=builder --chown=bun:bun /app/public ./public
 COPY --from=deps --chown=bun:bun /app/node_modules ./node_modules
 COPY --from=builder --chown=bun:bun /app/package.json ./package.json
 # snapshot/ dibaca runtime oleh src/server/api/snapshot.ts saat
@@ -72,7 +79,10 @@ EXPOSE ${PORT}
 # Health check menembak "/" karena halaman beranda membaca src/data/ yang
 # sudah dibundel, bukan database. Jadi health check tetap hijau saat database
 # sedang mati, dan tidak mengira aplikasi sehat padahal gagal render.
+#
+# Bentuk shell (tanpa kurung siku) supaya ${PORT} diganti nilainya. Bentuk
+# exec tidak mengganti variabel dan akan menembak URL berisi teks "${PORT}".
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-  CMD wget --spider -q "http://127.0.0.1:${PORT}/" || exit 1
+  CMD wget --spider -q http://127.0.0.1:${PORT}/ || exit 1
 
 CMD ["bun", "run", "start"]
