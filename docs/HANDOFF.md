@@ -435,7 +435,7 @@ karena deploy Vercel memang belum pernah dicoba.
 ## Hapus branch lokal-dev (2026-10-09)
 
 Atas instruksi eksplisit pemilik. Diverifikasi dulu tidak ada commit unik
-di  maupun  dibanding , lalu dihapus
-lokal () dan remote ().
-Sisa branch:  dan  (sudah termerge,
+di lokal-dev maupun upstream/lokal-dev dibanding main, lalu dihapus
+lokal (branch -d) dan remote (push upstream --delete).
+Sisa branch: main dan fix/header-keamanan-dan-audit (sudah termerge,
 dibiarkan).
