@@ -84,8 +84,13 @@ test.describe("daftar online", () => {
     await page.goto("/daftar-online");
 
     // Form pendaftaran: ada pilih poliklinik/spesialis sebagai langkah pertama.
+    // Opsi diambil async dari /api/v1/polyclinics, jadi tunggu sampai terisi
+    // sebelum menghitung. Hitung langsung flaky: select sudah terlihat dengan
+    // satu placeholder selagi fetch berjalan.
     const pilih = page.locator("select").first();
     await expect(pilih).toBeVisible();
-    expect(await pilih.locator("option").count()).toBeGreaterThan(1);
+    await expect
+      .poll(async () => pilih.locator("option").count(), { timeout: 10000 })
+      .toBeGreaterThan(1);
   });
 });
