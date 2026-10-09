@@ -24,6 +24,7 @@
     "cek:admin": "bun run scripts/cek-admin.ts",
     "uji:siapkan": "bun run scripts/siapkan-admin-uji.ts",
     "uji:bersihkan": "bun run scripts/bersihkan-admin-uji.ts",
+    "uji:mobile": "bun run scripts/uji-mobile.ts",
     "audit:teks": "bun run scripts/audit-teks.ts",
     "subset-ikon": "bun run scripts/subset-ikon.ts"
   },
