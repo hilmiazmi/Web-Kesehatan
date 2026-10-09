@@ -25,7 +25,7 @@ export async function POST(request: NextRequest, context: Konteks): Promise<Next
     const errors = new Errors();
 
     const baru = String(body.new_password ?? "");
-    periksaKataSandi(errors, baru);
+    periksaKataSandi(errors, baru, "new_password");
 
     const lama = String(body.current_password ?? "");
     if (lama.trim() === "") errors.add("current_password", "Wajib diisi.");

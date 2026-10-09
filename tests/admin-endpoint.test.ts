@@ -462,10 +462,10 @@ describe("admin/users/[id]/password dan reset-password", () => {
       konteks,
     );
     expect(res.status).toBe(422);
-    // CATATAN: `periksaKataSandi` melapor ke field "password", bukan
-    // "new_password" yang dikirim formulir. Perilaku ini dikunci apa adanya
-    // sampai pemilik memutuskan; lihat docs/HANDOFF.md.
-    expect(await fields(res)).toEqual(["password"]);
+    // Galat harus menempel ke "new_password" yang memang dikirim formulir.
+    // Kalau именanya "password", panel tidak punya kolom itu dan galatnya
+    // hilang dari layar.
+    expect(await fields(res)).toEqual(["new_password"]);
   });
 
   it("ganti sandi menolak current_password kosong dengan 422", async () => {
@@ -490,10 +490,10 @@ describe("admin/users/[id]/password dan reset-password", () => {
       konteks,
     );
     expect(res.status).toBe(422);
-    // CATATAN: `periksaKataSandi` melapor ke field "password", bukan
-    // "new_password" yang dikirim formulir. Perilaku ini dikunci apa adanya
-    // sampai pemilik memutuskan; lihat docs/HANDOFF.md.
-    expect(await fields(res)).toEqual(["password"]);
+    // Galat harus menempel ke "new_password" yang memang dikirim formulir.
+    // Kalau именanya "password", panel tidak punya kolom itu dan galatnya
+    // hilang dari layar.
+    expect(await fields(res)).toEqual(["new_password"]);
   });
 
   it("reset sandi menolak sandi kosong; field yang disebut tetap satu kolom", async () => {
@@ -504,10 +504,10 @@ describe("admin/users/[id]/password dan reset-password", () => {
       konteks,
     );
     expect(res.status).toBe(422);
-    // CATATAN: `periksaKataSandi` melapor ke field "password", bukan
-    // "new_password" yang dikirim formulir. Perilaku ini dikunci apa adanya
-    // sampai pemilik memutuskan; lihat docs/HANDOFF.md.
-    expect(await fields(res)).toEqual(["password"]);
+    // Galat harus menempel ke "new_password" yang memang dikirim formulir.
+    // Kalau именanya "password", panel tidak punya kolom itu dan galatnya
+    // hilang dari layar.
+    expect(await fields(res)).toEqual(["new_password"]);
   });
 });
 
