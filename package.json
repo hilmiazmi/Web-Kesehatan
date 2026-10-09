@@ -25,6 +25,7 @@
     "uji:siapkan": "bun run scripts/siapkan-admin-uji.ts",
     "uji:bersihkan": "bun run scripts/bersihkan-admin-uji.ts",
     "uji:mobile": "bun run scripts/uji-mobile.ts",
+    "uji:performa": "bun run scripts/uji-performa.ts",
     "audit:teks": "bun run scripts/audit-teks.ts",
     "subset-ikon": "bun run scripts/subset-ikon.ts"
   },

@@ -30,10 +30,17 @@ export default function DaftarOnlinePage() {
                     halaman layanan, paket MCU, atau widget beranda ikut terbawa.
                     `useSearchParams` membuat halaman ini ikut Suspense, dan
                     tanpa pembatasnya build gagal pada halaman statis.
+
+                    Fallback-nya memakai `.form-suspense`, yang tingginya
+                    dipesan sebesar form sungguhan. Tanpa itu, satu baris
+                    fallback diganti form 793px dan seluruh isi di bawahnya
+                    terdorong turun.
                   */}
-                  <Suspense fallback={<p className="form-konteks">Memuat formulir...</p>}>
-                    <RegistrationForm />
-                  </Suspense>
+                  <div className="form-suspense">
+                    <Suspense fallback={<p className="form-konteks">Memuat formulir...</p>}>
+                      <RegistrationForm />
+                    </Suspense>
+                  </div>
                 </div>
               </div>
 

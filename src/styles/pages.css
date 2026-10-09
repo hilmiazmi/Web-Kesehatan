@@ -1244,6 +1244,28 @@ a.halaman-kartu-ringkas:focus-visible .halaman-kartu-panah {
   color: var(--rs-text-body);
 }
 
+/* Tinggi minimum untuk fallback Suspense di halaman daftar online.
+ *
+ * Tanpa ini, fallback satu baris (~20px) diganti form yang tingginya 793px,
+ * dan seluruh isi di bawahnya terdorong turun sekitar 728px. Pergeseran itu
+ * terukur CLS 0.1055 pada halaman ini, melewati ambang 0.1.
+ *
+ * Angkanya bukan dari tebakan: 793px (desktop) dan 1199px (mobile) adalah
+ * tinggi form yang terukur pada pemilihan awal, sebelum memilih dokter
+ * menambah kolom. Reservasi ini menutup pergeseran saat pemuatan pertama;
+ * pergeseran saat form bertambah sendiri belum diukur, dan menutupnya
+ * menuntut formnya sendiri yang berubah, bukan CSS ini. */
+.form-suspense {
+  min-height: 793px;
+}
+
+/* Angka mobile juga terukur: 1199px, bukan tebakan. */
+@media (max-width: 991.98px) {
+  .form-suspense {
+    min-height: 1199px;
+  }
+}
+
 /* Pemberitahuan paket MCU yang dipilih di halaman sebelumnya. */
 .form-alert {
   display: flex;
