@@ -509,3 +509,37 @@ nol dari satu probe bukan temuan; ulangi sebelum menyimpulkan.
 500 untuk chunk Turbopack (`/_next/static/...`, MIME text/plain) sehingga
 hidrasi gagal. Itu server dev milik pemilik, jadi tidak saya restart.
 Biasanya sembuh dengan hentikan dev + `rm -rf .next` + nyalakan lagi.
+
+---
+
+## Integrasi API admin + verifikasi DB (2026-10-09)
+
+**Test integrasi baru (25 kasus, semua hijau):** `tests/admin-endpoint.test.ts`
+menutup `admin/beds`, `admin/tables`, `admin/appointments-per-day`,
+`admin/survey-by-unit`, `admin/users` (GET+POST), `admin/users/[id]`
+(PATCH+DELETE), `password`, dan `reset-password`. Semua kombinasi: berhasil,
+401 tanpa sesi, 403 peran tidak berwenang, 422/400 masukan salah, 503 mode
+snapshot. Sesi diuji dengan token asli (`signSession` lalu `verifySession`),
+jadi verifikasi token dan `session_version` ikut terlindungi. Total test repo
+naik 825 -> 850.
+
+**Temuan yang sengaja dikunci apa adanya:** `periksaKataSandi` melapor galat
+ke field `password`, sementara formulir mengirim `new_password`. Panel
+menampilkan galat per kolom, jadi galat itu menempel ke kolom yang tidak ada
+di layar. Perilaku dikunci test dengan komentar; **perbaikannya belum
+dikerjakan** karena menyentuh kode auth dan perlu keputusan pemilik.
+
+**Verifikasi DB nyata (`rsud_uji`, yang ternyata sudah ter-seed):**
+- `bun run cek:konten` hijau: 124 rute, seluruh berkas snapshot konsisten,
+  20 tabel terisi. Ini bukti bahwa `snapshot/` masih sinkron dengan database.
+- `bun run cek:admin` hijau penuh: login, buat akun, ubah profil, protections
+  akun sendiri, ubah/setel ulang sandi, hapus akun, dasbor, survei per unit,
+  pendaftaran per hari tanpa celah.
+- Setelah itu DB kembali baseline: users 1, feedbacks 0, tagline utuh.
+
+**Regresi tampilan pasca-Swiper 12 (terukur):**
+- Tanpa gulir horizontal di 360/768/1024/1199/1200/1360/1520/1920px.
+- Lebar nav sesuai dokumentasi: 894px di 1520px dan 1920px, 778px (kompak) di
+  1360px, hamburger `display:block` di 1199px dan `none` di 1200px, panel
+  off-canvas di 1199px (`left:1199`) dan penuh di 1200px.
+- Gambar carousel: 0 gambar rusak dan 0 `alt` kosong di 390px maupun 1280px.
