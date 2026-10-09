@@ -201,7 +201,6 @@ carousel Swiper, panel navigasi off-canvas, dan interaksi SweetAlert2.
       Perlu naik versi utama dan pengujian carousel di browser, jadi tidak
       bisa ditutup diam-diam. Lihat [`docs/AUDIT-KEAMANAN.md`](docs/AUDIT-KEAMANAN.md).
 - [ ] Menaikkan `sweetalert2` ke 11.22.4 untuk advisori tingkat rendah.
-- [ ] Formulir **E-Pasien**.
 - [ ] Dual deploy Vercel + VPS.
 - [ ] Uji end-to-end dengan Playwright. Yang diuji sekarang adalah logika
       murni; tata letak responsif, carousel, panel navigasi off-canvas, dan

@@ -102,7 +102,7 @@ berfungsi.
 | UI panel admin | **Sebagian** | 4 dari 9 kelompok punya UI, lihat bagian 4 |
 | Proteksi `/admin` di server | **Selesai** | Gate di `(panel)/layout.tsx`; terukur 307 ke `/admin/login` |
 | Form Registrasi MCU (klien) | **Belum** | endpoint `POST /mcu-registrations` ada, form klien tidak |
-| Form E-Pasien | **Belum** | tidak ada berkas maupun halaman |
+| Form E-Pasien | **Selesai** | Sama dengan Daftar Online. Audit ini salah menandainya "Belum" karena mencari berkas bernama "e-pasien"; kenyataannya `registration-form.tsx` menyebut dirinya "Formulir pendaftaran online (E-Pasien)" dan `src/data/home.ts:467` menautkan "E-Pasien" ke `/daftar-online` |
 | Header keamanan di `next.config.ts` | **Belum** | 0 dari 7 header ada |
 | Dual deploy Vercel + VPS | **Belum** | tidak ada konfigurasi deploy |
 | Audit keamanan menyeluruh | **Belum** | ditangani pada TAHAP E |

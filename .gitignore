@@ -1,6 +1,11 @@
 # Artefak perkakas browser otomatisasi (screenshot, log konsol).
 .playwright-mcp/
 
+# Keluaran Playwright test (trace, screenshot gagal, laporan HTML). Isinya
+# artefak mesin lokal yang tidak boleh masuk repo, dan ukurannya bisa besar.
+test-results/
+playwright-report/
+
 # --- Aplikasi Next.js (berada di root repo) ---
 # Lihat https://help.github.com/articles/ignoring-files/
 

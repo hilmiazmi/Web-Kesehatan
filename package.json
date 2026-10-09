@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
+    "test:e2e": "playwright test",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "verify": "bun run lint && bun run test && bun run build",
@@ -36,6 +37,7 @@
     "swiper": "12.2.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.0",
     "@types/bun": "^1.4.2",
     "@types/node": "^20",
     "@types/react": "^19",

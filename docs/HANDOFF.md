@@ -93,8 +93,7 @@ Ringkasan. Bukti lengkap di `docs/STATUS-PROYEK.md` bagian 3.
 
 ### Prioritas rendah
 
-6. Form E-Pasien belum ada.
-7. Uji E2E belum ada: tata letak responsif, carousel, panel navigasi
+6. Uji E2E belum ada: tata letak responsif, carousel, panel navigasi
    off-canvas, dan interaksi SweetAlert2 masih diperiksa manual.
 
 ---
