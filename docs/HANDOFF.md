@@ -554,3 +554,43 @@ dikerjakan** karena menyentuh kode auth dan perlu keputusan pemilik.
   1360px, hamburger `display:block` di 1199px dan `none` di 1200px, panel
   off-canvas di 1199px (`left:1199`) dan penuh di 1200px.
 - Gambar carousel: 0 gambar rusak dan 0 `alt` kosong di 390px maupun 1280px.
+
+---
+
+## Sisa audit ditutup: auth, a11y, Lighthouse, server (2026-10-09)
+
+**Temuan auth diperbaiki.** `periksaKataSandi` melapor ke field `password`,
+padahal endpoint ganti dan setel-ulang sandi mengirim `new_password`. Panel
+menampilkan galat per kolom, jadi galat itu menempel ke kolom yang tidak ada.
+Fungsi kini menerima nama field. Commt `4c30a8a`.
+
+**F1 (sebagian terukur).** Yang bisa dijawab tegas dijadikan
+`e2e/a11y.test.ts`: skip-link jadi fokus pertama dan targetnya ada, 0 gambar
+tanpa `alt`, 0 field tanpa label, `lang="id"`, dan panel nav mobile tertutup
+tidak bisa difokus (0 dari 90 kali Tab) serta terbuka bisa dimasuki dengan
+Escape mengembalikan fokus ke hamburger. Yang tersisa masih butuh manusia:
+kontras warna, pembaca layar, urutan fokus di seluruh situs.
+
+**F2 — server dev 3399 dipulihkan.** Penyebabnya sudah terukur: chunk JS yang
+diminta browser sudah tidak ada di build sekarang, karena server itu masih
+memegang build lama. Restart (tanpa `rm -rf .next`) sudah cukup: 0 request
+gagal, Swiper merender.
+
+**F4 — Lighthouse.** Dijalankan lewat `bunx` tanpa menambah dependency.
+Awal: aksesibilitas 96, best-practices 100, SEO 100, **85 temuan target-size**.
+Sesudah tiga perbaikan: 97/100/100 dengan **1 temuan**. Sisa satu terukur
+332x43, jauh di atas minimum 24x24, jadi artefak konteks carousel.
+`errors-in-console` berasal dari host gambar picsum.photos yang tidak
+terjangkau dari lingkungan audit, bukan cacat kode. Skor best-practices 93 di
+percobaan terakhir juga efek gambar luar yang gagal dimuat.
+
+**D3 — dibersihkan.** PostgreSQL 5433 dan kedua server uji dimatikan; log dan
+hasil Lighthouse di direktori sementara dihapus. Berkas milik pemilik di
+direktori yang sama tidak disentuh.
+
+**Penting untuk sesi berikutnya:** jangan jalankan `bun run build` yang
+keluarannya dipipe ke `grep`/`tail`; build terpotong dan menghasilkan
+`.next` tanpa `BUILD_ID` sehingga `next start` gagal. Tulis ke berkas log
+lalu baca setelah selesai.
+
+Gerbang akhir: lint 0, 856 test lulus, e2e 7+5 lulus, build 169/169.
