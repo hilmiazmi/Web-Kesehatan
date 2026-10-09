@@ -11,6 +11,11 @@ import Photo from "@/components/ui/Photo";
  * Bentuk `src` dan `alt` sama dengan blok `galeri` di data halaman, jadi array
  * dari blok itu bisa langsung dipakai. `caption` opsional untuk grid beranda
  * yang menampilkan nama unit di bawah foto.
+ *
+ * Grid yang sekaligus menampilkan `caption` sebaiknya mengosongkan `alt`:
+ * teks yang sama muncul dua kali kalau keduanya diisi, dan pembaca layar
+ * membacakannya dua kali. Keterangan di dalam lightbox memakai `caption`
+ * lebih dulu supaya nama unit tetap tampil saat album dibuka.
  */
 type Foto = { src: string; alt: string; caption?: string };
 
@@ -142,11 +147,11 @@ export default function GalleryLightbox({
       <div className={className}>
         {foto.map((f, i) => (
           <button
-            key={f.src + f.alt + i}
+            key={f.src + (f.caption ?? f.alt) + i}
             type="button"
             className="galeri-pemicu"
             onClick={(peristiwa) => buka(i, peristiwa)}
-            aria-label={`Perbesar ${f.alt}`}
+            aria-label={`Perbesar ${f.caption ?? f.alt}`}
           >
             <Photo
               src={f.src}
@@ -201,7 +206,7 @@ export default function GalleryLightbox({
                 priority
               />
               <figcaption className="lightbox-keterangan">
-                {kini.alt}
+                {kini.caption ?? kini.alt}
                 <span className="lightbox-posisi">
                   {(aktif ?? 0) + 1} dari {foto.length}
                 </span>

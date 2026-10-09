@@ -58,7 +58,9 @@ export function GallerySection() {
           sizes="(max-width: 768px) 50vw, 200px"
           foto={GALLERY.map((g, i) => ({
             src: photo(GALLERY_PHOTOS[i % GALLERY_PHOTOS.length], 400, 400),
-            alt: g,
+            // Nama unit sudah tertulis di `caption` tepat di bawah foto, jadi
+            // `alt` dikosongkan agar tidak dibacakan dua kali.
+            alt: "",
             caption: g,
           }))}
         />

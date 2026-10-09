@@ -156,13 +156,35 @@
 }
 
 .swiperslider .swiper-pagination-bullet {
-  width: 11px;
-  height: 11px;
+  /*
+   * Kotak sentuhnya 24px (batas minimum yang disarankan WCAG 2.5.8) sementara
+   * titik yang terlihat tetap 11px seperti hasil pengukuran situs acuan.
+   * Titiknya digambar ulang lewat ::after supaya memperbesar area sentuh
+   * tidak mengubah apa yang dilihat orang.
+   */
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border-radius: 50%;
+  position: relative;
+}
+
+.swiperslider .swiper-pagination-bullet::after {
+  content: "";
+  position: absolute;
+  /* (24 - 11) / 2 = 6.5px, sehingga titik tetap tepat di tengah. */
+  inset: 6.5px;
+  border-radius: 50%;
   background: var(--rs-white);
   opacity: 0.55;
 }
 
 .swiperslider .swiper-pagination-bullet-active {
+  opacity: 1;
+  background: transparent;
+}
+
+.swiperslider .swiper-pagination-bullet-active::after {
   opacity: 1;
   background: var(--rs-white);
 }
@@ -247,14 +269,32 @@
 }
 
 .slide-container .swiper-pagination-bullet {
-  width: 8px;
-  height: 8px;
-  background-color: #4070f4;
-  opacity: 0.4;
+  /*
+   * Sama seperti bullet hero: area sentuh 24px, titik terlihat tetap 8px
+   * seperti hasil pengukuran. Diperbesar tanpa mengubah tampilan.
+   */
+  width: 24px;
+  height: 24px;
+  background-color: transparent;
+  position: relative;
   transition: opacity 0.2s ease;
 }
 
+.slide-container .swiper-pagination-bullet::after {
+  content: "";
+  position: absolute;
+  /* (24 - 8) / 2 = 8px, sehingga titik tetap tepat di tengah. */
+  inset: 8px;
+  border-radius: 50%;
+  background-color: #4070f4;
+  opacity: 0.4;
+}
+
 .slide-container .swiper-pagination-bullet-active {
+  opacity: 1;
+}
+
+.slide-container .swiper-pagination-bullet-active::after {
   opacity: 1;
 }
 

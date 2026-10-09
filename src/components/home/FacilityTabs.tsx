@@ -76,7 +76,13 @@ export default function FacilityTabs() {
                         600,
                         460
                       )}
-                      alt={current.title}
+                      /*
+                       * `alt` kosong, bukan nama fasilitas. Namanya sudah
+                       * tertulis di `<h3>` tepat di samping gambar, jadi
+                       * mengulanginya di `alt` membuat pembaca layar
+                       * membacakan "Farmasi Farmasi".
+                       */
+                      alt=""
                       sizes="(max-width: 992px) 100vw, 340px"
                       height={230}
                       radius="all"
