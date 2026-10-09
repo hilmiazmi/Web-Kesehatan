@@ -638,3 +638,38 @@ melainkan ditangani catch-all.
 `package.json` dan `bun.lock` tidak berubah sedikit pun. Keduanya sudah
 tercatat diterima di `AUDIT-KEAMANAN.md` bagian L-1 karena hanya rantai
 perkembangan, tanpa efek ke produksi.
+
+---
+
+## Kontras hero diukur dan dikalibrasi (2026-10-09)
+
+**Cara mengukur.** Luminance WCAG dihitung dari piksel foto yang benar-benar
+dipakai, bukan dari nilai CSS. Gambar dimuat ulang dengan
+`crossOrigin="anonymous"` lalu digambar ke canvas; kalau host tidak mengirim
+CORS, canvas terkontaminasi dan hasilnya dilaporkan terpisah — tidak diam-diam
+dihitung sebagai rasio 1.0.
+
+**Yang ditemukan.** Teks hero putih di atas foto, dengan satu-satunya
+penopang `text-shadow` 0.28 yang tidak dihitung WCAG. Rasio kontras terukur
+turun sampai **1.0** untuk sembilan foto sekaligus.
+
+**Kesalahan penghitungan saya sendiri yang perlu dicatat.** Awalnya saya tulis
+"scrim 0.72 membuat luminance 0.73 menjadi 0.16, rasio 4.5:1". Itu salah:
+luminance WCAG memakai pangkat 2.4 per kanal, jadi menggelapkan piksel
+berskala eksponensial, bukan linear. Kalibrasi ulang memakai beberapa alfa dan
+mengukur kompositnya: **0.45 sudah cukup**, 0.78 yang saya pasang pertama kali
+berlebihan sampai foto nyaris hilang.
+
+**Hasil akhir.** Alfa 0.55 di bidang 25%-75% tinggi, memudar ke 0.30 di tepi
+supaya foto tetap terlihat. Ukuran ulang: sembilan foto lolos dengan rasio
+**4.76 sampai 5.19**. Ukuran tidak berubah — blok teks tetap 720x270, teks
+tetap di atas scrim (z-index 2, elemen teratas di titik teks adalah `h2`).
+
+**Satu duplikasi `::after` sempat terjadi** karena repo sudah punya scrim yang
+saya lewatkan; sudah dihapus dan aturan aslinya diperkuat jadi satu.
+
+**Keadaan repo saat bekerja.** Saat bekerja, pemilik mengubah `e2e/a11y.test.ts`,
+`Photo.tsx`, dan `GalleryLightbox.tsx`, lalu menghapus fixture negatif
+(`<img seed="negatif">`) yang mereka pasang untuk membuktikan test a11y
+menangkap gambar dekoratif tanpa penanda. Karena itu commit saya hanya
+memuat `src/styles/home.css`.
