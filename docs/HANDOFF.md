@@ -429,3 +429,13 @@ karena deploy Vercel memang belum pernah dicoba.
 
 **Gerbang:** lint 0, vitest 825/825, playwright 7/7, build 169/169
 (cek ulang sebelum commit di bawah).
+
+---
+
+## Hapus branch lokal-dev (2026-10-09)
+
+Atas instruksi eksplisit pemilik. Diverifikasi dulu tidak ada commit unik
+di  maupun  dibanding , lalu dihapus
+lokal () dan remote ().
+Sisa branch:  dan  (sudah termerge,
+dibiarkan).
