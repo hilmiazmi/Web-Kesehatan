@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Autoplay, Pagination } from "swiper/modules";
+import { A11y, Autoplay, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -22,7 +22,7 @@ export default function HeroSlider() {
   return (
     <section className="section p-0" aria-label="Promosi layanan">
       <Swiper
-        modules={[Autoplay, Pagination]}
+        modules={[A11y, Autoplay, Pagination]}
         slidesPerView={1}
         loop
         autoplay={{ delay: 5000, disableOnInteraction: false }}

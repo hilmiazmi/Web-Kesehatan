@@ -465,3 +465,27 @@ Server uji :3400 dimatikan; server pemilik (:3399, :3300) tidak disentuh.
 - Satu kegagalan awal (login 503) tidak terjelaskan tuntas; jalan ulang
   langsung hijau 2/2. Kemungkinan kondisi pacu saat server baru nyala.
   Kalau kambuh, tambahkan tunggu-siap sebelum login pertama.
+
+---
+
+## Sapu bersih agen lain (2026-10-09)
+
+**Prop a11y mati (terbukti, diperbaiki):** `HeroSlider.tsx` mengirim
+`a11y={{ enabled: true }}` tanpa mendaftarkan modul `A11y` — prop tidak
+berfungsi. `CardCarousel.tsx` sudah benar (impor + modules). Perbaikan:
+tambah `A11y` ke impor dan `modules`, meniru pola yang benar. Tidak perlu
+CSS tambahan (modul A11y memakai CSS inti). Gerbang hijau sesudahnya.
+
+**Redundansi validasi-umum (tidak ada yang perlu diubah):** `LOKAL_SURAT`
+sudah dipakai di `surelValid` dan menggantikan tiga cek ad-hoc (ada komentar
+penjelasnya). `LOKAL_MAKS`/`LABEL_MAKS`/`LABEL_DOMAIN` masing-masing menjaga
+hal berbeda (batas panjang vs pola) dan tidak redundan. Pemeriksaan domain
+berlapis (panjang total, wajib titik, per label) juga masing-masing perlu.
+Audit selesai tanpa perubahan kode.
+
+**Advisory ditutup di dokumen:** K-1 (swiper 12.2.0) dan S-1 (sweetalert2
+11.22.4) diberi status DITUTUP beserta bukti commit dan hasil `bun audit`
+hari ini; baris risiko dan "sengaja tidak dikerjakan" disesuaikan. Sisa
+manual yang jujur dicatat: cek visual mobile 390px.
+
+**Gerbang:** lint 0, vitest 825/825, playwright 7/7, build 169/169.

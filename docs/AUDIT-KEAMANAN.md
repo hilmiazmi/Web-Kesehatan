@@ -60,6 +60,12 @@ lalu periksa dua carousel di browser pada lebar desktop dan mobile: swipe
 berjalan, autoplay berjalan, titik pagination bisa diklik, dan tidak ada
 galat di konsol.
 
+**Status 2026-10-09: DITUTUP.** Naik ke `swiper@12.2.0` di `eb0e453`
+(termasuk sesuaikan CSS tombol navigasi). `bun audit` hari ini tidak lagi
+menyebut swiper. E2E hero (9 slide + autoplay) lolos; Carousel dipakai dengan
+modul terdaftar benar. Sisa manual: cek visual mobile 390px di browser
+(panah ganda, bullet meluber, gulir horizontal) — belum dikerjakan.
+
 ### S-1 · Sedang · SweetAlert2 versi rentan
 
 **Bukti**
@@ -76,6 +82,9 @@ di 11.22.4, jadi ini naik versi kecil di dalam rentang 11.
 **Kenapa belum diperbaiki.** Sama seperti Swiper, versinya dikunci persis di
 `package.json`. Menaikkan berarti mengubah kunci itu, jadi ini keputusan
 yang perlu disadari, bukan yang diam-diam.
+
+**Status 2026-10-09: DITUTUP.** Naik ke `sweetalert2@11.22.4` di `a7146d3`.
+`bun audit` hari ini tidak lagi menyebut sweetalert2.
 
 ### L-1 · Rendah · `braces` dan `esbuild`
 
@@ -263,7 +272,7 @@ Semua nilai `.env` hanya dibaca lewat nama variabelnya, tidak pernah dicetak.
 
 | Risiko | Ringkas |
 |---|---|
-| Swiper prototype pollution | Ranuh dan belum ditutup. Butuh versi 12.1.2 dan uji carousel. |
+| Swiper prototype pollution | Ditutup 2026-10-09 (`swiper@12.2.0`). Sisa manual: cek visual mobile di browser. |
 | `ADMIN_ORIGIN` salah di produksi | Kalau tidak `https://`, cookie sesi tidak dapat `Secure`. Tidak ada kode yang bisa mencegah ini; hanya konfigurasi. |
 | `script-src` masih `'unsafe-inline'` | CSP tidak bisa menutup XSS inline tanpa nonce. Nonce butuh middleware, yang akan mengubah 179 halaman statis menjadi dinamis. |
 | `AUTH_SECRET` tidak punya nilai bawaan | Sudah benar, tapi akibatnya aplikasi menolak start. Itu pilihan yang benar, bukan risiko. |
@@ -276,8 +285,6 @@ Semua nilai `.env` hanya dibaca lewat nama variabelnya, tidak pernah dicetak.
 
 | Bukan tugas audit | Alasan |
 |---|---|
-| Menaikkan `swiper` ke 12.x | Butuh uji carousel di browser. Tidak bisa dibuktikan benar dari test unit. |
-| Menaikkan `sweetalert2` ke 11.22.4 | Kecil, tapi tetap perubahan dependensi yang harus disetujui. |
 | Membuat `middleware.ts` | Tidak menutup celah apa pun; hanya menambah sumber kebenaran kedua. |
 | CSP berbasis nonce | Mengubah 179 halaman statis menjadi dinamis. Harga terlalu besar. |
 | Uji beban pada rate limit | Di luar cakupan audit statis. |
