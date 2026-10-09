@@ -135,4 +135,57 @@ describe("config", () => {
     denganEnv({ ...SAH, API_MODE: "ajaib" });
     expect(config().apiMode).toBe("live");
   });
+
+  describe("ADMIN_ORIGIN", () => {
+    // Aturan ini mencegah satu kelas kegagalan yang tidak terlihat dari luar:
+    // cookie sesi tetap terbit dan login tetap berhasil, hanya tanpa `Secure`.
+    // Diperiksa di sini karena itu titik paling awal yang tahu nilai aslinya.
+
+    it("menolak http:// untuk host publik di mode live", () => {
+      denganEnv({ ...SAH, ADMIN_ORIGIN: "http://rsud.example.test" });
+      expect(() => config()).toThrow(/https:\/\//);
+    });
+
+    it("menerima http:// untuk localhost", () => {
+      // `bun run dev` memakai http, jadi menolaknya akan membuat pengembangan
+      // lokal mustahil kecuali pengecualian yang membingungkan.
+      denganEnv({ ...SAH, ADMIN_ORIGIN: "http://localhost:3000" });
+      expect(config().adminOrigin).toBe("http://localhost:3000");
+    });
+
+    it("menerima http:// untuk loopback lain", () => {
+      // Port bebas dipakai sesuai kebutuhan, jadi host yang diuji bukan portnya.
+      const asal = ["http://127.0.0.1:8080", "http://[::1]:3000"];
+      for (const origin of asal) {
+        denganEnv({ ...SAH, ADMIN_ORIGIN: origin });
+        expect(config().adminOrigin).toBe(origin);
+      }
+    });
+
+    it("menerima https:// tanpa syarat tambahan", () => {
+      denganEnv({ ...SAH, ADMIN_ORIGIN: "https://rsud.example.test" });
+      expect(config().adminOrigin).toBe("https://rsud.example.test");
+    });
+
+    it("menolak nilai yang bukan URL", () => {
+      // Bukan `http://`, jadi lolos dari cek awalan dan harus tetap ditolak di
+      // tempat lain: tanpa ini, `sessionCookie` akan menghasilkan `secure: false`.
+      denganEnv({ ...SAH, ADMIN_ORIGIN: "rsud.example.test" });
+      expect(() => config()).toThrow(/https:\/\//);
+    });
+
+    it("tidak menerapkan aturan ini di mode snapshot", () => {
+      // Mode snapshot menolak login 503 sebelum token diterbitkan, jadi tidak
+      // ada cookie yang perlu `Secure`.
+      denganEnv({
+        ...SAH,
+        API_MODE: "snapshot",
+        DATABASE_URL: "",
+        AUTH_SECRET: "",
+        ADMIN_ORIGIN: "http://pratinjau.example.test",
+      });
+
+      expect(config().adminOrigin).toBe("http://pratinjau.example.test");
+    });
+  });
 });

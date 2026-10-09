@@ -49,8 +49,8 @@ Ringkasan. Bukti lengkap di `docs/STATUS-PROYEK.md` bagian 3.
 | Daftar Online (poli, dokter, jam) | Selesai | `schedule_id` terisi |
 | Panel admin | Selesai | 7 halaman, 9 kelompok API |
 | Form E-Pasien | Selesai | **Sama dengan Daftar Online.** `src/data/home.ts` mengirim tautan "E-Pasien" ke `/daftar-online`, dan `registration-form.tsx:24` menyebut dirinya "Formulir pendaftaran online (E-Pasien)". Checklist lama bilang "Belum" karena salah baca |
-| Uji E2E (Playwright) | Belum | lihat bagian 4 |
-| Dual deploy Vercel + VPS | Sebagian | `Dockerfile`, `.dockerignore`, `docs/DEPLOY-VERCEL.md`, `docs/DEPLOY-VPS.md` sudah ada; build Docker **belum diverifikasi** (mesin tanpa izin Docker) |
+| Uji E2E (Playwright) | Selesai | `e2e/publik.test.ts` (beranda, hero autoplay, navigasi, 404, gate admin, Daftar Online, mobile 390px) dan `e2e/alur-db.test.ts` (login, panel, pengaturan, kritik terlacak) |
+| Dual deploy Vercel + VPS | Sebagian | `Dockerfile`, `.dockerignore`, `docs/DEPLOY-VERCEL.md`, `docs/DEPLOY-VPS.md` sudah ada. **Docker sudah terverifikasi** di VPS (build sukses, mode snapshot 200, health healthy) — lihat bagian 6. Vercel belum pernah dicoba dari repo ini |
 
 ---
 
@@ -77,49 +77,60 @@ Ringkasan. Bukti lengkap di `docs/STATUS-PROYEK.md` bagian 3.
    `GHSA-hmx5-qpq5-p643`), diperbaiki di `12.1.2`. Dipakai `HeroSlider` dan
    `CardCarousel`. Naik versi utama, butuh uji carousel di browser.
    Bukti: `bun audit`. Rincian: `docs/AUDIT-KEAMANAN.md` bagian K-1.
-2. **Login admin belum pernah diuji sungguhan.** `docker compose` gagal dengan
-   `permission denied` pada `/var/run/docker.sock`, dan aturan repo melarang
-   `sudo` tanpa diminta. Jadi `/admin/pengaturan` baru terbukti ter-render dan
-   terlindungi, belum terbukti bisa menyimpan.
+2. ~~**Login admin belum pernah diuji sungguhan.**~~ **Teratasi.** Diuji
+   terhadap database sungguhan pada 9 Oktober 2026: sandi salah ditolak, login
+   benar menerbitkan sesi, panel terbuka, putaran pengaturan kembali ke nilai
+   awal, dan kritik yang dikirim terbaca di inbox. Bukti: `e2e/alur-db.test.ts`
+   lulus, dijalankan lewat `scripts/siapkan-admin-uji.ts` lalu dibersihkan dengan
+   `scripts/bersihkan-admin-uji.ts`.
 
 ### Prioritas sedang
 
-3. **`sweetalert2@11.22.0`** punya advisory rendah, diperbaiki di `11.22.4`.
-   Versinya dikunci persis di `package.json`, jadi perlu keputusan.
+3. ~~**`sweetalert2@11.22.0`**~~ **Teratasi**, sudah di `11.22.4`.
 4. **`braces` dan `esbuild`** hanya muncul di rantai perkembangan, tidak
    berdampak ke produksi.
-5. **`ADMIN_ORIGIN` harus diawali `https://` di produksi**, kalau tidak cookie
-   sesi dikirim tanpa atribut `Secure`. Tidak ada kode yang bisa mencegah ini.
+5. **`ADMIN_ORIGIN` harus diawali `https://` di produksi.** Penjaga di kode
+   sudah ditambahkan: `config()` menolak `ADMIN_ORIGIN` yang `http://` untuk host
+   publik di mode `live`, jadi salah environment ketahuan saat start, bukan
+   diam-diam terbit tanpa `Secure`. Yang tersisa hanya mengisi nilai
+   production dengan `https://` di dashboard platform.
 
 ### Prioritas rendah
 
-6. Uji E2E belum ada: tata letak responsif, carousel, panel navigasi
-   off-canvas, dan interaksi SweetAlert2 masih diperiksa manual.
+6. ~~Uji E2E belum ada~~ **Teratasi** untuk carousel, hero autoplay, overflow
+   mobile 390px, dan alur login. Yang masih manual: panel navigasi off-canvas
+   (below 1200px) dan interaksi dialog SweetAlert2.
 
 ---
 
 ## 5. Langkah berikutnya
 
-1. Naikkan `swiper` ke 12.1.2 dan uji dua carousel di browser, desktop dan
-   mobile.
-2. Jalankan `docker compose up -d postgres` di mesin yang punya akses, lalu
-   uji login dan penyimpanan `/admin/pengaturan` sungguhan.
-3. Naikkan `sweetalert2` ke 11.22.4.
-4. Tambah Playwright untuk yang belum tersentuh.
-5. Merge branch `fix/header-keamanan-dan-audit` ke `main` kalau enam commit di
-   dalamnya sudah disetujui.
+Semua yang ada di bawah sudah selesai; yang tersisa hanya tindakan yang butuh
+environment produksi atau keputusan Anda.
+
+1. Isi `ADMIN_ORIGIN=https://domain-anda` di dashboard platform (Vercel atau
+   Coolify). `config()` sekarang menolak `http://` untuk host publik, jadi salah
+   environment tidak akan lolos diam-diam.
+2. Sekali deploy pertama berhasil, jalankan `bun run db:migrate` di server
+   (VPS) supaya skema cocok dengan data seed. Snapshot untuk pratinjau Vercel
+   sudah cukup tanpa database.
+3. Tutup dua sisanya yang masih manual: panel navigasi off-canvas di bawah
+   1200px, dan dialog SweetAlert2. Keduanya perlu E2E di viewport kecil atau
+   pengujian visual.
+4. Kalau `bun audit` masih melaporkan `braces`/`esbuild`, putuskan apakah rantai
+   pengembangan itu ditinjau atau diterima.
 
 ---
 
 ## 6. Yang perlu keputusan Anda
 
-1. **Enam commit di branch belum di-merge dan belum di-push.** Perlu
-   persetujuan sebelum digabung ke `main`.
-2. **Dua kenaikan versi dependensi** (swiper, sweetalert2) belum dikerjakan,
-   karena keduanya perubahan dependensi yang perlu disetujui lebih dulu.
-3. **Baris "Awal sesi" untuk `AGENTS.md` sudah diterapkan** di commit
-   `5bcf2ad` (Baca `docs/HANDOFF.md` sebelum menyentuh kode), jadi usulan
-   itu tidak lagi menggantung.
+1. ~~Enam commit di branch belum di-merge~~ **Selesai**, sudah masuk `main` dan
+   dipush ke `upstream`.
+2. ~~Dua kenaikan versi dependensi belum dikerjakan~~ **Selesai**: `swiper` di
+   `12.2.0` dan `sweetalert2` di `11.22.4`.
+3. **Deploy produksi belum dicoba dari repo ini.** Docker sudah terbukti jalan
+   di VPS, tetapi tidak ada domain, DNS, atau TLS yang sudah diarahkan ke sana.
+   Itu keputusan dan biaya, bukan pekerjaan kode.
 
 ---
 

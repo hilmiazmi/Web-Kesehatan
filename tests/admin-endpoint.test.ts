@@ -463,7 +463,7 @@ describe("admin/users/[id]/password dan reset-password", () => {
     );
     expect(res.status).toBe(422);
     // Galat harus menempel ke "new_password" yang memang dikirim formulir.
-    // Kalau именanya "password", panel tidak punya kolom itu dan galatnya
+    // Kalau namanya "password", panel tidak punya kolom itu dan galatnya
     // hilang dari layar.
     expect(await fields(res)).toEqual(["new_password"]);
   });
@@ -491,7 +491,7 @@ describe("admin/users/[id]/password dan reset-password", () => {
     );
     expect(res.status).toBe(422);
     // Galat harus menempel ke "new_password" yang memang dikirim formulir.
-    // Kalau именanya "password", panel tidak punya kolom itu dan galatnya
+    // Kalau namanya "password", panel tidak punya kolom itu dan galatnya
     // hilang dari layar.
     expect(await fields(res)).toEqual(["new_password"]);
   });
@@ -505,7 +505,7 @@ describe("admin/users/[id]/password dan reset-password", () => {
     );
     expect(res.status).toBe(422);
     // Galat harus menempel ke "new_password" yang memang dikirim formulir.
-    // Kalau именanya "password", panel tidak punya kolom itu dan galatnya
+    // Kalau namanya "password", panel tidak punya kolom itu dan galatnya
     // hilang dari layar.
     expect(await fields(res)).toEqual(["new_password"]);
   });
