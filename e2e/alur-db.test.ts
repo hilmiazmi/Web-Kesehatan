@@ -128,4 +128,103 @@ test.describe("alur ber-database", () => {
     expect(await inbox.text()).toContain(tiket);
     await ctx.dispose();
   });
+
+  test("daftar online terkirim lewat peramban sampai dapat antrean", async ({
+    page,
+  }) => {
+    // Transaksi inti lewat peramban sungguhan: poli, dokter, tanggal, jam,
+    // data diri, kirim, lalu nomor antrean + tiket dari dialog SweetAlert2.
+    // Opsi setiap dropdown dimuat async, jadi setiap langkah menunggu lewat
+    // `expect.poll` (pola yang sama dengan tes "pilih poli" yang dulu flaky).
+    //
+    // Telepon unik per jalan (`0812` + 9 digit) supaya tidak menabrak
+    // constraint anti-ganda `(phone, schedule_id)`. Baris yang tersimpan
+    // TIDAK ikut terhapus `bersihkan-admin-uji` (skrip itu hanya menghapus
+    // feedback); hapus manual lewat teleponnya setelah jalan. Basis uji
+    // sekali pakai (di-drop setelah verifikasi) tidak butuh langkah ini.
+    const unik = Date.now().toString().slice(-9);
+    const telepon = `0812${unik}`;
+    await page.goto("/daftar-online");
+
+    // 1. Poliklinik, lalu dokter: daftar dokter disaring per poliklinik.
+    const poli = page.locator("#poliklinik");
+    await expect
+      .poll(async () => poli.locator("option").count(), { timeout: 15000 })
+      .toBeGreaterThan(1);
+    await poli.selectOption({ index: 1 });
+    const dokter = page.locator("#dokter");
+    await expect
+      .poll(async () => dokter.locator("option").count(), { timeout: 15000 })
+      .toBeGreaterThan(1);
+
+    // 2. Dokter pertama belum tentu praktik dalam waktu dekat, jadi coba
+    // beberapa dokter pertama sampai ketemu tanggal yang bisa diklik (maksimal
+    // 3 kali pindah bulan per dokter). Kalau tidak satu pun bisa, berarti
+    // data seed tidak mencakup — itu temuan, bukan tes yang salah.
+    const nilaiDokter: string[] = await dokter.evaluate((el: HTMLSelectElement) =>
+      [...el.options].map((o) => o.value).filter((v) => v !== "").slice(0, 6),
+    );
+    expect(nilaiDokter.length).toBeGreaterThan(0);
+    let tanggalTerisi = false;
+    for (const nilai of nilaiDokter) {
+      await dokter.selectOption(nilai);
+      await page.locator("#tanggal").click();
+      for (let b = 0; b < 3; b++) {
+        const hari = page.locator(
+          "#tanggal-kalender button.tanggal-kalender-sel:not([disabled])",
+        );
+        if ((await hari.count()) > 0) {
+          await hari.first().click();
+          tanggalTerisi = true;
+          break;
+        }
+        const maju = page.getByRole("button", { name: "Bulan berikutnya" });
+        if (!(await maju.isEnabled())) break;
+        await maju.click();
+      }
+      if (tanggalTerisi) break;
+    }
+    expect(tanggalTerisi).toBe(true);
+
+    // 3. Jam: pilih opsi pertama yang tidak dinonaktifkan (penuh).
+    const slot = page.locator("#slot");
+    await expect
+      .poll(
+        async () =>
+          slot.evaluate((el: HTMLSelectElement) =>
+            [...el.options].filter((o) => o.value !== "" && !o.disabled).length,
+          ),
+        { timeout: 15000 },
+      )
+      .toBeGreaterThan(0);
+    const jam = await slot.evaluate(
+      (el: HTMLSelectElement) =>
+        [...el.options].find((o) => o.value !== "" && !o.disabled)?.value ?? "",
+    );
+    await slot.selectOption(jam);
+
+    // 4. Data diri + persetujuan, lalu kirim.
+    await page.locator("#nama").fill("Pasien Uji E2E");
+    await page.locator("#nik").fill(`317405${unik.slice(-10).padStart(10, "0")}`);
+    await page.locator("#telepon").fill(telepon);
+    await page.locator("#email").fill("pasien-uji@example.com");
+    await page.locator("#setuju").check();
+    await page.getByRole("button", { name: "Kirim Pendaftaran" }).click();
+
+    // 5. Sukses: dialog SweetAlert2 memuat nomor antrean dan kode tiket.
+    await expect(page.locator(".swal2-popup")).toBeVisible({ timeout: 20000 });
+    const html = await page.locator(".swal2-html-container").innerHTML();
+    const antrean = html.match(/Nomor antrean[^<]*<b>([^<]+)<\/b>/);
+    const cocok = html.match(/Kode tiket:\s*<b>([^<]+)<\/b>/);
+    expect(antrean?.[1]?.trim().length).toBeGreaterThan(0);
+    const tiket = (cocok?.[1] ?? "").trim().toUpperCase();
+    expect(tiket.length).toBeGreaterThan(0);
+
+    // 6. Tiketnya terlacak lewat endpoint publik.
+    const ctx = await request.newContext({ baseURL: BASE });
+    const lacak = await ctx.get(`/api/v1/tickets/appointments/${tiket}`);
+    expect(lacak.status()).toBe(200);
+    expect(await lacak.text()).toContain(tiket);
+    await ctx.dispose();
+  });
 });
