@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { siteUrlFor } from "@/lib/site-url";
+import { siteUrlForPermintaan } from "@/lib/site-url";
 
 /**
  * Petunjuk peramban untuk mesin pencari.
@@ -19,11 +19,17 @@ import { siteUrlFor } from "@/lib/site-url";
  * sengaja ada di navbar. Halaman admin ditandai `noindex` lewat metadata di
  * `src/app/admin/layout.tsx`, yang juga berlaku untuk halaman login.
  *
- * Domainnya diambil dari `siteUrlFor()`, sama seperti `metadataBase` di
+ * Domainnya diambil dari `siteUrlForPermintaan()`, sama seperti `metadataBase` di
  * `src/app/layout.tsx`. Kalau keduanya berbeda, sitemap dan halaman akan
  * menunjuk domain berbeda.
+ *
+ * `force-dynamic` wajib: tanpa baris ini route ini di-prerender saat build
+ * (terverifikasi: `○ /robots.txt`), jadi domain yang benar tidak pernah terpakai
+ * dan hasilnya beku mengikuti `NEXT_PUBLIC_SITE_URL` saat build.
  */
-export default function robots(): MetadataRoute.Robots {
+export const dynamic = "force-dynamic";
+
+export default async function robots(): Promise<MetadataRoute.Robots> {
   return {
     rules: [
       {
@@ -32,6 +38,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/api/"],
       },
     ],
-    sitemap: siteUrlFor("/sitemap.xml"),
+    sitemap: await siteUrlForPermintaan("/sitemap.xml"),
   };
 }

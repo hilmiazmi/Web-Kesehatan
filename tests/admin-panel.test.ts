@@ -84,12 +84,17 @@ describe("indeks mesin pencari untuk halaman admin", () => {
     expect(ADMIN_LAYOUT).toContain('<div id="admin-halaman">');
   });
 
-  it("robots.txt tidak memblokir /admin, karena akan ikut memblokir /administrasi", () => {
+  it("robots.txt tidak memblokir /admin, karena akan ikut memblokir /administrasi", async () => {
     // Yang diperiksa adalah hasil `robots()`, bukan teks berkasnya. Memeriksa
     // teks sumber hanya menangkap satu bentuk penulisan: `disallow: "/admin"`
     // tertangkap, tapi `disallow: ["/api/", "/admin"]` lolos begitu saja.
     // Aturan robotsnya yang berlaku, jadi aturan itulah yang diuji.
-    const hasil = robots();
+    //
+    // `robots()` sekarang async karena domainnya diambil dari permintaan
+    // (`siteUrlForPermintaan`), jadi hasilnya wajib ditunggu. Tanpa `await`,
+    // yang diperiksa adalah promise-nya dan aturan yang sesungguhnya berjalan
+    // tidak ikut teruji.
+    const hasil = await robots();
     // Tipe `rules` bisa berupa satu objek atau larik. `Array.isArray` sudah
     // membuat keduanya menyatu ke satu bentuk, jadi anotasi tidak perlu ditulis
     // tangan di sini.
