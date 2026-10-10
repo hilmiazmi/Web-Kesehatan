@@ -4,7 +4,7 @@ import type { CSSProperties } from "react";
 /**
  * Komponen foto tunggal untuk seluruh situs.
  *
- * Fatanya wrapper dan styling sekaligus, jadi pemanggil tidak perlu menulis
+ * Perannya sebagai wrapper dan styling sekaligus, jadi pemanggil tidak perlu menulis
  * `<div className="img-...">` di setiap kali memakainya. Tinggi dan radius
  * diatur lewat CSS custom property.
  *
@@ -26,7 +26,7 @@ import type { CSSProperties } from "react";
  * mewajibkan setiap gambar kosong benar-benar dinyatakan dekoratif.
  *
  * `preload` menggantikan `priority`, yang sejak Next.js 16 dianggap deprecated.
- * Propi-nya diekspos di sini supaya cukup satu tempat yang perlu diubah.
+ * Prop-nya diekspos di sini supaya cukup satu tempat yang perlu diubah.
  *
  * `preload` saja belum cukup untuk LCP. `next/image` memang menuliskan
  * `<link rel="preload" as="image">`, tapi tanpa `fetchpriority="high"`, jadi

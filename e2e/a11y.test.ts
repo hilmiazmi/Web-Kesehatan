@@ -76,7 +76,7 @@ test.describe("nama elemen", () => {
        * Arah sebaliknya dari yang di atas, dan sama pentingnya.
        *
        * Menandai gambar yang justru punya nama membuat pembaca layar
-       * melewatinya. Fotonya masih terlihat oleh sighted, jadi ruginya tidak
+       * melewatinya. Fotonya masih terlihat oleh orang yang bisa melihat, jadi ruginya tidak
        * terlihat dari screenshot: informasinya hilang tanpa jejak.
        *
        * Pemeriksaan ini yang menutup jebakan yang lolos dari `tanpaAlt`. Kalau
