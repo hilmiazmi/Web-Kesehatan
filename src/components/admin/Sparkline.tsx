@@ -12,7 +12,10 @@
  *
  * `role="img"` plus `aria-label` supaya bentuknya bisa dibacakan: garis yang
  * hanya dekorasi akan disembunyikan, tapi di sini arah datanya memang
- * informasi.
+ * informasi. Arahnya ikut ditulis ke `aria-label`, bukan hanya ke `<title>`:
+ * begitu `aria-label` terpasang, nama aksesibel elemen diambil dari label itu
+ * dan `<title>` paling jauh menjadi tooltip tetangga, jadi arah yang hanya
+ * hidup di `<title>` tidak akan pernah dibacakan pembaca layar.
  */
 
 export type TitikSparkline = { date: string; total: number };
@@ -37,7 +40,8 @@ function susunTitik(data: readonly TitikSparkline[]): { x: number; y: number }[]
   const langkah = data.length > 1 ? (W - PAD * 2) / (data.length - 1) : 0;
   return data.map((d, i) => ({
     x: PAD + i * langkah,
-    // Semakin besar nilainya, semakin kecil y (as mula-mula ke atas).
+    // Semakin besar nilainya, semakin kecil y: sumbu y di SVG membesar ke
+    // bawah, jadi garis yang naik berarti nilainya membesar.
     y: PAD + (1 - d.total / terbesar) * (H - PAD * 2),
   }));
 }
@@ -72,6 +76,7 @@ export default function Sparkline({
   const awal = titik[0].y;
   const akhir = titik[titik.length - 1].y;
   const naik = akhir < awal;
+  const arah = naik ? "cenderung naik" : "cenderung turun";
 
   const gradien = `spark-${data.length}-${data[0].date}`;
 
@@ -82,7 +87,7 @@ export default function Sparkline({
       width={W}
       height={H}
       role="img"
-      aria-label={`${label}: ${data.map((d) => `${d.date} ${d.total}`).join(", ")}`}
+      aria-label={`${label}: ${arah}. ${data.map((d) => `${d.date} ${d.total}`).join(", ")}`}
       focusable="false"
     >
       <defs>
@@ -118,7 +123,7 @@ export default function Sparkline({
       {/* Arah data diberikan lewat warna, bukan lewat ikon: naik aksen, turun
           warna peringatan. Yang turun bukan berarti "bagus", jadi warnanya
           mengikuti varian kartu. */}
-      <title>{naik ? "cenderung naik" : "cenderung turun"}</title>
+      <title>{arah}</title>
     </svg>
   );
 }

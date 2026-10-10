@@ -218,7 +218,7 @@ export default async function AdminDashboardPage() {
                 harian.map((h) => (
                   <tr key={h.date}>
                     <td>{h.date}</td>
-                    <td className="text-end">{h.total}</td>
+                    <td className="admin-angka text-end">{h.total}</td>
                   </tr>
                 ))
               )}
@@ -261,8 +261,8 @@ export default async function AdminDashboardPage() {
                     {/* Kondisi di `total`, bukan di `average`: nol bisa berarti
                         "belum ada yang mengisi". Lihat catatan di
                         `surveyByUnit`. */}
-                    <td className="text-end">{s.total === 0 ? "-" : s.average}</td>
-                    <td className="text-end">{s.total}</td>
+                    <td className="admin-angka text-end">{s.total === 0 ? "-" : s.average}</td>
+                    <td className="admin-angka text-end">{s.total}</td>
                   </tr>
                 ))
               )}
