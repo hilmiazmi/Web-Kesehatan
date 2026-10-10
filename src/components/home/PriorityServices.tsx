@@ -39,7 +39,8 @@ export default function PriorityServices() {
             <div className="card-content">
               <h3 className="card-title">{s.title}</h3>
               <p className="card-description">{s.description}</p>
-              <Link href={`/pelayanan/prioritas/${s.slug}`} className="btn btn-primary">
+              {/* Di bawah lipatan: tanpa prefetch (hemat RSC, lihat Footer). */}
+              <Link href={`/pelayanan/prioritas/${s.slug}`} className="btn btn-primary" prefetch={false}>
                 Detail
               </Link>
             </div>

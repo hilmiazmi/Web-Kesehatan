@@ -234,9 +234,11 @@ export default function DoctorSearchCard() {
 
                   <div className="row mt-3">
                     <div className="col-md-12 d-flex gap-2 flex-wrap align-items-center">
+                      {/* URL hasil pilihan: prefetch URL yang belum final sia-sia. */}
                       <Link
                         href={tujuan}
                         className={`btn btn-primary ${tanggal ? "" : "disabled"}`}
+                        prefetch={false}
                         aria-disabled={!tanggal}
                         onClick={(e) => {
                           if (!tanggal) e.preventDefault();

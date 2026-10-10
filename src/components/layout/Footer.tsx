@@ -27,9 +27,17 @@ export default function Footer() {
         <div className="row gy-4">
           <div className="col-lg-3">
             {/* Logo footer juga harus bisa diklik untuk kembali ke Home. */}
+            {/*
+              Seluruh tautan footer memakai `prefetch={false}`. Footer selalu
+              di bawah lipatan, dan Next akan mengambil RSC setiap tautan
+              yang masuk viewport — puluhan permintaan untuk tautan yang
+              jarang diklik, berebut bandwidth dengan LCP di jaringan lambat.
+              Navigasi tetap bekerja, hanya tanpa pra-ambil.
+            */}
             <Link
               href="/"
               className="footer-identity-link"
+              prefetch={false}
             >
               <span className="logo-mark logo-mark-footer" aria-hidden="true">
                 <i className="bi bi-plus-lg" />
@@ -49,7 +57,7 @@ export default function Footer() {
             <ul className="footer-related">
               {FOOTER_RELATED.map((l) => (
                 <li key={l.href}>
-                  <Link href={l.href} className="related-tile">
+                  <Link href={l.href} className="related-tile" prefetch={false}>
                     {l.label}
                   </Link>
                 </li>
@@ -62,6 +70,7 @@ export default function Footer() {
                 <Link
                   href="/informasi-publik/pengaduan"
                   className="related-tile"
+                  prefetch={false}
                 >
                   <i className="bi bi-chat-square-text" aria-hidden="true" />
                   <span>Lapor Pengaduan</span>
@@ -116,7 +125,7 @@ export default function Footer() {
           <ul className="footer-utility list-unstyled">
             {FOOTER_LINKS.map((l) => (
               <li key={l.href}>
-                <Link href={l.href}>{l.label}</Link>
+                <Link href={l.href} prefetch={false}>{l.label}</Link>
               </li>
             ))}
           </ul>

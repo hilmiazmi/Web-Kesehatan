@@ -44,9 +44,11 @@ export default function McuPackages() {
                   <li key={item}>{item}</li>
                 ))}
               </ul>
+              {/* Di bawah lipatan: tanpa prefetch (hemat RSC, lihat Footer). */}
               <Link
                 href={`/pelayanan/mcu/reguler/${p.slug}`}
                 className="btn btn-primary"
+                prefetch={false}
               >
                 Detail
               </Link>

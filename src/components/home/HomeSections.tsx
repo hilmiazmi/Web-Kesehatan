@@ -26,9 +26,11 @@ export function RegistrationSection() {
               REGISTRATION_OPTIONS): tidak ada lagi kartu mati berbentuk span. */}
           {REGISTRATION_OPTIONS.map((o) => (
             <div className="col-md-4" key={o.title}>
+              {/* Di bawah lipatan: tanpa prefetch (hemat RSC, lihat Footer). */}
               <Link
                 href={o.href}
                 className="registrasi-card text-decoration-none"
+                prefetch={false}
               >
                 <i className={`bi ${o.icon}`} aria-hidden="true" />
                 <h3 className="registrasi-title">{o.title}</h3>

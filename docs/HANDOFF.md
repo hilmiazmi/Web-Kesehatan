@@ -738,8 +738,30 @@ tidak ada (pengunci sebenarnya `e2e/a11y.test.ts`), butir 6 masih 148.
 
 **Masukan utama:** deploy produksi satu-satunya pekerjaan besar tersisa;
 kunci-build dua-kunci sudah diterapkan sesi ini (lihat 3.23 dan butir 2
+bagian 4); disiplin prefetch menaikkan Performance 84 ke 87 (butir 1
 bagian 4);
 angka dokumen butuh commit bersamaan + tanggal ukur. Rincian di roadmap.
+
+---
+
+## Empat tugas lanjutan (2026-10-10, sesi riset berlanjut)
+
+Pemilik meminta keempatnya dikerjakan, push langsung tanpa PR bila hijau.
+
+1. **E2E a11y ke halaman kunci** (`ca01d0d`, sudah push): aturan gambar dan
+   field diperiksa di `/`, `/daftar-online`, `/berita`, `/jadwal-dokter`
+   lewat `test.step` per halaman. 5/5 lulus.
+2. **Verifikasi ulang jalur database**: postgres mise di 5433 dengan basis
+   segar `rsud_uji_cek` (basis milik pemilik tidak disentuh), migrate +
+   seed + status (28 tabel/27 terisi) + `cek:konten` + `cek:tulis` +
+   `cek:admin` semuanya hijau. Basis uji di-drop, server dimatikan.
+   Ketahuan ada postgres pemilik di 5434 (`pgdata2`): tidak disentuh.
+3. **E2E alur kritik lewat peramban** (`8205648`, sudah push): isi
+   `#fb-pesan` di `/kontak`, baca tiket dari dialog SweetAlert2,
+   verifikasi terlacak + masuk inbox. 2/2 di server live, lalu akun dan
+   baris uji dibersihkan (users 1, sisa LIKE 0).
+4. **Disiplin prefetch** (sesi ini): median Performance 84 ke 87, TBT
+   separuh, permintaan 54 ke 32. Rincian di roadmap bagian 4 butir 1.
 
 ---
 

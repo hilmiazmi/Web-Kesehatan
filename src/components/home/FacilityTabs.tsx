@@ -62,9 +62,11 @@ export default function FacilityTabs() {
                 <div className="col-lg-8 details order-2 order-lg-1">
                   <h3>{current.title}</h3>
                   <p>{current.description}</p>
+                  {/* Di bawah lipatan: tanpa prefetch (hemat RSC, lihat Footer). */}
                   <Link
                     href={`/pelayanan/medis/${current.slug}`}
                     className="link-more"
+                    prefetch={false}
                   >
                     Selengkapnya
                   </Link>

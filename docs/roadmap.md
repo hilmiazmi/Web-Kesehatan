@@ -1352,12 +1352,20 @@ yang sudah diterima di L-1).
 
 Yang tersisa dua butir, dan keduanya optional.
 
-1. **Naikkan Performance di atas 90 kalau itu dikehendaki.** Angkanya sekarang
-   64 sampai 83 dan penyebabnya sudah terukur, bukan karangan: CSS
-   render-blocking 58 KiB dengan `elementRenderDelay` sekitar 1,7 detik. Dua
-   cara memperbaikinya, inlining CSS kritis dan mengganti Bootstrap penuh dengan
-   subset SCSS, sama-sama berarti menambah dependensi. Butir 14 tidak meminta
-   angka Performance, jadi ini opsional.
+1. **Naikkan Performance di atas 90 kalau itu dikehendaki — dicoba sesi ini,
+   hasilnya 84 ke 87.** Penyebab 64-83 sudah terukur (CSS render-blocking
+   58 KiB, `elementRenderDelay` 1,7 detik), tetapi bedah muatan sesi ini
+   menemukan penyumbang lebih besar: 120 pengambilan RSC (prefetch tautan)
+   berebut bandwidth dengan LCP di jaringan lambat. Perbaikannya menonaktifkan
+   prefetch pada tautan di bawah lipatan (footer, kartu seksi beranda, hasil
+   pencarian dokter yang URL-nya belum final) dan membiarkannya menyala untuk
+   navigasi utama dan CTA. Hasil median 3 jalan: **87** (89/87/87, TBT turun
+   240-300ms ke 150-160ms, LCP tetap 3,5-3,7s), permintaan dalam jendela ukur
+   54 ke 32 dengan RSC 19 ke 0. Elemen LCP-nya teks (H2), bukan gambar, jadi
+   prefetch gambar tidak relevan; bundel JS sudah ramping (Swal dinamis,
+   react-select tidak ikut, font optimal, ikon tersubset) sehingga sisa
+   kesenjangan struktural (dokumen RSC 271 KiB) dan butir ini tetap tidak
+   meminta angka Performance. Tetap opsional.
 2. **Baca-nyaring dan analytics** dikerjakan kalau diminta. Keduanya opsional
    di PRD.
 
@@ -1503,7 +1511,7 @@ di mode snapshot dan menutup jalur lebih dulu.
 | 11 | Build produksi sukses tanpa error TypeScript atau lint | Lulus | Typecheck bersih, `bun run lint` bersih, `bun run build` 0 galat dan 0 peringatan. Sekarang juga dijalankan otomatis di `.github/workflows/gerbang.yml`. |
 | 12 | Situs berjalan identik di Vercel dan VPS dengan hanya perbedaan environment variable | Tidak bisa dibuktikan | Hanya satu lingkungan yang pernah diuji, yaitu lokal. Kedua target memakai adapter snapshot dan adapter live, jadi perbedaan perilakunya disengaja dan belum pernah dibandingkan. Membuktikannya butuh dua lingkungan nyata. |
 | 13 | Unggah gambar admin berfungsi di kedua lingkungan lewat storage adapter | Tidak diterapkan | Tidak ada fitur unggah gambar sama sekali. Admin memasukkan URL, dan `registry.ts` hanya menerima `http` dan `https`. Pemilik repo sudah memutuskan untuk tidak mengerjakannya. Lihat 3.3. |
-| 14 | Lighthouse mobile: aksesibilitas minimal 90, SEO minimal 90 | Lulus | Diukur dengan Lighthouse 13.5.0 pada mode seluler dengan throttling simulasi, median dari tiga jalankan per rute. Accessibility 97 sampai 100 dan SEO 100 di enam rute: `/`, `/berita`, `/daftar-online`, `/tentang-kami`, `/jadwal-dokter`, dan `/pelayanan/mcu/reguler/paket-dasar-1`. Keduanya di atas ambang 90. Performance 64 sampai 83, jadi tidak mencapai 90; butir ini tidak meminta angka Performance, dan penyebabnya sudah terukur, yaitu CSS render-blocking 58 KiB dengan `elementRenderDelay` sekitar 1,7 detik. Dua perbaikan keluar dari audit ini: `fetchpriority="high"` pada foto yang di-preload, yang mengubah `priorityHinted` di laporan dari `false` ke `true`. Lihat 3.5. |
+| 14 | Lighthouse mobile: aksesibilitas minimal 90, SEO minimal 90 | Lulus | Diukur dengan Lighthouse 13.5.0 pada mode seluler dengan throttling simulasi, median dari tiga jalankan per rute. Accessibility 97 sampai 100 dan SEO 100 di enam rute: `/`, `/berita`, `/daftar-online`, `/tentang-kami`, `/jadwal-dokter`, dan `/pelayanan/mcu/reguler/paket-dasar-1`. Keduanya di atas ambang 90. Performance 64 sampai 83 pada pengukuran awal, **87 sampai 89 sesudah disiplin prefetch** (median 87, diukur 10 Oktober 2026, Bagian 4 butir 1); butir ini tidak meminta angka Performance, dan penyebab sisanya sudah terukur, yaitu dokumen RSC 271 KiB dan LCP berupa teks. Dua perbaikan keluar dari audit ini: `fetchpriority="high"` pada foto yang di-preload, yang mengubah `priorityHinted` di laporan dari `false` ke `true`. Lihat 3.5. |
 | 15 | Tidak ada script pihak ketiga yang aktif secara bawaan | Lulus | Pencarian `googletagmanager`, `google-analytics`, `gtag`, `sharethis`, `hotjar`, dan `clarity` di `src/` dan `next.config.ts` mengembalikan nol hasil. Embed Instagram juga tidak dipakai; seksi sosial media memakai kartu statis, sama seperti yang PRD 8.3 minta. |
 
 ### Data dan etika

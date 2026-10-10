@@ -58,7 +58,8 @@ export default function NewsSection({
                   {formatDate(a.date)}
                 </time>
                 <p className="card-description">{a.excerpt}</p>
-                <Link href={`/berita/${a.slug}`} className="link-more">
+                {/* Di bawah lipatan: tanpa prefetch (hemat RSC, lihat Footer). */}
+                <Link href={`/berita/${a.slug}`} className="link-more" prefetch={false}>
                   Baca Selengkapnya
                 </Link>
               </div>
