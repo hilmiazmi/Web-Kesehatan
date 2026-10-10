@@ -26,7 +26,7 @@ keperluan demonstrasi dan portofolio.
 ├── tests/                 # Unit test (Vitest)
 ├── archive/legacy-v1/     # Kode versi lama, read-only
 ├── archive/rust-api/      # Backend Rust pertama, read-only
-└── docs/                  # PRD & dokumentasi design token
+└── docs/                  # PRD, design token, arsitektur, pengujian, rilis, API
 ```
 
 ## Menjalankan
@@ -65,6 +65,24 @@ Mode database ditentukan `API_MODE`, bukan oleh isi `DATABASE_URL`:
 |---|---|
 | `live` (bawaan) | Baca dan tulis ke database. `DATABASE_URL` dan `AUTH_SECRET` wajib diisi; kalau tidak, backend berhenti start dengan pesan yang jelas. |
 | `snapshot` | Hanya membaca `snapshot/*.json` dan menolak semua permintaan yang mengubah data. Dipakai build pratinjau, supaya pratinjau tidak pernah menyentuh database produksi. |
+
+---
+
+## Dokumentasi
+
+| Dokumen | Isi |
+|---|---|
+| [`docs/HANDOFF.md`](docs/HANDOFF.md) | Posisi kerja terkini; **baca lebih dulu** |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Alur data, mode `live`/`snapshot`, peta folder, ERD |
+| [`docs/TESTING.md`](docs/TESTING.md) | Strategi uji, gerbang CI, checklist manual |
+| [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) | Rilis Vercel dan VPS, variabel env, backup, rollback |
+| [`docs/API.md`](docs/API.md) | Referensi endpoint `/api/v1` |
+| [`docs/CONTENT-GUIDE.md`](docs/CONTENT-GUIDE.md) | Aturan konten fiktif |
+| [`docs/STATUS-PROYEK.md`](docs/STATUS-PROYEK.md), [`docs/AUDIT-KEAMANAN.md`](docs/AUDIT-KEAMANAN.md) | Hasil audit |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md), [`CHANGELOG.md`](CHANGELOG.md) | Konvensi kerja dan riwayat |
+
+Satu fakta ditulis di satu berkas; angka (jumlah halaman, endpoint, tes) tidak
+disalin ke banyak tempat dan harus dihitung ulang sebelum dituliskan.
 
 ---
 
@@ -185,7 +203,7 @@ Rincian temuan keamanan ada di
 
 ### Pengujian
 
-862 test di 63 berkas, memakai Vitest. Cakupannya logika murni: bentuk data
+867 test di 63 berkas, memakai Vitest. Cakupannya logika murni: bentuk data
 konten, validasi formulir, sanitasi Markdown, hashing dan verifikasi sesi,
 penelusuran path menu, fungsi tanggal, dan penolakan mode snapshot atas
 permintaan yang mengubah data.

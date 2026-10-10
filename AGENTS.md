@@ -38,8 +38,12 @@ bun run test        # Vitest, sekali jalan
 bun run test:watch  # Vitest, mode watching
 ```
 
-`packageManager` dikunci ke `bun@1.4.2`. Belum ada CI workflow, jadi jalankan
-`bun run lint && bun run test && bun run build` sebelum menyatakan selesai.
+`packageManager` dikunci ke `bun@1.4.2`. CI ada di `.github/workflows/gerbang.yml`
+(lint, test, `cek:konten`, `audit:teks`, build, `cek:tautan`, semuanya mode
+snapshot dan `TZ=Asia/Jakarta`). Jalankan minimal
+`bun run lint && bun run test && bun run build` sebelum menyatakan selesai;
+`bun run verify` melakukan tiga langkah itu, tetapi bukan seluruh gerbang CI.
+Panduan lengkap: `docs/TESTING.md`.
 
 Backend memakai skrip yang sama. Urutannya penting, karena tiap langkah
 bergantung pada langkah sebelumnya:
@@ -286,7 +290,7 @@ sebelum menyentuh kredensial apa pun. Ringkasnya:
 - Foto berasal dari Unsplash dan picsum, dan host-nya didaftarkan pada
   `remotePatterns` di `next.config.ts`. Host baru harus ditambahkan di sana atau
   `next/image` akan menolaknya.
-- `react-select` sudah terpasang tetapi belum dipakai. Jangan memasang
+- `react-select` sudah dicopot (commit `4cb47bb`). Jangan memasang
   dependensi baru tanpa diminta.
 
 ## Git

@@ -247,8 +247,11 @@ Validasi tidak pernah pakai penggabungan string. Semua query memakai tag
 
 Seluruh endpoint tulis publik melewati `jalankanForm` di
 `src/server/api/form.ts`, yang memanggil `limitRequest` sebelum apa pun yang
-lain. Endpoint tiket punya hitungan 32^8 kombinasi, jadi tidak perlu rate
-limit; alasannya sudah tertulis di `SECURITY.md`.
+lain. Endpoint tiket juga memanggil `limitRequest` (kunci `tickets`, tanpa
+`resetLimit`), selain punya ruang tebakan 32^8 kombinasi. Versi sebelumnya dari
+kalimat ini menyatakan endpoint itu tidak punya rate limit; dikoreksi 9
+Oktober 2026 karena tidak cocok dengan
+`src/app/api/v1/tickets/[kind]/[code]/route.ts`.
 
 ### Kebocoran informasi
 
