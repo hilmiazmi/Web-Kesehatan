@@ -25,19 +25,31 @@ putus belasan menit, lalu pulih sendiri. Kalau build mati di tengah jalan,
 tunggu pulih lalu ulangi — cache layer membuat percobaan berikutnya jauh
 lebih cepat.
 
-## 1. Build image
+## 1. Ambil image (jangan build di VPS)
+
+> **Wajib lewat GHCR sejak 10 Oktober 2026.** VPS 2 vCPU/2 GB mati dua kali
+> dalam sehari saat `docker build` berjalan di mesinnya (SSH ikut mati sampai
+> restart manual). Build sekarang jalan di GitHub Actions
+> (`.github/workflows/citra-docker.yml`, terpicu tiap push `main` yang
+> menyentuh kode), image masuk GHCR. VPS hanya menarik dan menjalankan.
 
 ```bash
-docker build -t web-kesehatan:1.0.0 .
+docker pull ghcr.io/hilmiazmi/web-kesehatan:stabil
 ```
 
-`-t web-kesehatan:1.0.0` memberi nama dan versi pada image. Pakai versi
-eksplisit, bukan `latest`: kalau rilis berikutnya bermasalah, `latest` tidak
-memberi jalan kembali ke versi sebelumnya.
+Tag `stabil` untuk tarikan biasa. Untuk kembali ke versi persis (rollback),
+pakai tag SHA yang tercantum di run workflow yang hijau, misalnya
+`ghcr.io/hilmiazmi/web-kesehatan:sha-abcdef1`. Jangan pernah mengandalkan
+`latest`: tidak memberi jalan kembali ke versi sebelumnya.
+
+Syarat sekali saja: paket GHCR harus publik supaya VPS bisa pull tanpa
+login. Setelah run pertama, ubah visibilitas paketnya di pengaturan paket
+GitHub menjadi publik. Tanpa ini `docker pull` meminta auth.
 
 Karena lockfile bersifat wajib (`bun install --frozen-lockfile`), build gagal
 kalau `bun.lock` tidak cocok dengan `package.json`. Itu memang tujuannya:
 versi paket di image harus sama persis dengan yang tercatat di repo.
+Kegagalan itu sekarang terlihat di run Actions, bukan di VPS.
 
 ## 2. Siapkan berkas variabel lingkungan
 
@@ -74,7 +86,7 @@ docker run -d \
   --restart unless-stopped \
   --env-file /srv/web-kesehatan/.env \
   -p 127.0.0.1:3000:3000 \
-  web-kesehatan:1.0.0
+  ghcr.io/hilmiazmi/web-kesehatan:stabil
 ```
 
 Penjelasan tiap flag:

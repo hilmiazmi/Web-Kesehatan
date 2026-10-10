@@ -801,3 +801,30 @@ tetap); `.env.seed` dan container uji live dibuang.
    lalu jalankan container mode live. Direktori kerja memakai
    `~/web-kesehatan` (bukan `/srv/...` seperti dokumen) karena `/srv` butuh
    sudo; pindah kalau Anda menghendaki.
+
+---
+
+## Jalur CI-build (2026-10-10, atas izin pemilik)
+
+**Sebab:** VPS 2 vCPU/2 GB mati dua kali dalam sehari saat `docker build`
+jalan di mesinnya (batas 1400 MB + 2 worker tidak menyelamatkan; SSH mati
+sampai restart manual). Percobaan ketiga dengan resep sama dilarang sendiri:
+berisiko mematikan proyek tetangga.
+
+**Yang dipasang:** `.github/workflows/citra-docker.yml` — build di runner
+GitHub tiap push `main` yang menyentuh kode (paths filter supaya push dokumen
+tidak membangun), push ke `ghcr.io/hilmiazmi/web-kesehatan` dengan dua tag
+(`sha-<sha>` untuk rollback persis, `stabil` untuk tarikan biasa). Cache
+Buildx via GHA. `docs/DEPLOY-VPS.md` bagian 1 ditulis ulang jadi jalur tarik,
+bukan jalur build.
+
+**Sisa tindakan (butuh manusia):**
+1. Setelah run pertama hijau, ubah visibilitas paket GHCR jadi publik supaya
+   VPS pull tanpa login. Tanpa ini `docker pull` meminta auth.
+2. Di VPS setelah pulih: `docker pull ...:stabil`, tukar container, verifikasi
+   200 seperti biasa, hapus image lokal `1.0.0`/`1.0.1` kalau disk menipis.
+3. Domain: pemilik belum membeli domain apa pun (VPS maupun rumah sakit).
+   Tanpa domain, web tetap localhost selamanya. Pilihan termurah: subdomain
+   dari domain yang sudah dikuasai (nol rupiah, DNS A ke VPS, TLS gratis
+   dari proxy), atau beli `.my.id`/`.xyz`/`.site` belasan-puluh ribu per
+   tahun pertama lalu A record yang sama.
