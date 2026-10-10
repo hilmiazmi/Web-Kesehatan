@@ -1,6 +1,6 @@
 /* DIHASILKAN OLEH scripts/subset-ikon.ts. Jangan disunting manual. */
 /* Sumber: node_modules/bootstrap-icons/font/bootstrap-icons.css */
-/* Isi 81 ikon yang dipakai dari 2078 yang tersedia. */
+/* Isi 87 ikon yang dipakai dari 2078 yang tersedia. */
 
 @font-face {
   font-display: block;
@@ -36,6 +36,7 @@
 .bi-bug::before { content: "\f1dc"; }
 .bi-building::before { content: "\f1dd"; }
 .bi-bullseye::before { content: "\f1de"; }
+.bi-calendar-check::before { content: "\f1e2"; }
 .bi-calendar-event::before { content: "\f1e8"; }
 .bi-calendar-plus::before { content: "\f1ef"; }
 .bi-calendar-week::before { content: "\f1f3"; }
@@ -50,6 +51,7 @@
 .bi-chevron-down::before { content: "\f282"; }
 .bi-chevron-left::before { content: "\f284"; }
 .bi-chevron-right::before { content: "\f285"; }
+.bi-clipboard-check::before { content: "\f28b"; }
 .bi-clipboard2-check::before { content: "\f725"; }
 .bi-clipboard2-pulse::before { content: "\f730"; }
 .bi-clock::before { content: "\f293"; }
@@ -67,10 +69,12 @@
 .bi-file-earmark-medical::before { content: "\f373"; }
 .bi-file-earmark-text::before { content: "\f38b"; }
 .bi-file-medical::before { content: "\f3a1"; }
+.bi-file-text::before { content: "\f3b9"; }
 .bi-flag::before { content: "\f3cc"; }
 .bi-geo-alt::before { content: "\f3e8"; }
 .bi-heart-pulse::before { content: "\f76f"; }
 .bi-hospital::before { content: "\f774"; }
+.bi-images::before { content: "\f42b"; }
 .bi-inbox::before { content: "\f42d"; }
 .bi-info-circle::before { content: "\f431"; }
 .bi-instagram::before { content: "\f437"; }
@@ -79,6 +83,7 @@
 .bi-list::before { content: "\f479"; }
 .bi-magnet::before { content: "\f779"; }
 .bi-mortarboard::before { content: "\f6fe"; }
+.bi-newspaper::before { content: "\f4a3"; }
 .bi-people::before { content: "\f4d0"; }
 .bi-person-badge::before { content: "\f4d3"; }
 .bi-person-bounding-box::before { content: "\f4d4"; }
@@ -96,6 +101,7 @@
 .bi-sort-up::before { content: "\f57b"; }
 .bi-soundwave::before { content: "\f57c"; }
 .bi-speedometer2::before { content: "\f580"; }
+.bi-star::before { content: "\f588"; }
 .bi-table::before { content: "\f5aa"; }
 .bi-tag::before { content: "\f5b0"; }
 .bi-telephone::before { content: "\f5c1"; }

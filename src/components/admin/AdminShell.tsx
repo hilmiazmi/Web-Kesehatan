@@ -53,6 +53,11 @@ export default function AdminShell({
         <div className="admin-top">
           <strong>Panel Admin</strong>
           <div className="admin-user">
+            {/* Inisial nama sebagai avatar. Dibuat di server dari huruf
+                pertama, jadi tidak butuh JavaScript dan tidak berkedip. */}
+            <span className="admin-avatar" aria-hidden="true">
+              {claims.name.charAt(0)}
+            </span>
             <span>{claims.email}</span>
             <span className="admin-role">{ROLE_LABEL[claims.role]}</span>
             <LogoutButton />

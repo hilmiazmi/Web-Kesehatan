@@ -58,7 +58,10 @@ body:has(#admin-halaman) > #main-content {
 .admin-side {
   width: 264px;
   flex: 0 0 264px;
-  background: #10243a;
+  /* Gradien navy yang sama, tapi berlapis: lebih gelap di atas tempat brand,
+     sedikit terang di bawah. Sidebar satu warna datar terlihat tempelan;
+     gradien memberi kedalaman tanpa menambah warna baru. */
+  background: linear-gradient(180deg, #0b1c30 0%, #10243a 40%, #14304d 100%);
   color: #e8eef5;
   display: flex;
   flex-direction: column;
@@ -67,6 +70,9 @@ body:has(#admin-halaman) > #main-content {
 .admin-brand {
   padding: 20px 20px 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  /* Bilah aksen di kiri brand, supaya blok ini terbaca sebagai kepala panel,
+     bukan sekadar teks pertama di daftar. */
+  border-left: 4px solid var(--rs-accent);
 }
 
 .admin-brand strong {
@@ -96,6 +102,27 @@ body:has(#admin-halaman) > #main-content {
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: #8fa8c2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Angka badge di label grup Inbox. Latar aksen penuh supaya terbaca sebagai
+   "ada yang menunggu", bukan sekadar teks. Disembunyikan total saat nol
+   lewat render bersyarat di `AdminNav`, bukan lewat CSS. */
+.admin-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 7px;
+  border-radius: var(--rs-radius-pill);
+  background: var(--rs-accent);
+  color: var(--rs-white);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
 }
 
 .admin-nav-link {
@@ -107,24 +134,55 @@ body:has(#admin-halaman) > #main-content {
   font-size: 15px;
   line-height: 21px;
   text-decoration: none;
+  /* Geser halus saat hover, supaya tautan terasa bisa diklik, bukan teks. */
+  transition: background-color 0.15s ease, color 0.15s ease, padding-left 0.15s ease;
 }
 
 .admin-nav-link:hover,
 .admin-nav-link:focus {
   background: rgba(255, 255, 255, 0.08);
   color: var(--rs-white);
+  padding-left: 24px;
+}
+
+/* Ikon dalam tile: kotak 30px berlapis putih tipis. Tanpa tile, 17 ikon
+   `bi-table` yang sama berderet terlihat seperti daftar teks dengan hiasan. */
+.admin-nav-link .bi {
+  font-size: 15px;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .admin-nav-link[aria-current="page"] {
   background: var(--rs-accent);
   color: var(--rs-white);
   font-weight: 500;
+  /* Pilihan aktif berbentuk pil penuh dengan cahaya aksen, bukan blok
+     persegi yang menyatu dengan sidebar. Radius kiri sengaja lebih kecil
+     supaya pil terlihat "menempel" ke tepi. */
+  border-radius: 0 var(--rs-radius-pill) var(--rs-radius-pill) 0;
+  margin-right: 12px;
+  box-shadow: 0 4px 14px rgba(var(--rs-accent-rgb), 0.45);
 }
 
-.admin-nav-link .bi {
-  font-size: 15px;
-  width: 18px;
-  text-align: center;
+.admin-nav-link[aria-current="page"] .bi {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+/* Bilah gulir sidebar yang tipis dan gelap. Bilah bawaan peramban yang terang
+   akan memecah gradien sidebar setiap kali daftar tabel melewati layar. */
+.admin-nav::-webkit-scrollbar {
+  width: 8px;
+}
+.admin-nav::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 4px;
 }
 
 .admin-main {
@@ -140,7 +198,14 @@ body:has(#admin-halaman) > #main-content {
   justify-content: space-between;
   gap: 16px;
   padding: 14px 24px;
-  background: var(--rs-white);
+  background: rgba(255, 255, 255, 0.92);
+  /* Topbar menempel saat isi digulir, dengan blur supaya tabel yang lewat di
+     bawahnya tidak terbaca menembus teks. Tanpa ini topbar hilang dan pengguna
+     kehilangan tombol keluar di halaman tabel yang panjang. */
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--rs-gray-300);
 }
 
@@ -158,6 +223,23 @@ body:has(#admin-halaman) > #main-content {
   gap: 12px;
   font-size: 14px;
   color: var(--rs-text-body);
+}
+
+/* Lingkaran inisial nama. Dibuat di server dari huruf pertama, jadi tidak
+   butuh JavaScript dan tidak berkedip saat hydration. */
+.admin-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  border-radius: 50%;
+  background: var(--rs-accent);
+  color: var(--rs-white);
+  font-size: 15px;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
 .admin-user .admin-role {
@@ -181,6 +263,59 @@ body:has(#admin-halaman) > #main-content {
   border-radius: var(--rs-radius-card);
   padding: 18px 20px;
   height: 100%;
+  /* Ikon dan angka berdampingan: ikon tile di kiri, teks di kanan. Tanpa
+     ikon, empat kartu "Perlu ditangani" terbaca sebagai empat angka tanpa
+     makna sekilas. */
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+/* Varian tint mengikuti rujukan Odoo: warna memisahkan kartu tanpa berteriak.
+   Biru untuk antrean/pesan, hijau untuk kapasitas dan isi yang sehat, kuning
+   untuk survei, merah dibiarkan untuk keadaan yang butuh tindakan. */
+.admin-stat-biru {
+  background: #eef5fc;
+  border-color: #cfe3f4;
+}
+.admin-stat-hijau {
+  background: #eef7f1;
+  border-color: #b7ddc5;
+}
+.admin-stat-kuning {
+  background: #fdf8ec;
+  border-color: #f0dfae;
+}
+.admin-stat-merah {
+  background: #fdf1f2;
+  border-color: #f3c2c7;
+}
+
+.admin-stat-ikon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  border-radius: 12px;
+  background: var(--rs-accent);
+  color: var(--rs-white);
+  font-size: 20px;
+}
+.admin-stat-hijau .admin-stat-ikon {
+  background: #1c7a3d;
+}
+.admin-stat-kuning .admin-stat-ikon {
+  background: #9a6b12;
+}
+.admin-stat-merah .admin-stat-ikon {
+  background: #b02a37;
+}
+
+.admin-stat-isi {
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .admin-stat dt {
@@ -198,11 +333,34 @@ body:has(#admin-halaman) > #main-content {
   color: var(--rs-accent-teks);
 }
 
+/* Bilah kemajuan di bawah angka. Hanya dipakai kalau penyebutnya jujur
+   (misalnya bed tersedia dari total), bukan angka yang dikarang supaya ada
+   barnya. Lihat pemakaian `dari` di halaman dasbor. */
+.admin-progress {
+  height: 8px;
+  border-radius: var(--rs-radius-pill);
+  background: rgba(0, 0, 0, 0.1);
+  margin-top: 10px;
+  overflow: hidden;
+}
+.admin-progress > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--rs-accent);
+}
+.admin-stat-hijau .admin-progress > span {
+  background: #1c7a3d;
+}
+
 .admin-panel {
   background: var(--rs-white);
   border: 1px solid var(--rs-border-card);
   border-radius: var(--rs-radius-card);
   padding: 20px;
+  /* Bayangan tipis supaya panel terangkat dari latar abu. Bayangan keras
+     membuat panel terlihat seperti kartu harga; yang dipakai nyaris datar. */
+  box-shadow: 0 1px 3px rgba(16, 36, 58, 0.08);
 }
 
 .admin-panel > h2 {
@@ -243,6 +401,11 @@ body:has(#admin-halaman) > #main-content {
   font-weight: 600;
   border-bottom: 1px solid var(--rs-gray-300);
   padding: 10px 12px;
+  /* Kepala tabel menempel saat tabel panjang digulir. Tanpa ini pengguna
+     kehilangan nama kolom tepat saat membutuhkannya, di baris ke-40. */
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .admin-table td {
@@ -258,6 +421,13 @@ body:has(#admin-halaman) > #main-content {
 
 .admin-table tbody tr:last-child td {
   border-bottom: 0;
+}
+
+/* Baris ikut terang saat disentuh, supaya mata tahu baris mana yang sedang
+   dibaca di tabel yang padat. Warna tint aksen yang sama dengan kartu stat,
+   bukan abu netral, supaya ada benang visual antara dasbor dan tabel. */
+.admin-table tbody tr:hover td {
+  background: #eef5fc;
 }
 
 .admin-table th button {
@@ -325,23 +495,29 @@ body:has(#admin-halaman) > #main-content {
   padding: 12px 16px;
   font-size: 14px;
   border: 1px solid transparent;
+  /* Bilah tebal di kiri supaya jenis pesan terbaca dari bentuk, bukan hanya
+     dari warna: penting untuk pengguna buta warna parsial. */
+  border-left-width: 5px;
 }
 
 .admin-alert-gagal {
   background: #fdf1f2;
   border-color: #f3c2c7;
+  border-left-color: #b02a37;
   color: #8a1c26;
 }
 
 .admin-alert-sukses {
   background: #eef7f1;
   border-color: #b7ddc5;
+  border-left-color: #1c7a3d;
   color: #1c5233;
 }
 
 .admin-alert-info {
   background: var(--rs-section-light);
   border-color: #cfe3f4;
+  border-left-color: var(--rs-accent);
   color: var(--rs-accent-teks);
 }
 
@@ -353,7 +529,13 @@ body:has(#admin-halaman) > #main-content {
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: var(--rs-section-light);
+  /* Latar gradien navy, bukan abu datar: halaman login adalah pintu panel,
+     jadi boleh memakai warna sidebar supaya terasa satu aplikasi. Pola
+     radial di atasnya memberi tekstur tanpa gambar tambahan. */
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(var(--rs-accent-rgb), 0.16), transparent),
+    radial-gradient(ellipse 70% 55% at 85% 90%, rgba(var(--rs-accent-rgb), 0.12), transparent),
+    linear-gradient(160deg, #0b1c30 0%, #14304d 100%);
 }
 
 .admin-login-card {
@@ -363,6 +545,23 @@ body:has(#admin-halaman) > #main-content {
   border: 1px solid var(--rs-border-card);
   border-radius: var(--rs-radius-card);
   padding: 28px;
+  /* Bayangan dalam di latar gelap supaya kartu melayang, bukan menempel. */
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  /* Bilah aksen di atas kartu, cermin dari bilah brand di sidebar. */
+  border-top: 5px solid var(--rs-accent);
+}
+
+.admin-login-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--rs-accent);
+  color: var(--rs-white);
+  font-size: 26px;
+  margin-bottom: 14px;
 }
 
 .admin-login-card h1 {
@@ -373,6 +572,37 @@ body:has(#admin-halaman) > #main-content {
 }
 
 /* ------------------------------------------------------------- responsif */
+
+/* Titik status: lingkaran 9px untuk ketersediaan yang butuh dibaca sekilas
+   (misalnya bed tersedia vs penuh di samping angka). Warna mengikuti varian
+   kartu: hijau aman, merah butuh tindakan, kuning perhatian. */
+.admin-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--rs-text-lembut);
+  margin-right: 7px;
+  vertical-align: baseline;
+}
+.admin-dot-hijau {
+  background: #1c7a3d;
+}
+.admin-dot-merah {
+  background: #b02a37;
+}
+.admin-dot-kuning {
+  background: #9a6b12;
+}
+
+/* Cincin fokus keyboard yang terlihat di atas navy maupun putih. Tanpa ini
+   pengguna Tab tidak tahu tautan sidebar mana yang sedang aktif. */
+.admin-side a:focus-visible,
+.admin-main a:focus-visible,
+.admin-main button:focus-visible {
+  outline: 3px solid rgba(var(--rs-accent-rgb), 0.55);
+  outline-offset: 2px;
+}
 
 @media (max-width: 991.98px) {
   .admin-shell {

@@ -64,7 +64,12 @@ export default function AdminNav({
         </>
       ) : null}
 
-      <div className="admin-nav-group">Inbox</div>
+      <div className="admin-nav-group">
+        Inbox
+        {/* Badge angka di label grup, bukan hanya teks total di bawah. Angka
+            yang menunggu harus terlihat tanpa menggulir ke ujung daftar. */}
+        {unread > 0 ? <span className="admin-badge">{unread}</span> : null}
+      </div>
       {inboxKinds.map((k) => (
         <Butir key={k.slug} href={`/admin/inbox/${k.slug}`} pathname={pathname}>
           <i className="bi bi-inbox" aria-hidden="true" />

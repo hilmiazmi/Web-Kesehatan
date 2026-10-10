@@ -63,7 +63,7 @@ export default async function AdminDashboardPage() {
   }
 
   // Dua query ini tidak menentukan halaman tetap terbaca atau tidak, jadi
-  // kegagalannya ditolerance sendiri. Angka utama sudah ada di atas; tabel ini
+  // kegagalannya ditoleransi sendiri. Angka utama sudah ada di atas; tabel ini
   // tambahan, dan lebih baik kosong daripada membuat seluruh dasbor gagal.
   try {
     harian = await appointmentsPerDay(db);
@@ -82,27 +82,93 @@ export default async function AdminDashboardPage() {
 
       <h2 className="fs-5 mb-3">Perlu ditangani</h2>
       <dl className="row g-3 mb-4">
-        <Statistik judul="Belum ditangani" nilai={stats.inbox_unread} />
-        <Statistik judul="Pendaftaran hari ini" nilai={stats.appointments_today} />
-        <Statistik judul="Pendaftaran akan datang" nilai={stats.appointments_upcoming} />
-        <Statistik judul="Tempat tidur tersedia" nilai={stats.beds_available} dari={stats.beds_total} />
+        <Statistik
+          judul="Belum ditangani"
+          nilai={stats.inbox_unread}
+          ikon="bi-inbox"
+          varian="merah"
+        />
+        <Statistik
+          judul="Pendaftaran hari ini"
+          nilai={stats.appointments_today}
+          ikon="bi-calendar-check"
+          varian="biru"
+        />
+        <Statistik
+          judul="Pendaftaran akan datang"
+          nilai={stats.appointments_upcoming}
+          ikon="bi-calendar-event"
+          varian="biru"
+        />
+        <Statistik
+          judul="Tempat tidur tersedia"
+          nilai={stats.beds_available}
+          dari={stats.beds_total}
+          ikon="bi-hospital"
+          varian="hijau"
+        />
       </dl>
 
       <h2 className="fs-5 mb-3">Isi situs</h2>
       <dl className="row g-3 mb-4">
-        <Statistik judul="Berita terbit" nilai={stats.articles} />
-        <Statistik judul="Layanan aktif" nilai={stats.services} />
-        <Statistik judul="Paket MCU aktif" nilai={stats.mcu_packages} />
-        <Statistik judul="Dokter aktif" nilai={stats.doctors} />
-        <Statistik judul="Jadwal aktif" nilai={stats.schedules} />
-        <Statistik judul="Halaman terbit" nilai={stats.pages} />
-        <Statistik judul="Slide hero aktif" nilai={stats.hero_slides} />
+        <Statistik
+          judul="Berita terbit"
+          nilai={stats.articles}
+          ikon="bi-newspaper"
+          varian="hijau"
+        />
+        <Statistik
+          judul="Layanan aktif"
+          nilai={stats.services}
+          ikon="bi-heart-pulse"
+          varian="hijau"
+        />
+        <Statistik
+          judul="Paket MCU aktif"
+          nilai={stats.mcu_packages}
+          ikon="bi-clipboard-check"
+          varian="hijau"
+        />
+        <Statistik
+          judul="Dokter aktif"
+          nilai={stats.doctors}
+          ikon="bi-person-badge"
+          varian="hijau"
+        />
+        <Statistik
+          judul="Jadwal aktif"
+          nilai={stats.schedules}
+          ikon="bi-clock"
+          varian="hijau"
+        />
+        <Statistik
+          judul="Halaman terbit"
+          nilai={stats.pages}
+          ikon="bi-file-text"
+          varian="hijau"
+        />
+        <Statistik
+          judul="Slide hero aktif"
+          nilai={stats.hero_slides}
+          ikon="bi-images"
+          varian="hijau"
+        />
       </dl>
 
       <h2 className="fs-5 mb-3">Survei kepuasan</h2>
       <dl className="row g-3 mb-4">
-        <Statistik judul="Rata-rata" nilai={stats.survey_average ?? "-"} />
-        <Statistik judul="Jumlah isian" nilai={stats.survey_responses} />
+        <Statistik
+          judul="Rata-rata"
+          nilai={stats.survey_average ?? "-"}
+          ikon="bi-star"
+          varian="kuning"
+        />
+        <Statistik
+          judul="Jumlah isian"
+          nilai={stats.survey_responses}
+          ikon="bi-chat-square-text"
+          varian="kuning"
+        />
       </dl>
 
       <section className="mb-4">
@@ -188,24 +254,66 @@ export default async function AdminDashboardPage() {
   );
 }
 
-/** Satu kartu angka. */
+/** Satu kartu angka, dengan ikon tile dan tint sesuai kelompoknya. */
 function Statistik({
   judul,
   nilai,
   dari,
+  ikon,
+  varian,
 }: {
   judul: string;
   nilai: number | string;
   dari?: number;
+  /** Kelas ikon bootstrap, misalnya `bi-inbox`. Selalu `bi-*` yang ada. */
+  ikon: string;
+  /** Kelompok warna: biru antrean, hijau isi sehat, kuning survei, merah aksi. */
+  varian: "biru" | "hijau" | "kuning" | "merah";
 }) {
+  // Bilah kemajuan hanya kalau penyebutnya jujur. Satu-satunya kartu yang
+  // punya penyebut adalah bed (tersedia dari total); kartu lain tidak boleh
+  // mengarang penyebut supaya ada barnya.
+  const persen =
+    dari !== undefined && dari > 0 && typeof nilai === "number"
+      ? Math.round((nilai / dari) * 100)
+      : null;
+  // Nama kelas ditulis utuh, bukan dirangkai dengan template literal.
+  // Pemindai `tests/bootstrap-subset.test.ts` hanya membaca teks literal,
+  // jadi `admin-stat-${varian}` terbaca sebagai token yatim `admin-stat-`
+  // dan tesnya gagal tanpa ada yang salah di peramban.
+  const tint: Record<typeof varian, string> = {
+    biru: "admin-stat-biru",
+    hijau: "admin-stat-hijau",
+    kuning: "admin-stat-kuning",
+    merah: "admin-stat-merah",
+  };
   return (
     <div className="col-md-6 col-lg-3">
-      <div className="admin-stat">
-        <dt>{judul}</dt>
-        <dd>
-          {nilai}
-          {dari !== undefined ? <span className="fs-6 text-body-secondary"> / {dari}</span> : null}
-        </dd>
+      <div className={`admin-stat ${tint[varian]}`}>
+        <span className="admin-stat-ikon" aria-hidden="true">
+          <i className={`bi ${ikon}`} />
+        </span>
+        <div className="admin-stat-isi">
+          <dt>{judul}</dt>
+          <dd>
+            {nilai}
+            {dari !== undefined ? (
+              <span className="fs-6 text-body-secondary"> / {dari}</span>
+            ) : null}
+          </dd>
+          {persen !== null ? (
+            <div
+              className="admin-progress"
+              role="progressbar"
+              aria-valuenow={persen}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label={`${judul}: ${persen} persen`}
+            >
+              <span style={{ width: `${persen}%` }} />
+            </div>
+          ) : null}
+        </div>
       </div>
     </div>
   );
