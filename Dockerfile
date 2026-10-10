@@ -67,6 +67,13 @@ ENV NODE_ENV=production \
 COPY --from=builder --chown=bun:bun /app/.next ./.next
 COPY --from=deps --chown=bun:bun /app/node_modules ./node_modules
 COPY --from=builder --chown=bun:bun /app/package.json ./package.json
+# next.config.ts WAJIB ikut ke image. Terbukti 10 Oktober 2026: tanpanya
+# `next start` menjawab semua `/_next/image` jarak jauh dengan 400 `"url"
+# parameter is not allowed`, walau `required-server-files.json` memuat pola
+# yang benar. Dengan berkas ini disalin, optimizer menjawab 200. Berkas ini
+# tidak punya impor runtime (`import type` terhapus saat dimuat), jadi aman
+# disalin apa adanya.
+COPY --from=builder --chown=bun:bun /app/next.config.ts ./next.config.ts
 # snapshot/ dibaca runtime oleh src/server/api/snapshot.ts saat
 # API_MODE=snapshot, jadi harus ikut meski tidak dipakai di mode live.
 COPY --from=builder --chown=bun:bun /app/snapshot ./snapshot
