@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { defineConfig, devices } from "@playwright/test";
 
 /**
@@ -8,11 +9,12 @@ import { defineConfig, devices } from "@playwright/test";
  * butuh database (login admin sungguhan, pengiriman formulir sampai tersimpan)
  * tidak diuji di sini; keduanya butuh PostgreSQL lokal yang tidak selalu ada.
  *
- * Browser memakai Chromium sistem (`/usr/bin/chromium`), bukan hasil unduhan
- * `playwright install`. Alasannya praktis: image CI dan VPS tidak perlu
+ * Browser memakai Chromium sistem (`/usr/bin/chromium`) kalau ada, bukan hasil
+ * unduhan `playwright install`. Alasannya praktis: image CI dan VPS tidak perlu
  * mengunduh 170 MB browser yang sama persis dengan yang sudah ada di sistem.
- * Kalau Chromium sistem tidak ada, test gagal dengan pesan yang jelas, bukan
- * dengan timeout misterius.
+ * Kalau Chromium sistem tidak ada, test memakai browser bawaan Playwright
+ * (butuh sekali `playwright install chromium`), bukan gagal dengan pesan
+ * path yang hanya berlaku di satu mesin.
  *
  * Server dijalankan sendiri oleh Playwright (`webServer` di bawah), bukan
  * mengandalkan server yang kebetulan sudah ada. Alasannya sudah terbukti:
@@ -27,6 +29,8 @@ import { defineConfig, devices } from "@playwright/test";
  * dipakai oleh test itu. `reuseExistingServer: true` supaya jalan ulang
  * tidak menyalakan server kedua kalau port 3401 sudah terisi.
  */
+const CHROMIUM_SISTEM = "/usr/bin/chromium";
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: false,
@@ -53,7 +57,10 @@ export default defineConfig({
       use: {
         ...devices["Desktop Chrome"],
         launchOptions: {
-          executablePath: "/usr/bin/chromium",
+          // Path tetap ke Chromium sistem membuat E2E gagal di mesin tanpa
+          // Chromium di jalur itu. Pakai sistem kalau ada, kalau tidak serahkan
+          // ke browser bawaan Playwright.
+          ...(existsSync(CHROMIUM_SISTEM) ? { executablePath: CHROMIUM_SISTEM } : {}),
           args: ["--no-sandbox"],
         },
       },

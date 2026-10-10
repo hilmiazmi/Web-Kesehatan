@@ -127,8 +127,12 @@ const nextConfig: NextConfig = {
           /**
            * HSTS.
            *
-           * Dipakai browser hanya kalau-respons datang lewat HTTPS, jadi
-           *Efeknya tidak merusak pengembangan lokal yang masih http.
+           * Dipakai browser hanya kalau respons datang lewat HTTPS, jadi
+           * efeknya tidak merusak pengembangan lokal yang masih http.
+           * `upgrade-insecure-requests` di atas juga aman untuk dev lokal:
+           * diukur dengan Chromium headless, gambar seasal lewat
+           * http://localhost dan http://127.0.0.1 tetap dimuat walau header
+           * ini terkirim.
            */
           {
             key: "Strict-Transport-Security",

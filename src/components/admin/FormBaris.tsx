@@ -5,6 +5,23 @@ import type { FieldSummary } from "@/components/admin/types";
 import type { NilaiForm } from "@/components/admin/nilai-form";
 
 /**
+ * Kolom yang nilainya tampil sebagai gambar di halaman publik.
+ *
+ * CSP hanya mengizinkan gambar dari `images.unsplash.com`, `picsum.photos`,
+ * dan origin sendiri, sedangkan API menerima URL `http`/`https` apa pun.
+ * Tanpa petunjuk ini, admin menyimpan URL yang lolos validasi lalu gambarnya
+ * diam-diam tidak tampil karena diblokir peramban. Aturan lengkapnya di
+ * `docs/CONTENT-GUIDE.md` bagian 5.
+ */
+const KOLOM_GAMBAR = new Set([
+  "image_url",
+  "cover_url",
+  "hero_image_url",
+  "photo_url",
+  "logo_url",
+]);
+
+/**
  * Form tambah/ubah satu baris.
  *
  * Jenis inputnya diturunkan dari `kind` spec, bukan ditulis per tabel.
@@ -219,13 +236,28 @@ function Masukan({
           ? "tel"
           : "text";
 
+  const petunjukId =
+    field.kind === "url" && KOLOM_GAMBAR.has(field.column)
+      ? `${id}-petunjuk`
+      : undefined;
+
   return (
-    <input
-      {...umum}
-      className="form-control"
-      type={tipe}
-      value={teks}
-      onChange={(e) => onUbah(e.target.value)}
-    />
+    <>
+      <input
+        {...umum}
+        className="form-control"
+        type={tipe}
+        value={teks}
+        onChange={(e) => onUbah(e.target.value)}
+        aria-describedby={petunjukId}
+      />
+      {petunjukId ? (
+        <div className="form-text" id={petunjukId}>
+          Hanya tampil kalau dari images.unsplash.com, picsum.photos, atau path
+          internal (/...). Host lain diblokir peramban sehingga gambarnya
+          kosong.
+        </div>
+      ) : null}
+    </>
   );
 }

@@ -5,7 +5,7 @@ import { ApiError } from "@/server/api/error";
 import { limitRequest } from "@/server/api/rate-limit";
 import { dbOrNull } from "@/server/db/client";
 import { newClaims, sessionCookie, signSession } from "@/server/auth/session";
-import { verifyPassword } from "@/server/auth/password";
+import { hashPassword, verifyPassword } from "@/server/auth/password";
 import { credentialsByEmail, touchLogin } from "@/server/admin/accounts";
 import { config } from "@/server/config";
 import { Errors, email as validateEmail, isHoneypotTrap, readJsonBody } from "@/server/validation";
@@ -47,7 +47,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (db === null) throw ApiError.readOnly();
 
     const kredensial = await credentialsByEmail(db, surel!);
-    if (kredensial === null) throw ApiError.unauthorized();
+    if (kredensial === null) {
+      // Samarkan waktu respons. Surel yang tidak terdaftar harus menempuh
+      // scrypt yang sama beratnya dengan verifikasi sungguhan; kalau langsung
+      // ditolak, beda waktunya membocorkan surel mana saja yang punya akun di
+      // sini. Hasil hash-nya dibuang, yang dipakai hanya waktunya. Parameter
+      // biayanya ikut `hashPassword`, jadi kalau biaya scrypt dinaikkan di
+      // kemudian hari, pemalsuan ini ikut naik tanpa perubahan di sini.
+      await hashPassword(String(body.password ?? ""));
+      throw ApiError.unauthorized();
+    }
 
     if (!(await verifyPassword(String(body.password ?? ""), kredensial.password_hash))) {
       // Pesan yang sama untuk surel yang tidak ada dan kata sandi yang salah.

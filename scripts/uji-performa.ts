@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { chromium } from "@playwright/test";
 
 /**
@@ -25,8 +26,11 @@ const HALAMAN = [
   { nama: "pelayanan-poliklinik", jalur: "/pelayanan/poliklinik" },
 ];
 
+const CHROMIUM_SISTEM = "/usr/bin/chromium";
+
 const browser = await chromium.launch({
-  executablePath: "/usr/bin/chromium",
+  // Chromium sistem kalau ada, kalau tidak browser bawaan Playwright.
+  ...(existsSync(CHROMIUM_SISTEM) ? { executablePath: CHROMIUM_SISTEM } : {}),
   args: ["--no-sandbox"],
 });
 
