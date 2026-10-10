@@ -25,7 +25,7 @@ import { join } from "node:path";
  *   `tunggu` juga memeriksa proses `next-build` yang hidup, karena sesi
  *   yang menjalankan `next build` mentah tidak pernah menandai.
  *
- * Kunci E2E dilepas oleh `globalTeardown` Playwright (`e2e/global-teardown.ts`),
+ * Kunci E2E dilepas oleh `globalTeardown` Playwright (`e2e/global-teardown.mjs`),
  * bukan oleh hook `post` bun. Alasannya terukur: bun tidak menjalankan hook
  * `post` kalau skripnya gagal, jadi pelepasan lewat sana akan tertinggal
  * tepat saat E2E benar-benar merah dan memblokir semua build 20 menit.
@@ -68,7 +68,7 @@ export function terkunci(buatanMs: number, sekarangMs: number): boolean {
 /**
  * Apakah berkas kunci boleh dihapus dengan token ini.
  *
- * Aturannya satu baris supaya cerminannya di `e2e/global-teardown.ts` tidak
+ * Aturannya satu baris supaya cerminannya di `e2e/global-teardown.mjs` tidak
  * bisa meleset jauh: isi harus sama persis dengan token, dan token kosong
  * tidak boleh melepas apa pun (teardown yang jalan tanpa lewat `test:e2e`
  * tidak punya token, jadi tidak boleh menyentuh kunci sesi lain).

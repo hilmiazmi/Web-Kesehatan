@@ -38,7 +38,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: 1,
   reporter: "line",
-  // Melepas kunci E2E milik sendiri (e2e/global-teardown.ts). Tetap jalan
+  // Melepas kunci E2E milik sendiri (e2e/global-teardown.mjs). Tetap jalan
   // saat tes gagal, tidak seperti hook `post` bun yang dilewati saat gagal.
   globalTeardown: "./e2e/global-teardown.mjs",
   use: {
