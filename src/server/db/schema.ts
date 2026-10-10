@@ -19,18 +19,20 @@ import {
 } from "drizzle-orm/pg-core";
 
 /**
- * Skema database, diturunkan dari `api/migrations/*.sql`.
+ * Skema database, diturunkan dari `drizzle/0000_baseline.sql`.
  *
- * Dua hal di sini tidak bisa ditulis dengan kolom biasa dan harus dijaga
- * pengulangan testnya:
+ * Dua hal tidak bisa ditulis dengan kolom biasa. Keduanya dikunci
+ * `tests/schema-vs-sql.test.ts` supaya tidak ada yang hilang diam-diam:
  *
  * * `CHECK` dengan pola regex. Drizzle hanya bisa menulis CHECK sederhana, jadi
- *   yang memakai operator regex PostgreSQL (polanya ~ dan ~*) ditulis sebagai SQL
- *   mentah di `src/server/db/migration-kustom.sql`. Daftar constraint-nya ada di
- *   `tests/schema.test.ts` supaya tidak ada yang hilang diam-diam.
- * * Indeks unik parsial `WHERE is_active`. Drizzle punya `where`, jadi ini bisa
- *   ditulis di sini, tapi hanya sebagian indeks unik. Sisanya ada di migrasi
- *   kustom.
+ *   tujuh constraint regex hanya hidup di SQL dan tidak punya `check()` di
+ *   sini: enam `email_format` plus `hero_slides_link_internal`, semuanya di
+ *   `drizzle/0000_baseline.sql`, kecuali `admissions_email_format` yang ikut
+ *   tabelnya di `drizzle/0004_slimy_vector.sql`. Sisanya ditulis di sini
+ *   memakai `check(nama, sql...)`.
+ * * Indeks unik parsial `WHERE is_active`. Drizzle punya `where`, dan seluruh
+ *   indeks di folder `drizzle/` punya padanan di berkas ini, jadi tidak ada
+ *   indeks yang hanya hidup di SQL.
  */
 
 const createdAt = timestamp("created_at", { withTimezone: true })
@@ -621,7 +623,7 @@ export const appointments = pgTable(
     /**
      * 16 digit. Formulir memintanya, tapi nilainya tidak pernah disimpan:
      * constraint di bawah hanya menerima 16 angka nol. `NIK_SIMULASI` di
-     * `src/server/repo/appointments.ts` yang mengisinya, setelah validasi
+     * `src/server/db/repo/appointments.ts` yang mengisinya, setelah validasi
      * 16 digit di server.
      */
     nik: varchar("nik", { length: 16 }).notNull(),
@@ -962,7 +964,7 @@ export const jobVacancies = pgTable(
  * Key-value dengan nilai jsonb supaya bentuk tiap pengaturan bebas berbeda:
  * `nama_rs` berupa string, `jam_operasional` berupa object.
  *
- * Daftar key yang dikenal ada di `src/server/repo/content.ts`. Pembacaan
+ * Daftar key yang dikenal ada di `src/server/db/repo/content.ts`. Pembacaan
  * memakai daftar itu, jadi key yang salah ketik tidak membuat baris baru
  * diam-diam; key asing hanya diabaikan.
  */
