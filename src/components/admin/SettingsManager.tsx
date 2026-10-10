@@ -78,8 +78,8 @@ const TEKS: readonly {
   },
   {
     key: "email",
-    label: "Surel",
-    petunjuk: "Alamat surel yang bisa dihubungi.",
+    label: "Email",
+    petunjuk: "Alamat email yang bisa dihubungi.",
     wajib: true,
     panjang: 120,
     multibaris: false,

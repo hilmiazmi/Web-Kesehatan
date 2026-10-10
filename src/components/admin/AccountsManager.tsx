@@ -270,7 +270,7 @@ export default function AccountsManager({ akunSendiri }: { akunSendiri: string }
           <thead>
             <tr>
               <th scope="col">Nama</th>
-              <th scope="col">Surel</th>
+              <th scope="col">Email</th>
               <th scope="col">Peran</th>
               <th scope="col">Status</th>
               <th scope="col">Masuk terakhir</th>
@@ -384,7 +384,7 @@ export default function AccountsManager({ akunSendiri }: { akunSendiri: string }
 
           <div className="col-md-6">
             <label className="form-label" htmlFor="akun-surel">
-              Surel
+              Email
             </label>
             <input
               id="akun-surel"
@@ -425,7 +425,7 @@ export default function AccountsManager({ akunSendiri }: { akunSendiri: string }
 
           <div className="col-md-8">
             <label className="form-label" htmlFor="akun-sandi">
-              Kata sandi
+              Password
             </label>
             <input
               id="akun-sandi"
