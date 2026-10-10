@@ -114,13 +114,14 @@ Sembilan kelompok API sudah punya Representasi di antarmuka di antarmuka:
 
 ### Halaman
 
-**163 halaman HTML** ter-build, plus `opengraph-image`, `robots.txt`, dan
+**150 halaman** ter-build (152 berkas HTML minus dua halaman cadangan Next.js),
+plus `opengraph-image`, `robots.txt`, dan
 `sitemap.xml`. Selain beranda, sudah ada katalog pelayanan (poliklinik, medis,
 diagnostik, MCU), PPID bercabang, berita, informasi publik, laboratorium,
 radiologi, tentang-kami, dan daftar online.
 
-Angka ini dihitung dari `.next/prerender-manifest.json`, bukan dikira.
-`bun run build` mencetak `Generating static pages (179/179)`; selisihnya
+Angka ini dihitung dari `bun run cek:tautan`, bukan dikira.
+`bun run build` mencetak `Generating static pages (169/169)`; selisihnya
 karena route `[slug]` menghasilkan banyak halaman dari satu pola.
 
 ### Home — 13 section
@@ -184,7 +185,7 @@ Rincian temuan keamanan ada di
 
 ### Pengujian
 
-825 test di 61 berkas, memakai Vitest. Cakupannya logika murni: bentuk data
+856 test di 62 berkas, memakai Vitest. Cakupannya logika murni: bentuk data
 konten, validasi formulir, sanitasi Markdown, hashing dan verifikasi sesi,
 penelusuran path menu, fungsi tanggal, dan penolakan mode snapshot atas
 permintaan yang mengubah data.
