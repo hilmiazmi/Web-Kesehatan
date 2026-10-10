@@ -68,9 +68,27 @@ test.describe("nama elemen", () => {
       };
 
       const gambar = Array.from(document.querySelectorAll("img"));
-      const tanpaAlt = gambar.filter(
-        (g) => (!g.alt || g.alt.trim() === "") && !dekoratif(g),
-      );
+      const tanpaAlt = gambar
+        .filter((g) => (!g.alt || g.alt.trim() === "") && !dekoratif(g))
+        .map((g) => g.getAttribute("src") ?? "(tanpa src)");
+
+      /**
+       * Arah sebaliknya dari yang di atas, dan sama pentingnya.
+       *
+       * Menandai gambar yang justru punya nama membuat pembaca layar
+       * melewatinya. Fotonya masih terlihat oleh sighted, jadi ruginya tidak
+       * terlihat dari screenshot: informasinya hilang tanpa jejak.
+       *
+       * Pemeriksaan ini yang menutup jebakan yang lolos dari `tanpaAlt`. Kalau
+       * `dekoratif()` di `Photo` jadi terlalu longgar, semua gambar ikut
+       * ditandai, `tanpaAlt` tetap kosong, dan tesnya terlihat hijau padahal
+       * isi halaman tidak terbaca. Terverifikasi dengan mutasi: `dekoratif()`
+       * yang selalu `true` menyembunyikan 56 gambar ber-alat di beranda tanpa
+       * satu pun tes gagal.
+       */
+      const terlaluDisembunyikan = gambar
+        .filter((g) => Boolean(g.alt && g.alt.trim() !== "") && dekoratif(g))
+        .map((g) => g.getAttribute("alt") ?? "");
 
       const field = Array.from(
         document.querySelectorAll("input:not([type=hidden]), select, textarea"),
@@ -86,16 +104,30 @@ test.describe("nama elemen", () => {
         gambar: gambar.length,
         tanpaAlt,
         dekoratif: gambar.filter(dekoratif).length,
+        terlaluDisembunyikan,
         field: field.length,
         tanpaLabel,
       };
     });
 
-    // Pesan galatnya mencantumkan gambar yang bermasalah, bukan hanya jumlah.
-    // Tanpa daftarnya, yang gagal harus membuka halaman sendiri untuk tahu
-    // gambar yang mana yang kehilangan alternatif teks.
-    expect(hasil.tanpaAlt.map((g) => g.src || "(tanpa src)")).toEqual([]);
-    expect(hasil.tanpaAlt).toHaveLength(0);
+    // Dua daftar di atas sudah berupa teks, bukan elemen. Alasannya teknis,
+    // bukan selera: elemen yang dikembalikan `page.evaluate` tiba di sisi Node
+    // sebagai teks `"ref: <Node>"`, jadi `g.src` dan `g.alt` selalu `undefined`.
+    //
+    // Kalau teksnya diambil di luar peramban, dua jebakan masuk sekaligus:
+    //
+    // 1. Pesan kegagalan tidak bisa menyebut gambar mana yang bermasalah,
+    //    karena `g.src` selalu `undefined`.
+    // 2. `expect(larik.map(...)).toEqual([])` LULUS untuk larik yang isinya
+    //    semua `undefined`. Terbukti:
+    //    `expect([undefined, undefined]).toEqual([])` lulus, karena `toEqual`
+    //    mengabaikan nilai `undefined`.
+    //
+    // Jadi assertion yang terlihat benar justru tidak menangkap apa pun.
+    // Verifikasi: `dekoratif()` di `Photo` yang selalu `true` disembunyikan
+    // 56 gambar ber-alat di beranda, dan tes ini tetap hijau.
+    expect(hasil.tanpaAlt).toEqual([]);
+    expect(hasil.terlaluDisembunyikan).toEqual([]);
     expect(hasil.tanpaLabel).toBe(0);
   });
 
