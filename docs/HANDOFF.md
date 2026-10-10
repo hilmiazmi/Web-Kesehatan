@@ -828,3 +828,24 @@ bukan jalur build.
    dari domain yang sudah dikuasai (nol rupiah, DNS A ke VPS, TLS gratis
    dari proxy), atau beli `.my.id`/`.xyz`/`.site` belasan-puluh ribu per
    tahun pertama lalu A record yang sama.
+
+---
+
+## Swap ke image GHCR + bersih-bersih VPS (2026-10-10)
+
+**Alur CI-build terbukti penuh:** workflow `Citra Docker` hijau di run
+pertama, paket GHCR otomatis publik (tanpa klik apa pun), `docker pull`
+di VPS tanpa login. Container ditukar ke
+`ghcr.io/hilmiazmi/web-kesehatan:stabil`: healthy, beranda 200, API 200.
+
+**Bersih-bersih VPS (milik sesi ini saja):** direktori snapshot build,
+image lokal `1.0.0` (1,31 GB, sudah digantikan GHCR), cache builder
+(3,7 GB kembali). Disk 20→22 GB bebas. Coolify, proyek tetangga, volume
+database, dan `.env` tidak disentuh. Lokal: log lama + cluster postgres
+mati (`pgdata-uji4`) dihapus; tiga cluster yang hidup dibiarkan.
+
+**Catatan reboot:** mesin restart 2x hari ini (sekali manual pemilik,
+sekali kemungkinan OOM kedua saat build 1.0.1). Semua container naik
+sendiri via `unless-stopped`, database utuh (users 0, settings 12).
+Pelajaran: jangan build di VPS lagi dalam keadaan apa pun — jalur GHCR
+menghapus kebutuhan itu.
