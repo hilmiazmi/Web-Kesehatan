@@ -81,6 +81,13 @@ jobs:
           # auth sama sekali. Tanpa ini langkah gagal sebelum menyentuh
           # database. Nilai sama dengan langkah E2E di bawah.
           AUTH_SECRET: e2e-secret-minimal-32-karakter-abcdefgh
+          # Seed selalu membuat akun admin pertama (validasinya berjalan walau
+          # admin sudah ada), jadi butuh keduanya.
+          # Database CI sekali pakai dan dibuang tiap run, jadi akun dummy
+          # di sini tidak membuka apa pun. Kata sandi minimal 10 karakter
+          # mengikuti aturan `isiAdmin` di `scripts/db-seed.ts`.
+          SEED_ADMIN_EMAIL: admin@contoh.test
+          SEED_ADMIN_PASSWORD: katasandi-e2e-minimal-10
         run: |
           bun run db:migrate
           bun run db:seed

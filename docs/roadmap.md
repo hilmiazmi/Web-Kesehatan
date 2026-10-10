@@ -1230,13 +1230,18 @@ yang sebaiknya didahulukan karena menyangkut kebenaran `main`, bukan selera.
 
 1. **Workflow `E2E ber-database` yang merah di `main`, diperbaiki sesi ini.**
    Gagal 8 push berturut-turut sejak 9 Oktober, selalu di langkah `db:seed`
-   dengan `AUTH_SECRET wajib diisi dan minimal 32 karakter`. Penyebabnya satu
-   baris yang hilang: langkah `Siapkan skema dan data contoh` hanya menyetel
-   `DATABASE_URL`, sedangkan `AUTH_SECRET` cuma ada di langkah Playwright.
-   `db:seed` memanggil `config()` penuh lewat `dbOrNull()`, jadi validasi auth
-   ikut berjalan padahal seed tidak menyentuh auth sama sekali. Perbaikannya
-   tambah `AUTH_SECRET` yang sama di langkah seed; `config()` tidak dilemahkan.
-   Buktinya run CI setelah push (bukan klaim lokal).
+   dengan `AUTH_SECRET wajib diisi dan minimal 32 karakter`. Penyebabnya dua
+   lapis yang hilang, ketahuan satu per satu dari log CI. Lapis pertama:
+   langkah `Siapkan skema dan data contoh` hanya menyetel `DATABASE_URL`,
+   sedangkan `AUTH_SECRET` cuma ada di langkah Playwright. `db:seed` memanggil
+   `config()` penuh lewat `dbOrNull()`, jadi validasi auth ikut berjalan
+   padahal seed tidak menyentuh auth sama sekali. Lapis kedua, setelah yang
+   pertama diperbaiki: `isiAdmin` di `scripts/db-seed.ts` memvalidasi
+   `SEED_ADMIN_EMAIL`/`SEED_ADMIN_PASSWORD` sebelum memeriksa admin sudah ada,
+   jadi seed butuh keduanya walau database sudah terisi. Perbaikannya tambah
+   ketiga variabel dummy di langkah seed (database CI sekali pakai dan dibuang
+   tiap run); `config()` tidak dilemahkan. Buktinya run CI setelah push
+   (bukan klaim lokal).
 2. **Angka basi di `README.md`, diluruskan sesi ini.** Sekarang menulis 856
    tes di 62 berkas, 150 halaman dari 152 berkas HTML, dan `169/169`.
    Endpoint 44 dan tabel 28 memang sudah benar dan tidak diubah.
