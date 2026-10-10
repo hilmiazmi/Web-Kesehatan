@@ -737,5 +737,6 @@ route 44 padahal 45, klaim `tests/panel-nav-mobile.test.ts` padahal berkasnya
 tidak ada (pengunci sebenarnya `e2e/a11y.test.ts`), butir 6 masih 148.
 
 **Masukan utama:** deploy produksi satu-satunya pekerjaan besar tersisa;
-kunci-build punya celah (rekomendasi `globalTeardown` di roadmap bagian 4);
+kunci-build dua-kunci sudah diterapkan sesi ini (lihat 3.23 dan butir 2
+bagian 4);
 angka dokumen butuh commit bersamaan + tanggal ukur. Rincian di roadmap.

@@ -1244,6 +1244,25 @@ dekoratif + perkuat tes a11y, sudah merge) dan membersihkan branch-nya.
 enum 11, tanpa TODO/FIXME di kode, `bun audit` tanpa temuan baru,
 tidak ada PR terbuka, tidak ada branch basi.
 
+### 3.23 Protokol kunci dua arah (10 Oktober 2026, sesi riset, berlanjut)
+
+**Yang dikerjakan:** rekomendasi butir 2 bagian 4 diterapkan sebagai kode.
+`scripts/kunci-build.ts` ditulis ulang: `tandai` menunggu E2E/build lain
+(dulu langsung menandai, jadi dua build berbarengan saling menimpa),
+`tunggu-tandai` menahan kunci E2E bertoken dan mencetak token ke stdout,
+`lepas-e2e` dan `bolehLepas()` menjaga hanya token cocok yang melepas.
+`e2e/global-teardown.mjs` (baru, `.mjs` karena alasan di butir 2)
+melepas kunci milik sendiri walau tes merah; `test:e2e` meneruskan token
+lewat `KUNCI_E2E`. Tes pengunci diperluas (5 tes baru: wiring teardown,
+4 aturan lepas). `AGENTS.md` dan `.gitignore` diselaraskan.
+
+**Bukti hidup, bukan klaim:** build 169/169 lewat `tandai` baru; `tandai`
+terbukti menunggu saat kunci E2E segar dan jalan setelah dilepas; token
+salah exit 1 dan kunci bertahan; E2E penuh 13 lulus/1 lewati exit 0 tanpa
+kunci tertinggal; drill tes sengaja digagalkan (exit 1) tetap melepas
+kunci. Gerbang: typecheck 0, lint 0, unit 867/63, audit 318 BERSIH,
+`cek:tautan` 150/150/149.
+
 ---
 
 ## 4. Langkah berikutnya
@@ -1300,16 +1319,24 @@ yang sudah diterima di L-1).
    + satu pendaftaran. Sampai itu terjadi, butir 12 tetap "tidak bisa
    dibuktikan" dan itu jujur, bukan utang.
 2. **Kunci build paralel punya satu celah, dan cara menutupnya yang naif
-   justru berbahaya.** `test:e2e` hanya *menunggu* kunci lalu melepasnya
-   tanpa memegang: build yang mulai sesudah `tunggu` selesai tetap bisa
-   menimpa `.next` selama E2E berjalan. Tetapi menutupnya dengan
-   `posttest:e2e` akan gagal tepat saat paling dibutuhkan, karena bun
-   tidak menjalankan hook `post` kalau skripnya gagal (terbukti:
-   `POST-GAGAL` tidak pernah tercetak saat skrip keluar 3). Setiap E2E
-   yang benar-benar merah akan meninggalkan kunci dan memblokir semua
-   build 20 menit. Rekomendasi: lepas kunci dari `globalTeardown`
-   Playwright, yang tetap jalan saat tes gagal. Belum diterapkan karena
-   berkasnya sedang dikerjakan sesi lain.
+   justru berbahaya — SUDAH DITERAPKAN sesi ini.** `test:e2e` dulu hanya
+   *menunggu* kunci lalu melepasnya tanpa memegang: build yang mulai
+   sesudah `tunggu` selesai tetap bisa menimpa `.next` selama E2E berjalan.
+   Tetapi menutupnya dengan `posttest:e2e` akan gagal tepat saat paling
+   dibutuhkan, karena bun tidak menjalankan hook `post` kalau skripnya gagal
+   (terbukti: `POST-GAGAL` tidak pernah tercetak saat skrip keluar 3).
+   Perbaikannya protokol dua kunci: `tandai` menunggu E2E/build lain dulu,
+   `tunggu-tandai` menahan kunci E2E bertoken selama tes, dan
+   `globalTeardown` Playwright (`e2e/global-teardown.mjs`) melepasnya —
+   tetap jalan saat tes gagal. Token memastikan teardown hanya melepas
+   kunci miliknya sendiri. Terbukti hidup: `tandai` menunggu saat kunci
+   E2E segar dan jalan setelah dilepas, token salah ditolak (exit 1),
+   E2E penuh 13 lulus/1 lewati tanpa kunci tertinggal, dan drill tes
+   yang sengaja digagalkan tetap melepas kunci. Satu jebakan nyata
+   selama pengerjaan: teardown `.ts` ditolak Node (`Cannot use
+   'import.meta' outside a module`) karena paket ini tanpa
+   `"type": "module"` dan Playwright memuat teardown lewat `import`
+   bawaan — makanya `.mjs` JavaScript polos. Unit 867/63 (5 tes baru).
 3. **Angka di dokumen basi dua kali dalam sehari yang sama.**
    `README` diluruskan ke 856/62 lalu langsung basi oleh commit
    kunci-build. Aturannya sederhana: setiap commit yang menambah tes,

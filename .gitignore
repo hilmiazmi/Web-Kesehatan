@@ -84,5 +84,6 @@ next-env.d.ts
 **/*.rs.bk
 
 # Penanda build paralel (scripts/kunci-build.ts). Dibuat dan dihapus
-# otomatis oleh prebuild/postbuild; jangan commit.
+# otomatis oleh prebuild/postbuild dan test:e2e; jangan commit.
 .next-build-lock
+.next-e2e-lock

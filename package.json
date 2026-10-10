@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "test:e2e": "bun run scripts/kunci-build.ts tunggu && playwright test",
+    "test:e2e": "export KUNCI_E2E=$(bun run scripts/kunci-build.ts tunggu-tandai) && playwright test",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "verify": "bun run lint && bun run test && bun run build",

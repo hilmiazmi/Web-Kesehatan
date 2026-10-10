@@ -333,12 +333,15 @@ makna, bukan karakter.
 - `.next` dipakai bersama semua sesi di mesin ini. `rm -rf .next` di tengah
   jalan membuat E2E sesi lain memakai build setengah tulis, dan hasilnya
   mustahil dibedakan dari regresi (terjadi 10 Oktober 2026).
-- Protokolnya otomatis: `prebuild` menandai, `postbuild` melepas,
-  `test:e2e` menunggu (`scripts/kunci-build.ts`, dikunci
-  `tests/kunci-build.test.ts`). Jangan lewati dengan memanggil
-  `playwright test` langsung, jangan menjalankan `next build` mentah
-  (bangun selalu lewat `bun run build` supaya penanda terpasang), dan
-  jangan hapus `.next-build-lock` yang masih segar.
+- Protokolnya otomatis dan dua arah (`scripts/kunci-build.ts`, dikunci
+  `tests/kunci-build.test.ts`): `prebuild` menunggu sampai tidak ada E2E atau
+  build lain baru menandai; `postbuild` melepas; `test:e2e` menunggu lalu
+  MENAHAN kunci E2E bertoken selama tes berjalan, dan `globalTeardown`
+  Playwright melepasnya — tetap jalan saat tes gagal, tidak seperti hook
+  `post` bun yang dilewati saat gagal. Jangan lewati dengan memanggil
+  `playwright test` langsung (tanpa token, teardown tidak melepas apa pun),
+  jangan menjalankan `next build` mentah (bangun selalu lewat `bun run build`
+  supaya penanda terpasang), dan jangan hapus penanda yang masih segar.
 - Sebelum menyimpulkan hasil E2E yang aneh, pastikan tidak ada proses
   `next build` lain yang berjalan bersamaan.
 
