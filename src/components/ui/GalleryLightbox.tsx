@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { MouseEvent } from "react";
 import Image from "next/image";
-import Photo from "@/components/ui/Photo";
+import Photo, { dekoratif, PROPS_DEKORATIF } from "@/components/ui/Photo";
 
 /**
  * Satu foto di dalam galeri.
@@ -204,6 +204,10 @@ export default function GalleryLightbox({
                 height={800}
                 sizes="(max-width: 768px) 92vw, 80vw"
                 priority
+                // Sama seperti thumbnail di atas: keterangannya sudah ada di
+                // `figcaption`, jadi `alt` kosong berarti foto di sini
+                // dekoratif dan harus dinyatakan, bukan disimpulkan.
+                {...(dekoratif(kini.alt) ? PROPS_DEKORATIF : {})}
               />
               <figcaption className="lightbox-keterangan">
                 {kini.caption ?? kini.alt}

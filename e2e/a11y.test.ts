@@ -39,8 +39,38 @@ test.describe("nama elemen", () => {
     await page.goto("/");
 
     const hasil = await page.evaluate(() => {
+      /**
+       * Gambar dekoratif harus dinyatakan, bukan disimpulkan.
+       *
+       * `alt=""` dipakai di repo ini untuk foto yang namanya sudah dibacakan
+       * dari tempat lain: galeri (nama unit ada di `caption` di bawah foto) dan
+       * Fasilitas (nama fasilitas ada di `<h3>` di samping). Mengosongkannya
+       * memang benar, karena mengisinya membuat pembaca layar mengucapkan
+       * "Farmasi Farmasi".
+       *
+       * Masalahnya, `alt=""` yang benar dan `alt=""` karena lupa tampak sama
+       * dari luar. Karena itu `Photo` memasang `role="presentation"` dan
+       * `aria-hidden="true"` setiap kali `alt` kosong, dan tes ini mewajibkan
+       * penanda itu ada.
+       *
+       * Dengan begitu yang gagal adalah gambar yang benar-benar kehilangan
+       * alternatif teks tanpa dinyatakan dekoratif, bukan foto yang sengaja
+       * dikosongkan.
+       *
+       * Sengaja tidak memakai "ada teks di sekitarnya" sebagai syarat: aturan
+       * sebegitu luas membebaskan hampir semua gambar, termasuk yang lupa,
+       * sehingga tesnya berhenti menangkap apa pun.
+       */
+      const dekoratif = (g: Element): boolean => {
+        const role = g.getAttribute("role");
+        if (role === "presentation" || role === "none") return true;
+        return g.getAttribute("aria-hidden") === "true";
+      };
+
       const gambar = Array.from(document.querySelectorAll("img"));
-      const tanpaAlt = gambar.filter((g) => !g.alt || g.alt.trim() === "").length;
+      const tanpaAlt = gambar.filter(
+        (g) => (!g.alt || g.alt.trim() === "") && !dekoratif(g),
+      );
 
       const field = Array.from(
         document.querySelectorAll("input:not([type=hidden]), select, textarea"),
@@ -52,10 +82,20 @@ test.describe("nama elemen", () => {
         return !el.closest("label");
       }).length;
 
-      return { gambar: gambar.length, tanpaAlt, field: field.length, tanpaLabel };
+      return {
+        gambar: gambar.length,
+        tanpaAlt,
+        dekoratif: gambar.filter(dekoratif).length,
+        field: field.length,
+        tanpaLabel,
+      };
     });
 
-    expect(hasil.tanpaAlt).toBe(0);
+    // Pesan galatnya mencantumkan gambar yang bermasalah, bukan hanya jumlah.
+    // Tanpa daftarnya, yang gagal harus membuka halaman sendiri untuk tahu
+    // gambar yang mana yang kehilangan alternatif teks.
+    expect(hasil.tanpaAlt.map((g) => g.src || "(tanpa src)")).toEqual([]);
+    expect(hasil.tanpaAlt).toHaveLength(0);
     expect(hasil.tanpaLabel).toBe(0);
   });
 
