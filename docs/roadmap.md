@@ -15,18 +15,18 @@ bukan sebagai perkiraan.
 
 | Yang diukur | Nilai | Cara mengukur |
 |---|---|---|
-| Halaman ter-prerender | 148 | `bun run cek:tautan`, berkas `.html` di `.next/server/app` tanpa dua halaman cadangan Next.js |
+| Halaman ter-prerender | 150 | `bun run cek:tautan`, berkas `.html` di `.next/server/app` tanpa dua halaman cadangan Next.js. Diukur 10 Oktober 2026; naik 2 dari 148 karena halaman unit `rawat-jalan` dan `rawat-inap` (8 Oktober 2026) |
 | Pola rute dinamis | 11 | `dynamicRoutes` di `.next/prerender-manifest.json` |
-| Berkas tes | 46 | `bun run test` |
-| Jumlah tes | 640 | `bun run test` |
-| Rute internal dari catch-all | 30 | `collectNavPaths()` di `src/lib/nav-path.ts` |
+| Berkas tes | 62 | `bun run test`, diukur 10 Oktober 2026 |
+| Jumlah tes | 856 | `bun run test`, diukur 10 Oktober 2026 |
+| Rute internal dari catch-all | 27 | `collectNavPaths()` di `src/lib/nav-path.ts`, diukur 10 Oktober 2026. Turun dari 30 setelah commit SKM/PPID/kapasitas-bed 8 Oktober 2026 yang menyentuh fungsi itu (kemungkinan pengecualian rute yang sudah punya folder sendiri) |
 | Tabel terkelola di panel admin | 17 | `src/server/admin/registry.ts` |
-| Tabel di skema database | 27 | `pgTable` di `src/server/db/schema.ts` |
+| Tabel di skema database | 28 | `pgTable` di `src/server/db/schema.ts`, diukur 10 Oktober 2026 (plus 11 `pgEnum`) |
 | Route handler API | 44 | `src/app/api/v1/**/route.ts`, 43 endpoint dan catcher 404 |
 | Butir navigasi tingkat atas | 8 | `NAV_ITEMS` |
 | Halaman panel admin | 4 | `src/app/admin/**/page.tsx`, semuanya dinamis karena butuh sesi |
 | Halaman publik yang membaca database | 4 | `getPublicArticles()` di `src/lib/content-loader.ts`: `/berita`, `/berita/[slug]`, `/`, dan `sitemap.xml` |
-| Migration terpasang di database uji | 4 | `bun run db:migrate` di PostgreSQL 17.11 lokal, termasuk `0003_anti_ganda.sql` |
+| Migration terpasang di database uji | 6 | `bun run db:migrate`, terakhir `0005_slug_paket_mcu.sql`. Diukur 10 Oktober 2026 dari folder `drizzle/` |
 
 Jumlah "halaman ter-prerender" pernah ditulis 160, lalu 154, lalu 150. Dua-duanya
 salah, dan sekarang alasannya jelas.
@@ -43,6 +43,11 @@ di antaranya tetap bukan halaman untuk pengunjung, yaitu `/_global-error` dan
 `bun run cek:tautan` menghitungnya langsung lewat daftar `BUKAN_HALAMAN`, jadi
 angka ini tidak lagi perlu diperbarui tangan setiap kali ada rute baru.
 
+Per 10 Oktober 2026 berkas HTML-nya 152 dan halamannya 150. Tambahan 2 dari
+148 adalah halaman unit `rawat-jalan` dan `rawat-inap` dari commit 8 Oktober
+2026 (`7ccb399`, `409012f`). Cara memeriksa: daftar berkas `.html` di
+`.next/server/app`, kurangi `/_global-error` dan `/_not-found`.
+
 Empat halaman panel admin tidak termasuk 148, dan itu memang benar. Semuanya
 diserver saat diminta, bukan ditulis ke berkas HTML, karena isinya berbeda
 setiap pengunjung. `bun run cek:tautan` tidak pernah melihatnya, dan tidak
@@ -56,11 +61,22 @@ path yang dilayani `src/app/[...slug]/page.tsx`. Daun `/pelayanan/prioritas/*` d
 masing-masing, dan sebelas pola dinamis dihitung terpisah di baris di atasnya.
 Jadi 148 halaman tidak bisa dijumlahkan dari 30.
 
+Per 10 Oktober 2026 angkanya 27, bukan 30 lagi. Empat commit 8 Oktober 2026
+(`b209dc6`, `fc58b52`, `109069c`, `8da7af2`) menyentuh `src/lib/nav-path.ts`,
+sementara `src/data/navigation.ts` tidak berubah sejak 3 Oktober 2026, jadi
+penurunnya ada di logika fungsi, kemungkinan pengecualian untuk path yang
+sudah punya folder sendiri. Cara memeriksa ulang satu baris:
+
+```bash
+bun -e "const {collectNavPaths}=await import('./src/lib/nav-path.ts');console.log(collectNavPaths().length)"
+```
+
 Gerbang kualitas terakhir: typecheck bersih, `bun run lint` bersih,
-`bun run test` 640 tes lulus dari 46 berkas, `bun run cek:konten` dan
-`bun run audit:teks` lulus, `bun run build` sukses, dan `bun run cek:tautan`
-tidak menemukan tautan mati, halaman tanpa tautan masuk, maupun halaman yang
-lupa masuk sitemap: 148 halaman, 148 tautan unik, 148 entri sitemap.
+`bun run test` 856 tes lulus dari 62 berkas, `bun run cek:konten` dan
+`bun run audit:teks` lulus, `bun run build` sukses (169/169 halaman), dan
+`bun run cek:tautan` tidak menemukan tautan mati, halaman tanpa tautan masuk,
+maupun halaman yang lupa masuk sitemap: 150 halaman, 150 tautan unik,
+149 entri sitemap. Diukur 10 Oktober 2026.
 
 Database sungguhan sudah bisa dijalankan di mesin ini tanpa Docker, lewat
 PostgreSQL 17.11 dari shim `mise`. menjalankan `db:migrate`, `db:seed`,
@@ -682,7 +698,7 @@ baris Comment pertama.
   pasien. Mengembalikan `null` untuk semua galat lain, jadi bug di jalur ini
   tidak ikut tertutupi sebagai "sudah terdaftar".
 - Pemetaan itu dipasang melekat pada `insert`, di dalam `db.transaction`.
-  consequent: penolakan membatalkan transaksi, jadi `taken` yang sudah dinaikkan
+  akibatnya: penolakan membatalkan transaksi, jadi `taken` yang sudah dinaikkan
   di langkah pertama ikut kembali. Satu pendaftaran yang ditolak tidak memakan
   daya tampang.
 
@@ -914,7 +930,7 @@ kartu berita tampil dengan kotak rusak. `Photo` sekarang menerima `unoptimized`,
 dan `fotoBerita()` menyalakannya hanya untuk URL yang benar-benar berasal dari
 database.
 
-Yang **tidak** dikerjakan, dan alasannya bukanTechnical:
+Yang **tidak** dikerjakan, dan alasannya bukan teknis:
 
 - **Halaman lain tetap membaca modul statis.** Dokumen ini pernah menjanjikan
   "abstraksi data loader" untuk seluruh halaman publik. Setelah datanya
@@ -1162,12 +1178,68 @@ Sekarang `bun run audit:teks` membaca 260 berkas, bukan 255.
 
 ---
 
+### 3.21 Pekerjaan 8-10 Oktober 2026: admin, isi halaman, dan aksesibilitas
+
+**Sebagian besar selesai; satu eksperimen masih berjalan di working tree.**
+Rincian harian ada di `docs/HANDOFF.md`. Yang dicatat di sini hanya yang
+mengubah angka atau keputusan di dokumen ini.
+
+Yang masuk `main` 8-9 Oktober: layar pengaturan situs dan layar akun panel
+(`6b0d223`, `c154306`), isi SKM/PPID/kapasitas-bed (`b209dc6`, `fc58b52`,
+`109069c`), pemisahan rawat inap dari rawat jalan (`409012f`), halaman unit
+rawat jalan plus data 54 dokter (`7ccb399`), refactor `src/lib/validasi-umum.ts`
+yang dipakai enam formulir, 25 tes integrasi `tests/admin-endpoint.test.ts`,
+skor aksesibilitas Lighthouse 100 di empat halaman, kalibrasi scrim hero
+(`85701dc`, alfa 0.55, rasio 4.76-5.19), skrip backup berkala (`b2f0f40`),
+penutup CLS daftar online (`e7cdcb6`), dan `e2e/alur-db.test.ts` untuk login
+sampai kritik terlacak.
+
+Dua halaman unit baru (`rawat-jalan`, `rawat-inap`) menaikkan hitungan bagian 1 dari 148 ke 150. Empat commit yang menyentuh `src/lib/nav-path.ts`
+menurunkan catch-all dari 30 ke 27. Tes naik 640 ke 856, berkas 46 ke 62.
+
+**Eksperimen mutasi foto dekoratif, selesai 10 Oktober 2026.**
+Commit `12ae10a` membuat `alt` kosong berarti dekoratif yang dinyatakan
+(`role="presentation"` + `aria-hidden="true"`), supaya bisa dibedakan dari
+gambar yang lupa diberi alternatif teks. Pemilik repo lalu menguji dua arah:
+mutasi `dekoratif()` menjadi selalu `true` ditambah pemeriksaan
+`terlaluDisembunyikan` di `e2e/a11y.test.ts`. Hasilnya: mutasi tertangkap
+(56 gambar ber-`alt` ikut tersembunyi, tes gagal seperti dirancang), dan
+tanpa mutasi panel mobile lolos. Fungsi sudah dikembalikan ke logika semula
+(`ab26e25`), pemeriksaannya dipertajam (`c3e53b9`), dan E2E a11y hijau 5/5.
+Typo komentar yang ikut terlihat (`Fatanya`, `Propi-nya`, `sighted`)
+dibersihkan sesi ini.
+
+**Satu catatan proses.** Selama 10 Oktober repo dibangun paralel oleh dua
+sesi, dan satu jalan E2E sempat memakai `.next` yang sedang ditimpa build
+lain: hasil pertamanya mustahil (panel mobile gagal total, tes mutasi lolos
+padahal mutasi aktif). Jalan ulang setelah build utuh memberi hasil yang
+masuk akal. Pelajaran: hasil E2E hanya sah bila tidak ada build lain yang
+berjalan bersamaan; `ls .next/BUILD_ID` sebelum menyimpulkan.
+
+---
+
 ## 4. Langkah berikutnya
 
 Empat belas langkah versi sebelumnya sudah diselesaikan. Yang terakhir adalah
 constraint anti-pendaftaran ganda di 3.13, content loader berita di 3.17, ukuran
 Lighthouse di 3.5, pembuktian terhadap database sungguhan di 3.18, verifikasi
 token dari CSS acuan di 3.19, dan Perluasan cakupan audit teks di 3.20.
+
+Yang tersisa dua butir optional di bawah, plus dua temuan 10 Oktober
+yang sebaiknya didahulukan karena menyangkut kebenaran `main`, bukan selera.
+
+1. **Workflow `E2E ber-database` yang merah di `main`, diperbaiki sesi ini.**
+   Gagal 8 push berturut-turut sejak 9 Oktober, selalu di langkah `db:seed`
+   dengan `AUTH_SECRET wajib diisi dan minimal 32 karakter`. Penyebabnya satu
+   baris yang hilang: langkah `Siapkan skema dan data contoh` hanya menyetel
+   `DATABASE_URL`, sedangkan `AUTH_SECRET` cuma ada di langkah Playwright.
+   `db:seed` memanggil `config()` penuh lewat `dbOrNull()`, jadi validasi auth
+   ikut berjalan padahal seed tidak menyentuh auth sama sekali. Perbaikannya
+   tambah `AUTH_SECRET` yang sama di langkah seed; `config()` tidak dilemahkan.
+   Buktinya run CI setelah push (bukan klaim lokal).
+2. **Angka basi di `README.md`, diluruskan sesi ini.** Sekarang menulis 856
+   tes di 62 berkas, 150 halaman dari 152 berkas HTML, dan `169/169`.
+   Endpoint 44 dan tabel 28 memang sudah benar dan tidak diubah.
 
 Yang tersisa dua butir, dan keduanya optional.
 

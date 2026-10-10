@@ -673,3 +673,47 @@ saya lewatkan; sudah dihapus dan aturan aslinya diperkuat jadi satu.
 (`<img seed="negatif">`) yang mereka pasang untuk membuktikan test a11y
 menangkap gambar dekoratif tanpa penanda. Karena itu commit saya hanya
 memuat `src/styles/home.css`.
+
+---
+
+## Riset + pembaruan roadmap (2026-10-10, sesi teman-riset)
+
+**Peran sesi ini:** bukan feature work, melainkan checking penuh + masukan +
+sinkronisasi dokumen. Tidak ada commit kode; working tree milik pemilik
+(`Photo.tsx` mutasi + `e2e/a11y.test.ts` dua arah) tidak disentuh.
+
+**Gerbang di HEAD `12ae10a` + worktree (diukur ulang, bukan dari ingatan):**
+lint 0 error + 1 warning (`alt` tak terpakai di `Photo.tsx` — akibat langsung
+mutasi `return true`, hilang sendiri setelah revert), unit 856/62 lulus,
+build 169/169 exit 0, `cek:tautan` 150 halaman / 150 tautan / 149 sitemap,
+`cek:konten` konsisten, `audit:teks` BERSIH 316 berkas.
+
+**Eksperimen mutasi terverifikasi dari sisi agent:** dengan build utuh, mutasi
+`dekoratif() => true` tertangkap (`terlaluDisembunyikan` = 56, tes gagal
+seperti dirancang) dan panel mobile lolos 2/2. Satu jalan E2E sebelumnya
+memberi hasil mustahil (panel gagal total + tes mutasi lolos) karena `.next`
+sedang ditimpa build paralel sesi lain — buktinya `BUILD_ID` hilang di tengah
+jalan. Aturan baru: pastikan tidak ada proses `next build` lain sebelum
+menjalankan E2E, dan curigai hasil aneh pertama sebagai artefak lingkungan.
+
+**Yang diubah sesi ini (hanya dokumen):** `docs/roadmap.md` bagian 1 (150 halaman,
+62/856 tes, 27 catch-all, 28 tabel, 6 migrasi, gerbang terbaru), penjelasan
+delta 148→150 (`rawat-jalan` + `rawat-inap`) dan 30→27, bagian 3.21 baru, bagian 4 tambah
+dua temuan, dua typo (`consequent:`, `bukanTechnical:`). Angka endpoint 44 +
+catcher dan registry 17 diverifikasi tetap benar, tidak diubah.
+
+**Dikerjakan sesi ini atas instruksi pemilik ("kerjakan itu semua"):**
+1. Mutasi sudah dikembalikan pemilik sendiri (`ab26e25`) sebelum sesi mulai;
+   sesi ini memverifikasi (56 tertangkap, panel lolos) dan membersihkan typo
+   (`Fatanya`→`Perannya sebagai`, `Propi-nya`→`Prop-nya`, `sighted`→`orang
+   yang bisa melihat`).
+2. `AUTH_SECRET` ditambah di langkah seed `.github/workflows/e2e-db.yml`
+   beserta komentar alasan; bukti = run CI setelah push.
+3. Angka `README.md` diluruskan (856/62, 150 halaman, 169/169).
+4. Protokol kunci build paralel: `scripts/kunci-build.ts` baru (tandai/lepas/
+   tunggu + deteksi proses `next-build` mentah), `prebuild`/`postbuild`/
+   `test:e2e` di `package.json`, `.next-build-lock` di `.gitignore`,
+   `tests/kunci-build.test.ts` (6 tes), aturan di `AGENTS.md`. Total tes
+   856→862. E2E penuh 13 lulus 1 dilewati lewat `test:e2e` baru.
+5. Tetap terbuka (keputusan, bukan kode): deploy produksi + `ADMIN_ORIGIN`
+   https + sisa manual (panel off-canvas, SweetAlert2).
