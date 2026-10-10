@@ -185,7 +185,7 @@ Rincian temuan keamanan ada di
 
 ### Pengujian
 
-856 test di 62 berkas, memakai Vitest. Cakupannya logika murni: bentuk data
+862 test di 63 berkas, memakai Vitest. Cakupannya logika murni: bentuk data
 konten, validasi formulir, sanitasi Markdown, hashing dan verifikasi sesi,
 penelusuran path menu, fungsi tanggal, dan penolakan mode snapshot atas
 permintaan yang mengubah data.

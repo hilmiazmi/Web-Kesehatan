@@ -17,14 +17,14 @@ bukan sebagai perkiraan.
 |---|---|---|
 | Halaman ter-prerender | 150 | `bun run cek:tautan`, berkas `.html` di `.next/server/app` tanpa dua halaman cadangan Next.js. Diukur 10 Oktober 2026; naik 2 dari 148 karena halaman unit `rawat-jalan` dan `rawat-inap` (8 Oktober 2026) |
 | Pola rute dinamis | 11 | `dynamicRoutes` di `.next/prerender-manifest.json` |
-| Berkas tes | 62 | `bun run test`, diukur 10 Oktober 2026 |
-| Jumlah tes | 856 | `bun run test`, diukur 10 Oktober 2026 |
+| Berkas tes | 63 | `bun run test`, diukur 10 Oktober 2026 |
+| Jumlah tes | 862 | `bun run test`, diukur 10 Oktober 2026 |
 | Rute internal dari catch-all | 27 | `collectNavPaths()` di `src/lib/nav-path.ts`, diukur 10 Oktober 2026. Turun dari 30 setelah commit SKM/PPID/kapasitas-bed 8 Oktober 2026 yang menyentuh fungsi itu (kemungkinan pengecualian rute yang sudah punya folder sendiri) |
 | Tabel terkelola di panel admin | 17 | `src/server/admin/registry.ts` |
 | Tabel di skema database | 28 | `pgTable` di `src/server/db/schema.ts`, diukur 10 Oktober 2026 (plus 11 `pgEnum`) |
-| Route handler API | 44 | `src/app/api/v1/**/route.ts`, 43 endpoint dan catcher 404 |
+| Route handler API | 45 | `src/app/api/v1/**/route.ts`: 44 endpoint dan catcher 404. Naik 1 dari 44 karena `admissions` dari pemisahan rawat inap (`409012f`, 8 Oktober 2026) |
 | Butir navigasi tingkat atas | 8 | `NAV_ITEMS` |
-| Halaman panel admin | 4 | `src/app/admin/**/page.tsx`, semuanya dinamis karena butuh sesi |
+| Halaman panel admin | 7 | `src/app/admin/**/page.tsx`: 1 login + 6 di dalam `(panel)` (dasbor, akun, beds, inbox, pengaturan, records). Keenamnya dinamis karena butuh sesi |
 | Halaman publik yang membaca database | 4 | `getPublicArticles()` di `src/lib/content-loader.ts`: `/berita`, `/berita/[slug]`, `/`, dan `sitemap.xml` |
 | Migration terpasang di database uji | 6 | `bun run db:migrate`, terakhir `0005_slug_paket_mcu.sql`. Diukur 10 Oktober 2026 dari folder `drizzle/` |
 
@@ -72,7 +72,7 @@ bun -e "const {collectNavPaths}=await import('./src/lib/nav-path.ts');console.lo
 ```
 
 Gerbang kualitas terakhir: typecheck bersih, `bun run lint` bersih,
-`bun run test` 856 tes lulus dari 62 berkas, `bun run cek:konten` dan
+`bun run test` 862 tes lulus dari 63 berkas, `bun run cek:konten` dan
 `bun run audit:teks` lulus, `bun run build` sukses (169/169 halaman), dan
 `bun run cek:tautan` tidak menemukan tautan mati, halaman tanpa tautan masuk,
 maupun halaman yang lupa masuk sitemap: 150 halaman, 150 tautan unik,
@@ -1216,6 +1216,34 @@ padahal mutasi aktif). Jalan ulang setelah build utuh memberi hasil yang
 masuk akal. Pelajaran: hasil E2E hanya sah bila tidak ada build lain yang
 berjalan bersamaan; `ls .next/BUILD_ID` sebelum menyimpulkan.
 
+### 3.22 Checking penuh dan sinkronisasi angka (10 Oktober 2026, sesi riset)
+
+**Peran sesi ini:** teman riset, bukan feature work. Tidak ada perubahan
+kode; hanya dokumen (`docs/roadmap.md`, `README.md`) ditambah satu entri
+`HANDOFF.md`. Sebelumnya sesi ini juga menutup PR #45 (pulihkan penanda
+dekoratif + perkuat tes a11y, sudah merge) dan membersihkan branch-nya.
+
+**Yang ditemukan dari membandingkan dokumen dengan repo:**
+
+* Tes: dokumen menulis 856/62, realita 862/63 (`tests/kunci-build.test.ts`
+  menambah 6 tes). `README` ikut basi di hari yang sama ia diluruskan.
+* Halaman panel admin: bagian 1 menulis 4, realita 7 berkas `page.tsx`
+  (1 login + 6 di dalam `(panel)`). `HANDOFF.md` bagian 2 sudah menulis 7
+  sejak lama; yang tertinggal hanya tabel bagian 1.
+* Route API: bagian 1 menulis 44, realita 45 berkas (44 endpoint +
+  catcher). Kenaikannya dari `admissions` milik `409012f` (8 Oktober),
+  jadi tertinggal dua hari.
+* Bagian 5 mengklaim `tests/panel-nav-mobile.test.ts` mengunci perilaku
+  panel. **Berkas itu tidak ada di repo.** Yang mengunci adalah E2E di
+  `e2e/a11y.test.ts`. Klaimnya diperbaiki ke yang benar; ini kelas
+  kesalahan yang sama dengan yang pernah dibersihkan di 3.12.
+* Butir 6 bagian 6 masih menulis 148/148/148; realita 150/150/149.
+  Verdict tetap Lulus, hanya angkanya yang diperbarui.
+
+**Yang diverifikasi tetap benar:** catch-all 27, migrasi 6, tabel 28,
+enum 11, tanpa TODO/FIXME di kode, `bun audit` tanpa temuan baru,
+tidak ada PR terbuka, tidak ada branch basi.
+
 ---
 
 ## 4. Langkah berikutnya
@@ -1243,9 +1271,57 @@ yang sebaiknya didahulukan karena menyangkut kebenaran `main`, bukan selera.
    tiap run); `config()` tidak dilemahkan. Terbukti run CI `38033040538`:
    migrasi sukses, seed mengisi 20 tabel, E2E alur-db lulus. `main` hijau
    penuh pertama kalinya (Gerbang + E2E ber-database + pages-build).
-2. **Angka basi di `README.md`, diluruskan sesi ini.** Sekarang menulis 856
-   tes di 62 berkas, 150 halaman dari 152 berkas HTML, dan `169/169`.
-   Endpoint 44 dan tabel 28 memang sudah benar dan tidak diubah.
+2. **Angka basi di `README.md`, diluruskan sesi ini.** Sempat ditulis 856
+   tes di 62 berkas, lalu basi lagi di hari yang sama karena
+   `tests/kunci-build.test.ts` menambah 6 tes. Sekarang menulis 862
+   tes di 63 berkas, 150 halaman dari 152 berkas HTML, dan `169/169`.
+   Route 45 berkas (44 endpoint + catcher; naik 1 oleh `admissions` dari
+   `409012f`) dan tabel 28 memang sudah benar dan tidak diubah.
+   Pelajaran angkanya ada di masukan riset di bawah: angka tanpa tanggal
+   dan tanpa commit bersamaan akan basi lagi.
+
+### Masukan riset 10 Oktober 2026
+
+Hasil checking penuh sesi ini (tidak ada perubahan kode, hanya dokumen).
+Gerbang diukur ulang di worktree bersih pada `f6224aa` (`89ff6e9` hanya
+menyentuh dokumen, jadi keadaan kode sama): typecheck 0, lint 0, unit
+862/63, `audit:teks` BERSIH 318 berkas, build 169/169, `cek:tautan`
+150/150/149, E2E a11y 5/5. `cek:konten` tidak bisa jalan di mesin ini
+(PostgreSQL menolak koneksi). Tidak ada PR terbuka, tidak ada branch basi,
+`bun audit` tidak menemukan kerentanan baru (tetap 2 rantai perkembangan
+yang sudah diterima di L-1).
+
+1. **Deploy produksi adalah satu-satunya pekerjaan besar yang tersisa.**
+   Semua butir wajib sudah lulus; butir 12 ("identik di Vercel dan VPS")
+   tidak akan pernah bisa dibuktikan tanpa dua lingkungan nyata. Urutan
+   konkretnya: domain dan DNS dulu, `ADMIN_ORIGIN=https://...` di dashboard
+   platform, backup database sebelum `db:migrate` di VPS (peringatan ini
+   sudah ada di `DEPLOY-VPS.md` bagian 4), lalu uji asap homepage + login
+   + satu pendaftaran. Sampai itu terjadi, butir 12 tetap "tidak bisa
+   dibuktikan" dan itu jujur, bukan utang.
+2. **Kunci build paralel punya satu celah, dan cara menutupnya yang naif
+   justru berbahaya.** `test:e2e` hanya *menunggu* kunci lalu melepasnya
+   tanpa memegang: build yang mulai sesudah `tunggu` selesai tetap bisa
+   menimpa `.next` selama E2E berjalan. Tetapi menutupnya dengan
+   `posttest:e2e` akan gagal tepat saat paling dibutuhkan, karena bun
+   tidak menjalankan hook `post` kalau skripnya gagal (terbukti:
+   `POST-GAGAL` tidak pernah tercetak saat skrip keluar 3). Setiap E2E
+   yang benar-benar merah akan meninggalkan kunci dan memblokir semua
+   build 20 menit. Rekomendasi: lepas kunci dari `globalTeardown`
+   Playwright, yang tetap jalan saat tes gagal. Belum diterapkan karena
+   berkasnya sedang dikerjakan sesi lain.
+3. **Angka di dokumen basi dua kali dalam sehari yang sama.**
+   `README` diluruskan ke 856/62 lalu langsung basi oleh commit
+   kunci-build. Aturannya sederhana: setiap commit yang menambah tes,
+   rute, halaman, tabel, atau migrasi harus ikut memutakhirkan angka di
+   `README` dan bagian 1 dokumen ini dalam commit yang sama, beserta
+   tanggal ukurnya. Angka tanpa tanggal adalah tebakan yang menunggu
+   waktu untuk salah.
+4. **Sisa manual tidak bertambah dan tidak berkurang:** penilaian mata
+   atas panel off-canvas dan dialog SweetAlert2, plus uji pembaca layar
+   dan kontras di luar hero. E2E a11y sekarang mengunci perilaku panel
+   (buka, tutup, Escape, fokus), jadi yang tersisa murni visual dan
+   audio, bukan fungsi.
 
 Yang tersisa dua butir, dan keduanya optional.
 
@@ -1305,7 +1381,10 @@ Yang **tidak** ada di daftar ini, karena sudah selesai atau sudah gugur:
   menyebut atribut `inert` plus `aria-hidden`. Pendekatan itu sudah dicabut,
   karena pemilik repo menyelesaikan masalahnya dengan `visibility: hidden` pada
   panel tertutup ditambah tiga cara menutup, dan `inert` tidak ada di navbar
-  sekarang. `tests/panel-nav-mobile.test.ts` mengunci seluruh perilaku itu.
+  sekarang. Perilakunya dikunci tes E2E di `e2e/a11y.test.ts` (panel tertutup
+  tidak bisa difokus, panel terbuka bisa dimasuki, Escape menutup dan
+  mengembalikan fokus). Berkas `tests/panel-nav-mobile.test.ts` tidak ada di
+  repo; yang mengunci adalah E2E tersebut, bukan berkas unit.
   Jangan menutup panel dengan `inert` tanpa izin pemilik repo, dan
   jangan menghapus `visibility: hidden`: menggeser dengan `translateX(100%)`
   bukan menyembunyikan, sehingga 74 tautan di dalam panel tetap bisa difokuskan.
@@ -1359,7 +1438,7 @@ dinilai lulus karena "sepertinya sudah ada".
 | # | Butir | Verdict | Bukti atau sebab gagal |
 |---|---|---|---|
 | 5 | Memilih spesialis memfilter dropdown dokter; hasil jadwal tampil dengan status memuat | Lulus | `DoctorSearchCard` punya tiga state: spesialis, dokter, hari. Memilih spesialis mengisi daftar dokter. Dipakai `<select>` bawaan, bukan `react-select` seperti PRD 8.3 menulis, karena `react-select` memang terpasang tetapi belum dipakai. Perbedaan komponen, bukan perbedaan fungsi. |
-| 6 | Semua halaman bisa dijangkau lewat link; tidak ada halaman yatim dan tidak ada link mati | Lulus | `bun run cek:tautan` melaporkan 148 halaman, 148 tautan unik, dan 148 entri sitemap, tanpa tautan mati dan tanpa halaman tanpa tautan masuk. Tiga cacat yang pernah ada sudah ditutup: 18 halaman brosur dulu yatim karena `BrosurDirectory` hanya merender panel kategori yang sedang aktif, dan dua URL ganda diduplikasi. Lihat 3.8. |
+| 6 | Semua halaman bisa dijangkau lewat link; tidak ada halaman yatim dan tidak ada link mati | Lulus | `bun run cek:tautan` melaporkan 150 halaman, 150 tautan unik, dan 149 entri sitemap, tanpa tautan mati dan tanpa halaman tanpa tautan masuk. Tiga cacat yang pernah ada sudah ditutup: 18 halaman brosur dulu yatim karena `BrosurDirectory` hanya merender panel kategori yang sedang aktif, dan dua URL ganda diduplikasi. Lihat 3.8. |
 | 7 | Pendaftaran E-Pasien menghasilkan nomor antrean dan tersimpan di DB | Lulus | PR #34 upstream menyambungkan formulir ke endpointnya. `registration-form.tsx` mengambil dokter dari `GET /api/v1/doctors`, mengambil slot jam dari `GET /api/v1/schedules`, lalu mengirim `POST /api/v1/appointments` dengan `schedule_id`. Nomor antrean dikembalikan dan ditampilkan ke pengguna. Penghitung kuota memakai `INSERT ... ON CONFLICT DO UPDATE ... RETURNING taken` di dalam transaksi, jadi dua permintaan bersamaan tidak mendapat nomor yang sama, dan unique index `(doctor_id, visit_date, queue_number)` jadi pengaman kedua. Bukti tegen database sungguhan: `db:migrate`, `db:seed`, dan `cek:tulis` dijalankan pada PostgreSQL 17.11 lokal, dan pendaftaran ganda ditolak dengan pesan pasien sementara kuota tidak berkurang. Lihat 3.18. |
 | 8 | Form menolak input tidak valid di sisi server dan tahan terhadap spam sederhana | Lulus | Sisi server lengkap: `src/server/validation.ts` dipakai route appointments, honeypot dan rate limit dijalankan `src/server/api/form.ts` sebelum validasi. Sekarang jalur itu benar-benar dipakai pengunjung, karena formulir sudah mengirim datanya (lihat butir 7). Penghitung rate limit dikosongkan setelah formulir tersimpan, dan ada tesnya: `tests/form-rate-limit.test.ts` serta `tests/registration-form.test.ts` mengunci aturan pemetaan field dan penerjemahannya. |
 | 9 | Admin dapat menambah, mengubah, dan menghapus berita, dan perubahannya tampil di situs publik | Lulus | `src/lib/content-loader.ts` membaca tabel `articles` saat `API_MODE=live`, dan kembali ke `ARTICLES` saat mode snapshot atau database tidak terjangkau. Dipakai oleh `/berita`, `/berita/[slug]`, beranda, dan `sitemap.xml`. `revalidate` 60 detik pada tiga halaman itu supaya perubahan admin tidak menunggu build berikutnya, dan `dynamicParams` dibiarkan `true` supaya slug baru dari panel admin dilayani. Bukti runtime ada di 3.17: dengan `API_MODE=live` dan database yang tidak terjangkau, keempat rute tetap menjawab 200 dengan isi data statis dan 404 untuk slug asing. 27 tes di `tests/konten-loader.test.ts`, sembilan mutasi dicoba dan kesembilannya tertangkap. Halaman selain berita tetap membaca modul statis, dan itu disengaja: butir ini menyebut berita, dan isi seed database untuk dokter dan poliklinik lebih tipis daripada modul statis. Lihat 3.17. |

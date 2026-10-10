@@ -719,3 +719,23 @@ catcher dan registry 17 diverifikasi tetap benar, tidak diubah.
    856→862. E2E penuh 13 lulus 1 dilewati lewat `test:e2e` baru.
 5. Tetap terbuka (keputusan, bukan kode): deploy produksi + `ADMIN_ORIGIN`
    https + sisa manual (panel off-canvas, SweetAlert2).
+
+---
+
+## Checking penuh sesi riset (2026-10-10)
+
+**Peran:** teman riset. PR #45 sudah merge sebelum sesi; sesi ini memverifikasi
+hasil merge di worktree bersih (`f6224aa`, `89ff6e9` hanya dokumen):
+typecheck 0, lint 0, unit 862/63, audit 318 BERSIH, build 169/169,
+`cek:tautan` 150/150/149, E2E a11y 5/5. Remote branch dihapus di kedua remote,
+judul PR dibetulkan, lalu branch lokal dihapus dan kembali ke `main`
+(atas instruksi pemilik). Tidak ada PR terbuka, tidak ada branch basi.
+
+**Temuan dokumen vs repo** (sudah diperbaiki di `roadmap.md` 3.22 + bagian
+1/4/5/6 dan `README`): tes 856/62 padahal 862/63, halaman admin 4 padahal 7,
+route 44 padahal 45, klaim `tests/panel-nav-mobile.test.ts` padahal berkasnya
+tidak ada (pengunci sebenarnya `e2e/a11y.test.ts`), butir 6 masih 148.
+
+**Masukan utama:** deploy produksi satu-satunya pekerjaan besar tersisa;
+kunci-build punya celah (rekomendasi `globalTeardown` di roadmap bagian 4);
+angka dokumen butuh commit bersamaan + tanggal ukur. Rincian di roadmap.
