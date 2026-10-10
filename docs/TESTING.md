@@ -20,7 +20,7 @@ Tautan terkait: arsitektur di [`ARCHITECTURE.md`](ARCHITECTURE.md), CI di
 | ESLint | bersih (exit 0) | `bun run lint` |
 | Unit test (Vitest) | **63 berkas, 870 tes, semua lulus** | `bun run test` |
 | Konsistensi snapshot vs route | "semua berkas snapshot konsisten" | `bun run cek:konten` |
-| Audit teks rusak | "BERSIH (323 berkas)" | `bun run audit:teks` |
+| Audit teks rusak | "BERSIH (324 berkas)" | `bun run audit:teks` |
 | `bun audit` | 2 advisory tersisa: `braces` (tinggi) dan `esbuild` (sedang), keduanya di rantai pengembangan; `swiper` dan `sweetalert2` sudah dinaikkan | `bun audit` |
 | Build produksi + typecheck | 169/169 halaman, exit 0 (diukur 10 Okt 2026, lihat catatan di bawah) | `bun run build` |
 | E2E Playwright | 13 lulus, 3 dilewati (alur-db butuh kredensial DB) | `bun run test:e2e` |

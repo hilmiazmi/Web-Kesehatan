@@ -1,7 +1,7 @@
 # Changelog
 
 Riwayat perubahan Web-Kesehatan, **disusun otomatis dari subjek commit** pada
-`main` sampai `f1ebe60` (10 Oktober 2026), lalu dirapikan. Belum ada tag atau rilis
+`main` sampai `6482912` (10 Oktober 2026), lalu dirapikan. Belum ada tag atau rilis
 bernomor di repo (`git tag` kosong), jadi pengelompokan per **tanggal**, bukan
 per versi. Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/)
 secara longgar.
@@ -21,6 +21,22 @@ tangan angka atau ringkasan di luar yang ada di riwayat. Untuk membuat versi
 bernomor, tambahkan tag (`git tag -a v0.1.0 -m "..."`) lalu bagi per tag.
 
 ---
+
+## 2026-10-10 (lanjutan)
+
+### Ditambahkan
+
+- **admin:** ganti sandi sendiri untuk semua peran, plus form "Sandi saya"
+- **ci:** build image di GitHub Actions, VPS tinggal pull dari GHCR
+
+### Perbaikan
+
+- **keamanan:** lima temuan terverifikasi kode (samaran waktu login, petunjuk
+  host gambar, catatan upgrade-insecure-requests, fallback Chromium)
+- **deploy:** sertakan `next.config.ts` di image runtime (tanpanya gambar
+  jarak jauh dibalas 400)
+
+Lainnya (hanya dihitung): docs 3.
 
 ## 2026-10-10
 

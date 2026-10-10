@@ -849,3 +849,36 @@ sekali kemungkinan OOM kedua saat build 1.0.1). Semua container naik
 sendiri via `unless-stopped`, database utuh (users 0, settings 12).
 Pelajaran: jangan build di VPS lagi dalam keadaan apa pun — jalur GHCR
 menghapus kebutuhan itu.
+
+---
+
+## Paket dokumentasi + lima temuan + sandi sendiri (2026-10-10, sesi agen)
+
+**Patch dokumentasi Claude** (`dokumentasi.patch`, basis `4d848c3`) diterapkan
+14/15 berkas di branch `docs/lengkapi-dokumentasi` (sudah merge ke `main`):
+7 dokumen baru, 6 koreksi usang, skrip `gen-api-doc.py`. Hunk
+`docs/DEPLOY-VPS.md` dibuang karena basi (mode live sudah terverifikasi).
+Angka diselaraskan ke HEAD saat itu: 63 berkas / 870 tes, audit 323 berkas,
+API 45 route.
+
+**Lima temuan Claude, semua dikerjakan** (commit `528e717`, sudah merge):
+1. Login: surel tak terdaftar menempuh scrypt dummy sebelum 401 (samarkan
+   waktu). Dikunci tes sumber di `tests/password.test.ts`.
+2. Peran ganti sandi: gate dipertahankan lalu diubah (butir di bawah).
+3. CSP img-src: petunjuk host di form admin (`FormBaris.tsx`), bukan
+   melonggarkan CSP atau mengetatkan API (keduanya dikunci tes).
+4. `upgrade-insecure-requests`: diukur aman di localhost via Chromium
+   headless, tanpa perubahan header.
+5. `executablePath` Chromium jadi fallback (config + 2 skrip uji).
+
+**Sandi sendiri untuk semua peran** (commit `27a5664`, sudah merge, atas
+instruksi pemilik): `POST .../users/[id]/password` mengizinkan akun sendiri
+dari peran apa pun, reset tetap super_admin. Form "Sandi saya" di halaman
+akun semua peran; tombol dialog hapus jadi "Ya, hapus"/"Batal". Terverifikasi
+di database scratch (migrate + seed, lalu di-drop): `cek:konten/tulis/admin`
+hijau, editor ganti sandi lalu masuk lagi, dialog hapus, off-canvas mobile.
+
+**Gerbang saat push:** lint 0, 870/63, build 169/169, E2E 13 lulus 3 dilewati,
+`cek:tautan` nihil mati. Branch dokumentasi sudah dihapus lokal dan remote
+setelah merge; `main` tidak pernah di-commit langsung (satu insiden HEAD
+pindah sesi lain diperbaiki sebelum push).
