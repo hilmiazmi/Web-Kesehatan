@@ -91,6 +91,12 @@ const nextConfig: NextConfig = {
            *   sama, jadi `connect-src 'self'` cukup.
            * - Foto datang dari `images.unsplash.com` dan `picsum.photos`, jadi
            *   hanya dua host itu yang diizinkan di `img-src`.
+           *   `fastly.picsum.photos` ikut dicantumkan karena `picsum.photos`
+           *   menjawab 302 ke host itu. Aturan `img-src` memeriksa setiap host
+           *   yang diminta, bukan hanya yang pertama, jadi tanpa baris ini
+           *   gambar picsum diblokir tepat setelah redirect — terlihat sebagai
+           *   gambar gagal dimuat walau URL asalnya sendiri diizinkan.
+           *   Diukur 10 Oktober 2026: 32 gambar beranda memakai picsum.
            * - Font Poppins datang dari `next/font/google`, yang mengunduhnya
            *   saat build lalu disajikan dari origin sendiri. Tidak ada
            *   permintaan ke `fonts.googleapis.com` saat runtime.
@@ -114,7 +120,7 @@ const nextConfig: NextConfig = {
               "default-src 'self'",
               "script-src 'self' 'unsafe-inline'",
               "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: blob: https://images.unsplash.com https://picsum.photos",
+              "img-src 'self' data: blob: https://images.unsplash.com https://picsum.photos https://fastly.picsum.photos",
               "font-src 'self' data:",
               "connect-src 'self'",
               "form-action 'self'",

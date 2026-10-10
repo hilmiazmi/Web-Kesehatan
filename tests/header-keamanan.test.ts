@@ -104,12 +104,20 @@ describe("isi CSP", () => {
     expect(csp).toContain("form-action 'self'");
   });
 
-  it("hanya mengizinkan dua host foto yang memang dipakai", () => {
+  it("mengizinkan host foto yang memang dipakai, termasuk tujuan redirect", () => {
     // Daftar ini harus sama dengan `remotePatterns` di `next.config.ts`.
     // Host yang lebih banyak berarti permukaan serang lebih luas tanpa alasan;
     // host yang lebih sedikit berarti gambar gagal dimuat.
+    //
+    // `fastly.picsum.photos` bukan host yang dipakai langsung oleh kode, tapi
+    // tetap wajib ada: `picsum.photos` menjawab 302 ke sana. Aturan `img-src`
+    // memeriksa setiap host yang diminta, bukan hanya yang pertama, jadi tanpa
+    // baris ini gambar picsum diblokir tepat setelah redirect — 32 gambar
+    // beranda mati karena alasan yang tidak terlihat dari URL asalnya.
     const hosts = [...csp.matchAll(/https:\/\/([a-z.]+)/g)].map((m) => m[1]);
-    expect(new Set(hosts)).toEqual(new Set(["images.unsplash.com", "picsum.photos"]));
+    expect(new Set(hosts)).toEqual(
+      new Set(["images.unsplash.com", "picsum.photos", "fastly.picsum.photos"]),
+    );
   });
 
   it("tidak mengizinkan eval, karena mode produksi tidak membutuhkannya", () => {

@@ -3,6 +3,7 @@ import { findArticle, listArticles } from "@/server/db/repo/content";
 import { ARTICLES } from "@/data/home";
 import { articleBody } from "@/data/article-body";
 import { NEWS_PHOTOS, photo } from "@/data/images";
+import { COVER_BERITA } from "@/data/cover-berita";
 
 /**
  * Sumber tunggal untuk isi berita pada halaman publik.
@@ -285,12 +286,34 @@ function dariStatis(slug: string): PublicArticleDetail | null {
 }
 
 /**
+ * Host yang boleh dilewatkan perkakas optimasi gambar.
+ *
+ * Daftarnya cermin dari `remotePatterns` di `next.config.ts`. Host di luar
+ * daftar — misalnya yang dimasukkan admin sembarangan — tetap memakai `src` apa
+ * adanya, supaya `next/image` tidak menolaknya.
+ *
+ * Fungsi ini ada supaya URL dari host yang memang diizinkan tetap dioptimasi:
+ * format WebP, lebar yang dipilih peramban, dan cache `/_next/image`. Sebelum
+ * ini setiap `cover_url` dari database dipaksa `unoptimized`, padahal sebagian
+ * besar datang dari host yang sudah terdaftar, jadi berita kehilangan optimasi
+ * tanpa alasan.
+ */
+const HOST_DIIZINKAN = ["images.unsplash.com", "picsum.photos"];
+
+export function hostGambarDiizinkan(url: string): boolean {
+  for (const host of HOST_DIIZINKAN) {
+    if (url.includes(`//${host}/`) || url.endsWith(`//${host}`)) return true;
+  }
+  return false;
+}
+
+/**
  * Sumber foto untuk kartu dan halaman detail berita.
  *
  * Dua kemungkinan, dan keduanya perlu perlakuan berbeda.
  *
- * Kalau admin mengisi `cover_url`, URL itu dipakai apa adanya dan Photo
- * diminta untuk tidak mengoptimasnya. `next/image` hanya mau memuat host yang
+ * Kalau admin mengisi `cover_url`, URL itu dipakai apa adanya. Host di luar
+ * daftar `HOST_DIIZINKAN` dipaksa tidak dioptimasi. `next/image` hanya mau memuat host yang
  * ada di `remotePatterns` pada `next.config.ts`,
  * sedangkan admin boleh memasukkan host apa pun yang diawali `http` atau
  * `https`. Tanpa `unoptimized`, satu URL dari luar daftar itu tidak sekadar
@@ -304,12 +327,30 @@ function dariStatis(slug: string): PublicArticleDetail | null {
  * `ARTICLES`, jadi tata letaknya tetap sama untuk pengunjung yang memakai data bawaan.
  */
 export function fotoBerita(
-  artikel: Pick<PublicArticle, "imageUrl">,
+  artikel: Pick<PublicArticle, "imageUrl" | "slug">,
   index: number,
   lebar: number,
   tinggi: number,
 ): { src: string; unoptimized: boolean } {
-  if (artikel.imageUrl) return { src: artikel.imageUrl, unoptimized: true };
+  if (artikel.imageUrl) {
+    return {
+      src: artikel.imageUrl,
+      // Host di luar daftar tetap ditulis apa adanya: `next/image` menolak host
+      // yang tidak terdaftar di `remotePatterns`, dan galat itu muncul sebagai
+      // kotak kosong di kartu berita.
+      unoptimized: !hostGambarDiizinkan(artikel.imageUrl),
+    };
+  }
+
+  // Berita tanpa `cover_url` — termasuk seluruh `ARTICLES` statis — dulu selalu
+  // memakai putaran `NEWS_PHOTOS` berdasarkan indeks. Indeks tidak tahu isi
+  // beritanya, jadi foto yang muncul kebetulan. Yang konteksnya jelas dipetakan
+  // lebih dulu; sisanya tetap memakai putaran lama supaya tata letak tidak
+  // berubah untuk berita yang memang tidak punya pasangan.
+  const peta = artikel.slug
+    ? COVER_BERITA.find((c) => c.slug === artikel.slug)
+    : undefined;
+  if (peta) return { src: photo(peta.foto, lebar, tinggi), unoptimized: false };
 
   const dasar = NEWS_PHOTOS[index % NEWS_PHOTOS.length];
   return { src: photo(dasar, lebar, tinggi), unoptimized: false };

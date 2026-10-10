@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ARTICLES } from "@/data/home";
+import { PHOTO, photo } from "@/data/images";
 
 /**
  * Content loader halaman publik.
@@ -159,19 +160,53 @@ describe("dariBarisArtikelDetail", () => {
 
 describe("fotoBerita", () => {
   it("memakai URL dari database dan menandai foto itu tidak dioptimasi", () => {
-    const hasil = fotoBerita({ imageUrl: "https://contoh.test/foto.jpg" }, 0, 600, 400);
+    const hasil = fotoBerita(
+      { imageUrl: "https://contoh.test/foto.jpg", slug: "x" },
+      0,
+      600,
+      400,
+    );
 
     expect(hasil.src).toBe("https://contoh.test/foto.jpg");
     expect(hasil.unoptimized).toBe(true);
   });
 
+  it("kebalikannya: URL dari host yang diizinkan tetap dioptimasi", () => {
+    // Dulu setiap `cover_url` dipaksa tidak dioptimasi. Host yang memang sudah
+    // ada di `remotePatterns` bisa dilewatkan optimasi seperti foto bawaan,
+    // jadi WebP dan pemilihan lebar tidak hilang sia-sia.
+    const hasil = fotoBerita(
+      { imageUrl: "https://images.unsplash.com/photo-abc?w=600", slug: "x" },
+      0,
+      600,
+      400,
+    );
+
+    expect(hasil.unoptimized).toBe(false);
+  });
+
   it("memakai foto stok bergiliran kalau database tidak punya foto", () => {
-    const a = fotoBerita({}, 0, 600, 400);
-    const b = fotoBerita({}, 1, 600, 400);
+    // Slugnya sengaja kosong: berita tanpa slug tidak punya pemetaan konteks,
+    // jadi kedua panggilan ini memang harus jatuh ke putaran indeks.
+    const a = fotoBerita({ slug: "" }, 0, 600, 400);
+    const b = fotoBerita({ slug: "" }, 1, 600, 400);
 
     expect(a.unoptimized).toBe(false);
     expect(b.unoptimized).toBe(false);
     expect(a.src).not.toBe(b.src);
+  });
+
+  it("memakai foto yang sesuai konteks slug, bukan putaran indeks", () => {
+    // Berita kanker harus dapat foto kanker, bukan foto ke-3 di daftar
+    // putaran. Inilah yang membuat kartu berita tidak lagi memakai gambar
+    // yang kebetulan.
+    //
+    // Indeksnya sengaja besar: kalau slug tidak diperiksa lebih dulu, indeks 99
+    // jatuh di foto lain sama sekali dan tes ini gagal seperti seharusnya.
+    const hasil = fotoBerita({ slug: "skrining-kanker-wanita-diperluas" }, 99, 600, 400);
+
+    expect(hasil.src).toBe(photo(PHOTO.kangker, 600, 400));
+    expect(hasil.unoptimized).toBe(false);
   });
 });
 
