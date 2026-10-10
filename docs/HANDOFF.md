@@ -740,3 +740,42 @@ tidak ada (pengunci sebenarnya `e2e/a11y.test.ts`), butir 6 masih 148.
 kunci-build dua-kunci sudah diterapkan sesi ini (lihat 3.23 dan butir 2
 bagian 4);
 angka dokumen butuh commit bersamaan + tanggal ukur. Rincian di roadmap.
+
+---
+
+## Deploy VPS + auth produksi terverifikasi (2026-10-10)
+
+**Aturan sesi ini:** tidak satu pun alamat IP, isi log server, nama pengguna,
+kredensial, atau detail mesin yang ditulis di dokumen, chat, maupun commit.
+Hanya status ringkas. Kredensial dibuat dengan `openssl` di VPS, disimpan di
+`~/web-kesehatan/.env` (izin 600); yang sementara (`.env.seed`, cookie uji)
+dihapus setelah verifikasi.
+
+**Image `web-kesehatan:1.0.0` (1,31 GB) dibangun dari `HEAD` di VPS:**
+snapshot `git archive` (tanpa `.env*`/`.next`) terkirim utuh, build sukses
+dari awal sampai akhir tanpa SSH putus. Container snapshot di localhost:3000:
+homepage 200, API paket 200, health healthy — sama seperti verifikasi
+2026-10-09, kini dari kode terbaru.
+
+**Database produksi siap:** container postgres khusus aplikasi (bukan milik
+Coolify/proyek lain — tidak disentuh), volume persisten, migrasi sukses,
+seed mengisi 20 tabel termasuk 12 pengaturan situs.
+
+**Auth login terverifikasi penuh terhadap build produksi mode live:**
+login benar 200 + cookie sesi, sandi salah 401, `/admin` tanpa sesi 307,
+dengan sesi 200, API stats dengan sesi 200 dan tanpa sesi 401, halaman login
+200. Akun admin sementara dihapus sesudahnya (`users` kembali 0, isi konten
+tetap); `.env.seed` dan container uji live dibuang.
+
+**Dua temuan untuk pemilik:**
+1. Langkah migrasi di `docs/DEPLOY-VPS.md` tidak jalan apa adanya (runner
+   image tidak memuat `drizzle/`/`drizzle.config.ts`/`scripts/`). Dokumen
+   diperbaiki sesi ini dengan perintah snapshot+`oven/bun` yang terbukti.
+   Kalau migrasi dari dalam image diinginkan (perintah sekali jalan
+   Coolify), `Dockerfile` perlu menyertakan ketiga path itu.
+2. Yang tersisa sebelum HTTPS publik: domain menunjuk ke VPS, routing
+   reverse proxy, `ADMIN_ORIGIN` + `NEXT_PUBLIC_SITE_URL` diawali `https://`,
+   akun admin asli (jalankan seed lagi dengan `SEED_ADMIN_*` milik Anda),
+   lalu jalankan container mode live. Direktori kerja memakai
+   `~/web-kesehatan` (bukan `/srv/...` seperti dokumen) karena `/srv` butuh
+   sudo; pindah kalau Anda menghendaki.

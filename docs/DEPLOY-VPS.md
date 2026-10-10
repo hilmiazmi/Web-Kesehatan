@@ -94,14 +94,45 @@ dan melewati lapisan TLS sama sekali.
 
 ## 4. Migrasi database
 
+> **Catatan 10 Oktober 2026: perintah image di bawah tidak jalan apa adanya.**
+> Tahap runner di `Dockerfile` tidak menyertakan `drizzle/`,
+> `drizzle.config.ts`, maupun `scripts/`, jadi `bun run db:migrate` di dalam
+> image gagal dengan `drizzle.config.json file does not exist`. Yang terbukti
+> jalan: menjalankan migrasi dari snapshot kode dengan image `oven/bun`
+> (contoh di bawah). Kalau migrasi dari dalam image aplikasi diinginkan
+> (misalnya untuk perintah sekali jalan Coolify), `Dockerfile` perlu
+> menyertakan ketiga path itu lebih dulu.
+
 ```bash
 docker run --rm \
-  --env-file /srv/web-kesehatan/.env \
-  -v /srv/web-kesehatan/app:/app \
-  --entrypoint bun \
-  web-kesehatan:1.0.0 \
-  run db:migrate
+  --network webkes \
+  --env-file ~/web-kesehatan/.env \
+  --env-file ~/web-kesehatan/.env.seed \
+  -v /tmp/build-42589c8:/work -w /work \
+  oven/bun:1.4.2-alpine bun install --frozen-lockfile
+docker run --rm \
+  --network webkes \
+  --env-file ~/web-kesehatan/.env \
+  --env-file ~/web-kesehatan/.env.seed \
+  -v /tmp/build-42589c8:/work -w /work \
+  oven/bun:1.4.2-alpine bun run db:migrate
+docker run --rm \
+  --network webkes \
+  --env-file ~/web-kesehatan/.env \
+  --env-file ~/web-kesehatan/.env.seed \
+  -v /tmp/build-42589c8:/work -w /work \
+  oven/bun:1.4.2-alpine bun run db:seed
 ```
+
+`.env` berisi `DATABASE_URL` ke container postgres di network yang sama
+(misalnya `postgres://rsud_app@pg-webkes:5432/rsud_produksi`, kredensial
+asli tidak ditulis di sini) plus `AUTH_SECRET` minimal 32 karakter, karena
+`db:seed` memanggil `config()` penuh. `.env.seed` berisi `SEED_ADMIN_EMAIL`,
+`SEED_ADMIN_PASSWORD` (minimal 10 karakter), dan opsional
+`SEED_ADMIN_NAME`; validasinya berjalan walau admin sudah ada. Terbukti
+10 Oktober 2026: migrasi sukses, seed mengisi 20 tabel termasuk 12
+pengaturan situs. `bun install` dibutuhkan sekali saja karena `db:seed`
+mengimpor kode `src/` lewat TypeScript.
 
 `--rm` membuang container sesudah selesai. `--entrypoint bun` mengganti
 perintah awal image dengan `bun`, lalu `run db:migrate` menjalankan
@@ -228,8 +259,10 @@ halaman, bukan berarti database bermasalah. Bedakan dua hal itu lewat log.
 
 - **`snapshot/` ikut ke dalam image.** Mode `API_MODE=snapshot` membaca berkas
   JSON dari folder itu saat runtime, jadi jangan hapus dari `.dockerignore`.
-- **Image belum diverifikasi.** Build di mesin tanpa izin Docker. Jalankan
-  sekali build lokal sebelum mengandalkannya di server.
+- **Image sudah diverifikasi dua kali.** 2026-10-09 dari build pertama, dan
+  10 Oktober 2026 dari `HEAD` (`web-kesehatan:1.0.0`, 1,31 GB): build sukses
+  dari awal, container snapshot menjawab homepage 200 + API 200 + health
+  healthy.
 - **`output: 'standalone'` belum dipakai.** Image ini memakai `next start`
   dengan `node_modules` penuh, jadi ukurannya lebih besar dari yang bisa
   dicapai. Mengaktifkan `standalone` di `next.config.ts` akan mengecilkan
