@@ -76,6 +76,11 @@ jobs:
       - name: Siapkan skema dan data contoh
         env:
           DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/rsud_uji
+          # `db:seed` memanggil `config()` penuh lewat `dbOrNull()`, jadi
+          # validasi `AUTH_SECRET` ikut berjalan walau seed tidak menyentuh
+          # auth sama sekali. Tanpa ini langkah gagal sebelum menyentuh
+          # database. Nilai sama dengan langkah E2E di bawah.
+          AUTH_SECRET: e2e-secret-minimal-32-karakter-abcdefgh
         run: |
           bun run db:migrate
           bun run db:seed
