@@ -307,3 +307,74 @@ minimum 24x24 — artefak konteks carousel).
 
 163 halaman (syarat 25), galeri 6 foto, navigasi tiga tingkat, 28 tabel
 database fiktif. Tidak ada klaim baru di luar yang terbukti di atas.
+
+---
+
+# Laporan 10 Oktober 2026
+
+Periode laporan: **10 Oktober 2026**
+Commit awal periode: `8ea3ffc` · Commit akhir periode: `2d5aa87`
+(25 commit sepanjang hari itu)
+
+## 1. Ringkasan
+
+| Ukuran | Nilai | Cara menghitung |
+|---|---|---|
+| Halaman HTML ter-build | **150** | berkas `.html` di `.next/server/app` minus dua cadangan Next.js |
+| Route Handler `/api/v1` | **45** | 44 endpoint + catcher 404 (tambah `admissions`) |
+| Tabel PostgreSQL | **28** | `pgTable(` di `src/server/db/schema.ts` |
+| Migrasi SQL | **6** | berkas `.sql` di `drizzle/` |
+| Test Vitest | **867** di **63 berkas** | keluaran `bun run test` |
+| Test Playwright | **16** | 8 publik + 5 aksesibilitas + 3 alur ber-database |
+| Skor Performance Lighthouse mobile | **87** | median 3 jalan, naik dari 84 |
+
+Gerbang kualitas pada commit `2d5aa87`:
+
+```
+bun run lint     → 0 error, 0 warning
+bun run test     → 867 lulus, 0 gagal
+bun run test:e2e → 13 lulus, 2 dilewati (butuh kredensial DB)
+alur-db live     → 3 lulus (server live + basis uji segar)
+bun run build    → 169/169 halaman statis
+bun run cek:tautan → 150 halaman, 150 tautan, 149 sitemap, bersih
+```
+
+## 2. Yang dikerjakan
+
+| Pekerjaan | Commit |
+|---|---|
+| Kalibrasi scrim hero (kontras 4.76-5.19) + skrip backup + tutup CLS | `85701dc`, `b2f0f40`, `e7cdcb6` |
+| Foto dekoratif dinyatakan eksplisit + perkuat tes a11y dua arah (PR #45, sudah merge) | `12ae10a`, `ab26e25`, `c3e53b9` |
+| Perbaiki workflow E2E ber-database (`AUTH_SECRET`, `SEED_ADMIN_*`) + bukti CI hijau | `d7e88d0`, `f6224aa`, `89ff6e9` |
+| Kunci build paralel + protokol dua arah bertoken + teardown | `039b5a3`, `46bd920` |
+| E2E a11y diperluas ke 4 halaman kunci | `ca01d0d` |
+| E2E kritik dan daftar online lewat peramban sampai tersimpan | `8205648`, `2d5aa87` |
+| Disiplin prefetch: Performance 84 ke 87 | `c5c699f` |
+| Sinkronisasi angka README/roadmap + masukan riset | `044b49c`, `ce81eb3`, `42589c8` |
+
+Bukti backup pulih: dump 103 KB di-restore ke basis kedua, hitungan
+28 tabel identik, isi join dokter-jadwal identik, rotasi menghapus yang
+lama dan melindungi yang terbaru. Basis uji di-drop setelahnya.
+
+## 3. Kendala
+
+**Sesi paralel memakai cluster database yang sama.** `pg_ctl stop`
+dijalankan sesi ini tidak menghentikan postmaster (masih hidup dan
+melayani), dan basis `rsud_uji_cek` yang sudah di-drop muncul kembali
+dengan isi segar — sesi lain sedang memakai nama yang sama di port yang
+sama. Pelajaran: untuk verifikasi, `initdb` cluster sendiri di port
+sendiri (dipakai 5436) dan matikan postmaster lewat PID eksplisit yang
+sudah diverifikasi, bukan lewat `pg_ctl stop` saja. Basis dan proses
+milik sesi lain (`pgdata2`:5434, `pgdata3`:5435) tidak disentuh.
+
+**Perintah background `A && B &` menyesatkan.** Operator `&`
+mem-background-kan seluruh rantai `&&`, sehingga `eval` kredensial
+jalan di subshell dan password hilang di shell induk, sementara pesan
+"siap" tercetak walau server belum tentu nyala. Jalankan `siapkan`
+di foreground dan periksa endpoint sebelum menyimpulkan.
+
+## 4. Rencana berikutnya
+
+Yang tersisa dari daftar lama hanya dua butir opsional (Performance di
+atas 90 — kini 87 — dan baca-nyaring/analytics) plus deploy produksi
+yang butuh domain dan keputusan pemilik. Tidak ada butir wajib.
