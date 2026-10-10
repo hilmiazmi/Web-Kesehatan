@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Sparkline from "@/components/admin/Sparkline";
+import MuatUlang from "@/components/admin/MuatUlang";
 import { dbOrNull } from "@/server/db/client";
 import {
   appointmentsPerDay,
@@ -99,7 +100,10 @@ export default async function AdminDashboardPage() {
 
   return (
     <div>
-      <h1 className="mb-3">Dasbor</h1>
+      <div className="admin-kepala">
+        <h1 className="mb-0">Dasbor</h1>
+        <MuatUlang />
+      </div>
 
       <h2 className="fs-5 mb-3">Perlu ditangani</h2>
       <dl className="row g-3 mb-4">

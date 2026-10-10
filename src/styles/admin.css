@@ -272,6 +272,35 @@ body:has(#admin-halaman) > #main-content {
   text-overflow: ellipsis;
 }
 
+/*
+ * Baris kepala halaman panel: judul di kiri, tombol aksi di kanan.
+ *
+ * `flex-wrap` dipakai supaya di layar sempit tombol pindah ke baris berikutnya,
+ * bukan mendorong judul keluar tempat.
+ */
+.admin-kepala {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+/* Tombol muat ulang dan keterangan jam terakhir diperbarui, satu kelompok
+   supaya keduanya tidak terpisah saat barisnya membungkus. */
+.admin-muat-ulang {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.admin-muat-ulang-waktu {
+  font-size: 13px;
+  color: var(--rs-text-body);
+}
+
 .admin-body {
   padding: 24px;
   flex: 1 1 auto;
