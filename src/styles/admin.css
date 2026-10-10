@@ -301,6 +301,30 @@ body:has(#admin-halaman) > #main-content {
   color: var(--rs-text-body);
 }
 
+/*
+ * Bilah aksi massal: muncul di atas tabel setelah ada baris yang dicentang.
+ *
+ * `flex-wrap` supaya di layar sempit tombol turun baris alih-alih mendorong
+ * keluar layar, dan latar terang memisahkannya dari tabel di bawahnya.
+ */
+.admin-bulk {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  border: 1px solid var(--rs-gray-300);
+  border-radius: var(--rs-radius-btn);
+  background: var(--rs-section-light);
+}
+
+/* Kotak centang sejajar tengah dengan teks barisnya, tidak tergantung pada
+   perataan bawaan Bootstrap yang bisa berbeda antar versi. */
+.admin-table .form-check-input {
+  margin: 0;
+  cursor: pointer;
+}
+
 .admin-body {
   padding: 24px;
   flex: 1 1 auto;

@@ -195,6 +195,84 @@ export async function listInbox(
   };
 }
 
+/**
+ * Batas aksi massal.
+ *
+ * Bukan batas teknis, tapi batas kecelakaan: satu klik yang tanpa sengaja
+ * menerapkan ratusan baris lebih mudah terjadi daripada orang memang memilih
+ * seratus tiket satu per satu. Satu halaman panel memuat 25 baris, jadi batas
+ * ini masih memberi ruang untuk menyaring beberapa kali sebelum menolak.
+ */
+export const BATAS_AKSI_MASSAL = 100;
+
+/**
+ * Periksa aksi massal sebelum menyentuh database.
+ *
+ * Dipisah dari `updateStatusBanyak` supaya aturannya bisa diuji tanpa database,
+ * mengikuti pola `hakAksesDiriSendiri` di `accounts.ts`.
+ */
+export function periksaAksiMassal(
+  kind: InboxKind,
+  ids: readonly string[],
+  status: string,
+): { ids: string[]; status: string } {
+  // Survei diperiksa lebih dulu supaya pesannya tetap menjelaskan bahwa jenis
+  // ini memang tidak punya status, bukan sekadar "tidak dikenal".
+  if (!kind.hasStatus) {
+    throw ApiError.badRequest(
+      "Survei tidak punya status. Gunakan kolom komentar bila perlu mencatat tindak lanjut.",
+    );
+  }
+
+  if (ids.length === 0) {
+    throw ApiError.badRequest("Belum ada baris yang dipilih.");
+  }
+
+  if (ids.length > BATAS_AKSI_MASSAL) {
+    throw ApiError.badRequest(
+      `Pilihan maksimal ${BATAS_AKSI_MASSAL} baris sekaligus, bukan ${ids.length}.`,
+    );
+  }
+
+  if (!kind.statuses.includes(status as never)) {
+    throw ApiError.badRequest("Status tidak dikenal.");
+  }
+
+  // Duplikat dibuang: panel menyimpan pilihan sebagai daftar id, dan satu id
+  // yang sama dua kali tidak boleh membuat `updated` melaporkan angka yang
+  // lebih besar dari baris yang benar-benar berubah.
+  const unik = [...new Set(ids)];
+  return { ids: unik, status };
+}
+
+/**
+ * Ubah status banyak baris sekaligus.
+ *
+ * Satu query dengan `= ANY(...)`, bukan satu query per baris: sepuluh tiket
+ * tidak boleh berarti sepuluh perjalanan ke database.
+ *
+ * `admin_note` sengaja tidak disentuh. Catatan tindak lanjut itu per baris, dan
+ * menempelkan catatan yang sama ke sepuluh baris sekaligus akan menyesatkan
+ * orang yang membacanya kemudian.
+ */
+export async function updateStatusBanyak(
+  db: Db,
+  kind: InboxKind,
+  ids: readonly string[],
+  status: string,
+): Promise<{ updated: number }> {
+  const { ids: dipilih } = periksaAksiMassal(kind, ids, status);
+
+  const rows = await db.execute(sql`
+    UPDATE ${sql.raw(`"${kind.table}"`)}
+       SET status = ${status}
+     WHERE id = ANY(${dipilih}::uuid[])
+    RETURNING id
+  `);
+
+  return { updated: rows.length };
+}
+
 /** Ubah status satu baris dan simpan catatan admin. */
 export async function updateStatus(
   db: Db,
