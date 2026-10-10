@@ -35,7 +35,7 @@ import type { CSSProperties } from "react";
  * ikut memakai `high` setiap kali foto di-preload.
  *
  * `unoptimized` dipakai untuk foto yang alamatnya berasal dari database, bukan
- * dari `src/data/images.ts`.(next/image) menolak host yang tidak terdaftar di
+ * dari `src/data/images.ts`. `next/image` menolak host yang tidak terdaftar di
  * `remotePatterns` pada `next.config.ts`, sedangkan admin boleh memasukkan host
  * apa pun yang diawali `http` atau `https`. Dengan `unoptimized`, komponen
  * menulis `src` apa adanya ke `img` dan permintaan ke `/_next/image` tidak pernah
@@ -84,7 +84,7 @@ export default function Photo({
         // Kedua atribut dipasang bersama: `role` mengeluarkan gambar dari
         // urutan pembacaan, `aria-hidden` memastikan ia tidak tersisa di
         // pohon aksesibilitas kalau salah satunya tidak dikenali.
-        // mutasi: penanda sengaja dilepas
+        {...(dekoratif(alt) ? PROPS_DEKORATIF : {})}
       />
     </div>
   );
