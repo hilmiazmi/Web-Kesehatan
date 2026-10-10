@@ -35,8 +35,19 @@ test.describe("skip-link", () => {
 });
 
 test.describe("nama elemen", () => {
+  /**
+   * Diperiksa di halaman kunci, bukan hanya beranda. Satu halaman yang lolos
+   * tidak membuktikan halaman lain: `/daftar-online` punya formulir
+   * terpanjang (paling banyak field tanpa label potensial), `/berita`
+   * merender dari database (jalur `content-loader`, bukan modul statis),
+   * dan `/jadwal-dokter` memuat foto dokter secara async.
+   */
+  const HALAMAN_KUNCI = ["/", "/daftar-online", "/berita", "/jadwal-dokter"];
+
   test("tidak ada gambar tanpa alt dan field tanpa label", async ({ page }) => {
-    await page.goto("/");
+    for (const path of HALAMAN_KUNCI) {
+      await test.step(`halaman ${path}`, async () => {
+        await page.goto(path);
 
     const hasil = await page.evaluate(() => {
       /**
@@ -126,14 +137,23 @@ test.describe("nama elemen", () => {
     // Jadi assertion yang terlihat benar justru tidak menangkap apa pun.
     // Verifikasi: `dekoratif()` di `Photo` yang selalu `true` disembunyikan
     // 56 gambar ber-alat di beranda, dan tes ini tetap hijau.
-    expect(hasil.tanpaAlt).toEqual([]);
-    expect(hasil.terlaluDisembunyikan).toEqual([]);
-    expect(hasil.tanpaLabel).toBe(0);
+    //
+    // Pesan (argumen kedua) menyebut halaman: tanpa itu, kegagalan di
+    // `/jadwal-dokter` terlihat sama dengan kegagalan di beranda.
+    expect(hasil.tanpaAlt, `tanpaAlt di ${path}`).toEqual([]);
+    expect(hasil.terlaluDisembunyikan, `disembunyikan di ${path}`).toEqual([]);
+    expect(hasil.tanpaLabel, `tanpaLabel di ${path}`).toBe(0);
+      });
+    }
   });
 
   test("dokumen menyatakan bahasa", async ({ page }) => {
-    await page.goto("/");
-    expect(await page.evaluate(() => document.documentElement.lang)).toBe("id");
+    for (const path of HALAMAN_KUNCI) {
+      await test.step(`halaman ${path}`, async () => {
+        await page.goto(path);
+        expect(await page.evaluate(() => document.documentElement.lang)).toBe("id");
+      });
+    }
   });
 });
 
