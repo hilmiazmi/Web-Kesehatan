@@ -42,7 +42,7 @@ export default function AdminShell({
           canManageUsers={canManageUsers(claims.role)}
         />
 
-        <div className="admin-brand">
+        <div className="admin-brand admin-side-foot">
           <span>
             {claims.name} — {ROLE_LABEL[claims.role]}
           </span>
@@ -58,7 +58,7 @@ export default function AdminShell({
             <span className="admin-avatar" aria-hidden="true">
               {claims.name.charAt(0)}
             </span>
-            <span>{claims.email}</span>
+            <span className="admin-user-surel">{claims.email}</span>
             <span className="admin-role">{ROLE_LABEL[claims.role]}</span>
             <LogoutButton />
           </div>

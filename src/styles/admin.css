@@ -223,6 +223,12 @@ body:has(#admin-halaman) > #main-content {
   gap: 12px;
   font-size: 14px;
   color: var(--rs-text-body);
+  /* `min-width: 0` wajib ada di sini, bukan hanya di anaknya: `.admin-user`
+     sendiri adalah flex item dari `.admin-top`, dan default flex item adalah
+     `min-width: auto` yang menolak menyusut lebih kecil dari isi teksnya. Tanpa
+     baris ini, surel yang sudah dipotong elipsis di dalam tetap mendorong
+     tombol Keluar keluar layar. Diukur 10 Oktober 2026 pada 390px. */
+  min-width: 0;
 }
 
 /* Lingkaran inisial nama. Dibuat di server dari huruf pertama, jadi tidak
@@ -248,6 +254,22 @@ body:has(#admin-halaman) > #main-content {
   padding: 3px 10px;
   font-size: 13px;
   color: var(--rs-accent-teks);
+}
+
+/*
+ * Surel di topbar dipotong dengan elipsis, bukan didorong sampai keluar layar.
+ *
+ * Diukur 10 Oktober 2026 pada viewport 390px lewat Chromium headless: tanpa
+ * aturan ini `.admin-user` membentang dari 95px sampai 459px pada layar selebar
+ * 390px, sehingga tombol Keluar terpotong 69px dan tidak bisa diklik seluruhnya.
+ * `min-width: 0` wajib ada karena default flex item adalah `min-width: auto`,
+ * yang menolak menyusut lebih kecil dari isi teksnya.
+ */
+.admin-user-surel {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .admin-body {
@@ -673,10 +695,47 @@ body:has(#admin-halaman) > #main-content {
   }
 
   .admin-nav {
-    max-height: 320px;
+    /* 320px terlalu banyak di layar sempit: navigasi memakan hampir seluruh
+       tinggi layar sebelum isi dasbornya terlihat. Daftarnya tetap panjang,
+       jadi yang dipangkas adalah kotak gulirnya, bukan jumlah menu. */
+    max-height: 168px;
+  }
+
+  /* Nama dan peran sudah tampil di topbar (avatar, surel, lencana peran), jadi
+     kaki sidebar hanya mengulang hal yang sama di layar yang sempit. */
+  .admin-side-foot {
+    display: none;
+  }
+
+  /* Judul "Panel Admin" di topbar sudah ada sebagai merek di paling atas
+     sidebar, tepat di atas konten. Di layar sempit baris itu hanya memakan
+     ruang yang lebih berguna untuk surel dan tombol Keluar. */
+  .admin-top > strong {
+    display: none;
+  }
+
+  .admin-top {
+    /* 24px sisi-sisi menjadi 16px supaya surel dan tombol Keluar punya ruang
+       lebih banyak sebelum elipsis-nya bekerja. */
+    padding: 12px 16px;
   }
 
   .admin-form-grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/*
+ * Ponsel sempit (di bawah 576px).
+ *
+ * Lencana peran disembunyikan di sini, bukan di breakpoint 991.98px, karena
+ * tablet masih punya ruang untuk ketiganya. Yang lebih berguna di topbar layar
+ * sempit adalah surel yang menunjukkan siapa yang sedang masuk; peran tetap
+ * terbaca di halaman Akun. Diukur 10 Oktober 2026 pada 390px: tanpa aturan ini
+ * surel hanya mendapat 99px dan tetap terpotong.
+ */
+@media (max-width: 575.98px) {
+  .admin-user .admin-role {
+    display: none;
   }
 }
