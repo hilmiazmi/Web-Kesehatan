@@ -707,8 +707,10 @@ catcher dan registry 17 diverifikasi tetap benar, tidak diubah.
    sesi ini memverifikasi (56 tertangkap, panel lolos) dan membersihkan typo
    (`Fatanya`→`Perannya sebagai`, `Propi-nya`→`Prop-nya`, `sighted`→`orang
    yang bisa melihat`).
-2. `AUTH_SECRET` ditambah di langkah seed `.github/workflows/e2e-db.yml`
-   beserta komentar alasan; bukti = run CI setelah push.
+2. `AUTH_SECRET` + `SEED_ADMIN_*` ditambah di langkah seed
+   `.github/workflows/e2e-db.yml` (dua lapis, ketahuan satu per satu dari log
+   CI). Terbukti run `38033040538`: seed 20 tabel, E2E lulus, `main` hijau
+   penuh. Commit lanjutan `f6224aa`.
 3. Angka `README.md` diluruskan (856/62, 150 halaman, 169/169).
 4. Protokol kunci build paralel: `scripts/kunci-build.ts` baru (tandai/lepas/
    tunggu + deteksi proses `next-build` mentah), `prebuild`/`postbuild`/

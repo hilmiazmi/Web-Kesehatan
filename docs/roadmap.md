@@ -1240,8 +1240,9 @@ yang sebaiknya didahulukan karena menyangkut kebenaran `main`, bukan selera.
    `SEED_ADMIN_EMAIL`/`SEED_ADMIN_PASSWORD` sebelum memeriksa admin sudah ada,
    jadi seed butuh keduanya walau database sudah terisi. Perbaikannya tambah
    ketiga variabel dummy di langkah seed (database CI sekali pakai dan dibuang
-   tiap run); `config()` tidak dilemahkan. Buktinya run CI setelah push
-   (bukan klaim lokal).
+   tiap run); `config()` tidak dilemahkan. Terbukti run CI `38033040538`:
+   migrasi sukses, seed mengisi 20 tabel, E2E alur-db lulus. `main` hijau
+   penuh pertama kalinya (Gerbang + E2E ber-database + pages-build).
 2. **Angka basi di `README.md`, diluruskan sesi ini.** Sekarang menulis 856
    tes di 62 berkas, 150 halaman dari 152 berkas HTML, dan `169/169`.
    Endpoint 44 dan tabel 28 memang sudah benar dan tidak diubah.
