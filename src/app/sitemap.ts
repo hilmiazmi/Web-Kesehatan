@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { ARTICLES } from "@/data/home";
 import { collectSitemapPaths } from "@/lib/sitemap";
 import { getPublicArticles } from "@/lib/content-loader";
-import { siteUrlFor } from "@/lib/site-url";
+import { siteUrlPermintaan } from "@/lib/site-url";
 
 /**
  * Peta situs untuk mesin pencari.
@@ -13,7 +13,9 @@ import { siteUrlFor } from "@/lib/site-url";
  * URL-nya harus absolut lengkap dengan domain. `metadataBase` di
  * `src/app/layout.tsx` tidak berlaku di sini: itu hanya untuk `metadata`,
  * dan sitemap memakai aturan sendiri. Karena itu domain diambil dari
- * `siteUrlFor()`, yang membaca env yang sama dengan `metadataBase`.
+ * `siteUrlForPermintaan()`, yang membaca host permintaan lebih dulu: tanpa itu,
+ * deployment di balik tunnel atau domain yang berganti menghasilkan sitemap
+ * berisi `http://localhost:3000/...` — sudah terjadi di produksi 10 Oktober 2026.
  *
  * Aturan pathname-nya ada di `collectSitemapPaths()` pada
  * `src/lib/sitemap.ts`, supaya bisa diuji tanpa merender.
@@ -28,14 +30,22 @@ import { siteUrlFor } from "@/lib/site-url";
  * statis. `/berita/<slug>` untuk kedua kelompok itu sama-sama dilayani, jadi
  * keduanya harus sama-sama masuk sitemap. `collectSitemapPaths()` memakai
  * `Set`, jadi slug yang kebetulan kembar tidak menghasilkan URL ganda.
+ *
+ * `force-dynamic` bukan kemewahan. `revalidate = 3600` membekukan hasil di
+ * build, dan domain yang benar baru diketahui saat permintaan datang (tunnel,
+ * IP, domain yang diganti setelah image dibangun). Tanpa baris ini,
+ * `siteUrlPermintaan()` membaca header yang tidak pernah sampai karena
+ * responsnya sudah disajikan dari cache build — dan itu yang terjadi di
+ * produksi 10 Oktober 2026: sitemap tetap memuat `http://localhost:3000/`.
  */
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const dariDb = await getPublicArticles();
+  const dasar = await siteUrlPermintaan();
 
   return collectSitemapPaths([...ARTICLES, ...dariDb]).map((entri) => ({
-    url: siteUrlFor(entri.path),
+    url: `${dasar}${entri.path}`,
     changeFrequency: entri.changeFrequency,
     priority: entri.priority,
   }));
