@@ -90,4 +90,42 @@ test.describe("alur ber-database", () => {
 
     await ctx.dispose();
   });
+
+  test("formulir kritik terkirim lewat peramban sampai tersimpan", async ({
+    page,
+  }) => {
+    // Yang ini memakai peramban sungguhan, bukan API langsung: mengisi
+    // formulir di /kontak, menekan Kirim, dan membaca kode tiket dari dialog
+    // SweetAlert2. Baris API-nya sudah dibuktikan tes di atas; yang
+    // dibuktikan di sini adalah seluruh rantai dari klik sampai tersimpan.
+    //
+    // Pesan diawali "Pesan uji E2E" supaya ikut terhapus oleh
+    // `scripts/bersihkan-admin-uji.ts` seperti baris uji API.
+    const pesan = `Pesan uji E2E ${Date.now()} lewat peramban di /kontak.`;
+    await page.goto("/kontak");
+    await page.locator("#fb-pesan").fill(pesan);
+    await page.getByRole("button", { name: "Kirim Pesan" }).click();
+
+    // Sukses ditampilkan lewat dialog SweetAlert2, bukan navigasi.
+    await expect(page.locator(".swal2-popup")).toBeVisible({ timeout: 15000 });
+    const html = await page.locator(".swal2-html-container").innerHTML();
+    const cocok = html.match(/Kode tiket:\s*<b>([^<]+)<\/b>/);
+    const tiket = (cocok?.[1] ?? "").trim().toUpperCase();
+    expect(tiket.length).toBeGreaterThan(0);
+
+    // Tiketnya terlacak publik dan muncul di inbox admin (lewat sesi API,
+    // supaya yang diuji peramban hanya alur formulirnya).
+    const ctx = await request.newContext({ baseURL: BASE });
+    const masuk = await ctx.post("/api/v1/auth/login", {
+      data: { email: EMAIL, password: SANDI },
+    });
+    expect(masuk.status()).toBe(200);
+    const lacak = await ctx.get(`/api/v1/tickets/feedbacks/${tiket}`);
+    expect(lacak.status()).toBe(200);
+    expect(await lacak.text()).toContain(tiket);
+    const inbox = await ctx.get("/api/v1/admin/inbox/feedbacks?page=1");
+    expect(inbox.status()).toBe(200);
+    expect(await inbox.text()).toContain(tiket);
+    await ctx.dispose();
+  });
 });
