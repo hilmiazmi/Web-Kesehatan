@@ -13,6 +13,15 @@ export const dynamic = "force-dynamic";
 
 type Konteks = { params: Promise<{ id: string }> };
 
+/**
+ * Setel ulang sandi akun lain tanpa meminta sandi lama.
+ *
+ * Hanya super_admin, dan itu disengaja: tanpa penjaga peran, endpoint ini
+ * jadi jalan mengambil alih akun siapa pun. Dipakai untuk akun bawahan atau
+ * pemulihan saat pemilik akun lupa sandinya (ganti sandi sendiri yang masih
+ * ingat sandi lama lewat endpoint `password`). `session_version` ikut naik,
+ * jadi target perlu login ulang di semua perangkatnya.
+ */
 export async function POST(request: NextRequest, context: Konteks): Promise<NextResponse> {
   return handle(async () => {
     await requireSession(canManageUsers);

@@ -212,6 +212,8 @@ export default function AccountsManager({ akunSendiri }: { akunSendiri: string }
       title: "Hapus akun ini?",
       text: `Akun ${a.email} tidak bisa lagi masuk setelah dihapus. Akun sendiri tidak bisa dihapus dari layar ini.`,
       showCancelButton: true,
+      confirmButtonText: "Ya, hapus",
+      cancelButtonText: "Batal",
       confirmButtonColor: "#1977cc",
     });
 
@@ -457,8 +459,8 @@ export default function AccountsManager({ akunSendiri }: { akunSendiri: string }
         <i className="bi bi-info-circle" aria-hidden="true" />
         Peran dan status akun sendiri tidak bisa diubah dari sini. Keduanya
         menaikkan nomor versi sesi, jadi perubahan itu akan memutus sesi yang
-        sedang dipakai. Accounts dan kata sandinya ditangani lewat{" "}
-        <code>POST /api/v1/auth/login</code> dan halaman login.
+        sedang dipakai. Ganti sandi lewat form &quot;Sandi saya&quot; di bawah;
+        sandi akun lain yang lupa diganti lewat reset oleh Super Admin.
       </p>
     </div>
   );

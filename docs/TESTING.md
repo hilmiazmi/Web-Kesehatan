@@ -18,7 +18,7 @@ Tautan terkait: arsitektur di [`ARCHITECTURE.md`](ARCHITECTURE.md), CI di
 | Pemeriksaan | Hasil | Perintah |
 | --- | --- | --- |
 | ESLint | bersih (exit 0) | `bun run lint` |
-| Unit test (Vitest) | **63 berkas, 867 tes, semua lulus** | `bun run test` |
+| Unit test (Vitest) | **63 berkas, 870 tes, semua lulus** | `bun run test` |
 | Konsistensi snapshot vs route | "semua berkas snapshot konsisten" | `bun run cek:konten` |
 | Audit teks rusak | "BERSIH (323 berkas)" | `bun run audit:teks` |
 | `bun audit` | 2 advisory tersisa: `braces` (tinggi) dan `esbuild` (sedang), keduanya di rantai pengembangan; `swiper` dan `sweetalert2` sudah dinaikkan | `bun audit` |
@@ -42,7 +42,7 @@ menentukan angka sebenarnya.
 
 Angka di `roadmap.md` bagian riwayat (46 berkas / 640 tes, audit 260 berkas)
 sudah usang terhadap hasil di atas. Dokumen itu milik pemilik repo dan tidak diubah di sini.
-`HANDOFF.md` mencatat angka dari sesi-sesinya sendiri (813 tes di 60 berkas pada `35c65cf`); pada `f1ebe60` ditambah satu tes pengunci di sesi ini hasilnya 868 tes di 63 berkas.
+`HANDOFF.md` mencatat angka dari sesi-sesinya sendiri (813 tes di 60 berkas pada `35c65cf`); pada working tree ini (`f1ebe60` + perubahan sesi ini) hasilnya 870 tes di 63 berkas.
 
 ---
 

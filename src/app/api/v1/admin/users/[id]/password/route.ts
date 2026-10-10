@@ -15,9 +15,20 @@ type Konteks = { params: Promise<{ id: string }> };
 
 export async function POST(request: NextRequest, context: Konteks): Promise<NextResponse> {
   return handle(async () => {
-    await requireSession(canManageUsers);
+    const sesi = await requireSession();
 
     const { id } = await context.params;
+
+    // Ganti sandi boleh untuk akun sendiri dari peran apa pun, atau akun mana
+    // pun oleh super_admin. Editor dan front_office tidak melihat daftar akun
+    // (halaman akun hanya untuk super_admin), tapi sandinya sendiri tetap bisa
+    // diganti lewat form "Sandi saya". Perbandingan huruf-kecil semua karena
+    // `uuid()` mempertahankan huruf besar dari URL sedangkan `sub` selalu
+    // huruf kecil dari database.
+    if (!canManageUsers(sesi.role) && id.toLowerCase() !== sesi.sub.toLowerCase()) {
+      throw ApiError.forbidden();
+    }
+
     const db = dbOrNull();
     if (db === null) throw ApiError.readOnly();
 
@@ -32,10 +43,10 @@ export async function POST(request: NextRequest, context: Konteks): Promise<Next
 
     if (!errors.isEmpty) throw errors.toApiError();
 
-    // Password lama selalu diminta, termasuk saat admin mengubah akunnya
-    // sendiri. Sesi yang masih hidup membuktikan dia sudah masuk, bukan bahwa
-    // dia sedang memegang keyboard itu; tanpa password lama, siapa pun yang
-    // sempat menemukan cookie sesi bisa mengunci akun orang lain.
+    // Password lama selalu diminta, termasuk untuk akun sendiri. Sesi yang
+    // masih hidup membuktikan dia sudah masuk, bukan bahwa dia sedang memegang
+    // keyboard itu; tanpa password lama, siapa pun yang sempat menemukan
+    // cookie sesi bisa mengunci akun orang lain.
     await changePassword(db, uuid(id, "id"), lama, baru);
 
     return ok({ password_updated: true });

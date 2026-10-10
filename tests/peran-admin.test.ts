@@ -132,13 +132,16 @@ describe("pembatasan peran, bukan sekadar sesi", () => {
    * `inbox/[kind]/[id]` sengaja tidak ada di sini. Route itu hanya mengubah
    * status pesan masuk, yang menurut definisi pekerjaan front office, dan
    * tidak ada endpoint mana pun yang mengubah isi pesan.
+   *
+   * `users/[id]/password` juga tidak ada di sini dan dikunci terpisah di
+   * bawah: aturannya "super_admin atau akun sendiri", yang tidak bisa
+   * ditulis sebagai satu argumen fungsi peran.
    */
   const PERLU_PERAN = [
     "src/app/api/v1/admin/records/[table]/route.ts",
     "src/app/api/v1/admin/records/[table]/[id]/route.ts",
     "src/app/api/v1/admin/users/route.ts",
     "src/app/api/v1/admin/users/[id]/route.ts",
-    "src/app/api/v1/admin/users/[id]/password/route.ts",
     "src/app/api/v1/admin/users/[id]/reset-password/route.ts",
   ];
 
@@ -162,4 +165,29 @@ describe("pembatasan peran, bukan sekadar sesi", () => {
       }
     });
   }
+});
+
+describe("ganti sandi: super_admin atau akun sendiri", () => {
+  // Satu-satunya route tulis dengan aturan gabungan: super_admin boleh akun
+  // mana pun, peran lain hanya akunnya sendiri. Pola `requireSession(fungsi)`
+  // tidak bisa menulis "atau diri sendiri", jadi gerbangnya dua lapis dan
+  // dikunci di sini, bukan di daftar PERLU_PERAN di atas.
+  const route = "src/app/api/v1/admin/users/[id]/password/route.ts";
+
+  it("memeriksa sesi sebelum database", () => {
+    const post = handler(route).find((h) => h.nama === "POST");
+    expect(post, "handler POST tidak ada").toBeDefined();
+    const posisiPeriksa = post!.isi.search(/await requireSession\(/);
+    const posisiDb = post!.isi.search(/dbOrNull\(/);
+    expect(posisiPeriksa).toBeGreaterThanOrEqual(0);
+    expect(posisiPeriksa).toBeLessThan(posisiDb);
+  });
+
+  it("menolak selain super_admin dan selain akun sendiri dengan 403", () => {
+    const post = handler(route).find((h) => h.nama === "POST");
+    expect(post, "handler POST tidak ada").toBeDefined();
+    expect(post!.isi).toContain("canManageUsers(sesi.role)");
+    expect(post!.isi).toContain("sesi.sub");
+    expect(post!.isi).toContain("ApiError.forbidden()");
+  });
 });

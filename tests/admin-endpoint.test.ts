@@ -429,7 +429,7 @@ describe("admin/users/[id]", () => {
 describe("admin/users/[id]/password dan reset-password", () => {
   const konteks = { params: Promise.resolve({ id: UUID }) };
 
-  it("keduanya menolak editor dan front office dengan 403", async () => {
+  it("menolak editor dan front office mengganti sandi akun lain dengan 403", async () => {
     pakaiDbPalsu();
     for (const role of ["editor", "front_office"] as const) {
       pasangSesi(role);
@@ -447,6 +447,34 @@ describe("admin/users/[id]/password dan reset-password", () => {
         konteks,
       );
       expect(ganti.status, role).toBe(403);
+      expect(hasilReset.status, role).toBe(403);
+    }
+  });
+
+  it("mengizinkan editor dan front office mengganti sandinya sendiri", async () => {
+    // SUB adalah sub sesi yang dipasang `pasangSesi`, jadi konteks ini adalah
+    // akun sendiri. Sandi baru yang pendek ditolak 422 — itu membuktikan
+    // penjaga peran lolos (penjaga berjalan sebelum validasi), tanpa perlu
+    // database sungguhan. Reset tetap 403 karena hanya untuk super_admin.
+    pakaiDbPalsu();
+    const diri = { params: Promise.resolve({ id: SUB }) };
+    for (const role of ["editor", "front_office"] as const) {
+      pasangSesi(role);
+      const ganti = await routeSandi.POST(
+        req(`/api/v1/admin/users/${SUB}/password`, "POST", {
+          current_password: "lama-yang-panjang",
+          new_password: "pendek",
+        }),
+        diri,
+      );
+      const hasilReset = await routeReset.POST(
+        req(`/api/v1/admin/users/${SUB}/reset-password`, "POST", {
+          new_password: "baru-yang-panjang",
+        }),
+        diri,
+      );
+      expect(ganti.status, role).toBe(422);
+      expect(await fields(ganti), role).toEqual(["new_password"]);
       expect(hasilReset.status, role).toBe(403);
     }
   });
