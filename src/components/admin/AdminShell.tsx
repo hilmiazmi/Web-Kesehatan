@@ -5,7 +5,7 @@ import LogoutButton from "@/components/admin/LogoutButton";
 import type { TableSummary } from "@/components/admin/types";
 
 /**
- * Kerangka panel admin:sidebar di kiri, isi di kanan.
+ * Kerangka panel admin: sidebar di kiri, isi di kanan.
  *
  * Daftar tabel dan inbox dikirim dari server, bukan diambil lewat
  * `GET /api/v1/admin/tables`. Sumbernya sama dengan yang dipakai Route Handler,

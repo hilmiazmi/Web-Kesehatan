@@ -27,9 +27,10 @@ export const metadata: Metadata = {
  * Component, jadi menambah dua tabel tidak perlu memindahkan apa pun ke sisi
  * klien dan tidak perlu menambah satu keadaan "memuat" yang akan berkedip.
  *
- Dua query tambahan itu punya penanganan kegagalan sendiri-sendiri, jadi satu
+ * Dua query tambahan itu punya penanganan kegagalan sendiri-sendiri, jadi satu
  * tabel yang gagal diambil tidak membuat tabel lain ikut hilang.
  */
+
 /**
  * Baris tabel "Isi situs".
  *
