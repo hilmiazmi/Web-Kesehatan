@@ -328,6 +328,20 @@ makna, bukan karakter.
 - `browser_take_screenshot` menolak selektor yang cocok lebih dari satu elemen.
   Tambahkan `>> nth=0` atau `.first()`.
 
+### Build paralel merusak `.next` dan hasil E2E
+
+- `.next` dipakai bersama semua sesi di mesin ini. `rm -rf .next` di tengah
+  jalan membuat E2E sesi lain memakai build setengah tulis, dan hasilnya
+  mustahil dibedakan dari regresi (terjadi 10 Oktober 2026).
+- Protokolnya otomatis: `prebuild` menandai, `postbuild` melepas,
+  `test:e2e` menunggu (`scripts/kunci-build.ts`, dikunci
+  `tests/kunci-build.test.ts`). Jangan lewati dengan memanggil
+  `playwright test` langsung, jangan menjalankan `next build` mentah
+  (bangun selalu lewat `bun run build` supaya penanda terpasang), dan
+  jangan hapus `.next-build-lock` yang masih segar.
+- Sebelum menyimpulkan hasil E2E yang aneh, pastikan tidak ada proses
+  `next build` lain yang berjalan bersamaan.
+
 ### Jebakan `github` MCP di dalam `execute`
 
 Tiga kesalahan berturut-turut yang memakan waktu. Semuanya karena menebak

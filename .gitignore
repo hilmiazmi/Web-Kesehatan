@@ -82,3 +82,7 @@ next-env.d.ts
 # meng-commit target/ yang ratusan megabyte.
 /archive/rust-api/target/
 **/*.rs.bk
+
+# Penanda build paralel (scripts/kunci-build.ts). Dibuat dan dihapus
+# otomatis oleh prebuild/postbuild; jangan commit.
+.next-build-lock

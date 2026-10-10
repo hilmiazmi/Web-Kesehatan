@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "test:e2e": "playwright test",
+    "test:e2e": "bun run scripts/kunci-build.ts tunggu && playwright test",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "verify": "bun run lint && bun run test && bun run build",
@@ -28,7 +28,9 @@
     "uji:mobile": "bun run scripts/uji-mobile.ts",
     "uji:performa": "bun run scripts/uji-performa.ts",
     "audit:teks": "bun run scripts/audit-teks.ts",
-    "subset-ikon": "bun run scripts/subset-ikon.ts"
+    "subset-ikon": "bun run scripts/subset-ikon.ts",
+    "prebuild": "bun run scripts/kunci-build.ts tandai",
+    "postbuild": "bun run scripts/kunci-build.ts lepas"
   },
   "dependencies": {
     "bootstrap": "5.3.3",
