@@ -45,6 +45,10 @@
      src/components/providers/FontProvider.tsx memuat font ini. */
   --rs-font-heading: var(--font-poppins), system-ui, sans-serif;
   --rs-font-body: var(--font-poppins), system-ui, sans-serif;
+  /* Angka tabular untuk tabel dan kartu dasbor. Inter punya digit lebar seragam
+     dan npada lebar lebih sempit daripada Poppins, jadi kolom angka yang rapi
+     tidak memaksa tabel menjadi lebar. Hanya dipakai di panel admin. */
+  --rs-font-angka: var(--font-inter), var(--font-poppins), system-ui, sans-serif;
 
   /* --- Ukuran tipografi (hasil pengukuran) --- */
   --rs-fs-body: 16px; /* line-height 24px */

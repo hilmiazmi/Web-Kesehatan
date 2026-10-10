@@ -571,6 +571,64 @@ body:has(#admin-halaman) > #main-content {
   margin-bottom: 4px;
 }
 
+.admin-spark {
+  /* Sparkline digambar di server; `line-height: 0` supaya ruang baris teks
+     di sekitarnya tidak menambah tinggi tak terduga pada svg inline. */
+  line-height: 0;
+  flex: 0 0 auto;
+}
+
+.admin-spark-kartu {
+  /* Ringkasan arah, bukan deretan kartu angka. Susunannya teks kiri dan
+     grafik kanan supaya keduanya terlihat sebagai satu pernyataan: "begini
+     arahnya, dan ini jumlahnya hari ini." */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  background: var(--rs-white);
+  border: 1px solid var(--rs-border-card);
+  border-radius: var(--rs-radius-card);
+  padding: 16px 20px;
+  box-shadow: 0 1px 3px rgba(16, 36, 58, 0.08);
+}
+
+/* ------------------------------------------------------- tabel isi situs */
+
+/* Ikon kecil di kolom pertama tabel isi situs. Ukurannya sengaja lebih kecil
+   daripada ikon kartu KPI: di tabel ia penanda baris, bukan penarik mata. */
+.admin-bar-ikon {
+  margin-right: 8px;
+  color: var(--rs-accent);
+  font-size: 15px;
+}
+
+.admin-tautan {
+  color: var(--rs-accent-teks);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.admin-tautan:hover,
+.admin-tautan:focus {
+  text-decoration: underline;
+}
+
+/* Angka tabular: lebar digit seragam, jadi kolom nilai bisa dibandingkan
+   sekilas tanpa setiap baris bergeser. */
+.admin-angka {
+  font-family: var(--rs-font-angka);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+.admin-table td.admin-angka,
+.admin-table th.admin-angka {
+  font-family: var(--rs-font-angka);
+  font-variant-numeric: tabular-nums;
+}
+
 /* ------------------------------------------------------------- responsif */
 
 /* Titik status: lingkaran 9px untuk ketersediaan yang butuh dibaca sekilas

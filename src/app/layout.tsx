@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Poppins } from "next/font/google";
+import { Inter, Poppins } from "next/font/google";
 import "@/styles/bootstrap-subset.scss";
 import "@/styles/icons/bootstrap-icons.css";
 import "@/styles/tokens.css";
@@ -31,6 +31,21 @@ const poppins = Poppins({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-poppins",
+  display: "swap",
+});
+
+/**
+ * Inter untuk angka tabular di panel admin.
+ *
+ * Poppins dipakai untuk seluruh situs, tapi angkanya proporsional: di tabel
+ * yang padat, kolom angka yang lebarnya berubah-ubah membuat mata sulit
+ * membandingkan baris. Inter punya angka tabular dan lebih sempit, jadi
+ * kolom data rapi tanpa mengubah identitas situs di halaman publik.
+ */
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-inter",
   display: "swap",
 });
 
@@ -96,7 +111,7 @@ export default function RootLayout({
     // bahwa navigasi antar halaman tidak boleh memakai smooth scroll tanpa
     <html
       lang="id"
-      className={poppins.variable}
+      className={`${poppins.variable} ${inter.variable}`}
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >

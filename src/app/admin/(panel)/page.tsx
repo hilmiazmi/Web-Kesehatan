@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import Sparkline from "@/components/admin/Sparkline";
 import { dbOrNull } from "@/server/db/client";
 import {
   appointmentsPerDay,
@@ -28,6 +30,24 @@ export const metadata: Metadata = {
  Dua query tambahan itu punya penanganan kegagalan sendiri-sendiri, jadi satu
  * tabel yang gagal diambil tidak membuat tabel lain ikut hilang.
  */
+/**
+ * Baris tabel "Isi situs".
+ *
+ * Susunan dan ikonnya ditulis di sini, bukan dirangkai dari data, supaya tiap
+ * baris benar-benar punya tautan ke halaman yang mengelolanya. Deretan kartu
+ * angka tidak bisa mengatakan ke mana harus pergi setelah melihat angkanya,
+ * dan itulah yang membuatnya terasa seperti tempelan.
+ */
+const BARIS_ISI = (s: Stats) => [
+  { label: "Berita terbit", nilai: s.articles, ikon: "bi-newspaper", href: "/admin/records/articles", tempat: "Berita" },
+  { label: "Layanan aktif", nilai: s.services, ikon: "bi-heart-pulse", href: "/admin/records/services", tempat: "Layanan" },
+  { label: "Paket MCU aktif", nilai: s.mcu_packages, ikon: "bi-clipboard-check", href: "/admin/records/mcu_packages", tempat: "Paket MCU" },
+  { label: "Dokter aktif", nilai: s.doctors, ikon: "bi-person-badge", href: "/admin/records/doctors", tempat: "Dokter" },
+  { label: "Jadwal aktif", nilai: s.schedules, ikon: "bi-clock", href: "/admin/records/doctor_schedules", tempat: "Jadwal praktik" },
+  { label: "Halaman terbit", nilai: s.pages, ikon: "bi-file-text", href: "/admin/records/pages", tempat: "Halaman" },
+  { label: "Slide hero aktif", nilai: s.hero_slides, ikon: "bi-images", href: "/admin/records/hero_slides", tempat: "Slide hero" },
+];
+
 export default async function AdminDashboardPage() {
   const db = dbOrNull();
 
@@ -95,13 +115,13 @@ export default async function AdminDashboardPage() {
           varian="biru"
         />
         <Statistik
-          judul="Pendaftaran akan datang"
+          judul="Akan datang"
           nilai={stats.appointments_upcoming}
           ikon="bi-calendar-event"
           varian="biru"
         />
         <Statistik
-          judul="Tempat tidur tersedia"
+          judul="Bed tersedia"
           nilai={stats.beds_available}
           dari={stats.beds_total}
           ikon="bi-hospital"
@@ -109,67 +129,67 @@ export default async function AdminDashboardPage() {
         />
       </dl>
 
-      <h2 className="fs-5 mb-3">Isi situs</h2>
-      <dl className="row g-3 mb-4">
-        <Statistik
-          judul="Berita terbit"
-          nilai={stats.articles}
-          ikon="bi-newspaper"
-          varian="hijau"
-        />
-        <Statistik
-          judul="Layanan aktif"
-          nilai={stats.services}
-          ikon="bi-heart-pulse"
-          varian="hijau"
-        />
-        <Statistik
-          judul="Paket MCU aktif"
-          nilai={stats.mcu_packages}
-          ikon="bi-clipboard-check"
-          varian="hijau"
-        />
-        <Statistik
-          judul="Dokter aktif"
-          nilai={stats.doctors}
-          ikon="bi-person-badge"
-          varian="hijau"
-        />
-        <Statistik
-          judul="Jadwal aktif"
-          nilai={stats.schedules}
-          ikon="bi-clock"
-          varian="hijau"
-        />
-        <Statistik
-          judul="Halaman terbit"
-          nilai={stats.pages}
-          ikon="bi-file-text"
-          varian="hijau"
-        />
-        <Statistik
-          judul="Slide hero aktif"
-          nilai={stats.hero_slides}
-          ikon="bi-images"
-          varian="hijau"
-        />
-      </dl>
+      {/* Signature dasbor: arah empat belas hari dalam satu garis.
+          Angka total hari ini tidak bisa membedakan "lagi sepi" dari "lagi
+          ramai"; garisnya bisa. Sumbernya data harian yang sudah diambil
+          halaman ini, jadi tidak ada query tambahan hanya untuk hiasan.
+          Tabel keempat belas hari tetap ada di bawah untuk yang memang ingin
+          memeriksa satu tanggal; kartu ini ringkasan, bukan pengganti. */}
+      <section className="mb-4 admin-spark-kartu">
+        <div>
+          <h2 className="fs-6 mb-1">Pendaftaran empat belas hari</h2>
+          <p className="halaman-keterangan mb-2">
+            Arah pendaftaran terakhir, bukan jumlah hari ini. Total hari ini{" "}
+            <strong className="admin-angka">{stats.appointments_today}</strong>.
+          </p>
+        </div>
+        <Sparkline data={harian} label="Pendaftaran empat belas hari" />
+      </section>
 
       <h2 className="fs-5 mb-3">Survei kepuasan</h2>
       <dl className="row g-3 mb-4">
-        <Statistik
-          judul="Rata-rata"
-          nilai={stats.survey_average ?? "-"}
-          ikon="bi-star"
-          varian="kuning"
-        />
-        <Statistik
-          judul="Jumlah isian"
-          nilai={stats.survey_responses}
-          ikon="bi-chat-square-text"
-          varian="kuning"
-        />
+        <Statistik judul="Rata-rata" nilai={stats.survey_average ?? "-"} ikon="bi-star" varian="kuning" />
+        <Statistik judul="Jumlah isian" nilai={stats.survey_responses} ikon="bi-chat-square-text" varian="kuning" />
       </dl>
+
+      {/* Isi situs bukan deretan kartu. Tujuh angka yang sumbernya berbeda
+          (berita, layanan, paket, dokter, jadwal, halaman, slide) tidak perlu
+          layak dipantau mendesak; yang dibutuhkan adalah bisa dihitung dan
+          ditelusuri. Tabel itu yang menyebutkan angkanya dan tempat
+          mengubahnya, dan deretan kartu berwarna sama hanya membuat keduanya
+          sama-sama tidak bisa dibaca. */}
+      <section className="mb-4">
+        <h2 className="fs-5 mb-2">Isi situs</h2>
+        <div className="admin-table-wrap">
+          <table className="table admin-table">
+            <thead>
+              <tr>
+                <th scope="col">Jenis isi</th>
+                <th scope="col" className="text-end">
+                  Jumlah
+                </th>
+                <th scope="col">Kelola di</th>
+              </tr>
+            </thead>
+            <tbody>
+              {BARIS_ISI(stats).map((b) => (
+                <tr key={b.label}>
+                  <td>
+                    <i className={`bi ${b.ikon} admin-bar-ikon`} aria-hidden="true" />
+                    {b.label}
+                  </td>
+                  <td className="admin-angka">{b.nilai}</td>
+                  <td>
+                    <Link className="admin-tautan" href={b.href}>
+                      {b.tempat}
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       <section className="mb-4">
         <h2 className="fs-5 mb-2">Pendaftaran empat belas hari terakhir</h2>
