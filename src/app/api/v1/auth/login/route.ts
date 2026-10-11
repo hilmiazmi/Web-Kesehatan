@@ -5,6 +5,7 @@ import { ApiError } from "@/server/api/error";
 import { limitRequest } from "@/server/api/rate-limit";
 import { dbOrNull } from "@/server/db/client";
 import { newClaims, sessionCookie, signSession } from "@/server/auth/session";
+import { koneksiTerenskripsi } from "@/lib/koneksi-aman";
 import { hashPassword, verifyPassword } from "@/server/auth/password";
 import { credentialsByEmail, touchLogin } from "@/server/admin/accounts";
 import { config } from "@/server/config";
@@ -75,7 +76,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       sessionVersion: kredensial.session_version,
     });
 
-    const cookie = sessionCookie(signSession(claims, config().authSecret));
+    const cookie = sessionCookie(
+      signSession(claims, config().authSecret),
+      await koneksiTerenskripsi(),
+    );
 
     const respons = ok({
       user: {

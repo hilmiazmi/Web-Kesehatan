@@ -276,4 +276,27 @@ describe("cookie sesi", () => {
     expect(cookie.options.maxAge).toBe(0);
     expect(cookie.options.httpOnly).toBe(true);
   });
+
+  /**
+   * Bukti produksi 10 Oktober 2026: situs dijalankan di balik Cloudflare
+   * tunnel yang meneruskan `http` ke container, sementara pengunjung memakai
+   * `https`. `ADMIN_ORIGIN` bernilai `http://localhost:3000`, jadi `Secure`
+   * tidak pernah terpasang.
+   *
+   * Karena itu `aman` tidak lagi dihitung di dalam `sessionCookie()` — yang
+   * bisa menghitungnya hanya pemanggil, karena hanya dia yang membaca header
+   * permintaan. Yang dikunci di sini: nilai `aman` benar-benar sampai ke
+   * cookie, dan penghapusan cookie memakai aturan yang sama.
+   */
+  it("tanda Secure mengikuti parameter, bukan default", () => {
+    expect(sessionCookie("token-uji", true).options.secure).toBe(true);
+    expect(sessionCookie("token-uji", false).options.secure).toBe(false);
+  });
+
+  it("penghapusan cookie ikut bertanda Secure", () => {
+    // Kalau penerbitan bertanda Secure tapi penghapusan tidak, browser
+    // menganggapnya cookie dari koneksi lain dan tidak menyimpannya.
+    expect(clearedSessionCookie(true).options.secure).toBe(true);
+    expect(clearedSessionCookie(false).options.secure).toBe(false);
+  });
 });
