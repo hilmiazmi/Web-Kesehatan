@@ -1438,6 +1438,23 @@ SHA berbeda, jadi isinya akan terbaca hilang padahal sebenarnya ada. Yang benar
 **Branch yang sudah dihapus sesi ini** (aman, commit unik: 0):
 `chore/rapikan-komentar-schema` dan `docs/catatan-sesi-10-okt`.
 
+**Akhirnya keduanya diselamatkan.** Dua commit di atas di-cherry-pick ke branch
+`poles-riwayat-audit`, jadi isinya tidak hilang bersama `polish/panel-admin`.
+
+## Dua PR yang tumpang tindih (2026-10-11)
+
+Ada **PR #50** (`poles-riwayat-audit`) dan **PR #47** (`polish/panel-admin`), keduanya
+membawa fitur riwayat admin yang sama.
+
+- #50: di-rebase ke `main` terkini, `MERGEABLE`, seluruh gerbang hijau, dan sudah
+  menyerap dua commit yatim di atas.
+- #47: `CONFLICTING`, tidak disentuh sejak 08:07, dan **tidak** sengaja
+  memakai dua commit keamanan yang masih dikerjakan (`242f7e3` dan `a8f44c7`).
+
+Rekomendasi: tutup #47 setelah `242f7e3` dan `a8f44c7` dibawa ke branch mana pun
+yang lebih baru. Menutupnya bukan urusan agen: `polish/panel-admin` masih jadi HEAD
+repo utama dan pengerjaannya masih berjalan.
+
 ---
 
 ## `bun audit`: dua kerentanan yang tidak bisa diperbaiki (2026-10-11)
