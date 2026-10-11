@@ -1293,3 +1293,81 @@ pernah di-commit langsung.
 3. Tulis E2E untuk aksi massal dan halaman riwayat (perlu `bun run test:e2e`).
 4. Verifikasi tampilan riwayat di peramban pada 390px setelah server dev
    direstart (CSS dan `next.config.ts` baru dimuat saat start).
+
+---
+
+## Riwayat perubahan (audit) untuk panel admin (2026-10-11)
+
+Menutup satu celah yang dicatat di sesi sebelumnya: tabel konten hanya punya
+`updated_by` di `pages` dan `site_settings`, dan keduanya menimpa nilai lama
+setiap perubahan — jadi pertanyaan "siapa yang mengubah isi ini, dan kapan"
+tidak bisa dijawab sama sekali.
+
+**Yang ditambahkan**
+
+- Tabel `admin_audit` (`drizzle/0006_audit_admin.sql`): `id`, `actor_id` (→
+  `users`, `set null`), `actor_email`, `action`, `table_name`, `row_id`,
+  `summary`, `created_at`. Dua indeks: `created_at DESC` (urutan baca yang
+  selalu dipakai) dan `(table_name, created_at DESC)` (penyaring per tabel).
+- `src/server/admin/audit.ts` — modul baru: `ringkasAudit()`, `ringkasBaris()`,
+  `catatAudit()`, `listAudit()`, `tabelAuditValid()`. Dua fungsi pertamanya murni
+  supaya aturannya bisa diuji tanpa database, mengikuti pola
+  `hakAksesDiriSendiri` di `accounts.ts`.
+- `GET /api/v1/admin/audit` — daftar riwayat berpaginasi, penyaring per tabel.
+  Hanya `super_admin`: fungsinya menelusuri siapa mengubah apa, dan peran yang
+  tidak mengubah konten tidak punya pertanyaan itu.
+- Halaman `/admin/riwayat` + butir sidebar (ikon `bi-clock-history`), hanya
+  tampil untuk `super_admin`.
+
+**Tempat yang benar-benar mencatat**
+
+`records` (tambah/ubah/hapus), `inbox` (ubah status satu baris dan massal),
+`accounts` (buat/ubah/hapus akun), ganti sandi dan setel-ulang sandi, login yang
+berhasil, pengaturan situs, dan kapasitas tempat tidur.
+
+**Empat keputusan yang perlu dijelaskan**
+
+1. **Pencatatan tidak pernah menggagalkan tindakan aslinya.** `catatAudit()`
+   menelan galatnya dan menulis ke log server. Tindakan yang sudah terjadi tidak
+   bisa dibatalkan, dan riwayat yang bolong lebih baik daripada operasi yang
+   batal di tengah.
+2. **Ringkasan baris dihapus dibaca SEBELUM DELETE.** Sesudah baris hilang tidak
+   ada lagi yang bisa dibaca, dan riwayat berisi id UUID saja tidak berarti apa-apa
+   bagi orang yang membacanya.
+3. **Satu baris riwayat per permintaan, bukan per tempat tidur.** Panel kapasitas
+   bed mengirim seluruh tabel sekaligus; dua ratus baris riwayat untuk satu klik
+   akan membuat halaman riwayat tidak terbaca.
+4. **Kunci yang diubah dicatat, isinya tidak.** Isi pengaturan memuat nama rumah
+   sakit, alamat, dan nomor telepon — bukan rahasia, tapi tidak ada gunanya
+   disalin ke tabel yang hanya perlu menjawab "apa yang diubah".
+
+**Bukti pengujian**
+
+Uji lewat HTTP terhadap database sungguhan (bukan mock): buat, ubah, dan hapus
+satu baris berita, lalu baca `/api/v1/admin/audit`:
+
+```
+2026-10-11T05:52:15Z  update  admin@contoh.test  articles   Uji Audit 123 Diubah
+2026-10-11T05:52:15Z  delete  admin@contoh.test  articles   Uji Audit 123 Diubah
+2026-10-11T05:52:12Z  login   admin@contoh.test             masuk ke panel
+2026-10-11T05:52:12Z  create  admin@contoh.test  articles   Uji Audit 123
+```
+
+Baris pengaturan dan kapasitas tempat tidur juga terbukti tercatat sesudah
+commit `d70adee`:
+
+```
+update  admin@contoh.test  site_settings  pengaturan: address, email, …, whatsapp
+update  admin@contoh.test  bed_capacity  kapasitas tempat tidur: 1 baris diperbarui
+```
+
+Ringkasan `delete` memuat judul SEBELUM baris hilang, sesuai keputusan 2.
+
+**Catatan skema**
+
+`drizzle/meta/_journal.json` sengaja hanya memuat entri `0006`. Entri `0007`
+milik sesi lain yang berkas SQL-nya belum masuk repo, jadi merujuknya akan
+membuat migrasi gagal di checkout baru.
+
+**Gerbang:** lint 0 error, `bun check` bersih di 314 berkas, tes lulus, build
+sukses. Diukur pada branch ini, bukan dikutip dari catatan sebelumnya.
