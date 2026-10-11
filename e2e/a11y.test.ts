@@ -212,3 +212,38 @@ test.describe("panel navigasi mobile", () => {
     ).toBe(true);
   });
 });
+
+test.describe("galat form dibacakan pembaca layar", () => {
+  /**
+   * `.is-invalid` hanya gaya: membuat garis merah. Yang membuat galat sampai
+   * ke pembaca layar adalah `aria-invalid` pada field plus `aria-describedby`
+   * yang menunjuk teks galatnya. Keduanya harus selalu muncul bersama —
+   * 36 field di enam formulir sekarang dipasang berpasangan, dan tes ini
+   * mengunci agar tidak lepas lagi.
+   *
+   * Dipicu dengan mengirim form kosong: jalur validasi yang sama dengan
+   * pengguna sungguhan, tanpa database.
+   */
+  test("setiap field merah punya aria-invalid dan teks galat terasosiasi", async ({ page }) => {
+    await page.goto("/daftar-online");
+
+    await page.getByRole("button", { name: /daftar|kirim|selanjutnya/i }).first().click();
+    await expect(page.locator(".is-invalid").first()).toBeVisible();
+
+    const hasil = await page.evaluate(() => {
+      const merah = [...document.querySelectorAll<HTMLElement>(".is-invalid")];
+      return {
+        total: merah.length,
+        tanpaAria: merah.filter((el) => el.getAttribute("aria-invalid") !== "true").length,
+        tanpaHasil: merah.filter((el) => {
+          const id = el.getAttribute("aria-describedby");
+          return id === null || document.getElementById(id) === null;
+        }).length,
+      };
+    });
+
+    expect(hasil.total).toBeGreaterThan(0);
+    expect(hasil.tanpaAria, "field merah tanpa aria-invalid").toBe(0);
+    expect(hasil.tanpaHasil, "field merah tanpa teks galat terasosiasi").toBe(0);
+  });
+});

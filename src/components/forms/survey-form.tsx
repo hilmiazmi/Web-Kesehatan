@@ -300,6 +300,7 @@ export default function SurveyForm() {
             type="text"
             maxLength={160}
             className={`form-control${errors.unit ? " is-invalid" : ""}`}
+            aria-invalid={errors.unit ? true : undefined}
             value={values.unit}
             onChange={(e) => set("unit", e.target.value)}
             placeholder="Poliklinik Umum, Laboratorium"
@@ -319,6 +320,7 @@ export default function SurveyForm() {
             type="text"
             maxLength={160}
             className={`form-control${errors.nama ? " is-invalid" : ""}`}
+            aria-invalid={errors.nama ? true : undefined}
             value={values.nama}
             onChange={(e) => set("nama", e.target.value)}
             autoComplete="name"
@@ -337,6 +339,7 @@ export default function SurveyForm() {
             name="skm-surel"
             type="email"
             className={`form-control${errors.surel ? " is-invalid" : ""}`}
+            aria-invalid={errors.surel ? true : undefined}
             value={values.surel}
             onChange={(e) => set("surel", e.target.value)}
             aria-describedby={errors.surel ? "err-surel" : undefined}
@@ -359,6 +362,7 @@ export default function SurveyForm() {
             rows={4}
             maxLength={2000}
             className={`form-control${errors.komentar ? " is-invalid" : ""}`}
+            aria-invalid={errors.komentar ? true : undefined}
             value={values.komentar}
             onChange={(e) => set("komentar", e.target.value)}
             aria-describedby={errors.komentar ? "err-komentar" : undefined}

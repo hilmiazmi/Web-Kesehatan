@@ -221,6 +221,7 @@ export default function FeedbackForm() {
             id="fb-jenis"
             name="fb-jenis"
             className={`form-select${errors.jenis ? " is-invalid" : ""}`}
+            aria-invalid={errors.jenis ? true : undefined}
             value={values.jenis}
             onChange={(e) => set("jenis", e.target.value)}
             required
@@ -244,6 +245,7 @@ export default function FeedbackForm() {
             type="text"
             maxLength={220}
             className={`form-control${errors.subjek ? " is-invalid" : ""}`}
+            aria-invalid={errors.subjek ? true : undefined}
             value={values.subjek}
             onChange={(e) => set("subjek", e.target.value)}
             aria-describedby={errors.subjek ? "err-subjek" : undefined}
@@ -261,6 +263,7 @@ export default function FeedbackForm() {
             rows={5}
             maxLength={5000}
             className={`form-control${errors.pesan ? " is-invalid" : ""}`}
+            aria-invalid={errors.pesan ? true : undefined}
             value={values.pesan}
             onChange={(e) => set("pesan", e.target.value)}
             aria-describedby={errors.pesan ? "err-pesan" : undefined}
@@ -280,6 +283,7 @@ export default function FeedbackForm() {
             type="text"
             maxLength={160}
             className={`form-control${errors.unit ? " is-invalid" : ""}`}
+            aria-invalid={errors.unit ? true : undefined}
             value={values.unit}
             onChange={(e) => set("unit", e.target.value)}
             placeholder="Poliklinik Umum, Laboratorium, Loket Pendaftaran"
@@ -297,6 +301,7 @@ export default function FeedbackForm() {
             type="text"
             maxLength={160}
             className={`form-control${errors.nama ? " is-invalid" : ""}`}
+            aria-invalid={errors.nama ? true : undefined}
             value={values.nama}
             onChange={(e) => set("nama", e.target.value)}
             autoComplete="name"
@@ -313,6 +318,7 @@ export default function FeedbackForm() {
             name="fb-surel"
             type="email"
             className={`form-control${errors.surel ? " is-invalid" : ""}`}
+            aria-invalid={errors.surel ? true : undefined}
             value={values.surel}
             onChange={(e) => set("surel", e.target.value)}
             aria-describedby={errors.surel ? "err-surel" : undefined}
@@ -331,6 +337,7 @@ export default function FeedbackForm() {
             type="tel"
             inputMode="numeric"
             className={`form-control${errors.telepon ? " is-invalid" : ""}`}
+            aria-invalid={errors.telepon ? true : undefined}
             value={values.telepon}
             onChange={(e) => set("telepon", e.target.value.replace(/[^\d+]/g, ""))}
             aria-describedby={errors.telepon ? "err-telepon" : undefined}
