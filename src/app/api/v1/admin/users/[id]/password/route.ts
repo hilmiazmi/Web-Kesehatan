@@ -6,6 +6,7 @@ import { uuid } from "@/server/api/params";
 import { canManageUsers, requireSession } from "@/server/auth/session";
 import { dbOrNull } from "@/server/db/client";
 import { changePassword } from "@/server/admin/accounts";
+import { catatAudit } from "@/server/admin/audit";
 import { periksaKataSandi } from "@/server/auth/password";
 import { Errors, readJsonBody } from "@/server/validation";
 
@@ -48,6 +49,16 @@ export async function POST(request: NextRequest, context: Konteks): Promise<Next
     // keyboard itu; tanpa password lama, siapa pun yang sempat menemukan
     // cookie sesi bisa mengunci akun orang lain.
     await changePassword(db, uuid(id, "id"), lama, baru);
+
+    await catatAudit(db, {
+      actorId: sesi.sub,
+      actorEmail: sesi.email,
+      action: "password",
+      tableName: "users",
+      rowId: uuid(id, "id"),
+      // Sandi tidak pernah masuk riwayat; yang dicatat adalah faktanya.
+      summary: "kata sandi diganti",
+    });
 
     return ok({ password_updated: true });
   });

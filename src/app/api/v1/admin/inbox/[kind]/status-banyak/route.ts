@@ -5,6 +5,7 @@ import { ApiError } from "@/server/api/error";
 import { requireSession } from "@/server/auth/session";
 import { dbOrNull } from "@/server/db/client";
 import { parseKind, updateStatusBanyak } from "@/server/admin/inbox";
+import { catatAudit } from "@/server/admin/audit";
 import { Errors, readJsonBody, textRequired } from "@/server/validation";
 import { uuid } from "@/server/api/params";
 
@@ -24,7 +25,7 @@ type Konteks = { params: Promise<{ kind: string }> };
  */
 export async function POST(request: NextRequest, context: Konteks): Promise<NextResponse> {
   return handle(async () => {
-    await requireSession();
+    const sesi = await requireSession();
 
     const { kind } = await context.params;
     const jenis = parseKind(kind);
@@ -49,6 +50,14 @@ export async function POST(request: NextRequest, context: Konteks): Promise<Next
     const ids = (idsMentah as unknown[]).map((nilai, i) => uuid(String(nilai), `ids[${i}]`));
 
     const { updated } = await updateStatusBanyak(db, jenis, ids, status!);
+
+    await catatAudit(db, {
+      actorId: sesi.sub,
+      actorEmail: sesi.email,
+      action: "status",
+      tableName: jenis.table,
+      summary: `${updated} tiket jadi ${status}`,
+    });
 
     return ok({ updated });
   });

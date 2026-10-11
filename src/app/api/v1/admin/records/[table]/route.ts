@@ -7,6 +7,7 @@ import { canEditContent, requireSession } from "@/server/auth/session";
 import { dbOrNull } from "@/server/db/client";
 import { find } from "@/server/admin/registry";
 import { createRecord, listRecords } from "@/server/admin/records";
+import { catatAudit, ringkasBaris } from "@/server/admin/audit";
 import { readJsonBody } from "@/server/validation";
 
 export const dynamic = "force-dynamic";
@@ -42,7 +43,7 @@ export async function GET(request: NextRequest, context: Konteks): Promise<NextR
 
 export async function POST(request: NextRequest, context: Konteks): Promise<NextResponse> {
   return handle(async () => {
-    await requireSession(canEditContent);
+    const sesi = await requireSession(canEditContent);
 
     const { table } = await context.params;
     const spesifikasi = find(table);
@@ -51,7 +52,18 @@ export async function POST(request: NextRequest, context: Konteks): Promise<Next
     const db = dbOrNull();
     if (db === null) throw ApiError.readOnly();
 
-    return created(await createRecord(db, spesifikasi, await readJsonBody(request)));
+    const baris = await createRecord(db, spesifikasi, await readJsonBody(request));
+
+    await catatAudit(db, {
+      actorId: sesi.sub,
+      actorEmail: sesi.email,
+      action: "create",
+      tableName: spesifikasi.table,
+      rowId: typeof baris.id === "string" ? baris.id : null,
+      summary: ringkasBaris(baris, spesifikasi.label),
+    });
+
+    return created(baris);
   });
 }
 

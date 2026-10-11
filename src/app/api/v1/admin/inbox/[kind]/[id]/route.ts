@@ -6,6 +6,7 @@ import { uuid } from "@/server/api/params";
 import { requireSession } from "@/server/auth/session";
 import { dbOrNull } from "@/server/db/client";
 import { parseKind, updateStatus } from "@/server/admin/inbox";
+import { catatAudit } from "@/server/admin/audit";
 import { Errors, readJsonBody, textOptional, textRequired } from "@/server/validation";
 
 export const dynamic = "force-dynamic";
@@ -16,7 +17,7 @@ export async function PATCH(request: NextRequest, context: Konteks): Promise<Nex
   return handle(async () => {
     // Semua peran boleh mengubah status pesan yang masuk, karena itu pekerjaan
     // front office. Mengubah isi pesan tidak ada di endpoint mana pun.
-    await requireSession();
+    const sesi = await requireSession();
 
     const { kind, id } = await context.params;
     const jenis = parseKind(kind);
@@ -34,6 +35,15 @@ export async function PATCH(request: NextRequest, context: Konteks): Promise<Nex
     if (!errors.isEmpty) throw errors.toApiError();
 
     await updateStatus(db, jenis, uuid(id, "id"), status!, catatan);
+
+    await catatAudit(db, {
+      actorId: sesi.sub,
+      actorEmail: sesi.email,
+      action: "status",
+      tableName: jenis.table,
+      rowId: uuid(id, "id"),
+      summary: `status jadi ${status}`,
+    });
 
     return ok({ status, updated: true });
   });
