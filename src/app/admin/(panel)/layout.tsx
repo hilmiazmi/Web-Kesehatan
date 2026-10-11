@@ -27,6 +27,7 @@ export default async function AdminPanelLayout({
   const tables = semuaTabel().map((t) => ({
     table: t.table,
     label: t.label,
+    icon: t.icon,
     defaultOrder: t.defaultOrder,
     deletable: t.deletable,
     searchColumns: t.searchColumns,
@@ -35,6 +36,7 @@ export default async function AdminPanelLayout({
   const inboxKinds = allKinds().map((k) => ({
     slug: k.slug,
     label: inboxLabel(k.slug),
+    icon: k.icon,
   }));
 
   // Jumlah belum ditangani gagal dimuat tanpa menggagalkan seluruh sidebar.

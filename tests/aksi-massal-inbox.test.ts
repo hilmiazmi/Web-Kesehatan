@@ -18,6 +18,7 @@ import {
 const BERSTATUS: InboxKind = {
   slug: "feedbacks",
   table: "feedbacks",
+  icon: "bi-chat-square-text",
   searchColumns: ["name", "subject", "message", "ticket_code"],
   hasStatus: true,
   statuses: ["new", "in_progress", "resolved", "rejected"],
@@ -26,6 +27,7 @@ const BERSTATUS: InboxKind = {
 const TANPA_STATUS: InboxKind = {
   slug: "survey-responses",
   table: "survey_responses",
+  icon: "bi-clipboard-data",
   searchColumns: ["respondent_name", "ticket_code", "service_unit", "comment"],
   hasStatus: false,
   statuses: [],

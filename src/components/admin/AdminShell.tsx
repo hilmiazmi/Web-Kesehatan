@@ -22,7 +22,7 @@ export default function AdminShell({
 }: {
   claims: SessionClaims;
   tables: readonly TableSummary[];
-  inboxKinds: readonly { slug: string; label: string }[];
+  inboxKinds: readonly { slug: string; label: string; icon: string }[];
   unread: number;
   children: React.ReactNode;
 }) {

@@ -21,7 +21,7 @@ export default function AdminNav({
   canManageUsers,
 }: {
   tables: readonly TableSummary[];
-  inboxKinds: readonly { slug: string; label: string }[];
+  inboxKinds: readonly { slug: string; label: string; icon: string }[];
   unread: number;
   canEdit: boolean;
   canManageUsers: boolean;
@@ -40,7 +40,7 @@ export default function AdminNav({
           <div className="admin-nav-group">Konten</div>
           {tables.map((t) => (
             <Butir key={t.table} href={`/admin/records/${t.table}`} pathname={pathname}>
-              <i className="bi bi-table" aria-hidden="true" />
+              <i className={`bi ${t.icon}`} aria-hidden="true" />
               {t.label}
             </Butir>
           ))}
@@ -72,7 +72,7 @@ export default function AdminNav({
       </div>
       {inboxKinds.map((k) => (
         <Butir key={k.slug} href={`/admin/inbox/${k.slug}`} pathname={pathname}>
-          <i className="bi bi-inbox" aria-hidden="true" />
+          <i className={`bi ${k.icon}`} aria-hidden="true" />
           {k.label}
         </Butir>
       ))}
@@ -82,7 +82,7 @@ export default function AdminNav({
           ditampilkan ke peran yang benar-benar boleh mengelola akun. */}
       {canManageUsers ? (
         <Butir href="/admin/akun" pathname={pathname}>
-          <i className="bi bi-people" aria-hidden="true" />
+          <i className="bi bi-shield-lock" aria-hidden="true" />
           Akun Panel
         </Butir>
       ) : null}
