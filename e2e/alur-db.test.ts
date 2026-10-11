@@ -9,7 +9,7 @@ import { expect, request, test } from "@playwright/test";
  * (snapshot, tanpa DB) tidak ikut gagal.
  *
  * Menyiapkan sebelum jalan (di luar berkas ini):
- *   1. `bun scripts/.siapkan-admin-uji.ts` menulis E2E_UJI_EMAIL/SANDI
+ *   1. `bun scripts/siapkan-admin-uji.ts` menulis E2E_UJI_EMAIL/SANDI
  *   2. server live: API_MODE=live + DATABASE_URL basis uji + AUTH_SECRET acak
  *   3. BASE_URL=<server live> bunx playwright test e2e/alur-db.test.ts
  *   4. hapus akun + baris uji, hentikan server, hapus berkas env
