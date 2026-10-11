@@ -36,7 +36,11 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     // menjawab "apa yang diubah".
     const kunci = Object.keys(body).sort();
 
-    await saveSettings(db, body);
+    // `saveSettings` sudah mengembalikan `loadSettings` (lihat
+    // `src/server/db/repo/content.ts`), jadi hasilnya dipakai langsung.
+    // Memanggil `loadSettings` sekali lagi di bawah akan membaca tabel
+    // `site_settings` dua kali untuk respons yang sama.
+    const hasil = await saveSettings(db, body);
 
     await catatAudit(db, {
       actorId: sesi.sub,
@@ -47,6 +51,6 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
       summary: kunci.length > 0 ? `pengaturan: ${kunci.join(", ")}` : "pengaturan situs",
     });
 
-    return ok(await loadSettings(db));
+    return ok(hasil);
   });
 }
