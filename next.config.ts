@@ -1,5 +1,47 @@
 import type { NextConfig } from "next";
 
+/**
+ * Baris CSP dasar, tanpa kelonggaran khusus mode pengembangan.
+ *
+ * Dipisah dari objek konfigurasi supaya bisa diuji sebagai fungsi murni
+ * (`tests/header-keamanan.test.ts`): yang perlu dikunci adalah aturan
+ * "produksi tidak boleh punya `unsafe-eval`", dan itu hanya bisa diperiksa
+ * kalau kedua bentuknya bisa dipanggil.
+ */
+const BARIS_CSP = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https://images.unsplash.com https://picsum.photos https://fastly.picsum.photos",
+  "font-src 'self' data:",
+  "connect-src 'self'",
+  "form-action 'self'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "frame-ancestors 'none'",
+  "upgrade-insecure-requests",
+];
+
+/**
+ * CSP lengkap. `izinEval` hanya benar di luar mode produksi.
+ *
+ * React mode pengembangan memakai `eval()` untuk merekonstruksi callstack
+ * lintas lingkungan, dan tanpa izin itu setiap halaman dev memunculkan galat
+ * konsol: "eval() is not supported in this environment". Mode produksi tidak
+ * pernah memakai `eval()`, jadi izin itu tidak pernah diberikan di sana.
+ *
+ * Yang ditambahkan hanya pada baris `script-src`, dan hanya satu sumber:
+ * menambahkan `'unsafe-eval'` ke `default-src` akan memberi izin yang sama
+ * ke `img-src`, `connect-src`, dan sisanya, yang tidak ada yang membutuhkannya.
+ */
+export function cspHeader(izinEval: boolean): string {
+  const baris = izinEval
+    ? BARIS_CSP.map((d) => (d.startsWith("script-src") ? `${d} 'unsafe-eval'` : d))
+    : BARIS_CSP;
+
+  return baris.join("; ");
+}
+
 const nextConfig: NextConfig = {
   /**
    * Bungkam peringatan deprecation Sass.
@@ -111,24 +153,15 @@ const nextConfig: NextConfig = {
            *   berubah dari statis menjadi dinamis. Itu harga yang jauh lebih
            *   mahal daripada manfaat yang didapat, jadi dicatat sebagai sisa
            *   yang belum ditutup, bukan disamarkan.
-           * - `'unsafe-eval'` sengaja tidak dimasukkan. Mode produksi
-           *   membutuhkannya hanya di development.
+           * - `'unsafe-eval'` tidak pernah diberikan di mode produksi. Mode
+           *   pengembangan memberikannya, karena React dev memakai `eval()`
+           *   untuk merekonstruksi callstack; lihat `cspHeader` di atas.
            */
           {
             key: "Content-Security-Policy",
-            value: [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-inline'",
-              "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: blob: https://images.unsplash.com https://picsum.photos https://fastly.picsum.photos",
-              "font-src 'self' data:",
-              "connect-src 'self'",
-              "form-action 'self'",
-              "base-uri 'self'",
-              "object-src 'none'",
-              "frame-ancestors 'none'",
-              "upgrade-insecure-requests",
-            ].join("; "),
+            // `NODE_ENV` dibaca sekali saat berkas ini dimuat, bukan per
+            // permintaan: nilainya tidak berubah selama proses hidup.
+            value: cspHeader(process.env.NODE_ENV !== "production"),
           },
           /**
            * HSTS.
