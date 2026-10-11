@@ -692,6 +692,7 @@ useEffect(() => {
             id="poliklinik"
             name="poliklinik"
             className={`form-select${errors.poliklinik ? " is-invalid" : ""}`}
+            aria-invalid={errors.poliklinik ? true : undefined}
             value={values.poliklinik}
             onChange={(e) => gantiPoliklinik(e.target.value)}
             aria-describedby={errors.poliklinik ? "err-poliklinik" : undefined}
@@ -730,6 +731,7 @@ useEffect(() => {
             id="dokter"
             name="dokter"
             className={`form-select${errors.dokter ? " is-invalid" : ""}`}
+            aria-invalid={errors.dokter ? true : undefined}
             value={values.dokter}
             onChange={(e) => set("dokter", e.target.value)}
             aria-describedby={errors.dokter ? "err-dokter" : undefined}
@@ -783,6 +785,7 @@ useEffect(() => {
             id="slot"
             name="slot"
             className={`form-select${errors.slot ? " is-invalid" : ""}`}
+            aria-invalid={errors.slot ? true : undefined}
             value={values.slot}
             onChange={(e) => set("slot", e.target.value)}
             aria-describedby={errors.slot ? "err-slot" : undefined}
@@ -820,6 +823,7 @@ useEffect(() => {
             name="nama"
             type="text"
             className={`form-control${errors.nama ? " is-invalid" : ""}`}
+            aria-invalid={errors.nama ? true : undefined}
             value={values.nama}
             onChange={(e) => set("nama", e.target.value)}
             aria-describedby={errors.nama ? "err-nama" : undefined}
@@ -840,6 +844,7 @@ useEffect(() => {
             maxLength={16}
             placeholder="16 digit angka"
             className={`form-control${errors.nik ? " is-invalid" : ""}`}
+            aria-invalid={errors.nik ? true : undefined}
             value={values.nik}
             onChange={(e) => set("nik", e.target.value.replace(/\D/g, ""))}
             aria-describedby={errors.nik ? "err-nik" : undefined}
@@ -857,6 +862,7 @@ useEffect(() => {
             name="telepon"
             type="tel"
             className={`form-control${errors.telepon ? " is-invalid" : ""}`}
+            aria-invalid={errors.telepon ? true : undefined}
             value={values.telepon}
             onChange={(e) => set("telepon", e.target.value.replace(/[^\d+]/g, ""))}
             pattern="[0-9+]*"
@@ -877,6 +883,7 @@ useEffect(() => {
             name="email"
             type="email"
             className={`form-control${errors.email ? " is-invalid" : ""}`}
+            aria-invalid={errors.email ? true : undefined}
             value={values.email}
             onChange={(e) => set("email", e.target.value)}
             aria-describedby={errors.email ? "err-email" : undefined}
@@ -895,6 +902,7 @@ useEffect(() => {
             rows={3}
             maxLength={1000}
             className={`form-control${errors.keluhan ? " is-invalid" : ""}`}
+            aria-invalid={errors.keluhan ? true : undefined}
             value={values.keluhan}
             onChange={(e) => set("keluhan", e.target.value)}
             aria-describedby={errors.keluhan ? "err-keluhan" : undefined}
@@ -932,6 +940,7 @@ useEffect(() => {
           <div className="form-check">
             <input
               className={`form-check-input${errors.setuju ? " is-invalid" : ""}`}
+              aria-invalid={errors.setuju ? true : undefined}
               type="checkbox"
               id="setuju"
               checked={values.setuju}

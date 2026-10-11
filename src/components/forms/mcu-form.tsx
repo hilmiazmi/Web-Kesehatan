@@ -235,6 +235,7 @@ export default function McuForm({ slugPaket, namaPaket }: { slugPaket: string; n
             type="text"
             maxLength={160}
             className={`form-control${errors.nama ? " is-invalid" : ""}`}
+            aria-invalid={errors.nama ? true : undefined}
             value={values.nama}
             onChange={(e) => set("nama", e.target.value)}
             autoComplete="name"
@@ -254,6 +255,7 @@ export default function McuForm({ slugPaket, namaPaket }: { slugPaket: string; n
             name="mcu-telepon"
             type="tel"
             className={`form-control${errors.telepon ? " is-invalid" : ""}`}
+            aria-invalid={errors.telepon ? true : undefined}
             value={values.telepon}
             onChange={(e) => set("telepon", e.target.value.replace(/[^\d+]/g, ""))}
             aria-describedby={errors.telepon ? "err-mcu-telepon" : undefined}
@@ -277,6 +279,7 @@ export default function McuForm({ slugPaket, namaPaket }: { slugPaket: string; n
             name="mcu-surel"
             type="email"
             className={`form-control${errors.surel ? " is-invalid" : ""}`}
+            aria-invalid={errors.surel ? true : undefined}
             value={values.surel}
             onChange={(e) => set("surel", e.target.value)}
             aria-describedby={errors.surel ? "err-mcu-surel" : undefined}
@@ -300,6 +303,7 @@ export default function McuForm({ slugPaket, namaPaket }: { slugPaket: string; n
             type="text"
             maxLength={180}
             className={`form-control${errors.perusahaan ? " is-invalid" : ""}`}
+            aria-invalid={errors.perusahaan ? true : undefined}
             value={values.perusahaan}
             onChange={(e) => set("perusahaan", e.target.value)}
             autoComplete="organization"
@@ -337,6 +341,7 @@ export default function McuForm({ slugPaket, namaPaket }: { slugPaket: string; n
             min={1}
             max={PESERTA_MAKS}
             className={`form-control${errors.peserta ? " is-invalid" : ""}`}
+            aria-invalid={errors.peserta ? true : undefined}
             value={values.peserta}
             onChange={(e) => set("peserta", e.target.value)}
             aria-describedby={errors.peserta ? "err-mcu-peserta" : undefined}
@@ -390,6 +395,7 @@ export default function McuForm({ slugPaket, namaPaket }: { slugPaket: string; n
             rows={3}
             maxLength={1000}
             className={`form-control${errors.catatan ? " is-invalid" : ""}`}
+            aria-invalid={errors.catatan ? true : undefined}
             value={values.catatan}
             onChange={(e) => set("catatan", e.target.value)}
             aria-describedby={errors.catatan ? "err-mcu-catatan" : undefined}

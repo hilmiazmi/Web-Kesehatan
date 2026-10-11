@@ -287,6 +287,7 @@ export default function AdmissionForm() {
             min={1}
             max={30}
             className={`form-control${errors.malam ? " is-invalid" : ""}`}
+            aria-invalid={errors.malam ? true : undefined}
             value={values.malam}
             onChange={(e) => set("malam", e.target.value)}
           />
@@ -301,6 +302,7 @@ export default function AdmissionForm() {
             id="inap-nama"
             type="text"
             className={`form-control${errors.nama ? " is-invalid" : ""}`}
+            aria-invalid={errors.nama ? true : undefined}
             value={values.nama}
             onChange={(e) => set("nama", e.target.value)}
           />
@@ -317,6 +319,7 @@ export default function AdmissionForm() {
             maxLength={16}
             placeholder="16 digit angka"
             className={`form-control${errors.nik ? " is-invalid" : ""}`}
+            aria-invalid={errors.nik ? true : undefined}
             value={values.nik}
             onChange={(e) => set("nik", e.target.value.replace(/\D/g, ""))}
           />
@@ -334,6 +337,7 @@ export default function AdmissionForm() {
             maxLength={15}
             placeholder="08123456789"
             className={`form-control${errors.telepon ? " is-invalid" : ""}`}
+            aria-invalid={errors.telepon ? true : undefined}
             value={values.telepon}
             onChange={(e) => set("telepon", e.target.value.replace(/[^\d+]/g, ""))}
           />
@@ -434,6 +438,7 @@ export default function AdmissionForm() {
           <div className="form-check">
             <input
               className={`form-check-input${errors.setuju ? " is-invalid" : ""}`}
+              aria-invalid={errors.setuju ? true : undefined}
               type="checkbox"
               id="setuju-inap"
               checked={values.setuju}

@@ -304,6 +304,7 @@ export default function WbsForm() {
                 type="text"
                 maxLength={160}
                 className={`form-control${errors.nama ? " is-invalid" : ""}`}
+                aria-invalid={errors.nama ? true : undefined}
                 value={values.nama}
                 onChange={(e) => set("nama", e.target.value)}
                 autoComplete="name"
@@ -322,6 +323,7 @@ export default function WbsForm() {
                 name="wbs-surel"
                 type="email"
                 className={`form-control${errors.surel ? " is-invalid" : ""}`}
+                aria-invalid={errors.surel ? true : undefined}
                 value={values.surel}
                 onChange={(e) => set("surel", e.target.value)}
                 aria-describedby={errors.surel ? "err-surel" : undefined}
@@ -343,6 +345,7 @@ export default function WbsForm() {
                 name="wbs-telepon"
                 type="tel"
                 className={`form-control${errors.telepon ? " is-invalid" : ""}`}
+                aria-invalid={errors.telepon ? true : undefined}
                 value={values.telepon}
                 onChange={(e) => set("telepon", e.target.value.replace(/[^\d+]/g, ""))}
                 aria-describedby={errors.telepon ? "err-telepon" : undefined}
@@ -368,6 +371,7 @@ export default function WbsForm() {
             type="text"
             maxLength={220}
             className={`form-control${errors.subjek ? " is-invalid" : ""}`}
+            aria-invalid={errors.subjek ? true : undefined}
             value={values.subjek}
             onChange={(e) => set("subjek", e.target.value)}
             aria-describedby={errors.subjek ? "err-subjek" : undefined}
@@ -390,6 +394,7 @@ export default function WbsForm() {
             rows={6}
             maxLength={10000}
             className={`form-control${errors.kronologi ? " is-invalid" : ""}`}
+            aria-invalid={errors.kronologi ? true : undefined}
             value={values.kronologi}
             onChange={(e) => set("kronologi", e.target.value)}
             aria-describedby={errors.kronologi ? "err-kronologi" : undefined}
