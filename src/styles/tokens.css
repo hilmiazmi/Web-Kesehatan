@@ -355,17 +355,22 @@ code {
   text-decoration: none;
   border-bottom: 1px solid currentColor;
   /*
-   * Area sentuh dilebarkan ke atas dan bawah tanpa menggeser apa pun:
-   * padding menambah tinggi kotak yang bisa diklik, margin negatif sebesar
-   * addition itu mengembalikan jarak ke elemen setelahnya. Tautan ini hanya
-   * setinggi teks + garis bawah (sekitar 27px), yaitu pas di batas minimum
-   * 24px, sehingga di layar sentuh hampir tidak ada kelonggaran untuk
-   * jari yang kurang tepat.
+   * Area sentuh diperlebar dengan padding, dan tidak memakai margin negatif.
+   *
+   * Versi sebelumnya memakai `padding-top/bottom` plus `margin-top/bottom`
+   * negatif sebesar itu, supaya tinggi yang bisa diklik naik tanpa menggeser
+   * elemen di sekitarnya. Trik itu membuat kotak tautan menumpuk dengan
+   * paragraf di atasnya, dan Lighthouse membaca tumpang-tindih itu sebagai
+   * target "tertutup sebagian": ruang terlihat yang dilaporkan hanya 11px
+   * padahal tinggi tautan 43px. Akibatnya audit target-size tetap gagal walau
+   * ukurannya jauh di atas 24px minimum.
+   *
+   * Tanpa margin negatif, jarak ke paragraf jadi 16px (margin bawaan
+   * `.card-description`) dan tautan berdiri sendiri. Kartu berita tumbuh
+   * sekitar 10px, dan itu tidak terlihat karena tinggi kartu sudah diatur
+   * baris Swiper, bukan oleh isi satu kartu.
    */
-  padding-top: 8px;
-  padding-bottom: 10px;
-  margin-top: -8px;
-  margin-bottom: -8px;
+  padding: 8px 0;
   transition: opacity 0.2s ease;
 }
 
