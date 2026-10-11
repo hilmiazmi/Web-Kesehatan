@@ -120,6 +120,21 @@ COPY --from=builder --chown=bun:bun /app/next.config.ts ./next.config.ts
 # snapshot/ dibaca runtime oleh src/server/api/snapshot.ts saat
 # API_MODE=snapshot, jadi harus ikut meski tidak dipakai di mode live.
 COPY --from=builder --chown=bun:bun /app/snapshot ./snapshot
+# src/app WAJIB ikut. `src/lib/sitemap.ts` memetakan folder yang punya
+# `page.tsx` dengan membaca `process.cwd()/src/app`, dan `next start` tidak
+# menyertakan kode sumber ke image. Tanpa baris ini `/sitemap.xml` menjawab
+# 500 di produksi: `readdirSync` mendapat ENOENT untuk `/app/src/app`.
+#
+# DAMPAKNYA TERBUKTI 11 Oktober 2026: image yang dibangun sebelum sitemap
+# dibuat dinamis masih menjawab 200, karena jalur peta ditulis saat build saat
+# `src/` masih ada di builder. Begitu `sitemap.ts` memakai
+# `siteUrlPermintaan()`, pembacaan itu pindah ke runtime, dan image yang tidak
+# punya `src/app` ikut gagal.
+#
+# Yang ikut hanya `src/app`, bukan seluruh `src/`: yang dibaca sitemap adalah
+# nama folder dan keberadaan `page.tsx`, jadi 444 KB sudah cukup, bukan
+# seluruh kode sumber repo.
+COPY --from=builder --chown=bun:bun /app/src/app ./src/app
 
 # Jalankan sebagai pengguna tanpa hak root. Image oven/bun sudah punya
 # pengguna `bun`, tidak perlu membuat sendiri.
