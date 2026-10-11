@@ -3,9 +3,14 @@
 **Baca berkas ini lebih dulu di awal setiap sesi.** Isinya menggantikan
 dokumen lain untuk mencari tahu posisi kerja sekarang.
 
-Tanggal pembaruan: **9 Oktober 2026**
-Commit saat serah-terima: **`e579f3e` = `main` = `upstream/main` (sudah di-push).**
-Branch `fix/header-keamanan-dan-audit` sudah di-merge fast-forward.
+Tanggal pembaruan: **11 Oktober 2026**
+Commit saat serah-terima: **`f6fa52e` = `main` = `upstream/main` (sudah di-push).**
+Semua pekerjaan panel admin dan riwayat sudah masuk `main` lewat PR #46;
+branch kerja sesi lalu ada di `polish-panel-riwayat` (perbaiki build yang
+rusak karena berkas tak-terlacak, lihat entri terakhir berkas ini).
+
+Riwayat per hari ada di bawah, bukan di kepala ini. Kepala berkas hanya
+menunjuk posisi sekarang; jangan tambahkan catatan panjang di sini.
 
 ---
 
@@ -917,9 +922,10 @@ diubah di sini karena sesi lain sedang menyunting berkas yang sama.
 | `scripts/gen-rute-publik.py` | **dihapus** |
 | `Dockerfile` | tahap `deps-prod` baru; runtime tak lagi memuat devDependencies |
 
-Ditambah: `e699ea2` (komentar schema + tes), `c2fa2f8` (rujukan teardown),
-`01f1160` (buang generator), dan commit keempat untuk `Dockerfile` plus \
-pembaruan berkas ini.
+Commit sesi ini, semuanya di branch `docs/handoff-sapu-bersih`: `e699ea2`
+(komentar schema + tes), `c2fa2f8` (rujukan teardown), `01f1160` (buang
+generator), `72e0ba7` (berkas ini), `28c40a2` (tahap `deps-prod`), dan
+`35bc682` (pemindai diperluas + tiga perintah yang salah nama).
 
 Tiga commit: `e699ea2` (komentar schema + tes), `c2fa2f8` (rujukan teardown),
 `01f1160` (buang generator). Bukan `git add -A`; berkas sesi lain tidak pernah
@@ -1096,6 +1102,47 @@ mata dan dicocokkan dengan `.dockerignore` (yang tidak mengabaikan `bun.lock`,
 adalah ukuran `node_modules` di Alpine lokal, bukan ukuran layer di image akhir;
 jumlah pastinya baru ketahuan setelah `docker build` di VPS.
 
+### 5c. Celah pada pemindai saya sendiri, dan tiga perintah yang rusak karena itu
+
+Tes `tests/schema-vs-sql.test.ts` yang ditulis di sesi ini punya dua celah yang
+ternyata bukan teori. Pemindai pertama hanya melihat token **di dalam backtick**
+dan hanya di `src/`, `tests/`, `e2e/`, `scripts/`.
+
+Sesi lain kemudian mengubah `playwright.config.ts` dan tanpa sengaja
+mengembalikan rujukan `e2e/global-teardown.ts` padahal berkasnya `.mjs`. Rujukan
+itu tanpa backtick dan berada di **akar repo**, jadi tes saya lulus
+sementara komentarnya salah tepat di berkas yang ia kelola.
+
+Setelah celahnya ditutup (berkas akar ikut dipindai, dan token tanpa backtick
+ikut diperiksa), tiga kesalahan lain langsung muncul — kali ini yang rusak
+bukan komentar, tapi **perintah yang akan gagal kalau dijalankan**:
+
+| Berkas | Yang tertulis | Seharusnya |
+|---|---|---|
+| `e2e/alur-db.test.ts:12` | `bun scripts/.siapkan-admin-uji.ts` | `bun scripts/siapkan-admin-uji.ts` |
+| `scripts/siapkan-admin-uji.ts:7` | `bun scripts/.bersihkan-admin-uji.ts` | `bun scripts/bersihkan-admin-uji.ts` |
+| `scripts/bersihkan-admin-uji.ts:17` | `bun scripts/.bersihkan-admin-uji.ts <email-uji>` | `bun scripts/bersihkan-admin-uji.ts <email>` |
+
+Yang ketiga paling parah: ia ada di `console.error`, jadi pesan salah itu
+benar-benar ditampilkan ke orang yang salah memakai skrip, dan nama
+argumennya pun keliru (`<email-uji>`).
+
+Aturan penyempit supaya prosa Indonesia tidak memicu alarm palsu: hanya token
+berekstensi, dan **hanya kalau direktori induknya ada** sedangkan berkasnya
+tidak. Induk ada plus berkas tidak ada berarti direktori benar dan nama berkas
+salah — persis kelas kesalahan yang dicari. Kalau induk tidak ada, kemungkinan
+besar itu potongan prosa. Hasil ukurnya: 82 token lolos filter, 4 bermasalah,
+keempatnya asli, nol false positive.
+
+**Kesalahan saya sendiri di sesi ini, dicatat supaya tidak diulang:** versi
+pertama pemindai teks polos memakai `kodeSaja()` sebelum memindai, dan karena
+itu tidak menemukan apa pun. `kodeSaja()` membuang komentar, padahal yang
+diperiksa justru komentar. Bentuknya mirip jebakan `*/` di dalam komentar blok
+yang sudah tercatat di AGENTS.md: tes yang salah bentuk terlihat lulus. Uji
+mutasi yang membuktinya — inject `global-teardown.ts` dan
+`scripts/.siapkan-admin-uji.ts` kembali, keduanya memerahkan tes, lalu
+dipulihkan.
+
 ### 6. Gerbang saat sesi ini
 
 Diukur pada `c2fa2f8`:
@@ -1153,3 +1200,96 @@ menyimpulkan sesuatu dari angka ini.
    — dua-satunya yang masih manual.
 5. Perbarui kepala `docs/HANDOFF.md` (baris 6-8) setelah keributan sesi paralel
    reda, supaya commit serah-terimanya tidak lagi menunjuk `e579f3e`.
+
+---
+
+## Panel admin dipoles: responsif, ikon, CSV, aksi massal, riwayat (2026-10-11)
+
+Sesi ini melanjutkan daftar "yang masih kurang" di panel admin yang diminta
+pemilik. Semua dikerjakan di branch **`polish/panel-admin`**; `main` tidak
+pernah di-commit langsung.
+
+**Environment yang ditemukan (bukan dikira-kira):**
+
+- `docker ps` → `permission denied`, dan `sudo` meminta sandi. Jalur database
+  memakai kluster PostgreSQL yang **sudah berjalan** di `127.0.0.1:5433`, yang
+  sudah termigrasi penuh (28 tabel) dan sudah menerima kredensial aplikasi.
+- `DATABASE_URL` di `.env.local` diubah **hanya angka portnya**, `5432 → 5433`.
+  Cadangan: `/tmp/opencode/env.local.cadangan` (izin 600). Untuk mengembalikan:
+  ganti kembali ke `5432`, tidak ada perubahan lain.
+- Akun admin dibuat: `admin@contoh.test` / `admin123`, peran `super_admin`.
+  Dibuat lewat skrip karena `bun run db:seed` menuntut sandi minimal 10 karakter.
+- `bun run db:migrate` perlu env dimasukkan ke shell lebih dulu
+  (`set -a && . ./.env.local && set +a`): `drizzle-kit` tidak mewarisi
+  `.env.local` yang dimuat Bun untuk binary luar. Ini **bukan** masalah baru.
+- Login diperiksa sungguhan lewat HTTP: `POST /api/v1/auth/login` → `200`,
+  cookie sesi terbit, `/admin` dengan sesi itu → `200` dan dasbor ter-render.
+
+**Pekerjaan dan buktinya:**
+
+| Pekerjaan | Commit | Bukti |
+|---|---|---|
+| Label form login jadi Email/Password | `f56226e` (sesi lain) | sudah ada di repo saat sesi ini mulai |
+| Tiga cacat komentar dasbor & kerangka panel | `1d427ff` | lint hijau |
+| Topbar & sidebar rapi di layar sempit | `ab375f5` | diukur Chromium headless 390/768/1200/1440: `luber: 0`, `pelaku: []`. Bug asli: tombol Keluar terpotong 69px di 390px karena `.admin-user` tidak punya `min-width: 0` |
+| Tombol muat ulang dasbor | `e307b82` | diklik di peramban, keterangan "Diperbarui HH.MM.SS" muncul, `galatHalaman: []` |
+| Ekspor CSV (records + inbox) | `758d9e6` | berkas `inbox-feedbacks-2026-10-10.csv` benar-benar terunduh; 13 tes aturan CSV |
+| Aksi massal ubah status tiket | `d5ccd82` | endpoint `POST /api/v1/admin/inbox/{kind}/status-banyak`; 7 tes aturan `periksaAksiMassal` |
+| Ikon sidebar berbeda per jenis | `c093683` | 27 butir → 27 ikon unik, `bun run subset-ikon` membangun ulang (99 ikon, 10,5 KB) |
+| Riwayat perubahan (audit) | `1ee7d84` | migrasi `0006`, tabel `admin_audit`; uji HTTP: create/update/delete/login tercatat, ringkasan hapus memuat judul sebelum baris hilang |
+| `unsafe-eval` hanya di dev | `004cb3a` | `cspHeader(false)` (produksi) tanpa eval; `cspHeader(true)` (dev) hanya di `script-src` |
+| Definisi tipe Bun & Node | `6b15923` | `bun check` dari 2 galat → "No type errors" |
+
+**Gerbang akhir (diukur, bukan dikutip):** lint 0 error, `bun check` bersih di
+314 berkas, **915 tes lulus di 67 berkas**, build **178/178** exit 0.
+
+**Keputusan yang diambil sesi ini:**
+
+1. **Data dummy tetap di `src/`.** Tidak ada perubahan pada `src/data/` selain
+   yang dilakukan sesi lain untuk gambar berita; halaman publik tetap membaca
+   modul data, bukan API.
+2. **CSV dihasilkan di peramban dari baris yang sedang tampil**, bukan lewat
+   endpoint baru: berkas harus berisi apa yang operator lihat dan yakini,
+   termasuk saringan yang aktif. Formula injection Excel dinetralkan di
+   `src/lib/csv.ts` (awalan `=`, `+`, `-`, `@`, TAB, CR diberi tanda kutip
+   tunggal) — isi formulir publik masuk ke inbox tanpa disaring.
+3. **Aksi massal dibatasi 100 baris** (`BATAS_AKSI_MASSAL`). Batas kecelakaan,
+   bukan batas teknis: satu halaman memuat 25 baris.
+4. **Riwayat hanya dibaca `super_admin`.** Bukan kerahasiaan teknis; fungsinya
+   menelusuri siapa mengubah apa, dan peran yang tidak mengubah konten tidak
+   punya pertanyaan itu.
+5. **Ikon ditulis sebagai literal di registry dan inbox**, bukan dirangkai dari
+   nama tabel: `scripts/subset-ikon.ts` mencari pola `bi-*` di teks sumber, jadi
+   ikon yang dirangkai tidak akan masuk font subset dan tidak akan tampil.
+6. **`tsconfig.json` diberi `"types": ["bun", "node"]`** atas persetujuan pemilik,
+   supaya skrip CLI (`scripts/kunci-build.ts`) lolos typecheck. `node` wajib ikut
+   disebut karena bidang `types` membatasi paket `@types` yang otomatis dipakai.
+
+**Yang dicoba dan gagal:**
+
+- `git merge main` ke branch ini **ditolak**: `playwright.config.ts` dan
+  `scripts/kunci-build.ts` sedang di-edit sesi lain dan belum di-commit. Solusinya
+  `git cherry-pick e699ea2` (hanya perbaikan komentar schema) supaya
+  `tests/schema-vs-sql.test.ts` tidak merah karena cabang tertinggal.
+- Entry jurnal untuk migrasi `0007` milik sesi lain sengaja **tidak** ikut
+  di-commit: berkas SQL-nya belum masuk repo, jadi merujuknya akan membuat
+  migrasi gagal di checkout baru.
+
+**Masalah terbuka:**
+
+1. **Belum di-push.** Branch `polish/panel-admin` berisi sepuluh commit sesi ini;
+   `chore/rapikan-komentar-schema` memuat commit pertama saya karena sesi lain
+   berpindah branch di tengah jalan. Perlu dirapikan sebelum di-merge.
+2. **`ADMIN_ORIGIN` produksi** masih perlu `https://` (tindakan platform, bukan kode).
+3. **E2E panel off-canvas <1200px dan dialog SweetAlert2** masih manual.
+4. **Riwayat audit belum dipanggil dari `settings` dan `beds`.**
+5. Kepala berkas ini (baris 6-8) masih menunjuk commit serah-terima lama.
+
+**Langkah berikutnya:**
+
+1. Rapikan branch: pindahkan `1d427ff` ke `polish/panel-admin` kalau perlu, lalu
+   push dan buka PR ke `upstream`.
+2. Sambungkan `catatAudit` ke halaman pengaturan situs dan kapasitas bed.
+3. Tulis E2E untuk aksi massal dan halaman riwayat (perlu `bun run test:e2e`).
+4. Verifikasi tampilan riwayat di peramban pada 390px setelah server dev
+   direstart (CSS dan `next.config.ts` baru dimuat saat start).
