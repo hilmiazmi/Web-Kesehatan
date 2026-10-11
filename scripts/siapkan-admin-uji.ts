@@ -4,7 +4,7 @@
  * Alur yang diminta `e2e/alur-db.test.ts` langkah 1: file ini menulis
  * E2E_UJI_EMAIL/E2E_UJI_SANDI ke stdout (format `export A=B` per baris) supaya
  * pemanggil bisa `eval` hasilnya. Akunnya `super_admin` sementara di database
- * uji; hapus dengan `bun scripts/.bersihkan-admin-uji.ts <email>` setelah
+ * uji; hapus dengan `bun scripts/bersihkan-admin-uji.ts <email>` setelah
  * test selesai. Kata sandi acak per jalan, jadi tidak ada kredensial yang
  * bisa dipakai ulang antar sesi. Yang dicetak ke stdout adalah nilai
  * sementara itu sendiri; jangan pernah ditulis ke berkas atau log yang
