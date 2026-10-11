@@ -14,7 +14,7 @@ if (!db) throw new Error("butuh DATABASE_URL ke database uji");
 
 const email = process.argv[2];
 if (!email || !email.endsWith("@contoh-sehat.test")) {
-  console.error("pakai: bun scripts/.bersihkan-admin-uji.ts <email-uji>");
+  console.error("pakai: bun scripts/bersihkan-admin-uji.ts <email>");
   process.exit(1);
 }
 

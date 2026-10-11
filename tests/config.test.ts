@@ -168,8 +168,11 @@ describe("config", () => {
     });
 
     it("menolak nilai yang bukan URL", () => {
-      // Bukan `http://`, jadi lolos dari cek awalan dan harus tetap ditolak di
-      // tempat lain: tanpa ini, `sessionCookie` akan menghasilkan `secure: false`.
+      // Nilai seperti ini lolos dari pemeriksaan awalan `https://`, jadi harus
+      // tetap ditolak di sini. Dulu alasannya menghindari `secure: false` di
+      // `sessionCookie`; sejak atribut `Secure` ikut menentukanannya oleh
+      // `x-forwarded-proto` (lihat `src/lib/koneksi-aman.ts`), yang tersisa
+      // adalah menolak URL yang tidak bisa dipakai sebagai tautan admin.
       denganEnv({ ...SAH, ADMIN_ORIGIN: "rsud.example.test" });
       expect(() => config()).toThrow(/https:\/\//);
     });

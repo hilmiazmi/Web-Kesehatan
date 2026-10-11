@@ -38,6 +38,7 @@ export default function AdminShell({
           tables={tables}
           inboxKinds={inboxKinds}
           unread={unread}
+          peran={claims.role}
           canEdit={canEditContent(claims.role)}
           canManageUsers={canManageUsers(claims.role)}
         />

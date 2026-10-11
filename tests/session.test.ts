@@ -254,7 +254,7 @@ describe("cookie sesi", () => {
     // Atribut `httpOnly` menutup jalan paling umum mencuri sesi lewat
     // JavaScript. `sameSite` menahan cookie dari situs lain pada permintaan
     // lintas situs.
-    const cookie = sessionCookie("token-uji");
+    const cookie = sessionCookie("token-uji", false);
 
     expect(cookie.name).toBe(COOKIE_NAME);
     expect(cookie.value).toBe("token-uji");
@@ -270,7 +270,7 @@ describe("cookie sesi", () => {
   });
 
   it("menghapus cookie lama dengan masa berlaku nol", () => {
-    const cookie = clearedSessionCookie();
+    const cookie = clearedSessionCookie(false);
 
     expect(cookie.value).toBe("");
     expect(cookie.options.maxAge).toBe(0);

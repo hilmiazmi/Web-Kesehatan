@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { protoPilihan } from "@/lib/koneksi-aman";
 
 /**
  * URL dasar situs, tanpa garis miring di akhir.
@@ -53,7 +54,10 @@ export async function siteUrlPermintaan(): Promise<string> {
     const h = await headers();
     const host = (h.get("x-forwarded-host") ?? h.get("host") ?? "").split(",")[0].trim();
     if (host) {
-      const proto = (h.get("x-forwarded-proto") ?? "http").split(",")[0].trim();
+      // `protoPilihan()` bukan nilai pertama header: `x-forwarded-proto` bisa
+      // bernilai ganda dan nilai pertamanya berasal dari klien. Lihat
+      // komentarnya di `src/lib/koneksi-aman.ts`.
+      const proto = protoPilihan(h.get("x-forwarded-proto"));
       return `${proto}://${host}`.replace(/\/+$/, "");
     }
   } catch {

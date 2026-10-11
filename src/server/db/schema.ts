@@ -977,6 +977,59 @@ export const siteSettings = pgTable("site_settings", {
   updatedAt,
 });
 
+/** Jenis tindakan yang dicatat di riwayat. */
+export const AKSI_AUDIT = [
+  "create",
+  "update",
+  "delete",
+  "status",
+  "login",
+  "logout",
+  "password",
+] as const;
+
+export type AksiAudit = (typeof AKSI_AUDIT)[number];
+
+/**
+ * Jejak tindakan admin.
+ *
+ * Ada karena satu pertanyaan yang tidak bisa dijawab tanpa tabel ini: "siapa
+ * yang mengubah isi ini, dan kapan". Tabel konten menyimpan `updated_by` hanya
+ * di dua tempat (`pages` dan `site_settings`), dan keduanya menimpa nilai lama
+ * setiap kali ada perubahan — jadi riwayatnya hilang begitu tindakan berikutnya
+ * terjadi.
+ *
+ * Tiga keputusan yang perlu dijelaskan:
+ *
+ * - `actorEmail` disalin, tidak hanya dirujuk. Kalau akun dihapus, barisnya
+ *   tetap terbaca dan tetap bisa dipakai menelusuri siapa yang bertindak.
+ *   `actorId` memakai `set null` supaya penghapusan akun tidak menolak.
+ * - `rowId` boleh null karena tidak semua tindakan menyentuh satu baris:
+ *   login, logout, dan ganti password tidak punya baris tujuan.
+ * - `summary` teks bebas satu baris, dipakai untuk "judul" baris yang diubah
+ *   supaya riwayat bisa dibaca tanpa membuka tabel tujuannya.
+ */
+export const adminAudit = pgTable(
+  "admin_audit",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    actorId: uuid("actor_id").references(() => users.id, { onDelete: "set null" }),
+    actorEmail: varchar("actor_email", { length: 255 }).notNull(),
+    action: varchar("action", { length: 20 }).$type<AksiAudit>().notNull(),
+    /** Nama tabel tujuan, misalnya `articles`. Kosong untuk login/logout. */
+    tableName: varchar("table_name", { length: 80 }).notNull().default(""),
+    rowId: uuid("row_id"),
+    summary: varchar("summary", { length: 255 }).notNull().default(""),
+    createdAt,
+  },
+  (t) => [
+    // Pembacaan riwayat selalu "terbaru dulu", jadi indeksnya langsung
+    // mencerminkan urutan itu alih-alih `created_at ASC` lalu dibalik.
+    index("admin_audit_created_idx").on(t.createdAt.desc()),
+    index("admin_audit_table_idx").on(t.tableName, t.createdAt.desc()),
+  ],
+);
+
 /**
  * Pola regex email yang sama persis dengan constraint PostgreSQL, lengkap
  * dengan tanda kutip tunggalnya. Tanpa tanda kutip itu SQL yang dihasilkan

@@ -7,6 +7,7 @@ import { canEditContent, canManageUsers, requireSession } from "@/server/auth/se
 import { dbOrNull } from "@/server/db/client";
 import { find } from "@/server/admin/registry";
 import { deleteRecord, getRecord, updateRecord } from "@/server/admin/records";
+import { catatAudit, ringkasBaris } from "@/server/admin/audit";
 import { readJsonBody } from "@/server/validation";
 
 export const dynamic = "force-dynamic";
@@ -39,10 +40,21 @@ export async function GET(_request: NextRequest, context: Konteks): Promise<Next
 
 export async function PATCH(request: NextRequest, context: Konteks): Promise<NextResponse> {
   return handle(async () => {
-    await requireSession(canEditContent);
+    const sesi = await requireSession(canEditContent);
     const { db, spesifikasi, barisId } = await siapkan(context);
 
-    return ok(await updateRecord(db, spesifikasi, barisId, await readJsonBody(request)));
+    const baris = await updateRecord(db, spesifikasi, barisId, await readJsonBody(request));
+
+    await catatAudit(db, {
+      actorId: sesi.sub,
+      actorEmail: sesi.email,
+      action: "update",
+      tableName: spesifikasi.table,
+      rowId: barisId,
+      summary: ringkasBaris(baris, spesifikasi.label),
+    });
+
+    return ok(baris);
   });
 }
 
@@ -50,14 +62,27 @@ export async function DELETE(_request: NextRequest, context: Konteks): Promise<N
   return handle(async () => {
     // Menghapus konten jauh lebih merusak daripada mengeditnya, jadi hak ini
     // dibatasi pada peran yang lebih tinggi: `front_office` tidak punya.
-    await requireSession(canManageUsers);
+    const sesi = await requireSession(canManageUsers);
     const { db, spesifikasi, barisId } = await siapkan(context);
 
     if (!spesifikasi.deletable) {
       throw ApiError.badRequest("Tabel ini tidak boleh dihapus lewat panel.");
     }
 
+    // Ringkasan diambil SEBELUM baris hilang: sesudah DELETE tidak ada lagi
+    // yang bisa dibaca, dan riwayat berisi id UUID saja tidak berarti apa-apa.
+    const sebelum = await getRecord(db, spesifikasi, barisId);
     await deleteRecord(db, spesifikasi, barisId);
+
+    await catatAudit(db, {
+      actorId: sesi.sub,
+      actorEmail: sesi.email,
+      action: "delete",
+      tableName: spesifikasi.table,
+      rowId: barisId,
+      summary: sebelum ? ringkasBaris(sebelum, spesifikasi.label) : spesifikasi.label,
+    });
+
     return ok({ deleted: true });
   });
 }

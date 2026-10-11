@@ -192,8 +192,13 @@ export function newClaims(user: {
  *
  * Pemanggil memakai `koneksiTerenskripsi()` yang juga membaca
  * `x-forwarded-proto`, jadi kasus itu tertutup.
+ *
+ * Parameternya wajib, tanpa nilai bawaan. Kalau ada bawaan, nilai itu harus
+ * `false` supaya mode kegagalannya bukan cookie tanpa `Secure`, dan pemanggil
+ * baru yang lupa mengoper argumen akan menerbitkan cookie tanpa `Secure` tanpa
+ * satu pun galat. Dengan wajib, kelupaan itu ketahuan saat kompilasi.
  */
-export function sessionCookie(token: string, aman = false): {
+export function sessionCookie(token: string, aman: boolean): {
   name: string;
   value: string;
   options: Record<string, unknown>;
@@ -216,9 +221,9 @@ export function sessionCookie(token: string, aman = false): {
  * `aman` mengikuti aturan yang sama dengan `sessionCookie`: kalau cookie
  * diterbitkan dengan `Secure`, penghapusannya harus juga bertanda `Secure`,
  * supaya browser menganggapnya penimpa yang sah dari koneksi terenkripsi dan
- * benar-benar menyimpannya.
+ * benar-benar menyimpannya. Parameternya wajib dengan alasan yang sama.
  */
-export function clearedSessionCookie(aman = false): {
+export function clearedSessionCookie(aman: boolean): {
   name: string;
   value: string;
   options: Record<string, unknown>;
