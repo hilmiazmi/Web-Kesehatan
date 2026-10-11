@@ -20,6 +20,7 @@ import { describe, expect, it } from "vitest";
 
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { cspHeader } from "../next.config";
 
 const sumber = readFileSync(
   fileURLToPath(new URL("../next.config.ts", import.meta.url)),
@@ -75,7 +76,12 @@ describe("header keamanan wajib ada", () => {
 
   for (const kunci of WAJIB) {
     it(`menyertakan ${kunci}`, () => {
-      expect(nilaiHeader(kunci).length).toBeGreaterThan(0);
+      // Nilai CSP berasal dari fungsi `cspHeader`, bukan literal di berkas
+      // konfigurasi, jadi yang dibuktikan adalah hasil pemanggilannya. Header
+      // lain tetap dibaca sebagai teks sumber.
+      const nilai =
+        kunci === "Content-Security-Policy" ? cspHeader(false) : nilaiHeader(kunci);
+      expect(nilai.length).toBeGreaterThan(0);
     });
   }
 
@@ -87,7 +93,8 @@ describe("header keamanan wajib ada", () => {
 });
 
 describe("isi CSP", () => {
-  const csp = nilaiHeader("Content-Security-Policy");
+  // `cspHeader(false)` adalah bentuk produksi: tanpa izin eval sama sekali.
+  const csp = cspHeader(false);
 
   it("melarang framing lewat dua mekanisme", () => {
     // `frame-ancestors` berlaku di peramban modern; `X-Frame-Options` dibaca
@@ -104,18 +111,50 @@ describe("isi CSP", () => {
     expect(csp).toContain("form-action 'self'");
   });
 
-  it("hanya mengizinkan dua host foto yang memang dipakai", () => {
+  it("mengizinkan host foto yang memang dipakai, termasuk tujuan redirect", () => {
     // Daftar ini harus sama dengan `remotePatterns` di `next.config.ts`.
     // Host yang lebih banyak berarti permukaan serang lebih luas tanpa alasan;
     // host yang lebih sedikit berarti gambar gagal dimuat.
+    //
+    // `fastly.picsum.photos` bukan host yang dipakai langsung oleh kode, tapi
+    // tetap wajib ada: `picsum.photos` menjawab 302 ke sana. Aturan `img-src`
+    // memeriksa setiap host yang diminta, bukan hanya yang pertama, jadi tanpa
+    // baris ini gambar picsum diblokir tepat setelah redirect — 32 gambar
+    // beranda mati karena alasan yang tidak terlihat dari URL asalnya.
     const hosts = [...csp.matchAll(/https:\/\/([a-z.]+)/g)].map((m) => m[1]);
-    expect(new Set(hosts)).toEqual(new Set(["images.unsplash.com", "picsum.photos"]));
+    expect(new Set(hosts)).toEqual(
+      new Set(["images.unsplash.com", "picsum.photos", "fastly.picsum.photos"]),
+    );
   });
 
   it("tidak mengizinkan eval, karena mode produksi tidak membutuhkannya", () => {
     // `unsafe-eval` hanya dipakai bundler di mode pengembangan. Membiarkannya di
     // produksi mencabut hampir seluruh kekuatan `script-src`.
     expect(csp).not.toContain("unsafe-eval");
+  });
+
+  it("memberi izin eval hanya di mode pengembangan, dan hanya pada script-src", () => {
+    // React dev memakai `eval()` untuk merekonstruksi callstack; tanpa izin itu
+    // setiap halaman dev memunculkan galat konsol. Yang dijaga di sini dua arah:
+    // izin itu ADA di dev, dan TIDAK pernah bocor ke produksi.
+    const dev = cspHeader(true);
+    expect(dev).toContain("script-src 'self' 'unsafe-inline' 'unsafe-eval'");
+
+    // Izin itu tidak menyebar ke direktif lain: menambahkannya di `default-src`
+    // akan memberi kuasa yang sama ke `img-src`, `connect-src`, dan sisanya.
+    for (const baris of dev.split("; ")) {
+      if (baris.startsWith("script-src")) continue;
+      expect(baris).not.toContain("unsafe-eval");
+    }
+
+    // Selain baris `script-src`, dev dan produksi harus sama persis: tidak ada
+    // direktif lain yang diam-diam dilonggarkan hanya karena sedang dev.
+    const tanpaScript = (nilai: string) =>
+      nilai
+        .split("; ")
+        .filter((b) => !b.startsWith("script-src"))
+        .join("; ");
+    expect(tanpaScript(dev)).toBe(tanpaScript(csp));
   });
 
   it("membolehkan unsafe-inline hanya karena alasan yang tercatat", () => {

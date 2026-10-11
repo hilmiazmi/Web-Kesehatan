@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Sparkline from "@/components/admin/Sparkline";
+import MuatUlang from "@/components/admin/MuatUlang";
 import { dbOrNull } from "@/server/db/client";
 import {
   appointmentsPerDay,
@@ -27,9 +28,10 @@ export const metadata: Metadata = {
  * Component, jadi menambah dua tabel tidak perlu memindahkan apa pun ke sisi
  * klien dan tidak perlu menambah satu keadaan "memuat" yang akan berkedip.
  *
- Dua query tambahan itu punya penanganan kegagalan sendiri-sendiri, jadi satu
+ * Dua query tambahan itu punya penanganan kegagalan sendiri-sendiri, jadi satu
  * tabel yang gagal diambil tidak membuat tabel lain ikut hilang.
  */
+
 /**
  * Baris tabel "Isi situs".
  *
@@ -98,7 +100,10 @@ export default async function AdminDashboardPage() {
 
   return (
     <div>
-      <h1 className="mb-3">Dasbor</h1>
+      <div className="admin-kepala">
+        <h1 className="mb-0">Dasbor</h1>
+        <MuatUlang />
+      </div>
 
       <h2 className="fs-5 mb-3">Perlu ditangani</h2>
       <dl className="row g-3 mb-4">

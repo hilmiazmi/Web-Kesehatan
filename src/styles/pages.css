@@ -563,9 +563,13 @@
  * mati, tapi kotak 16px sendiri tetap jauh di bawah 24px minimal pada
  * WCAG 2.5.8.
  *
- * Di bawah 768px kotaknya jadi 22.4px dan barisnya minimal 44px. Di atas
- * 768px apa pun tidak berubah karena tampilan desktop sudah diverifikasi
- * terhadap situs acuan. */
+ * Di bawah 768px kotaknya jadi 24px — bukan 22.4px. Angka 22.4px sudah
+ * diukur tetap kurang dari minimum 24px pada WCAG 2.5.8, dan efeknya nyata:
+ * pada 10 Oktober 2026 diukur di /daftar-online, keempat radio (JKN, umum,
+ * asuransi) masih 22 x 22 px dan tetap dilaporkan Lighthouse. Jadi 1.5rem
+ * (24px) yang dipakai, dan barisnya tetap minimal 44px. Di atas 768px apa
+ * pun tidak berubah karena tampilan desktop sudah diverifikasi terhadap
+ * situs acuan. */
 /* Batasnya 768px, sama dengan batas topbar, karena di 768px teks kontak
  * sudah disembunyikan dan hanya ikon yang tersisa. */
 @media (max-width: 768px) {
@@ -575,8 +579,8 @@
   }
 
   .form-check .form-check-input {
-    width: 1.4rem;
-    height: 1.4rem;
+    width: 1.5rem;
+    height: 1.5rem;
     margin-top: 0.7rem;
     margin-left: -2.15rem;
   }

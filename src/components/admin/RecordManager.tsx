@@ -9,6 +9,8 @@ import {
   type NilaiForm,
 } from "@/components/admin/nilai-form";
 import FormBaris from "@/components/admin/FormBaris";
+import { unduhCsv } from "@/components/admin/unduh";
+import { keCsv } from "@/lib/csv";
 
 /**
  * Kelola baris satu tabel: daftar, pencarian, pengurutan, tambah, ubah, hapus.
@@ -213,6 +215,23 @@ export default function RecordManager({
           }}
         >
           <i className="bi bi-plus-lg" aria-hidden="true" /> Tambah {label}
+        </button>
+
+        {/* Ekspor halaman yang sedang tampil, dengan kolom yang sama seperti
+            tabel di sebelahnya. Judul kolom memakai label form, bukan nama
+            kolom database. */}
+        <button
+          type="button"
+          className="btn btn-outline-secondary"
+          disabled={!halaman || halaman.items.length === 0}
+          onClick={() => {
+            if (!halaman) return;
+            const kolom = kolomTampil.map((f) => f.column);
+            const judul = Object.fromEntries(kolomTampil.map((f) => [f.column, f.label]));
+            unduhCsv(`records-${table}`, keCsv(kolom, halaman.items, judul));
+          }}
+        >
+          <i className="bi bi-download" aria-hidden="true" /> Ekspor CSV
         </button>
       </div>
 

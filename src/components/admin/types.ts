@@ -9,6 +9,8 @@
 export type TableSummary = {
   table: string;
   label: string;
+  /** Ikon Bootstrap Icons untuk sidebar, misalnya `bi-newspaper`. */
+  icon: string;
   defaultOrder: string;
   deletable: boolean;
   searchColumns: readonly string[];

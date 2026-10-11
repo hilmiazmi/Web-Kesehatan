@@ -882,3 +882,274 @@ hijau, editor ganti sandi lalu masuk lagi, dialog hapus, off-canvas mobile.
 `cek:tautan` nihil mati. Branch dokumentasi sudah dihapus lokal dan remote
 setelah merge; `main` tidak pernah di-commit langsung (satu insiden HEAD
 pindah sesi lain diperbaiki sebelum push).
+
+---
+
+## Sapu bersih komentar usang + berkas mati + temuan image (2026-10-10, sesi agen)
+
+**Catatan pembaca:** kepala berkas ini (baris 6-8) masih menyebut commit
+serah-terima `e579f3e` dan tanggal 9 Oktober 2026. Itu sudah usang: `main`
+berada di `d9a9756` (dan pada akhir sesi ini, di `c2fa2f8`). Kepala tidak
+diubah di sini karena sesi lain sedang menyunting berkas yang sama.
+
+### 1. Kenyataan awal yang tidak cocok dengan berkas ini
+
+- Sesi ini mulai di branch `docs/catatan-sesi-10-okt` dengan **5 berkas belum
+  di-commit** (`AccountsManager.tsx`, `LoginForm.tsx`, `SettingsManager.tsx`,
+  `Sparkline.tsx`, `tokens.css`). Sebelum saya menyentuhnya, sesi paralel
+  meng-commitnya jadi `f56226e` dan `d9a9756`, lalu push ke `origin` dan
+  `upstream`. Working tree bersih sendiri.
+- Tiga commit branch di atas `main` (`aa7c8fe`, `98a960b`, `f2646a2`) belum
+  tercatat di HANDOFF maupun CHANGELOG saat sesi dimulai.
+- Keadaan akhir sesi: **commit saya berakhir di `main`**, bukan di branch
+  sendiri. Saya commit di `chore/rapikan-komentar-schema`, tetapi sesi lain
+  memindahkan `main` ke sana (fast-forward, tanpa merge commit). Saya tidak
+  melakukannya, dan `main` belum di-push.
+
+### 2. Yang dikerjakan
+
+| Berkas | Perubahan |
+|---|---|
+| `src/server/db/schema.ts` | 5 rujukan path salah di komentar |
+| `tests/schema-vs-sql.test.ts` | **baru**, 8 tes |
+| `scripts/kunci-build.ts` | 2 rujukan `global-teardown.ts` menjadi `.mjs` |
+| `playwright.config.ts` | 1 rujukan sama |
+| `scripts/gen-rute-publik.py` | **dihapus** |
+| `Dockerfile` | tahap `deps-prod` baru; runtime tak lagi memuat devDependencies |
+
+Ditambah: `e699ea2` (komentar schema + tes), `c2fa2f8` (rujukan teardown),
+`01f1160` (buang generator), dan commit keempat untuk `Dockerfile` plus \
+pembaruan berkas ini.
+
+Tiga commit: `e699ea2` (komentar schema + tes), `c2fa2f8` (rujukan teardown),
+`01f1160` (buang generator). Bukan `git add -A`; berkas sesi lain tidak pernah
+ikut.
+
+**Rujukan usang di `schema.ts`** — semuanya diverifikasi berkasnya tidak ada:
+`api/migrations/*.sql` (sumber sebenarnya `drizzle/0000_baseline.sql`),
+`src/server/db/migration-kustom.sql` (tidak ada, tidak pernah ada),
+`tests/schema.test.ts` (tidak ada, jadi tidak ada tes yang menjaga daftar
+constraint), `src/server/repo/appointments.ts` dan `src/server/repo/content.ts`
+(nyatanya `src/server/db/repo/`).
+
+**Fakta yang menggantikan klaim lama**, diukur bukan ditebak:
+
+- Tidak ada berkas SQL kustom terpisah. Tujuh CHECK regex hanya hidup di SQL:
+  enam `*_email_format` dan `hero_slides_link_internal` di
+  `drizzle/0000_baseline.sql`, kecuali `admissions_email_format` yang ikut
+  tabelnya di `drizzle/0004_slimy_vector.sql`.
+- Seluruh **56 indeks** di `drizzle/` punya padanan di `schema.ts`, dua arah,
+  himpunan yang sama persis. Klaim lama "sisanya ada di migrasi kustom" salah.
+- `appointments_nik_simulasi` dan `admissions_nik_simulasi` justru **ada** di
+  `schema.ts`, jadi batas "apa yang bisa ditulis di sini" bukan posisi semua
+  CHECK regex.
+
+### 3. `tests/schema-vs-sql.test.ts` — apa yang dikunci dan cara diuji
+
+Tiga grup: simetri indeks dua arah, keberadaan tujuh CHECK regex di SQL, dan
+pemindai rujukan path di komentar seluruh `src/`, `tests/`, `e2e/`,
+`scripts/` (85 token lolos filter saat ini). Mutasi dijalankan dua kali untuk
+membuktikan tes benar-benar merah: mengembalikan rujukan usang memerahkan 3
+tes, dan mengubah satu nama indeks memerahkan 3 tes lain.
+
+Pemindai itu langsung berguna: rujukan `e2e/global-teardown.ts` (padahal `.mjs`)
+tidak ditemukan oleh mata, melainkan oleh tes ini. Itu sebabnya
+`scripts/kunci-build.ts` dan `playwright.config.ts` ikut diperbaiki.
+
+Satu file sesi lain juga disentuh satu baris:
+`scripts/isi-cover-berita.ts:11` masih menyebut `scripts/cover-berita.ts`
+sesudah isinya dipindahkan ke `src/data/cover-berita.ts`. Statusnya merah
+karena tes baru itu, jadi komentarnya diperbaiki. **Perubahan satu baris pada
+berkas in-progress sesi lain** — dilaporkan agar tidak mengherankan.
+
+### 4. Berkas yang dibuang dan yang TIDAK
+
+**Dibuang: `scripts/gen-rute-publik.py`** (298 baris). Nol rujukan di seluruh
+repo: bukan `package.json`, bukan workflow, tidak ada dokumen yang menyebutnya,
+`git log -S` kosong. Lebih dari mati — **menjalankannya merusak**. Dibuktikan
+dengan cara yang bisa dibalik: generator dijalankan, hash `git ls-files -s
+src/app/api/v1` dicocokkan sebelum (`1307fb3...`) dan sesudah, lalu
+`git checkout -- src/app/api/v1` memulihkannya. Hasilnya lima route handler
+ditimpa versi yang kehilangan `import { satuHalaman } from
+"@/server/api/snapshot-query"` beserta pemanggilannya — `?page=2` dan
+`?category=` mulai mengulang isi `?page=1`, persis yang dikunci
+`tests/snapshot-query.test.ts`. Skrip ini tidak pernah dijalankan siapa pun,
+itu sebabnya kerusakannya tidak kelihatan.
+
+**Tidak dibuang, meski terlihat tidak terpakai:**
+
+- `scripts/api.sh` — isinya hanya pesan "jangan pakai ini". Bukan berkas mati,
+  tapi penunjuk jalan, dan kepalanya sendiri menulis "Jangan dihapus tanpa
+  persetujuan: AGENTS.md melarang hapus/rename berkas".
+- `archive/`, `docs/` — read-only dan milik pemilik repo.
+
+**Analisis yatim**: 221 berkas di `src/` ter-track. Analisis import atas 220
+berkasnya (semua berekstensi `.ts`, `.tsx`, `.css`, `.scss`, `.json`, `.woff`,
+`.ico`) menemukan nol yang yatim, kecuali lima berkas konvensi Next.js yang
+dimuat lewat rute bukan lewat import (`page.tsx`, `layout.tsx`,
+`not-found.tsx`, `robots.ts`, `opengraph-image.tsx`). Berkas yang tidak
+berekstensi kode (`favicon.ico`) dan berkas gaya dicek lewat rujukan nama, bukan
+lewat import. Sisanya: 21 skrip, 63 tes, dan 4 berkas `e2e/` semuanya punya
+pemakai, jadi satu-satunya berkas repo yang benar-benar mati adalah
+`gen-rute-publik.py` di atas.
+
+**Berkas lokal yang dibersihkan:** `test-results/` (hanya berisi
+`.last-run.json`, output Playwright). Sudah tidak ada saat saya periksa.
+
+**Berkas lokal yang sengaja TIDAK dihapus, dengan alasannya:**
+
+| Berkas | Ukuran | Alasan dibiarkan |
+|---|---|---|
+| `.next/` | 247 MB | ada dua `next dev` aktif memakainya; build output, tumbuh sendiri |
+| `tsconfig.tsbuildinfo` | 340 KB | cache incremental TS, beberapa `tsserver` masih jalan |
+| `.playwright-mcp/` | 2,0 MB | log dan screenshot dari 4 Okt; bisa jadi bukti, bukan sampah |
+| `.env.local` | — | rahasia. Tidak pernah dibaca, tidak pernah dicetak |
+
+### 5. Temuan baru: dependensi rentan IKUT masuk image produksi
+
+`bun audit` melaporkan sisa yang sama seperti sebelumnya: `braces@3.0.3`
+(tinggi, lewat `eslint-config-next > @next/eslint-plugin-next > fast-glob >
+micromatch`) dan `esbuild` (sedang, lewat `drizzle-kit > esbuild` dan
+`vitest > @vitest/mocker > vite > tsx`).
+
+Kedua dokumen ini menyebut keduanya "hanya muncul di rantai perkembangan, tidak
+berdampak ke produksi". **Separuhnya benar saja.** `Dockerfile` (baris 68 sebelum
+sesi ini, sekarang baris 103):
+
+```
+COPY --from=deps --chown=bun:bun /app/node_modules ./node_modules
+```
+
+tahap `deps` memakai `bun install --frozen-lockfile`, yaitu **semua** dependensi
+termasuk devDependencies, dan tidak ada pemilahan produksi. Jadi paket-paket itu
+benar-benar disalin ke tahap `runner`. Delapan paket dari rantai itu
+berukuran **15 MB** (`drizzle-kit` 9,9 M, `vitest` 3,0 M, sisanya kecil).
+
+Kesan ke runtime: `next start` tidak pernah memanggil eslint, drizzle-kit, atau
+vitest, dan advisory esbuild memang soal server pengembangan. Jadi **jalur
+eksekusinya tidak ada**, dan ini bukan celah yang bisa dipicu dari permintaan
+HTTP. Yang benar adalah: berkasnya ada di image, kodenya tidak pernah jalan.
+Rugi yang nyata adalah ukuran image dan permukaan yang tampak pada hasil
+pemindaian, bukan jalan serang.
+
+**SUDAH DIPERBAIKI di sesi ini** (lihat bagian 2b di bawah): tahap `deps-prod`
+baru plus `--production`, dan runner kini menyalin dari sana. Jadi paragraf di
+atas adalah kondisi SEBELUM perbaikan, bukan keadaan sekarang.
+
+### 5b. Perbaikan image produksi diverifikasi, bukan diasumsikan
+
+Pemilik repo menjawab "lakukan yang terbaik menurutmu", jadi temuan di atas
+diteruskan menjadi perbaikan dengan verifikasi sendiri.
+
+**Perubahan `Dockerfile`:** tahap baru `deps-prod` (`bun install --frozen-lockfile
+--production`) dan baris runner berganti dari `--from=deps` menjadi
+`--from=deps-prod`. Builder tetap memakai tahap `deps` penuh karena `next build`
+menjalankan pemeriksaan TypeScript. `.github/workflows/citra-docker.yml` tidak
+menyebut nama tahap (tidak ada `target:`), jadi CI tidak terpengaruh.
+
+**Kenapa tahap terpisah, bukan sekadar menambah flag di tahap `deps`:** satu tahap
+dipakai dua konsumen dengan kebutuhan berbeda. Kalau `deps` dibuat produksi-saja,
+`next build` gagal karena kehilangan `typescript`.
+
+**Jebakan yang hampir membuat verifikasi ini salah.** `bun pm prune` tidak ada di
+bun 1.4.3. `bun install --production` ada, tetapi **tidak menghapus apa pun
+kalau node_modules sudah terisi** — sudah diuji: node_modules tetap 731 MB dan
+seluruh devDependencies tetap ada. Perintah itu hanya menentukan apa yang
+dipasang. Karena itu pengukuran yang berarti harus dilakukan dari nol, persis
+seperti tahap `FROM` di Docker.
+
+**Cara verifikasinya** (worktree terpisah `/tmp/opencode/uji-prune`, tidak
+mengganggu sesi lain di repo utama):
+
+1. `git worktree add` di branch `docs/handoff-sapu-bersih`, `bun install
+   --frozen-lockfile` penuh, `bun run build` — sukses.
+2. `mv node_modules node_modules.full`, lalu `bun install --frozen-lockfile
+   --production` **dari nol**: 731 MB menjadi **525 MB**, dan `eslint`,
+   `eslint-config-next`, `esbuild`, `braces`, `drizzle-kit`, `vitest`, serta
+   `typescript` semuanya hilang.
+3. `bun run start` (mode snapshot, port 3455) lalu empat pemeriksaan:
+
+| Uji | Hasil |
+|---|---|
+| `GET /` | 200 |
+| `GET /_next/image?url=https://images.unsplash.com/...` | **200** |
+| `GET /api/v1/health` | 200, JSON benar, `mode: "snapshot"` |
+| `GET /daftar-online`, `/robots.txt`, `/sitemap.xml` | 200, 200, 200 |
+| Header keamanan di respons | CSP, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `X-Frame-Options` semuanya hadir |
+| Log server | 0 error |
+
+`playwright` tetap terpasang (19 MB, `playwright` 5 M + `playwright-core` 14 M)
+karena `next@16.3.8` mencantumkan `@playwright/test` sebagai **optional peer
+dependency**. Itu satu-satunya perkakas yang tidak bisa dihilangkan lewat
+`--production`, dan tidak ada advisory keamanan untuknya.
+
+Uji `/_next/image` menjawab 200 itu bagian terpenting: itu membuktikan
+`next.config.ts` — yang ditulis sebagai TypeScript — tetap termuat walau paket
+`typescript` tidak ikut ke image. Kalau itu gagal, seluruh foto jarak jauh akan
+mati di produksi.
+
+**Yang BELUM diverifikasi:** image Docker-nya sendiri. `docker` di mesin ini
+butuh `sudo`, dan AGENTS.md melarang `sudo` kecuali diminta eksplisit, jadi
+`docker build` tidak dijalankan. Sintaks Dockerfile baru hanya ditinjau dengan
+mata dan dicocokkan dengan `.dockerignore` (yang tidak mengabaikan `bun.lock`,
+`package.json`, `next.config.ts`, `snapshot/`, maupun `drizzle/`). Angka 525 MB
+adalah ukuran `node_modules` di Alpine lokal, bukan ukuran layer di image akhir;
+jumlah pastinya baru ketahuan setelah `docker build` di VPS.
+
+### 6. Gerbang saat sesi ini
+
+Diukur pada `c2fa2f8`:
+
+| Gerbang | Hasil |
+|---|---|
+| `bun run lint` | exit 0, 0 error |
+| `bun run test` | 65 berkas, 893 tes, semua lulus (lihat catatan di bawah) |
+| `bun run cek:konten` | "semua berkas snapshot konsisten", 20 tabel terisi |
+| `bun audit` | 2 advisory (braces tinggi, esbuild sedang) |
+| `bun run build` | **160/160 halaman, exit 0**, `cek:tautan` 160 halaman / 160 tautan / 159 sitemap, nihil mati |
+| `bun run audit:teks` | **MERAH**: `tests/csv.test.ts:25` U+00ED |
+
+Dua kegagalan build dijalur sesi ini **bukan** dari kerja saya:
+`scripts/isi-cover-berita.ts` (`glob` tidak ada di `node:fs/promises`) dan
+`tests/aksi-massal-inbox.test.ts` (`label` tidak ada di `InboxKind`).
+Keduanya berkas in-progress sesi lain, dan `bunx tsc --noEmit` membuktikan
+nol error datang dari berkas yang saya sentuh.
+
+Kunci build sempat tersangkut dua kali karena `postbuild` dilewati saat build
+gagal. Saya lepas lewat `bun run scripts/kunci-build.ts lepas` hanya setelah
+memastikan tidak ada proses `next build` lain yang hidup — sesuai bahaya yang
+sudah dicatat di AGENTS.md.
+
+**Penting soal angka-angka di atas: working tree ini bergerak terus.** Sesudah
+angka terakhir saya ukur, sesi lain menambah route admin ke-15
+(`src/app/api/v1/admin/inbox/[kind]/status-banyak/`, belum di-commit) sehingga
+`bun run test` menjadi merah di `tests/peran-admin.test.ts` ("expected ...(15)
+to have a length of 14"), dan `bun run lint` memunculkan satu peringatan
+`getPublicArticles` tidak terpakai. Keduanya berkas sesi lain. Pengukuran
+saya di atas benar pada saat diambil, tetapi siapa pun yang menjalankan gerbang
+sekarang akan melihat merah dengan sebab yang berbeda. Verifikasi ulang sebelum
+menyimpulkan sesuatu dari angka ini.
+
+### 7. Yang perlu keputusan Anda
+
+1. ~~**Prune image produksi.**~~ **Sudah dikerjakan dan diverifikasi** di sesi
+   ini — lihat bagian 5b. Yang tersisa hanya menjalankan `docker build` di VPS
+   untuk mengonfirmasi ukuran layer-nya (butuh `sudo`, tidak diminta).
+2. **`tests/csv.test.ts` dan `tests/aksi-massal-inbox.test.ts`.** Keduanya
+   merahkan gerbang, dan keduanya milik sesi lain yang sedang berjalan. Saya
+   hanya memperbaiki satu komentar di `isi-cover-berita.ts` karena tes saya
+   yang memerah karenanya.
+3. **Push atau tidak.** Branch `polish/panel-admin` dan `chore/rapikan-komentar-schema`
+   sudah punya commit; `main` berisi commit saya. Belum ada yang di-push.
+
+### 8. Langkah berikutnya
+
+1. Bangun image di VPS (`docker build`) untuk mengonfirmasi ukuran setelah tahap
+   `deps-prod`. Bukti lokal sudah lengkap, angka layer-nya belum.
+2. Selesaikan dua berkas sesi lain di atas sampai `audit:teks` dan `tsc` hijau.
+3. Isi `ADMIN_ORIGIN=https://...` di dashboard platform (masih belum, ini
+   tindakan sekali pakai, bukan pekerjaan kode).
+4. Tulis tes E2E untuk panel off-canvas di bawah 1200px dan dialog SweetAlert2
+   — dua-satunya yang masih manual.
+5. Perbarui kepala `docs/HANDOFF.md` (baris 6-8) setelah keributan sesi paralel
+   reda, supaya commit serah-terimanya tidak lagi menunjuk `e579f3e`.

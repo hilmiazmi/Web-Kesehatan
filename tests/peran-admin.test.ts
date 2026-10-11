@@ -76,12 +76,12 @@ function yangMemeriksa(route: string): string[] {
 }
 
 describe("route admin ada dan bisa dibaca", () => {
-  it("hanya ada empat belas route dan semuanya ditemukan", () => {
+  it("hanya ada lima belas route dan semuanya ditemukan", () => {
     // Kalau jumlah ini berubah tanpa thoughtful, kemungkinan ada route yang
     // baru dibuat lalu test ini tidak ikut diperbarui. Sebaliknya, kalau ada
     // route yang dihapus, test ini gagal dan pemanggilnya tahu untuk mengecek
     // apakah daftar perannya juga perlu dibersihkan.
-    expect(ROUTE).toHaveLength(14);
+    expect(ROUTE).toHaveLength(15);
     for (const r of ROUTE) expect(existsSync(path.join(AKAR, r))).toBe(true);
   });
 
@@ -129,9 +129,10 @@ describe("pembatasan peran, bukan sekadar sesi", () => {
    * bisa mengubah isi berita. Daftar ini mengunci bahwa pemeriksaannya memakai
    * fungsi peran, bukan sekadar memeriksa sesi sudah ada.
    *
-   * `inbox/[kind]/[id]` sengaja tidak ada di sini. Route itu hanya mengubah
-   * status pesan masuk, yang menurut definisi pekerjaan front office, dan
-   * tidak ada endpoint mana pun yang mengubah isi pesan.
+   * `inbox/[kind]/[id]` dan `inbox/[kind]/status-banyak` sengaja tidak ada di
+   * sini. Route itu hanya mengubah status pesan masuk, yang menurut definisi
+   * pekerjaan front office, dan tidak ada endpoint mana pun yang mengubah isi
+   * pesan.
    *
    * `users/[id]/password` juga tidak ada di sini dan dikunci terpisah di
    * bawah: aturannya "super_admin atau akun sendiri", yang tidak bisa

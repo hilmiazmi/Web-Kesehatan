@@ -5,7 +5,7 @@ import LogoutButton from "@/components/admin/LogoutButton";
 import type { TableSummary } from "@/components/admin/types";
 
 /**
- * Kerangka panel admin:sidebar di kiri, isi di kanan.
+ * Kerangka panel admin: sidebar di kiri, isi di kanan.
  *
  * Daftar tabel dan inbox dikirim dari server, bukan diambil lewat
  * `GET /api/v1/admin/tables`. Sumbernya sama dengan yang dipakai Route Handler,
@@ -22,7 +22,7 @@ export default function AdminShell({
 }: {
   claims: SessionClaims;
   tables: readonly TableSummary[];
-  inboxKinds: readonly { slug: string; label: string }[];
+  inboxKinds: readonly { slug: string; label: string; icon: string }[];
   unread: number;
   children: React.ReactNode;
 }) {
@@ -42,7 +42,7 @@ export default function AdminShell({
           canManageUsers={canManageUsers(claims.role)}
         />
 
-        <div className="admin-brand">
+        <div className="admin-brand admin-side-foot">
           <span>
             {claims.name} — {ROLE_LABEL[claims.role]}
           </span>
@@ -58,7 +58,7 @@ export default function AdminShell({
             <span className="admin-avatar" aria-hidden="true">
               {claims.name.charAt(0)}
             </span>
-            <span>{claims.email}</span>
+            <span className="admin-user-surel">{claims.email}</span>
             <span className="admin-role">{ROLE_LABEL[claims.role]}</span>
             <LogoutButton />
           </div>
