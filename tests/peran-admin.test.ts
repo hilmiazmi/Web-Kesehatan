@@ -134,7 +134,13 @@ describe("pembatasan peran, bukan sekadar sesi", () => {
    * pekerjaan front office, dan tidak ada endpoint mana pun yang mengubah isi
    * pesan.
    *
-   * `audit` juga tidak ada di sini: ia hanya membaca, tidak menulis.
+   * `audit` TIDAK bisa ikut alasan "hanya membaca": daftar ini bukan daftar
+   * route yang menulis, melainkan daftar route yang memakai fungsi peran.
+   * Riwayat perubahan memuat siapa mengubah apa di seluruh panel, jadi
+   * membacanya juga perlu dibatasi ke `super_admin`. Yang dikunci di sini
+   * adalah pemeriksaannya memakai `canManageUsers`, supaya penyederhanaan
+   * nanti tidak diam-diam mengubahnya jadi `requireSession()` biasa — yang
+   * membuat setiap admin bisa membaca siapa mengubah apa.
    *
    * `users/[id]/password` juga tidak ada di sini dan dikunci terpisah di
    * bawah: aturannya "super_admin atau akun sendiri", yang tidak bisa
@@ -146,6 +152,7 @@ describe("pembatasan peran, bukan sekadar sesi", () => {
     "src/app/api/v1/admin/users/route.ts",
     "src/app/api/v1/admin/users/[id]/route.ts",
     "src/app/api/v1/admin/users/[id]/reset-password/route.ts",
+    "src/app/api/v1/admin/audit/route.ts",
   ];
 
   it("daftar route yang butuh peran masih ada di filesystem", () => {
