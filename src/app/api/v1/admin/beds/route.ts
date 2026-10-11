@@ -5,6 +5,7 @@ import { ApiError } from "@/server/api/error";
 import { canEditContent, requireSession } from "@/server/auth/session";
 import { dbOrNull } from "@/server/db/client";
 import { loadBeds, perbaruiTempatTidur } from "@/server/db/repo/beds";
+import { catatAudit } from "@/server/admin/audit";
 import {
   Errors,
   integerRange,
@@ -46,7 +47,7 @@ export async function GET(): Promise<NextResponse> {
 
 export async function PATCH(request: NextRequest): Promise<NextResponse> {
   return handle(async () => {
-    await requireSession(canEditContent);
+    const sesi = await requireSession(canEditContent);
 
     const db = dbOrNull();
     if (db === null) throw ApiError.readOnly();
@@ -107,9 +108,23 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
 
     if (!errors.isEmpty) throw errors.toApiError();
 
+    const diubah = await perbaruiTempatTidur(db, baris);
+
+    // Satu baris riwayat untuk satu permintaan, bukan satu per tempat tidur:
+    // panel memang mengirim seluruh tabel sekaligus, dan dua ratus baris
+    // riwayat untuk satu klik akan membuat halaman riwayat tidak terbaca.
+    await catatAudit(db, {
+      actorId: sesi.sub,
+      actorEmail: sesi.email,
+      action: "update",
+      tableName: "bed_capacity",
+      rowId: null,
+      summary: `kapasitas tempat tidur: ${diubah} baris diperbarui`,
+    });
+
     return ok({
       requested: baris.length,
-      updated: await perbaruiTempatTidur(db, baris),
+      updated: diubah,
     });
   });
 }
