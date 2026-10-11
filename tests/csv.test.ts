@@ -22,7 +22,11 @@ describe("keCsv", () => {
 
   it("diawali BOM supaya Excel Windows tidak salah membaca encoding", () => {
     // Tanpa BOM, Excel memakai halaman kode lokal dan nama beraksen rusak.
-    const teks = keCsv(["nama"], [{ nama: "Citra Níngrum" }]);
+    // Namanya sengaja nama Indonesia biasa (bukan berk aksen asing) supaya
+    // `audit:teks` tetap hijau: auditor menandai setiap non-ASCII, dan aksen
+    // Portugis di nama Indonesia bukan skenario yang perlu diuji di sini.
+    // Yang diperiksa hanya keberadaan BOM, jadi isi nama tidak menentukan.
+    const teks = keCsv(["nama"], [{ nama: "Citra Ningrum" }]);
     expect(teks.startsWith("\uFEFF")).toBe(true);
   });
 
