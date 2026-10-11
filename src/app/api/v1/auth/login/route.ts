@@ -8,6 +8,7 @@ import { newClaims, sessionCookie, signSession } from "@/server/auth/session";
 import { koneksiTerenskripsi } from "@/lib/koneksi-aman";
 import { hashPassword, verifyPassword } from "@/server/auth/password";
 import { credentialsByEmail, touchLogin } from "@/server/admin/accounts";
+import { catatAudit } from "@/server/admin/audit";
 import { config } from "@/server/config";
 import { Errors, email as validateEmail, isHoneypotTrap, readJsonBody } from "@/server/validation";
 
@@ -76,6 +77,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       sessionVersion: kredensial.session_version,
     });
 
+// Login yang berhasil dicatat, kegagalan tidak. Tujuannya menjawab "siapa
+    // yang terakhir masuk dan kapan", bukan menghitung percobaan: percobaan
+    // yang gagal sudah terlihat di log server, dan mencatatnya di sini akan
+    // membuat tabel riwayat bisa dipakai menghitung surel mana yang benar.
+    await catatAudit(db, {
+      actorId: claims.sub,
+      actorEmail: claims.email,
+      action: "login",
+      tableName: "",
+      summary: "masuk ke panel",
+    });
     const cookie = sessionCookie(
       signSession(claims, config().authSecret),
       await koneksiTerenskripsi(),

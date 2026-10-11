@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { TableSummary } from "@/components/admin/types";
+import type { Role } from "@/server/auth/session";
 
 /**
  * Sidebar panel admin.
@@ -17,12 +18,15 @@ export default function AdminNav({
   tables,
   inboxKinds,
   unread,
+  peran,
   canEdit,
   canManageUsers,
 }: {
   tables: readonly TableSummary[];
   inboxKinds: readonly { slug: string; label: string; icon: string }[];
   unread: number;
+  /** Peran pemakai, hanya dipakai untuk menyembunyikan menu khusus super admin. */
+  peran: Role;
   canEdit: boolean;
   canManageUsers: boolean;
 }) {
@@ -84,6 +88,16 @@ export default function AdminNav({
         <Butir href="/admin/akun" pathname={pathname}>
           <i className="bi bi-shield-lock" aria-hidden="true" />
           Akun Panel
+        </Butir>
+      ) : null}
+
+      {/* Riwayat hanya untuk super_admin, sama seperti endpoint yang
+          membacanya. Peran lain tidak melihat tautan ke halaman yang isinya
+          akan dialihkan kembali ke dasbor. */}
+      {peran === "super_admin" ? (
+        <Butir href="/admin/riwayat" pathname={pathname}>
+          <i className="bi bi-clock-history" aria-hidden="true" />
+          Riwayat
         </Butir>
       ) : null}
 
