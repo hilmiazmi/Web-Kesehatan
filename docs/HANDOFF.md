@@ -1196,8 +1196,7 @@ menyimpulkan sesuatu dari angka ini.
 2. Selesaikan dua berkas sesi lain di atas sampai `audit:teks` dan `tsc` hijau.
 3. Isi `ADMIN_ORIGIN=https://...` di dashboard platform (masih belum, ini
    tindakan sekali pakai, bukan pekerjaan kode).
-4. Tulis tes E2E untuk panel off-canvas di bawah 1200px dan dialog SweetAlert2
-   — dua-satunya yang masih manual.
+4. Selesaikan dua berkas sesi lain di atas sampai `audit:teks` dan `tsc` hijau.
 5. Perbarui kepala `docs/HANDOFF.md` (baris 6-8) setelah keributan sesi paralel
    reda, supaya commit serah-terimanya tidak lagi menunjuk `e579f3e`.
 
@@ -1371,3 +1370,41 @@ membuat migrasi gagal di checkout baru.
 
 **Gerbang:** lint 0 error, `bun check` bersih di 314 berkas, tes lulus, build
 sukses. Diukur pada branch ini, bukan dikutip dari catatan sebelumnya.
+
+---
+
+## E2E panel off-canvas dan dialog SweetAlert2 (2026-10-11)
+
+Menutup dua-satunya hal yang selama ini hanya diperiksa mata dan dicatat di
+`AGENTS.md` serta `docs/TESTING.md`: panel navigasi off-canvas di bawah 1200px,
+dan dialog SweetAlert2 pada formulir.
+
+**Berkas baru:** `e2e/panel-dan-dialog.test.ts` — 9 tes, tanpa database.
+
+**Panel off-canvas (viewport 390px):** panel tertutup tidak terlihat dan tidak
+bisa difokus dengan Tab; hamburger membuka panel dan mengunci gulir latar;
+panel ditutup lewat tombol tutup, lewat Escape, dan lewat ketukan di luar
+panel; fokus kembali ke hamburger setelah ditutup; tautan di dalam panel
+menavigasi dan panel menutup sendiri.
+
+**Dialog SweetAlert2:** formulir kosong memunculkan dialog, bukan diam saja;
+formulir lengkap di mode baca-saja menyebut sebabnya ("baca-saja") alih-alih
+gagal generik; dialog punya `role="dialog"` dan judul yang benar-benar berisi
+teks.
+
+**Dua kesalahan tes yang saya buat sendiri, dan sudah dibetulkan** — dicatat
+supaya tidak diulang:
+
+1. Locator `.navmenu a` pertama kena tautan "Home" (href `/`), yang tidak
+   mengubah route sama sekali, sehingga panel wajar tidak menutup dan tes gagal
+   padahal kodenya benar. Item bersubmenu juga adalah tombol accordion di
+   mobile, bukan tautan. Tes sekarang memilih tautan yang href-nya bukan `/`
+   dan induknya tidak punya submenu.
+2. `visibility` diukur lewat `$eval` satu titik waktu, dan nilainya baru jadi
+   `hidden` di AKHIR transisi 0,3 detik (itu memang didokumentasikan di
+   `site.css`). Diganti assertion auto-retry (`toBeHidden`, `toHaveClass`),
+   yang memang bentuk yang seharusnya dipakai dari awal.
+
+**Gerbang:** E2E penuh 22 lulus, 3 dilewati (alur ber-database butuh
+PostgreSQL, sama seperti sebelum ini). lint 0 error, `bun check` bersih, build
+sukses.
