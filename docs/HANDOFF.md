@@ -5,9 +5,8 @@ dokumen lain untuk mencari tahu posisi kerja sekarang.
 
 Tanggal pembaruan: **11 Oktober 2026**
 Commit saat serah-terima: **`f6fa52e` = `main` = `upstream/main` (sudah di-push).**
-Semua pekerjaan panel admin dan riwayat sudah masuk `main` lewat PR #46;
-branch kerja sesi lalu ada di `polish-panel-riwayat` (perbaiki build yang
-rusak karena berkas tak-terlacak, lihat entri terakhir berkas ini).
+Semua pekerjaan panel admin dan riwayat sudah masuk `main`; riwayat audit dan
+tes E2E panel/dialog ada di branch `poles-riwayat-audit`.
 
 Riwayat per hari ada di bawah, bukan di kepala ini. Kepala berkas hanya
 menunjuk posisi sekarang; jangan tambahkan catatan panjang di sini.
