@@ -74,6 +74,21 @@ describe("pemasangan protokol di package.json", () => {
     expect(konfigurasi).toContain("globalTeardown");
     expect(konfigurasi).toContain("global-teardown");
   });
+
+  it("port E2E bisa diberi angka lain per sesi", () => {
+    // Terbukti 10 dan 11 Oktober 2026: port tetap 3401 plus
+    // `reuseExistingServer: true` membuat dua sesi menumpang satu server, dan
+    // saat satu sesi selesai menutup servernya, tes sesi lain mati dengan
+    // ERR_CONNECTION_REFUSED tanpa satu pun cacat kode.
+    expect(konfigurasi).toContain("E2E_PORT");
+    expect(konfigurasi).toContain("PORT_E2E");
+    // Port hanya boleh ditumpang kalau memang tidak dioverride.
+    expect(konfigurasi).toContain("E2E_PORT === undefined");
+  });
+
+  it("port bawaan tetap 3401 supaya CI tidak berubah", () => {
+    expect(konfigurasi).toContain('?? "3401"');
+  });
 });
 
 describe("aturan lepas kunci E2E", () => {

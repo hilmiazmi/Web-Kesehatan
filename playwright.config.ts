@@ -31,6 +31,26 @@ import { defineConfig, devices } from "@playwright/test";
  */
 const CHROMIUM_SISTEM = "/usr/bin/chromium";
 
+/**
+ * Nomor port server E2E, dapat dioverride per sesi.
+ *
+ * Terbukti dua kali (10 dan 11 Oktober 2026): dengan port tetap 3401 dan
+ * `reuseExistingServer: true`, sesi yang jalan bersamaan menumpang server
+ * yang sama. Waktu satu sesi selesai dan menutup servernya, tes sesi LAIN
+ * mati di tengah jalan dengan `ERR_CONNECTION_REFUSED` — 5 sampai 7 tes gagal
+ * tanpa satu pun cacat kode. Hasilnya mustahil dibedakan dari regresi
+ * sungguhan.
+ *
+ * Karena itu portnya boleh diberi angka lain lewat `E2E_PORT`. Nilai bawaan
+ * tetap 3401 supaya CI dan kebiasaan lama tidak berubah; sesi yang jalan di
+ * mesin yang sama cukup menyetel `E2E_PORT=3510 bun run test:e2e` dan
+ * mendapatkannya sendiri.
+ *
+ * Kunci build (`scripts/kunci-build.ts`) tidak menutup ini: yang dijaga
+ * `.next`, bukan port server.
+ */
+const PORT_E2E = Number(process.env.E2E_PORT ?? "3401");
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: false,
@@ -42,13 +62,15 @@ export default defineConfig({
   // saat tes gagal, tidak seperti hook `post` bun yang dilewati saat gagal.
   globalTeardown: "./e2e/global-teardown.mjs",
   use: {
-    baseURL: process.env.BASE_URL ?? "http://localhost:3401",
+    baseURL: process.env.BASE_URL ?? `http://localhost:${PORT_E2E}`,
     trace: "retain-on-failure",
   },
   webServer: {
-    command: "env API_MODE=snapshot bun run start --port 3401",
-    url: "http://localhost:3401/",
-    reuseExistingServer: true,
+    command: `env API_MODE=snapshot bun run start --port ${PORT_E2E}`,
+    url: `http://localhost:${PORT_E2E}/`,
+    // Hanya menumpang server kalau memang belum ada di port ini. Dulu `true`
+    // tanpa syarat, dan itu yang membuat dua sesi saling merebut satu server.
+    reuseExistingServer: process.env.E2E_PORT === undefined,
     timeout: 60000,
   },
   projects: [
