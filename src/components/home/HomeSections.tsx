@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Photo from "@/components/ui/Photo";
 import CardCarousel from "@/components/ui/CardCarousel";
+import Terungkap from "@/components/ui/Terungkap";
 import { SOCIALS } from "@/data/navigation";
 import {
   FAQS,
@@ -20,26 +21,28 @@ export function RegistrationSection() {
         <h2>Pendaftaran</h2>
       </div>
 
-      <div className="container">
-        <div className="row gy-4 gx-4">
-          {/* Ketiga kanal menaut ke halaman Daftar Online (lihat
-              REGISTRATION_OPTIONS): tidak ada lagi kartu mati berbentuk span. */}
-          {REGISTRATION_OPTIONS.map((o) => (
-            <div className="col-md-4" key={o.title}>
-              {/* Di bawah lipatan: tanpa prefetch (hemat RSC, lihat Footer). */}
-              <Link
-                href={o.href}
-                className="registrasi-card text-decoration-none"
-                prefetch={false}
-              >
-                <i className={`bi ${o.icon}`} aria-hidden="true" />
-                <h3 className="registrasi-title">{o.title}</h3>
-                <p className="registrasi-desc">{o.description}</p>
-              </Link>
-            </div>
-          ))}
+      <Terungkap>
+        <div className="container">
+          <div className="row gy-4 gx-4">
+            {/* Ketiga kanal menaut ke halaman Daftar Online (lihat
+                REGISTRATION_OPTIONS): tidak ada lagi kartu mati berbentuk span. */}
+            {REGISTRATION_OPTIONS.map((o) => (
+              <div className="col-md-4" key={o.title}>
+                {/* Di bawah lipatan: tanpa prefetch (hemat RSC, lihat Footer). */}
+                <Link
+                  href={o.href}
+                  className="registrasi-card text-decoration-none rs-kartu-angkat"
+                  prefetch={false}
+                >
+                  <i className={`bi ${o.icon}`} aria-hidden="true" />
+                  <h3 className="registrasi-title">{o.title}</h3>
+                  <p className="registrasi-desc">{o.description}</p>
+                </Link>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      </Terungkap>
     </section>
   );
 }
@@ -58,24 +61,26 @@ export function SocialMediaSection() {
         <h2>Sosial Media</h2>
       </div>
 
-      <div className="container">
-        <div className="row gy-3 gx-3">
-          {SOCIALS.map((s) => (
-            <div className="col-6 col-lg-3" key={s.icon}>
-              <a
-                href={s.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="social-card"
-              >
-                <i className={`bi ${s.icon}`} aria-hidden="true" />
-                <span>{s.label}</span>
-                <small>Kanal resmi</small>
-              </a>
-            </div>
-          ))}
+      <Terungkap>
+        <div className="container">
+          <div className="row gy-3 gx-3">
+            {SOCIALS.map((s) => (
+              <div className="col-6 col-lg-3" key={s.icon}>
+                <a
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="social-card rs-kartu-angkat"
+                >
+                  <i className={`bi ${s.icon}`} aria-hidden="true" />
+                  <span>{s.label}</span>
+                  <small>Kanal resmi</small>
+                </a>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      </Terungkap>
     </section>
   );
 }
@@ -147,23 +152,25 @@ export function TestimonialsSection() {
 export function InsuranceSection() {
   return (
     <section id="asuransi" className="section light-background">
-      <div className="container section-title pb-0">
-        <h2>Asuransi</h2>
-      </div>
+      <Terungkap>
+        <div className="container section-title pb-0">
+          <h2>Asuransi</h2>
+        </div>
 
-      <CardCarousel label="Mitra asuransi yang dilayani">
-        {INSURANCES.map((name) => (
-          <div
-            className="insurance-item"
-            role="img"
-            aria-label={`Mitra ${name}`}
-            key={name}
-          >
-            <i className="bi bi-shield-plus" aria-hidden="true" />
-            <span>{name}</span>
-          </div>
-        ))}
-      </CardCarousel>
+        <CardCarousel label="Mitra asuransi yang dilayani">
+          {INSURANCES.map((name) => (
+            <div
+              className="insurance-item"
+              role="img"
+              aria-label={`Mitra ${name}`}
+              key={name}
+            >
+              <i className="bi bi-shield-plus" aria-hidden="true" />
+              <span>{name}</span>
+            </div>
+          ))}
+        </CardCarousel>
+      </Terungkap>
     </section>
   );
 }
@@ -176,25 +183,27 @@ export function InsuranceSection() {
 export function FaqSection() {
   return (
     <section id="faq" className="section light-background">
-      <div className="container section-title pb-0">
-        <h2>Frequently Asked Questions</h2>
-      </div>
-
-      <div className="container">
-        <div className="faq-list">
-          {FAQS.map((f) => (
-            <details className="faq-item" key={f.question}>
-              <summary>
-                <span>{f.question}</span>
-                <i className="bi bi-plus-lg" aria-hidden="true" />
-              </summary>
-              <div className="faq-answer">
-                <p>{f.answer}</p>
-              </div>
-            </details>
-          ))}
+      <Terungkap>
+        <div className="container section-title pb-0">
+          <h2>Frequently Asked Questions</h2>
         </div>
-      </div>
+
+        <div className="container">
+          <div className="faq-list">
+            {FAQS.map((f) => (
+              <details className="faq-item" key={f.question}>
+                <summary>
+                  <span>{f.question}</span>
+                  <i className="bi bi-plus-lg" aria-hidden="true" />
+                </summary>
+                <div className="faq-answer">
+                  <p>{f.answer}</p>
+                </div>
+              </details>
+            ))}
+          </div>
+        </div>
+      </Terungkap>
     </section>
   );
 }

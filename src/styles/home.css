@@ -469,14 +469,7 @@
   background-color: var(--rs-white);
   border: 1px solid var(--rs-gray-300);
   border-radius: var(--rs-radius-card);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   color: var(--rs-text-heading);
-}
-
-a.registrasi-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 24px rgba(var(--rs-accent-rgb), 0.16);
-  border-color: var(--rs-accent);
 }
 
 .registrasi-card i {
@@ -532,13 +525,6 @@ a.registrasi-card:hover {
   background-color: var(--rs-white);
   border: 1px solid var(--rs-gray-300);
   border-radius: var(--rs-radius-card);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-}
-
-.social-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 24px rgba(var(--rs-accent-rgb), 0.16);
-  border-color: var(--rs-accent);
 }
 
 .social-card i {

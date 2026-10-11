@@ -229,6 +229,18 @@ export default function DoctorSearchCard() {
                           </option>
                         ))}
                       </select>
+                      {/* Ringkasan terarah: selama jadwal masih dimuat,
+                          rangka bergetar di bawah select supaya panel terasa
+                          hidup, bukan menggantung. Ia sebagai hiasan, jadi
+                          disembunyikan dari pembaca layar (status sudah
+                          dibacakan dari teks "Memuat..." di dalam select). */}
+                      {jadwalDipakai.status === "memuat" ? (
+                        <div
+                          className="rs-rangka mt-2"
+                          style={{ height: 6, width: "60%" }}
+                          aria-hidden="true"
+                        />
+                      ) : null}
                     </div>
                   </div>
 

@@ -1513,3 +1513,77 @@
     display: none;
   }
 }
+
+/* ==========================================================================
+   Lapisan "hidup" — efek tambahan di ATAS situs referensi.
+   Ditulis di `site.css`, bukan `home.css`, karena dipakai lebih dari satu
+   halaman. Semua animasi di sini otomatis mati lewat blok
+   `prefers-reduced-motion` di `tokens.css`; itu alasan kenapa efek baru
+   TIDAK BOLEH dipasang di luar berkas ini dan berkas token.
+   ========================================================================== */
+
+/* --- Muncul saat masuk viewport (komponen `Terungkap`) ---
+   Satu animasi, sekali jalan. Tiga class dengan urutan cause:
+   `rs-terungkap` (dari server, SELALU tampil — konten tidak boleh bergantung
+   pada JS), `rs-terungkap-sembunyi` (dipasang sesudah hidrasi, sebelum
+   elemen masuk viewport), dan `rs-terungkap-tampil` (dari
+   IntersectionObserver, lalu diam selamanya). Blok di bawah memakai
+   `:not()` supaya class `-sembunyi` yang menggantung tidak pernah menang. */
+.rs-terungkap-sembunyi:not(.rs-terungkap-tampil) {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.rs-terungkap-tampil {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease;
+}
+
+/* --- Kartu naik saat disentuh kursor ---
+   Satu sumber untuk seluruh situs. Sebelumnya pola ini ditulis berulang di
+   `home.css` (registrasi-card, social-card, insurance-item masing-masing
+   punya salinan); sekarang ketiganya memakai class ini. Angka bayangan dan
+   jarak angkat diambil dari salinan yang sudah ada, bukan ditebak, supaya
+   tampilan tidak berubah di sebelan mana pun. */
+.rs-kartu-angkat {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+@media (hover: hover) {
+  .rs-kartu-angkat:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(var(--rs-accent-rgb), 0.16);
+  }
+}
+
+/* --- Kerangka pemuatan (skeleton) ---
+   Dipakai `DoctorSearchCard` saat jadwal dokter masih dimuat. Goyangan
+   lembut menggantikan teks "Memuat..." yang membuat panel terasa berhenti
+   seolah rusak. Blok `prefers-reduced-motion` di `tokens.css`
+   mematikannya. */
+.rs-rangka {
+  border-radius: 5px;
+  background: linear-gradient(
+    90deg,
+    var(--rs-gray-100) 25%,
+    var(--rs-section-light) 50%,
+    var(--rs-gray-100) 75%
+  );
+  background-size: 200% 100%;
+  animation: rs-rangka-goyang 1.4s ease-in-out infinite;
+}
+
+@keyframes rs-rangka-goyang {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
