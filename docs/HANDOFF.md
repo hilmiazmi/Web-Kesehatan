@@ -1407,3 +1407,51 @@ supaya tidak diulang:
 **Gerbang:** E2E penuh 22 lulus, 3 dilewati (alur ber-database butuh
 PostgreSQL, sama seperti sebelum ini). lint 0 error, `bun check` bersih, build
 sukses.
+
+---
+
+## Dua commit yatim di `polish/panel-admin` (2026-10-11)
+
+Pembersihan branch berhenti di sini, dan itu disengaja.
+
+Awalnya `polish/panel-admin` dianggap sudah habis karena isinya kebanyakan
+sudah masuk `upstream/main` lewat PR #46. Tapi `git cherry` -- yang
+membandingkan patch-id, bukan SHA -- menunjukkan dua commit di sana yang belum
+ada padanannya di upstream:
+
+| Commit | Isi | Bukti belum ter-merge |
+|---|---|---|
+| `921ab42` | `tests/schema-vs-sql.test.ts` | Versi upstream 259 baris dengan tiga blok `describe`; versi ini 428 baris dan menambah blok keempat, "perintah di komentar menunjuk skrip yang ada". Bukan duplikat dan bukan versi lama. |
+| `fa06346` | `src/styles/tokens.css` | Menghapus `margin-top` dan `margin-bottom` negatif pada tautan "Selengkapnya". Margin negatif itu membuat kotak tautan menumpuk paragraf di atasnya, dan Lighthouse membaca tumpang-tindih itu sebagai target "tertutup sebagian": ruang terlapor 11px padahal tinggi tautan 43px. |
+
+**Kenapa branch itu tidak dihapus.** Git juga menolak: `polish/panel-admin`
+sedang jadi HEAD repo utama, dan working tree di sana masih dirty. Pemilik
+repo dan sesi paralel masih mengerjakannya. Menghapusnya berisiko membuang
+kerja yang belum naik ke mana pun.
+
+**Yang perlu dilakukan pemilik repo:** dua commit itu di-cherry-pick ke branch
+yang lebih baru sebelum `polish/panel-admin` dihapus. Jangan memakai
+`merge-base --is-ancestor` untuk memeriksanya. Commit yang sudah di-rebase punya
+SHA berbeda, jadi isinya akan terbaca hilang padahal sebenarnya ada. Yang benar
+`git cherry`.
+
+**Branch yang sudah dihapus sesi ini** (aman, commit unik: 0):
+`chore/rapikan-komentar-schema` dan `docs/catatan-sesi-10-okt`.
+
+---
+
+## `bun audit`: dua kerentanan yang tidak bisa diperbaiki (2026-10-11)
+
+`bun audit fix --dry-run` hasilnya `Fixed 0 of 2`:
+
+- `esbuild@0.18.20` terkunci oleh `@esbuild-kit/core-utils@3.3.2`, yang
+  mensyaratkan `~0.18.20`.
+- `braces@3.0.3` -- tidak ada versi perbaikan yang terbit sama sekali.
+
+Satu-satunya jalan adalah menaikkan `drizzle-kit` dan `vitest` ke major baru.
+Itu di luar jangkauan perbaikan yang aman dan berisiko merusak gerbang, jadi
+tidak dijalankan. Keduanya hanya ada di rantai pengembangan (`drizzle-kit`,
+`vitest`, `eslint-config-next`) dan tidak pernah masuk bundel runtime.
+
+Kalau nanti dua paket itu dinaikkan ke major baru, `bun audit` harus dibaca
+lagi. Untuk sekarang tidak ada yang menjaganya.
