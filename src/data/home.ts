@@ -285,14 +285,14 @@ export const MCU_HOLIDAY_PACKAGES = [
 /** Berita & artikel kesehatan (section 6). Judul dan isi karangan sendiri. */
 export const ARTICLES = [
   { slug: "rsud-contoh-sehat-terima-akreditasi-utama", title: "RSUD Contoh Sehat Terima Akreditasi Utama", date: "2026-09-28", excerpt: "RSUD Contoh Sehat resmi menerima akreditasi utama dari lembaga kesehatan nasional." },
-  { slug: "layanan-stroke-terpadu", title: "Layanan Stroke Terpadu", date: "2026-09-22", excerpt: "Penanganan stroke cepat dengan tim defibrilasi dan unit stroke siaga." },
+  { slug: "layanan-stroke-terpadu", title: "Layanan Stroke Terpadu", date: "2026-09-22", excerpt: "Penanganan stroke cepat dengan tim defibrilator dan unit stroke siaga." },
   { slug: "program-promosi-layanan-jantung", title: "Program Promosi Layanan Jantung Terpadu", date: "2026-09-15", excerpt: "Penawaran dan informasi layanan jantung terpadu." },
   { slug: "workshop-kesehatan-untuk-warga", title: "Workshop Kesehatan Untuk Warga", date: "2026-09-09", excerpt: "Kegiatan edukasi kesehatan rutin." },
   { slug: "peresmian-unit-maternal-center-baru", title: "Peresmian Unit Maternal Center Baru", date: "2026-09-03", excerpt: "Fasilitas ibu dan anak yang lebih lengkap." },
   { slug: "pemeriksaan-kesehatan-gratis-untuk-masyarakat", title: "Pemeriksaan Kesehatan Gratis Untuk Masyarakat", date: "2026-08-27", excerpt: "Ajang sosial kesehatan berkala." },
   { slug: "kanal-youtube-tersedia-resmi", title: "Kanal Youtube Tersedia Resmi", date: "2026-08-20", excerpt: "Siaran langsung dan podcast." },
   { slug: "pemantauan-tumbuh-kembang-bayi", title: "Pantauan Tumbuh Kembang Bayi", date: "2026-08-14", excerpt: "Layanan pemantauan tumbuh kembang anak secara berkala." },
-  { slug: "kerja-sama-dengan-puskesmas", title: "Kerja Sama Dengan Puskesmas Waik", date: "2026-08-08", excerpt: "Rujukan berjenjang lebih baik." },
+  { slug: "kerja-sama-dengan-puskesmas", title: "Kerja Sama Dengan Puskesmas", date: "2026-08-08", excerpt: "Rujukan berjenjang lebih baik." },
   { slug: "pelatihan-tenaga-kesehatan", title: "Pelatihan Tenaga Kesehatan", date: "2026-08-02", excerpt: "Peningkatan kompetensi tenaga kesehatan di lingkungan rumah sakit." },
   { slug: "zona-integritas-2026", title: "Zona Integritas 2026", date: "2026-07-27", excerpt: "Komitmen anti-korupsi yang kuat di seluruh unit kerja." },
   { slug: "rawat-inap-khusus-trauma", title: "Rawat Inap Khusus Untuk Pasien Trauma", date: "2026-07-20", excerpt: "Kamar VIP dan fasilitas perawatan intensif dengan pemantauan intensif." },

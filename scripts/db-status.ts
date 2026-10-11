@@ -19,12 +19,13 @@ import { AUTH_SECRET_MIN } from "@/server/config";
 /**
  * Jumlah tabel yang harus ada setelah migrasi.
  *
- * Dihitung dari `schema.ts`: 28 tabel, termasuk `admissions` dan `bed_capacity`
- * yang ikut migrations rawat inap. Angka ini sengaja ditulis tangan supaya
- * penyimpangan ketikanya terlihat langsung di berkas ini, bukan tersembunyi di
- * hasil hitungan yang selalu ikut berubah sendiri.
+ * Dihitung dari `schema.ts`: 29 tabel, termasuk `admissions`, `bed_capacity`,
+ * dan `admin_audit` yang ikut migrasi rawat inap serta riwayat tindakan
+ * admin. Angka ini sengaja ditulis tangan supaya penyimpangan ketikanya
+ * terlihat langsung di berkas ini, bukan tersembunyi di hasil hitungan yang
+ * selalu ikut berubah sendiri.
  */
-const TABEL_HARAP = 28;
+const TABEL_HARAP = 29;
 
 async function main(): Promise<void> {
   const c = config();

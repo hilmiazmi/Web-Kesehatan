@@ -43,6 +43,13 @@
       "when": 1791461528737,
       "tag": "0005_slug_paket_mcu",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791470000001,
+      "tag": "0007_perbaiki_teks_rusak",
+      "breakpoints": true
     }
   ]
 }

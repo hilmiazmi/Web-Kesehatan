@@ -40,7 +40,7 @@ dan portofolio. Bukan situs …". Jangan dihapus atau dilemahkan.
 | Hal | Aturan |
 | --- | --- |
 | Nama | "RSUD Contoh Sehat", tagline "Rumah Sehat Untuk Semua" |
-| Kontak | Hanya nilai di `CONTACT` (`src/data/navigation.ts`). Nomor memakai pola jelas-fiktif: `(021) 5000 1234`, WhatsApp `+6281100001234`, surel `info@rsudcontoh.go.id` |
+| Kontak | Hanya nilai di `CONTACT` (`src/data/navigation.ts`). Nomor memakai pola jelas-fiktif: `021 0000 0000`, WhatsApp `+62 000 0000 0000`, surel `info@rsudcontoh.go.id` |
 | Domain surel | Gunakan domain contoh: `.test`, `.example`, atau `rsudcontoh.go.id` seperti yang sudah ada. **Jangan** memakai domain yang kemungkinan dimiliki orang nyata |
 | Sosial media | Tautan generik ke beranda platform (`facebook.com`, `x.com`, `instagram.com`), bukan akun nyata |
 | Alamat | Karangan; jangan alamat rumah sakit nyata |
