@@ -312,10 +312,15 @@ Dijalankan dengan `bun run db:migrate` (`drizzle-kit migrate`). Tidak ada migras
 Semua dibaca di `src/server/config.ts`; daftar variabel dan bawaannya ada di
 `.env.example`. Dua yang paling sering salah:
 
-- `ADMIN_ORIGIN` menentukan atribut `Secure` pada cookie sesi. Di mode `live`
-  nilai `http://` untuk host selain loopback ditolak saat start (`ConfigError`).
-- `NEXT_PUBLIC_SITE_URL` dibaca saat **build** (`metadataBase`, sitemap, Open
-  Graph); mengubahnya setelah build tidak berpengaruh.
+- `ADMIN_ORIGIN` menentukan salah satu sumber atribut `Secure` pada cookie.
+  Di mode `live` nilai `http://` untuk host selain loopback ditolak saat start
+  (`ConfigError`). Sumber keduanya adalah `x-forwarded-proto`, dibaca
+  `koneksiTerenskripsi()` (`src/lib/koneksi-aman.ts`) — itu yang menyelamatkan
+  deploy di belakang proxy TLS seperti Cloudflare atau Coolify.
+- `NEXT_PUBLIC_SITE_URL` dibaca saat **build** (`metadataBase`, Open Graph);
+  mengubahnya setelah build tidak berpengaruh. Untuk sitemap dan robots yang
+  dinamis, yang dipakai `SITE_URL` (env biasa, terbaca saat server jalan) lalu
+  `x-forwarded-host` dari permintaan.
 
 Header keamanan (CSP, HSTS, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `X-Frame-Options`) didefinisikan statis di `next.config.ts` lewat `headers()` untuk semua respons; CSP masih memakai `'unsafe-inline'` pada `script-src` dan `style-src` (keputusan terdokumentasi di `AUDIT-KEAMANAN.md`: nonce butuh middleware dan mengubah halaman statis menjadi dinamis). Tidak ada `middleware.ts`/`proxy.ts`, disengaja.
 

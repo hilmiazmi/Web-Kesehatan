@@ -34,12 +34,24 @@ penghitung sendiri.
 
 1. **`DATABASE_URL` kosong tidak berarti snapshot.** Tanpa `API_MODE=snapshot`,
    mode `live` dengan `DATABASE_URL` kosong membuat server gagal start.
-2. **`NEXT_PUBLIC_SITE_URL` dibaca saat build** (`metadataBase`, sitemap, Open
-   Graph). Mengubahnya setelah build tidak berpengaruh; bangun ulang image.
+2. **`NEXT_PUBLIC_SITE_URL` dibaca saat build** (`metadataBase`, Open Graph).
+   Mengubahnya setelah build tidak berpengaruh; bangun ulang image.
+   **Tapi jangan pakai itu untuk sitemap di belakang proksi.** Sitemap dan
+   robots kini `force-dynamic` dan memakai `siteUrlPermintaan()`, yang
+   membaca `SITE_URL` (env biasa, terbaca saat server jalan) lalu
+   `x-forwarded-host`. Terbukti di produksi 10 Oktober 2026 lewat
+   Cloudflare tunnel: sitemap menjawab `http://localhost:3000/...` karena
+   `NEXT_PUBLIC_SITE_URL` tak pernah terpakai saat runtime. Kalau domain
+   sudah pasti, isi `SITE_URL`; kalau belum (tunnel, IP), biarkan kosong dan
+   host akan diambil dari header yang dikirim proksi.
 3. **`ADMIN_ORIGIN` di mode `live` harus `https://`, kecuali loopback.**
    Sejak commit `91de5b9` `config.ts` melempar `ConfigError` saat start bila
-   nilainya `http://` untuk host publik (cookie sesi akan terbit tanpa atribut
-   `Secure`). `http://localhost` tetap diterima untuk pengembangan.
+   nilainya `http://` untuk host publik. Tapi atribut `Secure` pada cookie
+   **tidak lagi hanya bergantung pada itu**: `koneksiTerenskripsi()`
+   (`src/lib/koneksi-aman.ts`) juga membaca `x-forwarded-proto`, jadi di
+   belakang proksi yang mengakhiri TLS cookie tetap bertanda `Secure`
+   (terbukti di produksi 10 Oktober 2026, diperbaiki commit `aaeacf1`).
+   `http://localhost` tetap diterima untuk pengembangan.
 4. **`AUTH_SECRET` minimal 32 karakter** dan tidak punya nilai bawaan.
    Merotasinya mencabut sesi semua admin. Pesan galatnya sengaja tidak
    menyebut panjang nilai yang dipakai.
@@ -124,6 +136,11 @@ Panduan langkahnya ada di `DEPLOY-VPS.md` bagian 4 dan 5. Tambahan dari kode:
 - [ ] Pemeriksaan baris ganda dijalankan bila database lama belum memasang `0003`
 - [ ] Env produksi lengkap; `AUTH_SECRET` ≥ 32 karakter; `ADMIN_ORIGIN` berawalan `https://`
 - [ ] `NEXT_PUBLIC_SITE_URL` benar **saat build**
+- [ ] `SITE_URL` diisi kalau domain sudah tetap (dibaca runtime); kalau situs
+  di belakang proksi/tunnel dengan URL yang berganti, biarkan kosong —
+  `x-forwarded-host` yang dipakai sitemap dan robots
+- [ ] Cookie login membawa atribut `Secure` (periksa lewat DevTools; di belakang
+  proxy TLS ini bergantung pada `x-forwarded-proto`, bukan `ADMIN_ORIGIN`)
 - [ ] `db:migrate` sukses; `bun run db:status` melaporkan konfigurasi dan jumlah tabel sesuai skema
 - [ ] `GET /api/v1/health` sehat; `/admin` tanpa sesi mengalihkan ke `/admin/login`
 - [ ] Sandi admin awal diganti; `SEED_ADMIN_PASSWORD` dihapus dari lingkungan
