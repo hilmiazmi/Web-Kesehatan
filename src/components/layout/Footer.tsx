@@ -30,7 +30,7 @@ export default function Footer() {
             <Link
               href="/"
               className="footer-identity-link"
-              aria-label={`${SITE.name} - kembali ke halaman utama`}
+              aria-label={`${SITE.name} ${SITE.tagline}`}
             >
               <span className="logo-mark logo-mark-footer" aria-hidden="true">
                 <i className="bi bi-plus-lg" />

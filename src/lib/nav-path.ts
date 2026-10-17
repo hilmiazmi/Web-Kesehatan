@@ -261,3 +261,114 @@ export function collectNavPaths(): { slug: string[] }[] {
 
   return out.map((path) => ({ slug: segments(path) }));
 }
+
+/**
+ * Satu rute dinamis dari `.next/prerender-manifest.json`.
+ *
+ * `regex` adalah `routeRegex` apa adanya, misalnya
+ * `^/berita/([^/]+?)(?:/)?$`. `blocking` berarti slug yang tidak ikut
+ * di-prerender tetap dirender saat diminta, bukan dijawab 404. Di manifest
+ * Next itu `fallback: null` atau `fallback: "blocking"`. `fallback: false`
+ * berarti sebaliknya: hanya slug hasil `generateStaticParams` yang hidup.
+ */
+export type EntriRuteDinamis = {
+  route: string;
+  regex: string;
+  blocking: boolean;
+};
+
+/**
+ * Baca daftar rute dinamis dari isi `prerender-manifest.json`.
+ *
+ * Mengembalikan array kosong untuk manifest yang rusak atau tidak punya
+ * `dynamicRoutes`. Itu disengaja: tanpa daftar yang bisa dipercaya,
+ * `cek:tautan` memperlakukan semua tautan tanpa HTML sebagai mati, jadi
+ * kegagalan muncul sebagai daftar tautan yang terlihat, bukan sebagai lolos
+ * diam-diam.
+ */
+export function entriDinamisDariManifest(manifest: unknown): EntriRuteDinamis[] {
+  if (typeof manifest !== "object" || manifest === null) return [];
+  const dinamis = (manifest as { dynamicRoutes?: unknown }).dynamicRoutes;
+  if (typeof dinamis !== "object" || dinamis === null) return [];
+
+  const hasil: EntriRuteDinamis[] = [];
+  for (const [route, nilai] of Object.entries(dinamis)) {
+    if (typeof nilai !== "object" || nilai === null) continue;
+    const { routeRegex, fallback } = nilai as {
+      routeRegex?: unknown;
+      fallback?: unknown;
+    };
+    if (typeof routeRegex !== "string" || routeRegex === "") continue;
+    hasil.push({
+      route,
+      regex: routeRegex,
+      blocking: fallback === null || fallback === "blocking" || fallback === true,
+    });
+  }
+  return hasil;
+}
+
+/**
+ * Cari pola rute dinamis yang cocok dengan satu pathname.
+ *
+ * Hanya entri `blocking` yang dicoba. Cocok di sini belum membuktikan slug itu
+ * hidup: polanya membuktikan rutenya dirender saat diminta, sedangkan slugnya
+ * ditentukan database saat request. `/berita/tidak-ada` cocok polanya tapi
+ * dijawab 404. Karena itu pemanggil wajib memverifikasi slugnya ke server
+ * hidup, dan `cek:tautan` melakukannya lewat flag `--live`.
+ *
+ * Entri dengan regex rusak dilewati, bukan membuat seluruh pemeriksaan gagal.
+ * Tautan yang seharusnya cocok lalu jatuh ke golongan mati, sehingga kegagalan
+ * tetap muncul sebagai daftar yang terlihat.
+ */
+export function ruteDinamisUntuk(
+  pathname: string,
+  entri: EntriRuteDinamis[],
+): string | null {
+  for (const e of entri) {
+    if (!e.blocking) continue;
+    let cocok = false;
+    try {
+      cocok = new RegExp(e.regex).test(pathname);
+    } catch {
+      continue;
+    }
+    if (cocok) return e.route;
+  }
+  return null;
+}
+
+/**
+ * Pilah halaman yatim menjadi bayangan fallback dan yatim betulan.
+ *
+ * Halaman bayangan adalah halaman statis yang tidak ditautkan dari mana pun
+ * *karena* daftar isi sudah digantikan konten database. Contohnya 16 artikel
+ * statis di `/berita/*` saat mode live: `/` dan `/berita` hanya menautkan 10
+ * slug dari tabel `articles`, jadi ke-16 halaman statis yatim sekaligus.
+ *
+ * Tiga syaratnya harus terpenuhi bersama, dan ketiganya bisa dibuktikan dari
+ * berkas build tanpa database:
+ *
+ * 1. Ada bukti daftar isi digantikan: `adaKontenDinamis` berarti halaman-halaman
+ *    daftar menautkan slug yang tidak ikut di-prerender. Tanpa bukti ini,
+ *    setiap halaman yatim tetap yatim betulan, jadi mode snapshot yang tidak
+ *    punya tautan dinamis sama sekali tidak berubah perilakunya.
+ * 2. Halaman tetap sah sebagai URL: cocok dengan rute dinamis yang dirender
+ *    saat diminta. Tanpa ini, halaman yang rutenya mati ikut dimaafkan.
+ * 3. Halaman tetap terindeks: ada di sitemap. Tanpa ini, halaman yang hilang
+ *    dari sitemap ikut dimaafkan.
+ *
+ * Yang dikembalikan hanya bayangannya. Sisanya tetap yatim betulan dan wajib
+ * dilaporkan sebagai kegagalan oleh pemanggil.
+ */
+export function halamanBayangan(
+  yatim: string[],
+  diSitemap: ReadonlySet<string>,
+  dinamis: EntriRuteDinamis[],
+  adaKontenDinamis: boolean,
+): string[] {
+  if (!adaKontenDinamis) return [];
+  return yatim.filter(
+    (p) => diSitemap.has(p) && ruteDinamisUntuk(p, dinamis) !== null,
+  );
+}

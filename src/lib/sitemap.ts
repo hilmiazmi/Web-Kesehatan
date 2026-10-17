@@ -180,3 +180,38 @@ export function collectSitemapPaths(
     .map((p) => ({ path: p, ...bobot(p) }))
     .sort((a, b) => a.path.localeCompare(b.path, "id"));
 }
+
+/**
+ * Ambil daftar path dari isi `sitemap.xml`.
+ *
+ * Dipisah dari `scripts/cek-tautan.ts` supaya aturan parsing-nya bisa diuji
+ * tanpa build. Fungsi ini sengaja hanya menerima URL absolut, karena sitemap
+ * memang harus absolut: `metadataBase` di `src/app/layout.tsx` tidak berlaku
+ * untuk sitemap. Kalau `<loc>` tidak absolut, path-nya dibuang, bukan ditebak.
+ * Halaman yang dibuang seperti itu akan dilaporkan `cek:tautan` sebagai
+ * "tidak ada di sitemap", dan itu memang jawaban yang benar karena sitemap
+ * seperti itu tidak akan dibaca mesin pencari.
+ *
+ * Ekor garis miring dibuang supaya `/berita/` dan `/berita` dianggap sama.
+ * `collectSitemapPaths()` tidak pernah menghasilkan garis miring di akhir,
+ * sementara HTML hasil prerender juga tidak, jadi perbandingannya perlu setepa.
+ */
+export function pathDariSitemapXml(xml: string): string[] {
+  const hasil: string[] = [];
+
+  for (const cocok of xml.matchAll(/<loc>([^<]*)<\/loc>/g)) {
+    const nilai = cocok[1].trim();
+    if (!/^https?:\/\//.test(nilai)) continue;
+
+    let pathname: string;
+    try {
+      pathname = new URL(nilai).pathname;
+    } catch {
+      continue;
+    }
+
+    hasil.push(pathname.length > 1 && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname);
+  }
+
+  return hasil;
+}

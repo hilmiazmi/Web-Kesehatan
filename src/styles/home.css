@@ -160,6 +160,17 @@
   height: 11px;
   background: var(--rs-white);
   opacity: 0.55;
+  position: relative;
+}
+
+.swiperslider .swiper-pagination-bullet::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 24px;
+  min-height: 24px;
 }
 
 .swiperslider .swiper-pagination-bullet-active {
@@ -203,7 +214,6 @@
 }
 
 .slide-container .swiper-slide > .card,
-.slide-container .swiper-slide > .award-item,
 .slide-container .swiper-slide > .insurance-item,
 .slide-container .swiper-slide > .testimonial {
   height: 100%;
@@ -246,6 +256,17 @@
   background-color: #4070f4;
   opacity: 0.4;
   transition: opacity 0.2s ease;
+  position: relative;
+}
+
+.slide-container .swiper-pagination-bullet::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 24px;
+  min-height: 24px;
 }
 
 .slide-container .swiper-pagination-bullet-active {
@@ -294,6 +315,28 @@
 }
 
 /* ---------- Section 4: Tab fasilitas ---------- */
+
+/* Judul section ini satu-satunya yang rata kiri di situs referensi, karena
+   tab vertikal di bawahnya juga dimulai dari tepi kiri. Selisih 120px dan
+   165px pada dua pseudo-element diambil apa adanya dari
+   `.departments .section-title h2::before` dan `::after`: tanpa `margin:auto`
+   dan tanpa `right:0`, garisnya tidak lagi terpusat seperti section lain. */
+.departments .section-title {
+  text-align: left;
+}
+
+.departments .section-title h2::before {
+  left: 120px;
+  right: 0;
+  margin: 0;
+}
+
+.departments .section-title h2::after {
+  left: 165px;
+  right: 0;
+  margin: 0;
+}
+
 .details h3 {
   font-size: 1.6rem;
   font-weight: 700;
@@ -354,39 +397,35 @@
 
 
 /* ---------- Section 7: Penghargaan ---------- */
-.award-item {
-  text-align: center;
-}
 
-
-
-.award-title {
-  font-size: 0.88rem;
-  color: var(--rs-text-body);
-  margin-top: 0.75rem;
-  margin-bottom: 0;
+/* Gambar penghargaan di situs referensi hanya memakai 50% lebar kartu dan
+   dipusatkan, dari `.penghargaan-img img { width:50% }` di `style.css`.
+   Yang dikecilkan di sini adalah wrapper-nya, bukan gambarnya: `photo-box`
+   memaksa `img` jadi 100% x 100%, sehingga menulis `width:50%` langsung ke
+   gambar akan kalah dan tidak efek. */
+.card .penghargaan-img {
+  width: 50%;
+  margin-inline: auto;
 }
 
 /* ---------- Section 8: Galeri ----------
    Galeri ini memakai komponen GalleryLightbox, jadi pemicunya dan gaya
-   thumbnail-nya sudah diatur di site.css. Yang di sini hanya jumlah kolomnya,
-   untuk meniru pembagian kolom Bootstrap yang sebelumnya
-   dipakai: enam di desktop, empat di tablet, dua di HP. */
+   thumbnail-nya sudah diatur di site.css. Yang di sini hanya jumlah kolomnya.
+
+   Jumlah kolom mengikuti pembagian Bootstrap di situs referensi: `col-lg-3`
+   jadi empat di desktop, dan `col-md-6` jadi dua di tablet. Tinggi 215px
+   diambil dari `.gallery-item .img-fluid`, lalu diteruskan lewat prop `height`
+   pada GalleryLightbox. Aturan enam kolom di desktop yang sebelumnya ada di
+   sini bertentangan dengan docstring komponen yang menyebut empat kolom. */
 .gallery-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
 }
 
-@media (min-width: 768px) {
-  .gallery-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-}
-
 @media (min-width: 992px) {
   .gallery-grid {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 

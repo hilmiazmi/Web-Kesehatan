@@ -4,6 +4,7 @@ import CardCarousel from "@/components/ui/CardCarousel";
 import { MCU_PACKAGES } from "@/data/home";
 import { NEWS_PHOTOS, photo } from "@/data/images";
 import { formatIDR } from "@/lib/format";
+import type { PublicMcuPackage } from "@/lib/content-loader";
 
 /**
  * Section 5 — "Paket MCU & Promosi".
@@ -13,8 +14,14 @@ import { formatIDR } from "@/lib/format";
  *
  * Di situs referensi kedelapan paket berada di carousel 4-tampilan, jadi tinggi
  * section tetap sewajarnya berapa pun jumlah paket.
+ *
+ * Mendukung data dinamis dari tabel `mcu_packages` lewat prop `packages`.
  */
-export default function McuPackages() {
+export default function McuPackages({
+  packages = MCU_PACKAGES,
+}: {
+  packages?: PublicMcuPackage[];
+}) {
   return (
     <section id="mcu" className="mcu section pb-3">
       <div className="container section-title pb-4">
@@ -23,7 +30,7 @@ export default function McuPackages() {
       </div>
 
       <CardCarousel label="Paket medical check up dan promosi">
-        {MCU_PACKAGES.map((p, i) => (
+        {packages.map((p, i) => (
           <div className="card" key={p.slug}>
             <div className="image-content">
               <Photo

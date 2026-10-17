@@ -14,7 +14,7 @@ vi.mock("@/server/db/client", () => ({
 }));
 
 const { default: sitemap } = await import("@/app/sitemap");
-import { collectSitemapPaths } from "@/lib/sitemap";
+import { collectSitemapPaths, pathDariSitemapXml } from "@/lib/sitemap";
 import { collectNavPaths, hasOwnRoute } from "@/lib/nav-path";
 import { NAV_PPID_CHILDREN } from "@/data/ppid-nav";
 import { MANAGEMENT } from "@/data/manajemen";
@@ -211,5 +211,80 @@ describe("bentuk sitemap.xml", () => {
         entri.path,
       ).toContain(entri.changeFrequency);
     }
+  });
+});
+describe("pathDariSitemapXml", () => {
+  /**
+   * `scripts/cek-tautan.ts` membandingkan HTML hasil build dengan sitemap yang
+   * benar-benar ditulis build. Aturan parsing-nya di sini, supaya bisa diuji
+   * tanpa menjalankan build.
+   *
+   * Dua kelas kesalahan yang harus tertangkap:
+   *
+   * 1. `<loc>` tidak absolut. Sitemap dengan path relatif tidak akan dibaca
+   *    mesin pencari sama sekali, dan `metadataBase` di `layout.tsx` tidak
+   *    berlaku untuk sitemap. Kalau parser menerimanya, `cek:tautan` akan
+   *    melapor aman untuk sitemap yang rusak.
+   * 2. Path hilang dari hasil parsing. Itu yang membuat `cek:tautan` melaporkan
+   *    "tidak ada di sitemap" untuk halaman yang sebenarnya ada.
+   */
+  const xml = (isi: string) =>
+    `<?xml version="1.0" encoding="UTF-8"?><urlset>${isi}</urlset>`;
+
+  it("mengambil pathname dari URL absolut", () => {
+    const hasil = pathDariSitemapXml(
+      xml("<url><loc>https://contoh.go.id/berita/jam-layanan</loc></url>"),
+    );
+
+    expect(hasil).toEqual(["/berita/jam-layanan"]);
+  });
+
+  it("membuang loc yang tidak absolut", () => {
+    const hasil = pathDariSitemapXml(
+      xml("<url><loc>/berita/jam-layanan</loc></url>"),
+    );
+
+    expect(hasil).toEqual([]);
+  });
+
+  it("ekor garis miring dibuang", () => {
+    const hasil = pathDariSitemapXml(
+      xml("<url><loc>https://contoh.go.id/berita/</loc></url>"),
+    );
+
+    expect(hasil).toEqual(["/berita"]);
+  });
+
+  it("akar tetap satu garis miring", () => {
+    const hasil = pathDariSitemapXml(xml("<url><loc>https://contoh.go.id/</loc></url>"));
+
+    expect(hasil).toEqual(["/"]);
+  });
+
+  it("host dan skema diabaikan, path-nya yang dipakai", () => {
+    const hasil = pathDariSitemapXml(
+      xml(
+        "<url><loc>https://a.go.id/jadwal-dokter</loc></url>" +
+          "<url><loc>http://localhost:3000/daftar-online</loc></url>",
+      ),
+    );
+
+    expect(hasil).toEqual(["/jadwal-dokter", "/daftar-online"]);
+  });
+
+  it("sitemap kosong memberi daftar kosong, bukan galat", () => {
+    expect(pathDariSitemapXml(xml(""))).toEqual([]);
+  });
+
+  it("loc yang rusak dilewati, bukan menggagalkan seluruh parsing", () => {
+    const hasil = pathDariSitemapXml(
+      xml(
+        "<url><loc>https://contoh.go.id/berita</loc></url>" +
+          "<url><loc>bukan-url</loc></url>" +
+          "<url><loc>https://contoh.go.id/jadwal-dokter</loc></url>",
+      ),
+    );
+
+    expect(hasil).toEqual(["/berita", "/jadwal-dokter"]);
   });
 });

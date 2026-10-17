@@ -14,7 +14,7 @@ import { TESTIMONIAL_PHOTOS, photo } from "@/data/images";
 export function RegistrationSection() {
   return (
     <section id="pendaftaran" className="pendaftaran section">
-      <div className="container section-title pb-4">
+      <div className="container section-title pb-0">
         <h2>Pendaftaran</h2>
         <p>&quot;Pilih cara mendaftar yang sesuai dengan kebutuhan Anda&quot;</p>
       </div>
@@ -57,7 +57,7 @@ export function RegistrationSection() {
 export function SocialMediaSection() {
   return (
     <section id="sosial-media" className="about section light-background">
-      <div className="container section-title pb-4">
+      <div className="container section-title pb-0">
         <h2>Sosial Media</h2>
         <p>&quot;Ikuti kanal resmi kami untuk informasi terbaru&quot;</p>
       </div>
@@ -147,7 +147,7 @@ export function TestimonialsSection() {
 export function InsuranceSection() {
   return (
     <section id="asuransi" className="asuransi section light-background">
-      <div className="container section-title pb-4">
+      <div className="container section-title pb-0">
         <h2>Asuransi</h2>
         <p>&quot;Mitra asuransi yang kami layani&quot;</p>
       </div>
@@ -177,7 +177,7 @@ export function InsuranceSection() {
 export function FaqSection() {
   return (
     <section id="faq" className="faq section light-background">
-      <div className="container section-title pb-4">
+      <div className="container section-title">
         <h2>Frequently Asked Questions</h2>
         <p>&quot;Pertanyaan yang sering diajukan&quot;</p>
       </div>

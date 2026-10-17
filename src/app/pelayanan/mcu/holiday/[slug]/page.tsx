@@ -7,8 +7,12 @@ import {
 } from "@/components/pelayanan/McuPackageDetail";
 import { MCU_HOLIDAY_PACKAGES } from "@/data/home";
 import { formatIDR } from "@/lib/format";
+import { getPublicMcuPackage, getPublicMcuPackages } from "@/lib/content-loader";
 
 const BASE = "/pelayanan/mcu/holiday";
+
+export const dynamicParams = true;
+export const revalidate = 60;
 
 /** Prerender semua paket holiday saat build. */
 export function generateStaticParams() {
@@ -21,7 +25,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const pkg = MCU_HOLIDAY_PACKAGES.find((p) => p.slug === slug);
+  const pkg = await getPublicMcuPackage("holiday", slug);
   if (!pkg) return { title: "Paket Tidak Ditemukan" };
   return {
     title: pkg.title,
@@ -34,6 +38,9 @@ export async function generateMetadata({
  *
  * Tata letaknya sama dengan paket reguler; yang berbeda hanya sumber data dan
  * remah roti.
+ *
+ * Data dibaca via loader `getPublicMcuPackage()` dan `getPublicMcuPackages()`,
+ * mendukung database live saat runtime dan fallback ke data statis.
  */
 export default async function McuHolidayPage({
   params,
@@ -41,8 +48,11 @@ export default async function McuHolidayPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const index = MCU_HOLIDAY_PACKAGES.findIndex((p) => p.slug === slug);
-  if (index === -1) notFound();
+  const pkg = await getPublicMcuPackage("holiday", slug);
+  if (!pkg) notFound();
+
+  const siblings = await getPublicMcuPackages("holiday");
+  const index = Math.max(0, siblings.findIndex((p) => p.slug === slug));
 
   return (
     <>
@@ -51,16 +61,16 @@ export default async function McuHolidayPage({
           { label: "Pelayanan", href: "/pelayanan" },
           { label: "MCU", href: "/pelayanan/mcu" },
           { label: "Paket Health Meets Holiday", href: BASE },
-          { label: MCU_HOLIDAY_PACKAGES[index].title },
+          { label: pkg.title },
         ]}
       />
 
       <section className="section">
         <div className="container">
           <McuPackageDetail
-            pkg={MCU_HOLIDAY_PACKAGES[index]}
+            pkg={pkg}
             index={index}
-            siblings={MCU_HOLIDAY_PACKAGES}
+            siblings={siblings}
             basePath={BASE}
             photos={FACILITY_PHOTOS}
           />

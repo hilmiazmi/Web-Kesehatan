@@ -7,31 +7,49 @@
  * ada di `.next/server/app` setelah `bun run build`, jadi skrip ini harus
  * dijalankan SETELAH build. Tidak ada server yang perlu dinyalakan.
  *
- * Yang diperiksa, semuanya tiga:
+ * Yang diperiksa, semuanya empat:
  *
  * 1. Tautan mati. Setiap `href` internal harus punya halaman yang benar-benar
- *    ditulis build. Ini yang menangkap nav path yang tidak ada di
- *    `collectNavPaths()`.
+ *    ditulis build, atau cocok dengan rute dinamis yang dirender saat diminta.
+ *    Ini yang menangkap nav path yang tidak ada di `collectNavPaths()`.
  * 2. Halaman tanpa tautan masuk. Setiap halaman harus menjadi tujuan setidaknya
  *    satu tautan, kecuali beranda. Ini yang menangkap halaman yang dirender
  *    hanya setelah JavaScript berjalan, atau slug yang tidak pernah ditautkan.
- * 3. Sitemap tidak lengkap. Setiap halaman yang ditulis build harus ada di
- *    sitemap. Yang dibandingkan adalah sitemap yang benar-benar dihasilkan
- *    build itu sendiri, yaitu `.next/server/app/sitemap.xml.body`, bukan
- *    hasil hitung ulang. Alasannya ada di `sitemapDariBuild()`.
+ * 3. Sitemap tidak lengkap, dua arah. Setiap halaman yang ditulis build harus
+ *    ada di sitemap, dan setiap entri sitemap harus punya halaman atau cocok
+ *    dengan rute dinamis yang dirender saat diminta. Yang dibandingkan adalah
+ *    sitemap yang benar-benar dihasilkan build itu sendiri, yaitu
+ *    `.next/server/app/sitemap.xml.body`, bukan hasil hitung ulang. Alasannya
+ *    ada di `sitemapDariBuild()`.
+ * 4. Tautan ke rute dinamis. Halaman seperti `/berita/<slug-dari-database>`
+ *    tidak ditulis build, tapi dirender saat diminta karena `fallback`-nya
+ *    blocking. Menyebutnya "mati" adalah tuduhan yang salah, dan itu pernah
+ *    terjadi: 20 tautan berita dilaporkan mati padahal semuanya menjawab 200
+ *    saat servernya hidup. Tautan seperti ini masuk keranjang sendiri dan wajib
+ *    diverifikasi ke server hidup, bukan ditebak dari berkas build.
  *
  * Pengecualian pada nomor 2 dan 3 ditulis sebagai daftar, bukan dikecualikan
  * diam-diam. Kalau halaman memang tidak boleh punya tautan masuk, alasannya
- * harus tercatat di sini supaya bisa ditinjau ulang.
+ * harus tercatat di sini supaya bisa ditinjau ulang. `TANPA_PRERENDER`
+ * mengecualikan entri sitemap yang memang tidak pernah di-prerender, dan
+ * alasannya wajib tertulis di deklarasinya.
  *
  * ```bash
  * bun run build && bun run cek:tautan
+ * # Kalau ada keranjang nomor 4, verifikasi langsung:
+ * bun run cek:tautan --live=http://localhost:3000
  * ```
  */
 
 import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
-import { collectSitemapPaths } from "../src/lib/sitemap";
+import { collectSitemapPaths, pathDariSitemapXml } from "../src/lib/sitemap";
+import {
+  entriDinamisDariManifest,
+  halamanBayangan,
+  ruteDinamisUntuk,
+  type EntriRuteDinamis,
+} from "../src/lib/nav-path";
 
 /** Akar HTML hasil prerender. Hanya `.html` statis, bukan `.rsc` atau `.meta`. */
 const AKAR = path.join(process.cwd(), ".next", "server", "app");
@@ -62,6 +80,21 @@ const TANPA_TAUTAN_MASUK = new Set<string>([]);
  */
 const TANPA_SITEMAP = new Set([
   "/daftar-online",
+]);
+
+/**
+ * Entri sitemap yang memang tidak punya HTML hasil prerender.
+ *
+ * `/admin/login` membutuhkan sesi, jadi selalu dirender saat diminta dan tidak
+ * pernah ditulis build sebagai `.html`. Mendaftarkannya di sini bukan izin
+ * untuk lupa: kalau suatu hari halaman login bisa di-prerender, entri ini
+ * harus dibuang supaya pemeriksaannya kembali penuh.
+ *
+ * Daftar ini bukan tempat untuk halaman yang *seharusnya* punya HTML tapi
+ * tidak ditulis build. Halaman seperti itu adalah bug build, bukan pengecualian.
+ */
+const TANPA_PRERENDER = new Set([
+  "/admin/login",
 ]);
 
 /**
@@ -213,11 +246,50 @@ async function sitemapDariBuild(): Promise<string[]> {
       return collectSitemapPaths().map((e) => e.path);
     }
   }
-  const hasil: string[] = [];
-  for (const cocok of xml.matchAll(/<loc>https?:\/\/[^/<]+(\/[^<]*)?<\/loc>/g)) {
-    hasil.push(cocok[1] || "/");
+  return pathDariSitemapXml(xml);
+}
+
+/**
+ * Daftar rute dinamis dari manifest hasil build.
+ *
+ * Berkasnya `.next/prerender-manifest.json`, bagian `dynamicRoutes`. Kalau
+ * berkasnya tidak ada atau rusak, hasilnya array kosong, dan semua tautan
+ * tanpa HTML kembali dilaporkan mati seperti dulu. Itu disengaja: tanpa daftar
+ * yang bisa dipercaya, tidak ada dasar untuk mengklaim sebuah tautan akan
+ * dirender saat diminta.
+ */
+async function ruteDinamisDariBuild(): Promise<EntriRuteDinamis[]> {
+  let manifest: unknown = {};
+  try {
+    const isi = await readFile(
+      path.join(process.cwd(), ".next", "prerender-manifest.json"),
+      "utf8",
+    );
+    manifest = JSON.parse(isi) as unknown;
+  } catch {
+    return [];
   }
-  return hasil;
+  return entriDinamisDariManifest(manifest);
+}
+
+/**
+ * Periksa satu tautan ke server hidup, kembalikan status HTTP-nya.
+ *
+ * Dipakai flag `--live` untuk keranjang nomor 4. `"galat: ..."` berarti server
+ * tidak menjawab sama sekali, dan itu sama matinya dengan 404.
+ */
+async function statusLangsung(
+  basis: string,
+  tautan: string,
+): Promise<number | string> {
+  try {
+    const res = await fetch(`${basis}${tautan}`, {
+      signal: AbortSignal.timeout(20000),
+    });
+    return res.status;
+  } catch (err) {
+    return `galat: ${err instanceof Error ? err.message : String(err)}`;
+  }
 }
 
 async function main(): Promise<void> {
@@ -231,10 +303,13 @@ async function main(): Promise<void> {
 
   const halaman = rute.filter((r) => !BUKAN_HALAMAN.has(r));
   const ada = new Set(halaman);
+  const dinamis = await ruteDinamisDariBuild();
   const tautanMati = new Set<string>();
   const punyaTautanMasuk = new Set<string>();
   const semuaTautan = new Set<string>();
   const judulDobel = new Set<string>();
+  // Kunci tautan, nilai pola rute yang cocok, misalnya `/berita/[slug]`.
+  const butuhServer = new Map<string, { pola: string; sumber: string[] }>();
 
   for (const sumber of halaman) {
     const berkas = sumber === "/" ? "index" : sumber.slice(1);
@@ -251,21 +326,81 @@ async function main(): Promise<void> {
 
     for (const tautan of tautanDalam(html)) {
       semuaTautan.add(tautan);
-      if (!ada.has(tautan)) {
+      if (ada.has(tautan)) {
+        if (!TANPA_TAUTAN_MASUK.has(tautan)) punyaTautanMasuk.add(tautan);
+        continue;
+      }
+      const pola = ruteDinamisUntuk(tautan, dinamis);
+      if (pola === null) {
         tautanMati.add(`${sumber} -> ${tautan}`);
         continue;
       }
-      if (!TANPA_TAUTAN_MASUK.has(tautan)) punyaTautanMasuk.add(tautan);
+      const catat = butuhServer.get(tautan) ?? { pola, sumber: [] };
+      if (!catat.sumber.includes(sumber)) catat.sumber.push(sumber);
+      butuhServer.set(tautan, catat);
     }
   }
 
-  const tanpaMasuk = halaman.filter(
+  // Flag `--live=http://localhost:PORT` memverifikasi keranjang nomor 4 ke
+  // server hidup. Tanpa flag, keranjang itu dilaporkan dan gerbang gagal,
+  // karena klaim "semua tautan hidup" tidak boleh didasarkan pada tebakan.
+  const liveArg = process.argv.find((a) => a.startsWith("--live="));
+  const liveBase = liveArg ? liveArg.slice("--live=".length).replace(/\/+$/, "") : null;
+  if (liveBase !== null && !/^https?:\/\//.test(liveBase)) {
+    console.error(`Flag --live harus URL http(s), bukan "${liveBase}".`);
+    process.exit(2);
+  }
+
+  const tanpaMasukMentah = halaman.filter(
     (r) => !punyaTautanMasuk.has(r) && !TANPA_TAUTAN_MASUK.has(r),
   );
   const diSitemap = new Set(await sitemapDariBuild());
   const tanpaSitemap = halaman.filter(
     (r) => !diSitemap.has(r) && !TANPA_SITEMAP.has(r),
   );
+  // Entri sitemap tanpa HTML hasil prerender, dipilah dua: yang polanya tidak
+  // cocok rute dinamis mana pun memang mati; yang cocok dirender saat diminta
+  // dan ikut diverifikasi ke server hidup bersama keranjang nomor 4.
+  const sitemapTanpaHalaman = [...diSitemap].filter(
+    (p) => !ada.has(p) && !TANPA_PRERENDER.has(p),
+  );
+  const sitemapMati = sitemapTanpaHalaman.filter(
+    (p) => ruteDinamisUntuk(p, dinamis) === null,
+  );
+  const sitemapDinamis = sitemapTanpaHalaman.filter(
+    (p) => ruteDinamisUntuk(p, dinamis) !== null,
+  );
+
+  // Halaman yatim yang memenuhi syarat bayangan bukan kegagalan. Syaratnya
+  // ada di `halamanBayangan()`; intinya hanya berlaku saat ada bukti daftar
+  // isi digantikan konten dinamis, jadi mode snapshot tidak berubah perilakunya.
+  const bayangan = new Set(
+    halamanBayangan(tanpaMasukMentah, diSitemap, dinamis, butuhServer.size > 0),
+  );
+  const tanpaMasuk = tanpaMasukMentah.filter((r) => !bayangan.has(r));
+
+  // Daftar URL yang wajib hidup menurut server, bukan menurut berkas build:
+  // tautan dinamis dari keranjang nomor 4 ditambah entri sitemap yang hanya
+  // ada saat dirender. Kunci URL, nilai label sumber untuk pesan galat.
+  const perluHidup = new Map<string, string>();
+  for (const t of butuhServer.keys()) perluHidup.set(t, "tautan");
+  for (const u of sitemapDinamis) {
+    if (!perluHidup.has(u)) perluHidup.set(u, "sitemap");
+  }
+
+  let terverifikasi = 0;
+  if (liveBase !== null) {
+    for (const tautan of [...perluHidup.keys()].sort()) {
+      const status = await statusLangsung(liveBase, tautan);
+      if (status === 200) {
+        terverifikasi += 1;
+        continue;
+      }
+      const catat = butuhServer.get(tautan);
+      const dari = catat ? catat.sumber.join(", ") : "sitemap";
+      tautanMati.add(`${dari} -> ${tautan} (HTTP ${status})`);
+    }
+  }
 
   let gagal = false;
 
@@ -275,10 +410,38 @@ async function main(): Promise<void> {
     for (const baris of [...tautanMati].sort()) console.error(`  ${baris}`);
   }
 
+  if (liveBase === null && butuhServer.size > 0) {
+    gagal = true;
+    console.error(
+      `\n${butuhServer.size} tautan ke rute dinamis ` +
+        `(perlu verifikasi runtime):`,
+    );
+    for (const t of [...butuhServer.keys()].sort()) {
+      const catat = butuhServer.get(t);
+      console.error(`  ${catat?.sumber.join(", ")} -> ${t} [${catat?.pola}]`);
+    }
+    console.error(
+      "Jalankan ulang dengan --live=http://localhost:PORT untuk memverifikasi.",
+    );
+  }
+  if (liveBase !== null && terverifikasi > 0) {
+    console.log(
+      `\n${terverifikasi} URL dinamis terverifikasi langsung (HTTP 200).`,
+    );
+  }
+
   if (tanpaMasuk.length > 0) {
     gagal = true;
     console.error(`\n${tanpaMasuk.length} halaman tanpa tautan masuk:`);
     for (const r of tanpaMasuk) console.error(`  ${r}`);
+  }
+
+  if (bayangan.size > 0) {
+    console.log(
+      `\n${bayangan.size} halaman bayangan fallback ` +
+        `(disengaja, tetap 200 lewat fallback):`,
+    );
+    for (const r of [...bayangan].sort()) console.log(`  ${r}`);
   }
 
   if (tanpaSitemap.length > 0) {
@@ -287,16 +450,24 @@ async function main(): Promise<void> {
     for (const r of tanpaSitemap) console.error(`  ${r}`);
   }
 
+  if (sitemapMati.length > 0) {
+    gagal = true;
+    console.error(`\n${sitemapMati.length} entri sitemap tanpa halaman:`);
+    for (const r of sitemapMati.sort()) console.error(`  ${r}`);
+  }
+
   if (judulDobel.size > 0) {
     gagal = true;
     console.error(`\n${judulDobel.size} halaman dengan judul dobel:`);
     for (const baris of [...judulDobel].sort()) console.error(`  ${baris}`);
   }
 
-  console.log(
+  let ringkasan =
     `\n${halaman.length} halaman, ${semuaTautan.size} tautan unik, ` +
-      `${diSitemap.size} entri sitemap`,
-  );
+    `${diSitemap.size} entri sitemap`;
+  if (butuhServer.size > 0) ringkasan += `, ${butuhServer.size} dinamis`;
+  if (bayangan.size > 0) ringkasan += `, ${bayangan.size} bayangan`;
+  console.log(ringkasan);
 
   if (gagal) {
     process.exit(1);

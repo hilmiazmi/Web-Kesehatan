@@ -20,22 +20,31 @@ import { GALLERY_PHOTOS, photo, randomPhoto } from "@/data/images";
 export function AwardsSection() {
   return (
     <section id="akreditasi" className="penghargaan section">
-      <div className="container section-title pb-4">
+      <div className="container section-title pb-0">
         <h2>Akreditasi &amp; Penghargaan</h2>
         <p>&quot;Komitmen kami terhadap mutu dan pelayanan&quot;</p>
       </div>
 
       <CardCarousel label="Akreditasi dan penghargaan">
         {AWARDS.map((a, i) => (
-          <div className="award-item" key={a}>
-            <Photo
-              src={randomPhoto(`award-${i}`, 500, 400)}
-              alt={a}
-              sizes="(max-width: 576px) 100vw, (max-width: 992px) 50vw, 280px"
-              height={130}
-              radius="all"
-            />
-            <p className="award-title">{a}</p>
+          <div className="card" key={a}>
+            {/* Pembungkus `image-content` sengaja tidak dipakai di sini. Di
+                repo ini `.image-content img` mengunci tinggi 190px, sedangkan
+                di situs referensi container itu tidak punya aturan apa pun dan
+                ukuran gambarawards diatur oleh `.penghargaan-img img`. Pakai
+                `.image-content` akan memaksa tinggi yang tidak ada di acuan. */}
+            <div className="penghargaan-img text-center">
+              <Photo
+                src={randomPhoto(`award-${i}`, 500, 400)}
+                alt={a}
+                sizes="(max-width: 576px) 100vw, (max-width: 992px) 50vw, 280px"
+                height={130}
+                radius="all"
+              />
+            </div>
+            <div className="card-content">
+              <h3 className="card-title">{a}</h3>
+            </div>
           </div>
         ))}
       </CardCarousel>
@@ -46,7 +55,7 @@ export function AwardsSection() {
 export function GallerySection() {
   return (
     <section id="galeri" className="gallery section light-background">
-      <div className="container section-title pb-4">
+      <div className="container section-title pb-0">
         <h2>Gallery</h2>
         <p>&quot;Kegiatan dan fasilitas rumah sakit&quot;</p>
       </div>
@@ -54,8 +63,8 @@ export function GallerySection() {
       <div className="container">
         <GalleryLightbox
           className="gallery-grid"
-          height={135}
-          sizes="(max-width: 768px) 50vw, 200px"
+          height={215}
+          sizes="(max-width: 992px) 50vw, 25vw"
           foto={GALLERY.map((g, i) => ({
             src: photo(GALLERY_PHOTOS[i % GALLERY_PHOTOS.length], 400, 400),
             alt: g,

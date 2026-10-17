@@ -188,8 +188,25 @@ h6 {
   padding: var(--rs-padding-section);
 }
 
+/* Judul section dan garis dekoratif di bawahnya.
+
+   Empat angka dekorasi diambil apa adanya dari `.section-title h2:before` dan
+   `::after` di `main.css` situs referensi: garis tipis 160px x 1px, lalu garis
+   tebal 60px x 3px warna aksen tepat di atasnya. Keduanya diposisikan dengan
+   `left:0; right:0; margin:auto`, jadi titik tengahnya ikut bergeser otomatis
+   mengikuti lebar container, bukan lebar h2.
+
+   `position: relative` pada h2 itu wajib, bukan kosmetik. Tanpa itu kedua
+   pseudo-element melayang di halaman dan tidak punya titik jangkar ke judul.
+
+   `padding-bottom: 60px` mengikuti referensi. Di kebanyakan section nilai itu
+   kelihatan mati karena kelas Bootstrap `pb-4` atau `pb-0` menimpanya dengan
+   `!important`, dan memang begitu cara referensi mengatur jarak. Markup
+   beranda di repo ini memakai kombinasi yang sama persis. */
 .section-title {
-  margin-bottom: 1.5rem;
+  text-align: center;
+  padding-bottom: 60px;
+  position: relative;
 }
 
 .section-title h2 {
@@ -198,8 +215,35 @@ h6 {
   font-weight: 500;
   color: var(--rs-text-heading);
   text-align: center;
-  padding-bottom: 20px; /* nilai asli dari situs referensi */
-  margin-bottom: 0;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  position: relative;
+}
+
+.section-title h2::before {
+  content: "";
+  position: absolute;
+  display: block;
+  width: 160px;
+  height: 1px;
+  background: color-mix(in srgb, var(--rs-text-body), transparent 60%);
+  left: 0;
+  right: 0;
+  bottom: 1px;
+  margin: auto;
+}
+
+.section-title h2::after {
+  content: "";
+  position: absolute;
+  display: block;
+  width: 60px;
+  height: 3px;
+  background: var(--rs-accent);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
 }
 
 /* Garis dekoratif tipis di bawah judul section. */

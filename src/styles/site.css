@@ -282,9 +282,11 @@
 .navmenu {
   display: flex;
   align-items: center;
-  /* Menu tidak menyusut dan tidak membungkus. Delapan butir butuh 894px;
+  /* Menu tidak menyusut dan tidak membungkus. Delapan butir butuh 1055px;
      kalau boleh menyusut, butir-butirnya saling tindih. Angka itu hasil
-     pengukuran di peramban pada lebar 1920px, bukan perkiraan. */
+     pengukuran di peramban pada lebar 1402px, bukan perkiraan. Lebar isi
+     tidak tergantung viewport karena tidak membungkus, jadi angkanya sama di
+     semua lebar desktop. */
   flex-shrink: 0;
 }
 
@@ -530,7 +532,7 @@
     border-bottom: 1px solid rgba(0, 0, 0, 0.07);
   }
 
-  /* Situs acuan memakai 17px di mobile, bukan 15px seperti desktop. */
+  /* Situs acuan memakai 17px di mobile, bukan 16px seperti desktop. */
   .navmenu a {
     font-size: 17px;
     width: 100%;
@@ -612,18 +614,19 @@
   /* ---------- Header desktop dua baris ----------
    *
    * Baris header dipaksa menjadi satu baris adalah sumber masalahnya: logo
-   * 237px + nav 894px + CTA 341px = 1496px. Di bawah angka itu satu baris
-   * tidak muat. Dua solusi lama sama-sama buruk:
+   * 284px + nav 1055px + CTA 340px + padding 24px = 1703px. Di bawah angka itu
+   * satu baris tidak muat. Dua solusi lama sama-sama buruk:
    *
    * - Sembunyikan CTA (perubahan 4 Oktober 2026). Akibatnya nav terdorong ke
    *   tepi kanan sampai menempel, sisa marginya 12px, dan dua tombol utama
    *   hilang. Itu yang terlihat pada tangkapan layar dari pemilik repo.
-   * - Mengecilkan nav supaya muat. Nav harus menyusut sekitar 33% supaya
-   *   seluruhnya muat di 1200px, dan huruf 15px menjadi 10px: tidak terbaca.
+   * - Mengecilkan nav supaya muat. Nav 1055px harus menyusut sekitar 48%
+   *   supaya seluruhnya muat di 552px yang tersisa pada 1200px, dan huruf 16px
+   *   menjadi 8px: tidak terbaca.
    *
    * Yang dipakai di sini: nav mendapat baris penuh sendiri. Baris pertama
    * logo dan CTA, baris kedua nav. Ruang baris kedua pada 1200px adalah
-   * 1176px, cukup untuk nav 894px dengan sisa 282px, dan tidak ada yang perlu
+   * 1176px, cukup untuk nav 1055px dengan sisa 121px, dan tidak ada yang perlu
    * disembunyikan pada lebar desktop mana pun.
    *
    * `flex-wrap: wrap` dipakai, bukan hanya `order` pada dua elemen, karena
@@ -644,6 +647,42 @@
     margin-left: auto;
   }
 
+  /* ---------- Header desktop diperbesar ----------
+   *
+   * Permintaan pemilik repo: header terlalu kecil dan tidak simetris, tapi
+   * desainnya sudah disukai. Jadi yang diubah hanya ukuran, bukan arsitektur:
+   * tetap dua baris, tetap 1200px, tetap tanpa hamburger, dan mobile tidak
+   * ikut berubah sama sekali. Angka acuan dari situs referensi: branding
+   * `padding: 10px 0`, logo `30px`, dan nav item `padding: 15px 14px`.
+   *
+   * Hasil ukur ulang di peramban: delapan butir nav 1055px (dari 894px),
+   * logo 284px (dari 237px), tinggi `.branding` 134px (dari 100px). Nav
+   * tetap muat di viewport desktop tersempit 1200px karena baris kedua
+   * menyediakan 1176px. */
+  .branding {
+    padding: 10px 0;
+  }
+
+  .logo-mark {
+    width: 52px;
+    height: 52px;
+    font-size: 1.75rem;
+  }
+
+  .logo-text strong {
+    font-size: 1.4rem;
+  }
+
+  .logo-text small {
+    font-size: 0.8rem;
+  }
+
+  .header-nav-menu .navmenu a {
+    font-size: 16px;
+    line-height: 24px;
+    padding: 0.75rem 0.9rem;
+  }
+
   .header-nav-menu > .navmenu {
     order: 3;
     flex: 1 0 100%;
@@ -653,8 +692,8 @@
     /* Pemisah tipis antara logo dan nav, supaya dua baris terbaca sebagai satu
        kesatuan dan bukan dua blok yang tidak sengaja berdempet. */
     border-top: 1px solid rgba(0, 0, 0, 0.06);
-    margin-top: 0.15rem;
-    padding-top: 0.15rem;
+    margin-top: 0.3rem;
+    padding-top: 0.3rem;
   }
 }
 
@@ -1249,4 +1288,11 @@
   .lightbox-navigasi {
     display: none;
   }
+}
+
+/* ---------- Aksesibilitas: Fitur Baca Nyaring (Text-to-Speech) ---------- */
+.tts-player {
+  background-color: var(--rs-section-light);
+  border: 1px solid rgba(var(--rs-accent-rgb), 0.18);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }

@@ -7,21 +7,26 @@ import { QUICK_ACTIONS } from "@/data/quick-action";
 /**
  * Header desktop harus dua baris, dan tidak boleh ada yang terpotong.
  *
- * Satu baris header butuh 1496px (logo 237 + nav 894 + CTA 341 + padding 24),
- * hasil pengukuran `getBoundingClientRect()` di peramban. Kelonggarannya sedikit:
- * viewport 1200px tidak muat, dan memaksa satu baris menghasilkan dua cacat
- * sekaligus — nav terdorong ke tepi kanan sampai menempel, dan CTA harus
- * disembunyikan supaya tidak terpotong.
+ * Satu baris header butuh 1703px (logo 284 + nav 1055 + CTA 340 +
+ * padding 24), hasil pengukuran `getBoundingClientRect()` di peramban.
+ * Kelonggarannya sedikit: viewport 1200px tidak muat, dan memaksa satu baris
+ * menghasilkan dua cacat sekaligus — nav terdorong ke tepi kanan sampai
+ * menempel, dan CTA harus disembunyikan supaya tidak terpotong.
  *
  * Perbaikannya: di desktop nav mendapat baris penuh sendiri. Baris pertama
  * logo dan CTA, baris kedua nav. Jadi tidak ada yang disembunyikan pada lebar
- * desktop mana pun, dan lebar minimum untuk nav naik dari 1161px menjadi
- * 894px saja.
+ * desktop mana pun, dan nav hanya butuh 1055px saja.
  *
- * Semua angka di bawah diukur ulang di peramban lewat CDP pada lebar 1200,
- * 1280, 1366, 1440, 1496, 1920, dan 2560px: tinggi `.branding` 100px, nav
- * tetap 894px di semua lebar itu, `scrollWidth` sama dengan `clientWidth`
- * (tanpa gulir horizontal), dan CTA `display: flex` di semua lebar itu.
+ * Semua angka di bawah diukur ulang di peramban pada lebar 1402px, lalu
+ * diperiksa lewat tangkapan layar pada 1200, 1920, dan 390px: tinggi
+ * `.branding` 134px, nav 1055px terpusat simetris, `scrollWidth` sama dengan
+ * `clientWidth` (tanpa gulir horizontal), dan CTA `display: flex`.
+ *
+ * Ukuran header diperbesar atas permintaan pemilik repo 6 Oktober 2026:
+ * logo 44px menjadi 52px, huruf nav 15px menjadi 16px, dan padding tautan
+ * dilonggarkan. Arsitekturnya tidak berubah (dua baris, batas 1200px, tanpa
+ * hamburger di desktop), dan mobile tidak ikut berubah sama sekali karena
+ * semua aturan baru hanya ada di blok desktop.
  *
  * Tes membaca berkas sumber apa adanya, bukan hasil render, karena yang
  * dikunci adalah aturan yang menghasilkan angka di atas.
@@ -176,7 +181,7 @@ describe("CTA header tidak disembunyikan di desktop", () => {
   });
 
   it("nav desktop tidak pernah menyusut atau membungkus", () => {
-    // Nav harus tetap satu baris penuh 894px di semua lebar desktop. Kalau
+    // Nav harus tetap satu baris penuh 1055px di semua lebar desktop. Kalau
     // ia boleh membungkus, butir terakhir turun ke baris ketiga dan tinggi
     // header berubah-ubah mengikuti isi setiap halaman.
     const dasar = siteCss.slice(

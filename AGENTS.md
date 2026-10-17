@@ -138,29 +138,35 @@ bukan tebakan. Rinciannya ada di `docs/design-tokens-terverifikasi.md`.
   panel off-canvas hanya untuk mobile di bawah `1200px`.
   - Batas desktop `1200px`, dengan panel off-canvas `translateX(100%)` dan
     tombol hamburger `d-xl-none` di bawahnya.
-  - Font nav `15px` seragam untuk desktop, submenu dropdown, dan panel.
-  - Delapan butir nav butuh `894px`, tidak membungkus dan tidak menyusut.
-    Angka itu adalah lebar elemen `.navmenu` pada viewport 1920px,
+  - Font nav `16px` seragam untuk desktop dan submenu dropdown; panel
+    mobile memakai `17px` mengikuti situs acuan.
+  - Delapan butir nav butuh `1055px`, tidak membungkus dan tidak menyusut.
+    Angka itu adalah lebar elemen `ul` di dalam `.navmenu`,
     hasil `getBoundingClientRect()`, bukan perkiraan.
   - **Header desktop dua baris.** Baris pertama logo + dua CTA, baris kedua
-    nav penuh dan dipusatkan. Alasannya angka: satu baris butuh `1496px`
-    (logo 237 + nav 894 + CTA 341 + padding 24), sedangkan viewport terkecil
-    yang masih desktop adalah `1200px`. Menambah tinggi header dari `53px`
-    menjadi `100px` memberi ruang yang cukup tanpa harus mengecilkan huruf nav.
+    nav penuh dan dipusatkan. Alasannya angka: satu baris butuh `1703px`
+    (logo 284 + nav 1055 + CTA 340 + padding 24), sedangkan viewport terkecil
+    yang masih desktop adalah `1200px`. Tinggi `.branding` sekarang `134px`.
+  - **Ukuran diperbesar 6 Oktober 2026 atas permintaan pemilik repo** ("terlalu
+    kecil dan tidak simetris", desainnya sudah disukai). Yang berubah hanya
+    ukuran di blok desktop: logo 44px menjadi 52px, huruf nav 15px menjadi
+    16px, padding tautan dilonggarkan. Arsitektur tidak berubah dan mobile
+    tidak ikut berubah sama sekali.
   - **Sudah dicoba dan ditolak, jangan diulang:**
-    - Memaksa satu baris dengan menyembunyikan CTA di bawah `1496px`.
+    - Memaksa satu baris dengan menyembunyikan CTA di bawah `1703px`.
       Akibatnya nav terdorong ke tepi kanan sampai menempel (`12px`) dan dua
       tombol utama hilang. Persis cacat yang dilaporkan pemilik repo
       4 Oktober 2026 lewat tangkapan layar.
-    - Mengecilkan nav supaya muat di `1200px`. Nav harus menyusut sekitar 33%
-      supaya seluruhnya muat, dan huruf `15px` menjadi `10px`: tidak terbaca.
+    - Mengecilkan nav supaya muat di `1200px`. Nav harus menyusut sekitar 48%
+      supaya seluruhnya muat, dan huruf `16px` menjadi `8px`: tidak terbaca.
   - Yang menyembunyikan CTA hanyalah lebar di bawah `1200px`, di mana header
     memang sedang berpanel off-canvas. Di mobile CTA tetap terjangkau lewat
     panel, bilah aksi cepat, dan footer.
-  - Diukur ulang lewat CDP pada 1200, 1280, 1366, 1440, 1496, 1920, dan
-    2560px: tinggi `.branding` `100px`, nav tetap `894px` di semua lebar itu,
-    `scrollWidth` sama dengan `clientWidth` (tidak ada gulir horizontal), dan
-    CTA `display: flex` di semua lebar itu.
+  - Diukur lewat CDP pada 1402px dan tangkapan layar pada 1200, 1920, dan
+    390px: tinggi `.branding` `134px`, nav `1055px` terpusat simetris
+    (margin kiri-kanan sama), `scrollWidth` sama dengan `clientWidth` (tidak
+    ada gulir horizontal), dan CTA `display: flex`. Baris kedua menyediakan
+    1176px pada viewport 1200px, jadi sisa 121px dan tidak ada yang terpotong.
   - `tests/header-ctas.test.ts` mengunci semua angka di atas;
     `tests/panel-nav-mobile.test.ts` mengunci panel mobile.
 
