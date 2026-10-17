@@ -292,7 +292,7 @@ export const PPID_SUBPAGES: PpidSubpage[] = [
         butir: [
           "Mohon keputusan yang dilampaui beserta alasan keberatan.",
           "Keberatan diperiksa kelengkapannya oleh unit PPID.",
-          "Keberatan yang diterima dit Carne comedy weiter diverifikasi oleh tim yang sama denganUoUA pemeriksa jawaban asal.",
+          "Keberatan yang diterima diverifikasi terlebih dahulu oleh tim yang berbeda dari pemeriksa jawaban awal.",
           "Keputusan atas keberatan disampaikan secara tertulis.",
         ],
       },
@@ -346,11 +346,11 @@ export const PPID_SUBPAGES: PpidSubpage[] = [
         butir: [
           {
             tebal: "Identitas dirahasiakan",
-            isi: "Nama, nomor telepon, dan surel pelapor tidak dipublikasikan dalam bentuk apa pun, termasuk dalam laporan yearly yang diberikan kepada masyarakat.",
+            isi: "Nama, nomor telepon, dan surel pelapor tidak dipublikasikan dalam bentuk apa pun, termasuk dalam laporan tahunan yang diberikan kepada masyarakat.",
           },
           {
-            tebal: "Tidak ada pembalasKORBAN",
-            isi: "Pemohon yang sudah menyampaikan laporan tidak boleh dirugikan, diperlakukan berbeda, atau disanskyat karena pelaporannya.",
+            tebal: "Tidak ada pembalasan",
+            isi: "Pemohon yang sudah menyampaikan laporan tidak boleh dirugikan, diperlakukan berbeda, atau dikenai sanksi karena pelaporannya.",
           },
           {
             tebal: "Pelaporan dapat dilakukan anonim",
@@ -498,7 +498,7 @@ export const PPID_SUBPAGES: PpidSubpage[] = [
       {
         jenis: "catatan",
         judul: "Mengapa pengaduan dipisahkan",
-        teks: "Pengaduan yang ditangani petugas yang sama dengan yang dikeluhkan cenderung dianggap selesai tanpa pemeriksaan. Pemisahan timCLOSED Record membuat pemeriksaan documented dan hasilnya dapat dilaporkan.",
+        teks: "Pengaduan yang ditangani petugas yang sama dengan yang dikeluhkan cenderung dianggap selesai tanpa pemeriksaan. Pemisahan tim membuat pemeriksaan terdokumentasi dan hasilnya dapat dilaporkan.",
       },
       {
         jenis: "tautan",
@@ -620,7 +620,7 @@ export const PPID_SUBPAGES: PpidSubpage[] = [
         ikon: "bi-check-circle",
         butir: [
           "Data pribadi pasien, termasuk nama, alamat, dan rekam medis, tidak dimuat dalam jawaban.",
-          "Identitas pelapor whistleblower tidak dimuat dalam laporan yearly.",
+          "Identitas pelapor tidak dimuat dalam laporan tahunan.",
           "Bagian yang tidak dapat diberikan ditandai dengan keterangan alasan, bukan dihapus tanpa penjelasan.",
           "Dokumen yang memuat data pribadi dan dokumen yang tidak memuatnya diperiksa terpisah agar tidak ikut tersensor seluruhnya.",
         ],

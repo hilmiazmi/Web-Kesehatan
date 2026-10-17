@@ -4,7 +4,7 @@
  * Halaman layanan, klinik, dan widget beranda semuanya punya tombol
  * "Daftar Online" yang menuju `/daftar-online`. Kalau tautannya polos, orang
  * yang datang dari halaman Poliklinik Anak harus memilih ulang spesialitas
- *padahal sudah jelas sedang melihat layanan anak.
+ * padahal sudah jelas sedang melihat layanan anak.
  *
  * Karena itu konteks dibawa lewat query string, bukan disimpan di state:
  * query string bertahan saat halaman di-bookmark, dibagikan lewat WhatsApp,

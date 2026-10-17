@@ -146,31 +146,37 @@ bukan tebakan. Rinciannya ada di `docs/design-tokens-terverifikasi.md`.
   panel off-canvas hanya untuk mobile di bawah `1200px`.
   - Batas desktop `1200px`, dengan panel off-canvas `translateX(100%)` dan
     tombol hamburger `d-xl-none` di bawahnya.
-  - Font nav `15px` seragam untuk desktop, submenu dropdown, dan panel.
-  - Delapan butir nav butuh `894px`, tidak membungkus dan tidak menyusut.
-    Angka itu adalah lebar elemen `.navmenu` pada viewport 1920px,
+  - Font nav `16px` seragam untuk desktop dan submenu dropdown; panel
+    mobile memakai `17px` mengikuti situs acuan.
+  - Delapan butir nav butuh `1055px`, tidak membungkus dan tidak menyusut.
+    Angka itu adalah lebar elemen `ul` di dalam `.navmenu`,
     hasil `getBoundingClientRect()`, bukan perkiraan.
-  - **Tangga lebar header:** satu baris butuh `1496px` (logo 237 + nav 894 +
-    CTA 341 + padding 24), jadi di bawah itu satu baris penuh tidak muat.
-    - `1520px` ke atas: satu baris penuh (logo, nav, CTA), seperti situs
-      referensi. Batasnya 1520px, bukan 1496px, supaya ada sisa ~24px untuk
-      perbedaan metrik font antar mesin peramban (Zen memakai Gecko, Helium
-      memakai Chromium).
-    - `1360-1519px`: satu baris kompak — logo merapat (tanpa tagline), nav
-      `13.5px`, CTA meramping. Total kompak `1269px`, muat dari `1360px`
-      dengan sisa ~50px. Label, urutan, dan tujuan tautan tidak berubah.
-    - `1200-1359px`: dua baris (baris pertama logo dan CTA, baris kedua nav
-      yang dipusatkan). Di bawah `1360px` satu baris mustahil tanpa huruf
-      tak terbaca (eksperimen: kompak butuh `1269px`, ruang di `1200px`
-      hanya `1161px`).
-    - Di bawah `1200px`: hamburger + panel, dan CTA disembunyikan (salinannya
-      ada di panel, bilah aksi cepat, dan footer).
-  - Dua pendekatan lama terbukti buruk dan tidak dipakai: menyembunyikan CTA
-    membuat nav terdorong ke tepi kanan sampai menempel (`12px`), sedangkan
-    mengecilkan nav membuat huruf `15px` menjadi `10px`.
-  - Diukur lewat CDP pada 1200, 1280, 1360, 1366, 1440, 1496, 1520, 1560, 1920, dan
-    2560px: nav tetap `894px`, `scrollWidth` sama dengan `clientWidth` (tidak
-    ada gulir horizontal), dan CTA tampil di `1520px` ke atas.
+  - **Header desktop dua baris.** Baris pertama logo + dua CTA, baris kedua
+    nav penuh dan dipusatkan. Alasannya angka: satu baris butuh `1703px`
+    (logo 284 + nav 1055 + CTA 340 + padding 24), sedangkan viewport terkecil
+    yang masih desktop adalah `1200px`. Tinggi `.branding` sekarang `134px`.
+  - **Ukuran diperbesar 6 Oktober 2026 atas permintaan pemilik repo** ("terlalu
+    kecil dan tidak simetris", desainnya sudah disukai). Yang berubah hanya
+    ukuran di blok desktop: logo 44px menjadi 52px, huruf nav 15px menjadi
+    16px, padding tautan dilonggarkan. Arsitektur tidak berubah dan mobile
+    tidak ikut berubah sama sekali.
+  - **Sudah dicoba dan ditolak, jangan diulang:**
+    - Memaksa satu baris dengan menyembunyikan CTA di bawah `1703px`.
+      Akibatnya nav terdorong ke tepi kanan sampai menempel (`12px`) dan dua
+      tombol utama hilang. Persis cacat yang dilaporkan pemilik repo
+      4 Oktober 2026 lewat tangkapan layar.
+    - Mengecilkan nav supaya muat di `1200px`. Nav harus menyusut sekitar 48%
+      supaya seluruhnya muat, dan huruf `16px` menjadi `8px`: tidak terbaca.
+  - Yang menyembunyikan CTA hanyalah lebar di bawah `1200px`, di mana header
+    memang sedang berpanel off-canvas. Di mobile CTA tetap terjangkau lewat
+    panel, bilah aksi cepat, dan footer.
+  - Diukur lewat CDP pada 1402px dan tangkapan layar pada 1200, 1920, dan
+    390px: tinggi `.branding` `134px`, nav `1055px` terpusat simetris
+    (margin kiri-kanan sama), `scrollWidth` sama dengan `clientWidth` (tidak
+    ada gulir horizontal), dan CTA `display: flex`. Baris kedua menyediakan
+    1176px pada viewport 1200px, jadi sisa 121px dan tidak ada yang terpotong.
+  - `tests/header-ctas.test.ts` mengunci semua angka di atas;
+    `tests/panel-nav-mobile.test.ts` mengunci panel mobile.
 
   **Panel off-canvas mobile.** Semua aturannya hanya ada di dalam
   `@media (max-width: 1199.98px)`.
@@ -348,6 +354,22 @@ makna, bukan karakter.
   supaya penanda terpasang), dan jangan hapus penanda yang masih segar.
 - Sebelum menyimpulkan hasil E2E yang aneh, pastikan tidak ada proses
   `next build` lain yang berjalan bersamaan.
+
+### Jadwal dokter wajib tuntas tujuh hari
+
+- **Tidak boleh ada satu pun spesialisasi tanpa dokter berjaga pada hari
+  Senin sampai Minggu.** Empat tempat harus berubah bareng-bareng kalau
+  jadwal disentuh: `DOCTORS` di `src/data/doctors.ts`, seed di
+  `scripts/seed-data.json`, `HARI_MAP` di `src/lib/content-loader.ts`
+  (nomor 1-7), dan `DAY_ORDER` di `src/lib/poliklinik.ts`. Yang statis
+  mengisi sel kosong round-robin ke pasangan dokternya; sel Sabtu/Minggu
+  memakai 08.00-12.00. `tests/jadwal-penuh.test.ts` mengunci keduanya,
+  jadi kalau tes itu merah, jangan perbaiki dengan menghapus selisihnya,
+  tetapi tambahkan jadwal yang hilang.
+- `hariPraktik` di `src/lib/jadwal.ts` sudah menerima 1-7 dan membuang
+  nomor di luar itu; loader memakai `HARI_MAP` 6 = Sabtu, 7 = Minggu, dan
+  hari yang tidak terpetakan dilaporkan via `console.warn`, bukan
+  didiamkan diam-diam.
 
 ### Jebakan `github` MCP di dalam `execute`
 

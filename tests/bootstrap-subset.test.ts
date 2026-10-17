@@ -74,6 +74,15 @@ function tokenKelas(): Set<string> {
  */
 const IZIN_TEPAT: Record<string, string> = {
   "quick-action-wa": "penanda di data quick-action, wajib tidak kosong",
+  "tts-icon": "pembungkus ikon di TextToSpeech.tsx, tanpa aturan gaya sendiri",
+  "tts-label": "label teks di TextToSpeech.tsx, tanpa aturan gaya sendiri",
+  "pendaftaran": "penanda seksi Daftarkan Diri pada beranda, tanpa aturan gaya",
+  "about": "penanda seksi Sosial Media pada beranda, tanpa aturan gaya",
+  "asuransi": "penanda seksi Asuransi pada beranda, tanpa aturan gaya",
+  "berita": "penanda seksi Berita pada beranda, tanpa aturan gaya",
+  "faq": "penanda seksi FAQ pada beranda, tanpa aturan gaya",
+  "penghargaan": "penanda seksi Akreditasi pada beranda, tanpa aturan gaya",
+  "gallery": "penanda seksi Galeri pada beranda, tanpa aturan gaya",
 };
 
 const IZIN_AWALAN: Record<string, string> = {
