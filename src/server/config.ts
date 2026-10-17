@@ -72,9 +72,42 @@ export function config(): Config {
   }
 
   const authSecret = env("AUTH_SECRET", "");
+  // Panjang minimum hanya ditegakkan di mode `live`. Di mode `snapshot` login
+  // selalu ditolak 503 sebelum token sempat diterbitkan, jadi secret yang
+  // kosong tidak bisa dipakai untuk menandatangani apa pun. Pengecualian ini
+  // disengaja supaya pratinjau snapshot tidak butuh secret sungguhan.
+  //
+  // Pesannya sengaja tidak menyebut panjang nilai yang sebenarnya. Panjang
+  // secret adalah informasi yang membantu penyerang: ia mempersempit tebakan
+  // dari "apa pun" jadi "tebakan dengan panjang yang pas", dan tidak ada
+  // kebutuhan operasional untuk mengetahuinya. Cukup sebutkan batasnya.
   if (apiMode === "live" && authSecret.length < AUTH_SECRET_MIN) {
     throw new ConfigError(
-      `AUTH_SECRET wajib diisi dan minimal ${AUTH_SECRET_MIN} karakter (nilai sekarang ${authSecret.length}).`,
+      `AUTH_SECRET wajib diisi dan minimal ${AUTH_SECRET_MIN} karakter. Nilai tidak dicetak demi keamanan.`,
+    );
+  }
+
+  const adminOrigin = env("ADMIN_ORIGIN", "http://localhost:3000");
+
+  // Cookie sesi hanya dapat lewat HTTPS kalau `Secure` terpasang, dan atribut itu
+  // ditentukan dari `ADMIN_ORIGIN` (lihat `sessionCookie`). Jadi satu
+  // environment yang tertinggal `http://` untuk domain publik tidak merusak
+  // apa pun yang kelihatan — login tetap berhasil, cookie tetap terbit, hanya
+  // tanpa `Secure`. Diam-diam seperti itu yang paling berbahaya, karena cookie
+  // sesi lalu bisa ikut pada koneksi yang tidak dienkripsi.
+  //
+  // Di sini ia ditolak saat start, dengan pesan yang menyebut akar masalahnya.
+  // Localhost tetap boleh http karena itu memang cara kerjanya `bun run dev`,
+  // dan hanya berlaku di mode `live`: mode snapshot sudah menolak login 503
+  // sebelum token sempat diterbitkan.
+  //
+  // Syaratnya "URL yang bisa diurai dan bukan loopback lewat http://", bukan
+  // sekadar "tidak diawali http://". Kalau hanya awalan yang dicek, nilai seperti
+  // `rsud.example.test` lolos tanpa diperiksa lalu menghasilkan `secure: false`
+  // persis seperti kasus yang ingin dicegahnya.
+  if (apiMode === "live" && !originAman(adminOrigin)) {
+    throw new ConfigError(
+      "ADMIN_ORIGIN harus berupa URL https://, kecuali untuk localhost/127.0.0.1. Tanpa itu cookie sesi terbit tanpa atribut Secure.",
     );
   }
 
@@ -84,7 +117,7 @@ export function config(): Config {
     dbAcquireTimeoutSeconds: number("DB_ACQUIRE_TIMEOUT_SECONDS", 8),
     authSecret,
     sessionMaxAgeSeconds: number("SESSION_MAX_AGE_SECONDS", 8 * 3600),
-    adminOrigin: env("ADMIN_ORIGIN", "http://localhost:3000"),
+    adminOrigin,
     rateLimitWindowSeconds: number("RATE_LIMIT_WINDOW_SECONDS", 60),
     rateLimitMax: number("RATE_LIMIT_MAX_REQUESTS", 5),
     bodyLimitBytes: number("BODY_LIMIT_BYTES", 256 * 1024),
@@ -104,6 +137,34 @@ export function resetConfigCache(): void {
 function env(name: string, fallback: string): string {
   const value = process.env[name];
   return value === undefined || value.trim() === "" ? fallback : value.trim();
+}
+
+/**
+ * Apakah `ADMIN_ORIGIN` aman dipakai sebagai asal cookie sesi.
+ *
+ * Aman berarti URL-nya benar-benar bisa diurai, lalu protocol-nya `https:` atau
+ * host-nya loopback. Dua syarat itu dipisah karena keduanya menutup lubang yang
+ * berbeda: `https:` menutup pengiriman cookie tanpa enkripsi, sedangkan
+ * "bisa diurai" menutup nilai rusak yang akan lolos lewat pengecekan awalan.
+ */
+function originAman(origin: string): boolean {
+  let url: URL;
+  try {
+    url = new URL(origin);
+  } catch {
+    return false;
+  }
+  if (url.protocol === "https:") return true;
+  if (url.protocol !== "http:") return false;
+
+  // `http://` hanya diterima di loopback: itu `bun run dev` dan pengujian
+  // lokal. Port ikut dibaca dari URL, jadi `localhost:3000` dan `localhost:8080`
+  // sama-sama dikenal tanpa menulis ulang tiap bentuknya.
+  return (
+    url.hostname === "localhost" ||
+    url.hostname === "127.0.0.1" ||
+    url.hostname === "[::1]"
+  );
 }
 
 /**

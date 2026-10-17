@@ -563,9 +563,13 @@
  * mati, tapi kotak 16px sendiri tetap jauh di bawah 24px minimal pada
  * WCAG 2.5.8.
  *
- * Di bawah 768px kotaknya jadi 22.4px dan barisnya minimal 44px. Di atas
- * 768px apa pun tidak berubah karena tampilan desktop sudah diverifikasi
- * terhadap situs acuan. */
+ * Di bawah 768px kotaknya jadi 24px — bukan 22.4px. Angka 22.4px sudah
+ * diukur tetap kurang dari minimum 24px pada WCAG 2.5.8, dan efeknya nyata:
+ * pada 10 Oktober 2026 diukur di /daftar-online, keempat radio (JKN, umum,
+ * asuransi) masih 22 x 22 px dan tetap dilaporkan Lighthouse. Jadi 1.5rem
+ * (24px) yang dipakai, dan barisnya tetap minimal 44px. Di atas 768px apa
+ * pun tidak berubah karena tampilan desktop sudah diverifikasi terhadap
+ * situs acuan. */
 /* Batasnya 768px, sama dengan batas topbar, karena di 768px teks kontak
  * sudah disembunyikan dan hanya ikon yang tersisa. */
 @media (max-width: 768px) {
@@ -575,8 +579,8 @@
   }
 
   .form-check .form-check-input {
-    width: 1.4rem;
-    height: 1.4rem;
+    width: 1.5rem;
+    height: 1.5rem;
     margin-top: 0.7rem;
     margin-left: -2.15rem;
   }
@@ -853,6 +857,43 @@ a.halaman-kartu:focus-visible {
   line-height: 1.6;
 }
 
+/*
+ * Kartu ringkas untuk daftar anak halaman.
+ *
+ * Kartu biasa punya tiga baris: ikon, judul, lalu penjelasan. Daftar anak
+ * halaman tidak punya penjelasan, dan memaksakan baris kosong membuat kartu
+ * terlihat rusak. Bentuk ini karena itu hanya judul dan panah, dengan tinggi
+ * rata supaya barisnya forming rapi.
+ */
+.halaman-kartu-ringkas {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 0;
+  padding: 0.9rem 1.15rem;
+}
+
+.halaman-kartu-panah {
+  flex-shrink: 0;
+  font-size: 0.95rem;
+  color: var(--rs-accent);
+  transition: transform 0.2s ease;
+}
+
+/* Jam praktik dicetak kecil di bawah deskripsi kartu klinik. */
+.halaman-kartu-jam {
+  margin-top: auto;
+  padding-top: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--rs-text-card-desc);
+}
+
+a.halaman-kartu-ringkas:hover .halaman-kartu-panah,
+a.halaman-kartu-ringkas:focus-visible .halaman-kartu-panah {
+  transform: translateX(3px);
+}
+
 .halaman-galeri {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -1045,4 +1086,262 @@ a.halaman-kartu:focus-visible {
   font-size: 0.85rem;
   color: var(--rs-text-nav);
   padding-bottom: 0.75rem;
+}
+
+/* ---------- Pemilih tanggal pendaftaran ----------
+ *
+ * Input `type="date"` bawaan peramban tidak dipakai karena formatnya
+ * mengikuti bahasa peramban (`mm/dd/yyyy` di mesin berbahasa Inggris) dan
+ * tidak bisa membatasi tanggal. Komponennya ada di
+ * `src/components/ui/DatePicker.tsx`.
+ */
+.tanggal-pilih {
+  position: relative;
+}
+
+/* Kotak yang ditampilkan di atas kalender. */
+.tanggal-pilih-kotak {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--rs-gray-300);
+  border-radius: var(--rs-radius-btn);
+  background-color: var(--rs-white);
+  color: var(--rs-text-body);
+  font-size: 1rem;
+  text-align: left;
+}
+
+.tanggal-pilih-kotak:focus-visible {
+  outline: 3px solid rgba(var(--rs-accent-rgb), 0.4);
+  outline-offset: 1px;
+  border-color: var(--rs-accent);
+}
+
+.tanggal-pilih-label {
+  font-weight: 500;
+}
+
+/* Kalender muncul sebagai lapisan di atas kotak tanggal, bukan mendorong
+ * isi ke bawah. Sebelumnya selalu terbuka dan berukuran penuh, jadi
+ * menutupi "Jam Kunjungan" dan seluruh isinya tidak punya cara menutup. */
+.tanggal-kalender {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 0.4rem);
+  left: 0;
+  padding: 0.7rem;
+  border: 1px solid var(--rs-gray-300);
+  border-radius: var(--rs-radius-btn);
+  background-color: var(--rs-white);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+}
+
+.tanggal-kalender-kepala {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+}
+
+.tanggal-kalender-judul {
+  font-weight: 600;
+  color: var(--rs-text-card-title);
+}
+
+.tanggal-kalender-nav {
+  border: 0;
+  background: transparent;
+  color: var(--rs-accent);
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--rs-radius-btn);
+}
+
+.tanggal-kalender-nav:disabled {
+  color: var(--rs-gray-400);
+  cursor: not-allowed;
+}
+
+/* Lebar kolom ditetapkan, bukan `1fr`. Dengan `1fr` kosi ikut melar
+ * mengikuti lebar popover, dan kotak tanggal jadi lebar berlebihan. */
+.tanggal-kalender-hari,
+.tanggal-kalender-kisi {
+  display: grid;
+  grid-template-columns: repeat(7, 1.85rem);
+  gap: 0.2rem;
+}
+
+.tanggal-kalender-kepala-hari {
+  text-align: center;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--rs-text-card-desc);
+  padding-bottom: 0.35rem;
+}
+
+.tanggal-kalender-sel {
+  /* Persegi dengan tinggi tetap, bukan `aspect-ratio`: lebar sel ikut
+   * berubah-ubah menurut lebar kolom, dan rasio bujur sangkar membuat
+   * tinggi kalender ikut bergeser saat lebar jendela sedikit berubah. */
+  height: 1.85rem;
+  border: 1px solid transparent;
+  border-radius: var(--rs-radius-btn);
+  background: transparent;
+  font-size: 0.8rem;
+  line-height: 1;
+  color: var(--rs-text-body);
+}
+
+/* Tanggal di luar bulan ini tetap terlihat supaya posisi tanggal tidak
+ * bergeser, tapi tidak bisa dipilih. */
+.tanggal-kalender-sel.di-luar-bulan {
+  color: var(--rs-gray-400);
+}
+
+/* Hari praktik dokter boleh dipilih, berwarna aksen. */
+/* Garis biru berarti "hari dokter praktik". Kalau dokter belum dipilih,
+ * jadwalnya belum diketahui dan hampir semua hari boleh diklik; menandai
+ * semuanya membuat hari practice days kehilangan artinya. */
+.tanggal-kalender.ada-praktik .tanggal-kalender-sel:not(.tidak-bisa):not(.di-luar-bulan) {
+  border-color: var(--rs-accent);
+  color: var(--rs-accent);
+  font-weight: 600;
+}
+
+/* Selektor ikut sepanjang aturan "hari praktik" supaya menang. Dengan
+ * hanya `.tanggal-kalender-sel.dipilih` (0,2,0), aturan itu (0,3,0) akan
+ * menang dan warna huruf tetap biru aksen di atas latar biru aksen, sehingga
+ * angkanya tidak terlihat sama sekali. */
+.tanggal-kalender-sel.dipilih,
+.tanggal-kalender-sel:not(.tidak-bisa):not(.di-luar-bulan).dipilih {
+  background-color: var(--rs-accent);
+  border-color: var(--rs-accent);
+  color: var(--rs-white);
+}
+
+.tanggal-kalender-sel:not(.tidak-bisa):hover,
+.tanggal-kalender-sel:not(.tidak-bisa):focus-visible {
+  background-color: rgba(var(--rs-accent-rgb), 0.12);
+}
+
+.tanggal-kalender-sel.dipilih:hover {
+  background-color: var(--rs-accent);
+}
+
+.tanggal-kalender-keterangan {
+  margin: 0.55rem 0 0;
+  font-size: 0.7rem;
+  color: var(--rs-text-card-desc);
+}
+
+/* Konteks yang dibawa dari halaman asal ke formulir pendaftaran. */
+.form-konteks {
+  margin: 0 0 1.1rem;
+  padding: 0.7rem 0.9rem;
+  border-left: 3px solid var(--rs-accent);
+  background-color: rgba(var(--rs-accent-rgb), 0.06);
+  border-radius: 0 var(--rs-radius-btn) var(--rs-radius-btn) 0;
+  font-size: 0.9rem;
+  color: var(--rs-text-body);
+}
+
+/* Tinggi minimum untuk fallback Suspense di halaman daftar online.
+ *
+ * Tanpa ini, fallback satu baris (~20px) diganti form yang tingginya 793px,
+ * dan seluruh isi di bawahnya terdorong turun sekitar 728px. Pergeseran itu
+ * terukur CLS 0.1055 pada halaman ini, melewati ambang 0.1.
+ *
+ * Angkanya bukan dari tebakan: 793px (desktop) dan 1199px (mobile) adalah
+ * tinggi form yang terukur pada pemilihan awal, sebelum memilih dokter
+ * menambah kolom. Reservasi ini menutup pergeseran saat pemuatan pertama;
+ * pergeseran saat form bertambah sendiri belum diukur, dan menutupnya
+ * menuntut formnya sendiri yang berubah, bukan CSS ini. */
+.form-suspense {
+  min-height: 793px;
+}
+
+/* Angka mobile juga terukur: 1199px, bukan tebakan. */
+@media (max-width: 991.98px) {
+  .form-suspense {
+    min-height: 1199px;
+  }
+}
+
+/* Pemberitahuan paket MCU yang dipilih di halaman sebelumnya. */
+.form-alert {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin-bottom: 1.1rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--rs-accent);
+  border-radius: var(--rs-radius-btn);
+  background-color: rgba(var(--rs-accent-rgb), 0.08);
+}
+
+.form-alert span {
+  font-size: 0.88rem;
+  color: var(--rs-text-body);
+}
+
+/* Jabatan pimpinan dicetak kecil di bawah nama pada kartu manajemen. */
+.kartu-jabatan {
+  margin: 0 0 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--rs-accent);
+}
+
+/* Pilihan kelas perawatan pada formulir rawat inap.
+ *
+ * Radio disembunyikan dan diganti label, supaya yang diklik adalah kotak
+ * berinformasi: nama kelas, penjelasan singkat, dan biaya per malam.
+ * `<select>` tidak bisa memuat penjelasan itu.
+ */
+.kelas-pilih {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  height: 100%;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--rs-gray-300);
+  border-radius: var(--rs-radius-btn);
+  background-color: var(--rs-white);
+  cursor: pointer;
+}
+
+.kelas-pilih:hover {
+  border-color: var(--rs-accent);
+}
+
+.kelas-pilih:focus-within {
+  outline: 3px solid rgba(var(--rs-accent-rgb), 0.4);
+  outline-offset: 1px;
+}
+
+.kelas-pilih.dipilih {
+  border-color: var(--rs-accent);
+  background-color: rgba(var(--rs-accent-rgb), 0.07);
+}
+
+.kelas-pilih-nama {
+  font-weight: 600;
+  color: var(--rs-text-card-title);
+}
+
+.kelas-pilih-ket {
+  font-size: 0.82rem;
+  color: var(--rs-text-card-desc);
+  line-height: 1.5;
+}
+
+.kelas-pilih-biaya {
+  margin-top: auto;
+  padding-top: 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--rs-accent);
 }

@@ -1,0 +1,62 @@
+/*!
+ * Subset Bootstrap 5.3.3 untuk situs ini.
+ *
+ * Yang ini ada karena pengukuran, bukan karena perkiraan. `bootstrap.min.css`
+ * penuh berukuran 227 KB (30,4 KB gzip) dan seluruhnya render-blocking,
+ * padahal 14 modul komponennya tidak dipakai sama sekali di `src/`: tidak ada
+ * `data-bs-*` (JS Bootstrap tidak dipakai di mana pun), tidak ada modal,
+ * carousel, toast, tooltip, popover, accordion, alert, badge, offcanvas,
+ * maupun progress.
+ *
+ * Aturannya: modul yang dibuang adalah modul yang NOL token kelasnya muncul
+ * di `src/` (diukur dengan pemindaian literal `className="..."`, bukan
+ * tebakan). `tests/bootstrap-subset.test.ts` mengunci cakupan ini: setiap
+ * kelas Bootstrap yang dipakai harus ada sebagai selector di CSS hasil build,
+ * jadi modul yang dihapus diam-diam tidak bisa merusak halaman.
+ *
+ * Kalau butuh modul yang dibuang (mis. modal untuk dialog baru), tambahkan
+ * `@import`-nya di bawah sesuai urutan `bootstrap/scss/bootstrap.scss` asli,
+ * lalu jalankan build untuk memastikan ukurannya masih wajar.
+ */
+
+// Configuration — urutan sama seperti bootstrap.scss asli, tidak boleh diubah.
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/variables-dark";
+@import "bootstrap/scss/maps";
+@import "bootstrap/scss/mixins";
+@import "bootstrap/scss/utilities";
+
+// Layout & content yang dipakai.
+@import "bootstrap/scss/root";
+@import "bootstrap/scss/reboot";
+@import "bootstrap/scss/type";
+@import "bootstrap/scss/images";
+@import "bootstrap/scss/containers";
+@import "bootstrap/scss/grid";
+@import "bootstrap/scss/tables";
+
+// Formulir: dipakai (form-control, form-check, form-select, form-label,
+// invalid-feedback). Sub-modul yang dibuang karena NOL pemakaian:
+// input-group, form-range, floating-labels.
+@import "bootstrap/scss/forms/labels";
+@import "bootstrap/scss/forms/form-text";
+@import "bootstrap/scss/forms/form-control";
+@import "bootstrap/scss/forms/form-select";
+@import "bootstrap/scss/forms/form-check";
+@import "bootstrap/scss/forms/validation";
+
+// Komponen yang dipakai: buttons, breadcrumb, card, nav (+ tab-pane yang
+// didefinisikan di dalam _nav.scss dan dipakai FacilityTabs/ProfileTabs).
+// Yang dibuang karena NOL pemakaian: accordion, alert, badge, button-group,
+// carousel, close, dropdown, list-group, modal, navbar, offcanvas, pagination,
+// placeholders, popovers, progress, spinners, toasts, tooltip, transitions.
+@import "bootstrap/scss/buttons";
+@import "bootstrap/scss/breadcrumb";
+@import "bootstrap/scss/card";
+@import "bootstrap/scss/nav";
+
+// Helpers & utilities API (seluruh utilities dipertahankan — memangkasnya
+// satu per satu berisiko karena banyak dipakai dinamis via template literal).
+@import "bootstrap/scss/helpers";
+@import "bootstrap/scss/utilities/api";

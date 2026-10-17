@@ -1,6 +1,74 @@
 import type { NextConfig } from "next";
 
+/**
+ * Baris CSP dasar, tanpa kelonggaran khusus mode pengembangan.
+ *
+ * Dipisah dari objek konfigurasi supaya bisa diuji sebagai fungsi murni
+ * (`tests/header-keamanan.test.ts`): yang perlu dikunci adalah aturan
+ * "produksi tidak boleh punya `unsafe-eval`", dan itu hanya bisa diperiksa
+ * kalau kedua bentuknya bisa dipanggil.
+ */
+const BARIS_CSP = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https://images.unsplash.com https://picsum.photos https://fastly.picsum.photos",
+  "font-src 'self' data:",
+  "connect-src 'self'",
+  "form-action 'self'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "frame-ancestors 'none'",
+  "upgrade-insecure-requests",
+];
+
+/**
+ * CSP lengkap. `izinEval` hanya benar di luar mode produksi.
+ *
+ * React mode pengembangan memakai `eval()` untuk merekonstruksi callstack
+ * lintas lingkungan, dan tanpa izin itu setiap halaman dev memunculkan galat
+ * konsol: "eval() is not supported in this environment". Mode produksi tidak
+ * pernah memakai `eval()`, jadi izin itu tidak pernah diberikan di sana.
+ *
+ * Yang ditambahkan hanya pada baris `script-src`, dan hanya satu sumber:
+ * menambahkan `'unsafe-eval'` ke `default-src` akan memberi izin yang sama
+ * ke `img-src`, `connect-src`, dan sisanya, yang tidak ada yang membutuhkannya.
+ */
+export function cspHeader(izinEval: boolean): string {
+  const baris = izinEval
+    ? BARIS_CSP.map((d) => (d.startsWith("script-src") ? `${d} 'unsafe-eval'` : d))
+    : BARIS_CSP;
+
+  return baris.join("; ");
+}
+
 const nextConfig: NextConfig = {
+  /**
+   * Bungkam peringatan deprecation Sass.
+   *
+   * `src/styles/bootstrap-subset.scss` mengimpor source SCSS Bootstrap 5.3.3,
+   * dan source itu memakai sintaks Sass lama di mana-mana: fungsi global
+   * (`unit()`, `red()`, `mix()`), sintaks `if()`, dan aturan `@import` itu
+   * sendiri. Semuanya deprecated di Dart Sass modern dan setiap kompilasi
+   * (dev maupun build) membanjiri terminal dengan 259+ peringatan yang sama.
+   *
+   * Tidak ada yang bisa diperbaiki dari sisi repo ini: source Bootstrap ada di
+   * `node_modules` (jangan disentuh), dan Bootstrap 5.3.3 belum mendukung
+   * `@use` sehingga `@import` tetap wajib dipakai. Satu-satunya yang benar
+   * adalah membungkam kategorinya di sini:
+   *
+   * - `quietDeps: true` — peringatan dari dalam `node_modules` (semua kecuali
+   *   milik sendiri) tidak ditampilkan sama sekali.
+   * - `silenceDeprecations` — empat kategori di atas tidak ditampilkan, baik
+   *   dari dependensi maupun dari berkas sendiri.
+   *
+   * Peringatan deprecation dari kode SCSS milik sendiri (kalau suatu hari ada)
+   * tetap tampil, karena kategorinya di luar empat ini.
+   */
+  sassOptions: {
+    quietDeps: true,
+    silenceDeprecations: ["import", "global-builtin", "color-functions", "if-function"],
+  },
   images: {
     // Foto dummy diambil dari Unsplash (lisensi gratis untuk penggunaan).
     // Daftar ID sudah diverifikasi aktif (HTTP 200) pada 2 Oktober 2026.
@@ -33,6 +101,138 @@ const nextConfig: NextConfig = {
    */
   outputFileTracingIncludes: {
     "/api/v1/**": ["./snapshot/**/*"],
+  },
+
+  /**
+   * Header keamanan untuk semua respons.
+   *
+   * Semuanya ditulis sebagai konfigurasi statis, bukan lewat `middleware`,
+   * karena CSP berbasis nonce tidak bisa diterapkan di sini tanpa merusak
+   * prerender. Penjelasan lengkap ada di `docs/AUDIT-KEAMANAN.md`; yang penting
+   * sekarang adalah tidak ada header yang tidak sengaja membiarkan perilaku
+   * perilaku bawaan yang tidak diinginkan.
+   *
+   * `source: "/:path*"` menutup semua respons termasuk halaman 404, yang
+   *biaanya justru yang paling sering terlewat.
+   */
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          /**
+           * Content Security Policy.
+           *
+           * Disusun dari pengukuran, bukan dari tebakan:
+           *
+           * - Tidak ada `<iframe>`, jadi `frame-src` dibiarkan fallback ke
+           *   `default-src` ('self').
+           * - Tidak ada `form action` ke host lain, jadi `form-action 'self'`
+           *   aman dan memblokir pharming lewat form.
+           * - Semua `fetch` dari klien hanya ke `/api/v1` pada origin yang
+           *   sama, jadi `connect-src 'self'` cukup.
+           * - Foto datang dari `images.unsplash.com` dan `picsum.photos`, jadi
+           *   hanya dua host itu yang diizinkan di `img-src`.
+           *   `fastly.picsum.photos` ikut dicantumkan karena `picsum.photos`
+           *   menjawab 302 ke host itu. Aturan `img-src` memeriksa setiap host
+           *   yang diminta, bukan hanya yang pertama, jadi tanpa baris ini
+           *   gambar picsum diblokir tepat setelah redirect — terlihat sebagai
+           *   gambar gagal dimuat walau URL asalnya sendiri diizinkan.
+           *   Diukur 10 Oktober 2026: 32 gambar beranda memakai picsum.
+           * - Font Poppins datang dari `next/font/google`, yang mengunduhnya
+           *   saat build lalu disajikan dari origin sendiri. Tidak ada
+           *   permintaan ke `fonts.googleapis.com` saat runtime.
+           *
+           * Dua kelonggaran yang tersisa itu disengaja dan masih diukur:
+           *
+           * - `script-src` butuh `'unsafe-inline'` karena App Router menyisipkan
+           *   payload RSC lewat `<script>` sebaris, dan `style-src` butuh
+           *   `'unsafe-inline'` karena Swiper dan enam komponen menulis
+           *   `style={{...}}`. Menghapus keduanya butuh nonce, dan nonce hanya
+           *   bisa diterbitkan di middleware, yang membuat seluruh 163 halaman
+           *   berubah dari statis menjadi dinamis. Itu harga yang jauh lebih
+           *   mahal daripada manfaat yang didapat, jadi dicatat sebagai sisa
+           *   yang belum ditutup, bukan disamarkan.
+           * - `'unsafe-eval'` tidak pernah diberikan di mode produksi. Mode
+           *   pengembangan memberikannya, karena React dev memakai `eval()`
+           *   untuk merekonstruksi callstack; lihat `cspHeader` di atas.
+           */
+          {
+            key: "Content-Security-Policy",
+            // `NODE_ENV` dibaca sekali saat berkas ini dimuat, bukan per
+            // permintaan: nilainya tidak berubah selama proses hidup.
+            value: cspHeader(process.env.NODE_ENV !== "production"),
+          },
+          /**
+           * HSTS.
+           *
+           * Dipakai browser hanya kalau respons datang lewat HTTPS, jadi
+           * efeknya tidak merusak pengembangan lokal yang masih http.
+           * `upgrade-insecure-requests` di atas juga aman untuk dev lokal:
+           * diukur dengan Chromium headless, gambar seasal lewat
+           * http://localhost dan http://127.0.0.1 tetap dimuat walau header
+           * ini terkirim.
+           */
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=31536000; includeSubDomains",
+          },
+          /**
+           * Cegah browser menebak-nebak tipe isi berkas.
+           *
+           * Tanpa ini, berkas JSON atau teks bisa dibaca peramban sebagai HTML
+           * dan skrip di dalamnya ikut dijalankan.
+           */
+          {
+            key: "X-Content-Type-Options",
+            value: "nosniff",
+          },
+          /**
+           * Jangan kirim URL lengkap ke pihak ketiga.
+           *
+           * `strict-origin-when-cross-origin` masih mengirim asalnya untuk
+           * permintaan navigasi ke host yang sama, jadi Analytics internal tidak
+           * kehilangan informasi, tapi path seperti `/admin/...` tidak ikut
+           * bocor ke host lain lewat header Referer.
+           */
+          {
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
+          },
+          /**
+           * Matikan kapabilitas peramban yang tidak dipakai situs ini.
+           *
+           * Daftar diambil dari fitur yang benar-benar ada: tidak ada
+           * pembayaran dalam situs, tidak ada kamera, tidak ada geolokasi,
+           * tidak ada mikrofon. Menonaktifkannya di respons membuat browser
+           * menolaknya lebih awal, dan tidak bisa diaktifkan ulang per situs.
+           */
+          {
+            key: "Permissions-Policy",
+            value: [
+              "accelerometer=()",
+              "camera=()",
+              "geolocation=()",
+              "gyroscope=()",
+              "microphone=()",
+              "payment=()",
+              "usb=()",
+            ].join(", "),
+          },
+          /**
+           * Versi lama dari `frame-ancestors`.
+           *
+           * Dipertahankan karena `X-Frame-Options` masih dibaca peramban yang
+           * tidak mendukung CSP sama sekali. Keduanya menunjuk aturan yang sama,
+           * jadi tidak ada perilaku yang bertentangan.
+           */
+          {
+            key: "X-Frame-Options",
+            value: "DENY",
+          },
+        ],
+      },
+    ];
   },
 
   /**

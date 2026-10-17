@@ -16,6 +16,16 @@ import { isTicketShapeValid } from "../ticket";
 export const STATUSES_PENDAFTARAN = ["pending", "confirmed", "cancelled", "no_show"] as const;
 
 /**
+ * Status permintaan inap, sesuai enum `admission_status`.
+ *
+ * Tidak memakai `STATUSES_PENDAFTARAN` karena `no_show` tidak ada artinya di
+ * sini: tidak ada nomor antrean per dokter yang tidak datang, dan status itu
+ * hanya muncul pada slot Per Doctors. Percuma ada hanya menambah satu opsi
+ * yang tidak pernah dipakai.
+ */
+export const STATUSES_INAP = ["pending", "confirmed", "cancelled"] as const;
+
+/**
  * Status pengajuan, sesuai enum `submission_status`.
  *
  * Status `new` berarti pengajuan sudah masuk tapi belum ditindaklanjuti, jadi
@@ -32,6 +42,14 @@ export type InboxKind = {
   readonly slug: string;
   /** Nama tabel SQL. */
   readonly table: string;
+  /**
+   * Ikon Bootstrap Icons untuk sidebar, misalnya `bi-calendar2-check`.
+   *
+   * Ditulis utuh sebagai literal karena `scripts/subset-ikon.ts` mencari
+   * pola `bi-*` di sumber; ikon yang dirangkai dari nama tabel tidak akan
+   * masuk ke font subset dan tidak akan tampil di peramban.
+   */
+  readonly icon: string;
   readonly searchColumns: readonly string[];
   /** Apakah tabelnya punya kolom `status`. */
   readonly hasStatus: boolean;
@@ -42,13 +60,31 @@ const KINDS = {
   appointments: {
     slug: "appointments",
     table: "appointments",
+    icon: "bi-calendar2-check",
     searchColumns: ["patient_name", "ticket_code", "phone", "complaint"],
     hasStatus: true,
     statuses: STATUSES_PENDAFTARAN,
   },
+  admissions: {
+    slug: "admissions",
+    table: "admissions",
+    icon: "bi-person-plus",
+    // `referral_source` ikut dicari: petugas sering mencari "IGD" atau nama
+    // poliklinik untuk melihat permintaan yang datang dari sana.
+    searchColumns: [
+      "patient_name",
+      "ticket_code",
+      "phone",
+      "referral_source",
+      "complaint",
+    ],
+    hasStatus: true,
+    statuses: STATUSES_INAP,
+  },
   "mcu-registrations": {
     slug: "mcu-registrations",
     table: "mcu_registrations",
+    icon: "bi-clipboard2-pulse",
     searchColumns: ["name", "ticket_code", "phone", "company_name"],
     hasStatus: true,
     statuses: STATUSES_PENGAJUAN,
@@ -56,6 +92,7 @@ const KINDS = {
   feedbacks: {
     slug: "feedbacks",
     table: "feedbacks",
+    icon: "bi-chat-square-text",
     searchColumns: ["name", "subject", "message", "ticket_code"],
     hasStatus: true,
     statuses: STATUSES_PENGAJUAN,
@@ -63,6 +100,7 @@ const KINDS = {
   "wbs-reports": {
     slug: "wbs-reports",
     table: "wbs_reports",
+    icon: "bi-shield-exclamation",
     searchColumns: ["subject", "description", "ticket_code", "involved_unit"],
     hasStatus: true,
     statuses: STATUSES_PENGAJUAN,
@@ -70,6 +108,7 @@ const KINDS = {
   "survey-responses": {
     slug: "survey-responses",
     table: "survey_responses",
+    icon: "bi-clipboard-data",
     searchColumns: ["respondent_name", "ticket_code", "service_unit", "comment"],
     hasStatus: false,
     statuses: [],
@@ -168,6 +207,84 @@ export async function listInbox(
     status: kind.hasStatus ? (options.status ?? null) : null,
     search: needle === "" ? null : needle,
   };
+}
+
+/**
+ * Batas aksi massal.
+ *
+ * Bukan batas teknis, tapi batas kecelakaan: satu klik yang tanpa sengaja
+ * menerapkan ratusan baris lebih mudah terjadi daripada orang memang memilih
+ * seratus tiket satu per satu. Satu halaman panel memuat 25 baris, jadi batas
+ * ini masih memberi ruang untuk menyaring beberapa kali sebelum menolak.
+ */
+export const BATAS_AKSI_MASSAL = 100;
+
+/**
+ * Periksa aksi massal sebelum menyentuh database.
+ *
+ * Dipisah dari `updateStatusBanyak` supaya aturannya bisa diuji tanpa database,
+ * mengikuti pola `hakAksesDiriSendiri` di `accounts.ts`.
+ */
+export function periksaAksiMassal(
+  kind: InboxKind,
+  ids: readonly string[],
+  status: string,
+): { ids: string[]; status: string } {
+  // Survei diperiksa lebih dulu supaya pesannya tetap menjelaskan bahwa jenis
+  // ini memang tidak punya status, bukan sekadar "tidak dikenal".
+  if (!kind.hasStatus) {
+    throw ApiError.badRequest(
+      "Survei tidak punya status. Gunakan kolom komentar bila perlu mencatat tindak lanjut.",
+    );
+  }
+
+  if (ids.length === 0) {
+    throw ApiError.badRequest("Belum ada baris yang dipilih.");
+  }
+
+  if (ids.length > BATAS_AKSI_MASSAL) {
+    throw ApiError.badRequest(
+      `Pilihan maksimal ${BATAS_AKSI_MASSAL} baris sekaligus, bukan ${ids.length}.`,
+    );
+  }
+
+  if (!kind.statuses.includes(status as never)) {
+    throw ApiError.badRequest("Status tidak dikenal.");
+  }
+
+  // Duplikat dibuang: panel menyimpan pilihan sebagai daftar id, dan satu id
+  // yang sama dua kali tidak boleh membuat `updated` melaporkan angka yang
+  // lebih besar dari baris yang benar-benar berubah.
+  const unik = [...new Set(ids)];
+  return { ids: unik, status };
+}
+
+/**
+ * Ubah status banyak baris sekaligus.
+ *
+ * Satu query dengan `= ANY(...)`, bukan satu query per baris: sepuluh tiket
+ * tidak boleh berarti sepuluh perjalanan ke database.
+ *
+ * `admin_note` sengaja tidak disentuh. Catatan tindak lanjut itu per baris, dan
+ * menempelkan catatan yang sama ke sepuluh baris sekaligus akan menyesatkan
+ * orang yang membacanya kemudian.
+ */
+export async function updateStatusBanyak(
+  db: Db,
+  kind: InboxKind,
+  ids: readonly string[],
+  status: string,
+): Promise<{ updated: number }> {
+  const { ids: dipilih } = periksaAksiMassal(kind, ids, status);
+
+  const rows = await db.execute(sql`
+    UPDATE ${sql.raw(`"${kind.table}"`)}
+       SET status = ${status}
+     WHERE id = ANY(${dipilih}::uuid[])
+    RETURNING id
+  `);
+
+  return { updated: rows.length };
 }
 
 /** Ubah status satu baris dan simpan catatan admin. */

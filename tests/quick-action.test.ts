@@ -125,6 +125,53 @@ describe("bentuk markup bilah aksi cepat", () => {
   });
 });
 
+describe("menu aksi cepat yang bisa dibuka-tutup", () => {
+  it("tombol plus mengendalikan menu lewat aria", () => {
+    // Tanpa `aria-expanded` + `aria-controls`, pembaca layar tidak tahu tombol
+    // ini membuka menu dan menu mana yang dibukanya.
+    expect(sumberQuickActionBar).toContain("aria-expanded={terbuka}");
+    expect(sumberQuickActionBar).toContain('aria-controls="menu-aksi-cepat"');
+    expect(sumberQuickActionBar).toContain('id="menu-aksi-cepat"');
+  });
+
+  it("Escape menutup menu dan listener-nya dilepas lagi", () => {
+    // Pola yang sama dengan panel navigasi: tanpa dilepas, setiap kali menu
+    // dibuka akan menambah satu listener dan Escape memicu setState berulang.
+    expect(sumberQuickActionBar).toContain('e.key !== "Escape"');
+    expect(sumberQuickActionBar).toContain('document.addEventListener("keydown", tutup)');
+    expect(sumberQuickActionBar).toContain('document.removeEventListener("keydown", tutup)');
+  });
+
+  it("memilih butir menu menutup menu", () => {
+    // Pindah halaman (atau tab baru untuk WhatsApp) sambil menu tetap terbuka
+    // membuat menu melayang di atas konten baru yang tidak berkaitan.
+    expect(sumberQuickActionBar).toMatch(/onClick=\{pilih\}/);
+  });
+
+  it("menu tersembunyi lewat display, bukan sekadar transparan", () => {
+    // `opacity: 0` saja tidak cukup: elemen yang hanya transparan masih bisa
+    // difokuskan, jadi Tab masuk ke menu yang tidak terlihat. Yang benar
+    // `display` tidak dirender saat tertutup — di sini lewat tidak adanya
+    // kelas `.quick-action-terbuka` pada `<ul>`.
+    expect(sumberQuickActionBar).toContain("quick-action-terbuka");
+    const css = readFileSync(path.join(AKAR, "src/styles/tokens.css"), "utf8");
+    const blok = css.slice(
+      css.indexOf(".quick-action-list {"),
+      css.indexOf("}", css.indexOf(".quick-action-list {")),
+    );
+    expect(blok).toMatch(/visibility:\s*hidden/);
+    expect(blok).toMatch(/opacity:\s*0/);
+  });
+
+  it("bilah tampil di semua lebar, tidak disembunyikan di layar kecil", () => {
+    // Aturan lama menyembunyikan seluruh bilah di bawah 768px. Sekarang yang
+    // melayang hanya satu tombol 44px saat menu tertutup, dan justru di layar
+    // kecil tombol ini paling berguna karena CTA header disembunyikan.
+    const css = readFileSync(path.join(AKAR, "src/styles/tokens.css"), "utf8");
+    expect(css).not.toMatch(/@media \(max-width: 767\.98px\) \{\s*\.quick-action \{/);
+  });
+});
+
 describe("tombol kembali ke atas", () => {
   it("hilang dari urutan Tab saat tidak ditampilkan", () => {
     // `opacity: 0` saja tidak cukup: elemen yang hanya transparan masih bisa

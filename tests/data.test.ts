@@ -91,13 +91,13 @@ describe("dokter per spesialisasi", () => {
     expect(asing).toEqual([]);
   });
 
-  it("mendeteksi bakal masalah: banyak spesialisasi tanpa daftar dokter", () => {
-    // Bukan kegagalan, tapi penanda yang harus diketahui. DoctorSearchCard
-    // sudah menampilkan "Data dokter belum tersedia" untuk kasus ini; kalau
-    // suatu saat daftar dokternya dilengkapi, angka ini akan turun dan
-    // pengingat ini bisa dihapus.
+  it("semua spesialisasi punya daftar dokter", () => {
+    // Dulu tes ini mendeteksi spesialisasi tanpa dokter sebagai penanda.
+    // Sejak data dilengkapi, tidak boleh ada satu pun yang kosong: widget
+    // "Cari Jadwal Dokter" menampilkan "Data dokter belum tersedia" untuk
+    // kasus itu, dan pengunjung mengira situsnya rusak.
     const tanpa = SPECIALTIES.filter((s) => !DOCTORS_BY_SPECIALTY[s]);
-    expect(tanpa.length).toBeGreaterThan(0);
+    expect(tanpa).toEqual([]);
   });
 
   it("tidak memuat nama dokter yang tidak ada di DOCTORS", () => {

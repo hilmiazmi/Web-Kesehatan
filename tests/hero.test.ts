@@ -94,13 +94,23 @@ describe("ruang untuk titik paginasi", () => {
     );
   });
 
-  it("ukuran bulat tetap 11px seperti di situs acuan", () => {
-    expect(
-      deklarasi(/\.swiper-pagination-bullet\s*\{[^}]*\}/, "height"),
-    ).toBe(11);
-    expect(
-      deklarasi(/\.swiper-pagination-bullet\s*\{[^}]*\}/, "width"),
-    ).toBe(11);
+  it("titik yang terlihat tetap 11px seperti di situs acuan", () => {
+    // Kotak elemennya 24px karena itu area sentuhnya (WCAG 2.5.8), tapi yang
+    // digambar adalah ::after dengan inset 6.5px, jadi titik yang terlihat
+    // tetap 24 - 2*6.5 = 11px seperti hasil pengukuran situs acuan.
+    const kotak = deklarasi(/\.swiper-pagination-bullet\s*\{[^}]*\}/, "width");
+    expect(kotak).toBe(24);
+    expect(deklarasi(/\.swiper-pagination-bullet\s*\{[^}]*\}/, "height")).toBe(24);
+
+    const setelah = HOME.match(
+      /\.swiper-pagination-bullet::after\s*\{([^}]*)\}/,
+    );
+    expect(setelah).not.toBeNull();
+    const inset = Number.parseFloat(
+      (setelah as RegExpMatchArray)[1].match(/inset:\s*([\d.]+)px/)?.[1] ?? "0",
+    );
+    expect(inset).toBe(6.5);
+    expect(kotak - inset * 2).toBe(11);
   });
 
   it("padding bawah caption menutupi zona paginasi", () => {

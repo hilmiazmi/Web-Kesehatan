@@ -67,7 +67,7 @@ export default function LoginForm() {
 
       <div className="mb-3">
         <label className="form-label" htmlFor="email">
-          Surel
+          Email
         </label>
         <input
           id="email"
@@ -83,7 +83,7 @@ export default function LoginForm() {
 
       <div className="mb-3">
         <label className="form-label" htmlFor="password">
-          Kata sandi
+          Password
         </label>
         <input
           id="password"

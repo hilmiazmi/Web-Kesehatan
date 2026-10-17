@@ -10,7 +10,7 @@ export const DIKLAT_DETAIL: Record<string, IsiHalaman> = {
       {
         jenis: "paragraf",
         teks:
-          "Rumah sakit ini menerima mahasiswa praktik dan koas dari perguruan tinggi yang bekerja sama dengannya.",
+          "Rumah sakit ini menerima mahasiswa praktik dan koas dari perguruan tinggi yang bekerja sama dengannya. Selama praktik, mahasiswa berada di bawah pengawasan dokter penanggung jawab dan tidak menangani pasien sendirian.",
       },
       {
         jenis: "daftar",
@@ -20,6 +20,7 @@ export const DIKLAT_DETAIL: Record<string, IsiHalaman> = {
           "Praktik klinik kedokteran untuk mahasiswa kedokteran.",
           "Praktik kebidanan dan keperawatan.",
           "Penempatan koas di bawah supervision dokter.",
+          "Magang administrasi rumah sakit untuk mahasiswa kesehatan masyarakat.",
         ],
       },
       { jenis: "sub", teks: "Syarat sebelum mulai praktik" },
@@ -49,7 +50,7 @@ export const DIKLAT_DETAIL: Record<string, IsiHalaman> = {
       {
         jenis: "paragraf",
         teks:
-          "Penelitian yang memakai data pasien memerlukan izin tertulis lebih dulu.",
+          "Penelitian yang memakai data pasien memerlukan izin tertulis lebih dulu. Data yang diberikan selalu tanpa identitas pasien.",
       },
       {
         jenis: "langkah",
@@ -59,6 +60,16 @@ export const DIKLAT_DETAIL: Record<string, IsiHalaman> = {
           "Menunggu persetujuan dari komite.",
           "Menjalankan penelitian sesuai jadwal yang disetujui.",
           "Mengirim laporan hasil penelitian ke rumah sakit.",
+        ],
+      },
+      { jenis: "sub", teks: "Hal yang perlu disiapkan" },
+      {
+        jenis: "daftar",
+        ikon: "bi-file-earmark-text",
+        butir: [
+          "Proposal penelitian yang memuat tujuan dan metode.",
+          "Surat persetujuan etik dari institusi pengusul.",
+          "Jadwal pengambilan data yang tidak mengganggu pelayanan.",
         ],
       },
     ],
@@ -71,7 +82,7 @@ export const DIKLAT_DETAIL: Record<string, IsiHalaman> = {
       {
         jenis: "paragraf",
         teks:
-          "Kaji banding dilakukan untuk belajar langsung dari praktik yang sudah berjalan di tempat lain.",
+          "Kaji banding dilakukan untuk belajar langsung dari praktik yang sudah berjalan di tempat lain. Rombongan yang datang maupun yang berangkat selalu didampingi bagian yang membidangi.",
       },
       {
         jenis: "daftar",
@@ -80,6 +91,15 @@ export const DIKLAT_DETAIL: Record<string, IsiHalaman> = {
         butir: [
           "Kunjungan belajar ke rumah sakit lain.",
           "Penerimaan tamu belajar dari instansi lain.",
+        ],
+      },
+      { jenis: "sub", teks: "Mengajukan kunjungan" },
+      {
+        jenis: "langkah",
+        butir: [
+          "Mengirim surat permohonan berisi tujuan dan jumlah rombongan.",
+          "Menyepakati jadwal dan unit yang akan dikunjungi.",
+          "Melaksanakan kunjungan sesuai jadwal yang disepakati.",
         ],
       },
     ],

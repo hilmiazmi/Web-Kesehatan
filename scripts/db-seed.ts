@@ -22,7 +22,7 @@ import { closeDb, dbOrNull, type Db } from "@/server/db/client";
 import * as schema from "@/server/db/schema";
 import { hashPassword } from "@/server/auth/password";
 import { Errors, email as validateEmail } from "@/server/validation";
-import { TABEL_SEED, VERSI_SEED, keSLeiaWaktu, namaSql, type IsiSeed } from "./seed-data";
+import { TABEL_SEED, VERSI_SEED, kembalikanWaktu, namaSql, type IsiSeed } from "./seed-data";
 
 const BERKAS = "scripts/seed-data.json";
 
@@ -53,7 +53,7 @@ async function isiTabel(db: Db, nama: string, baris: Baris[]): Promise<void> {
   for (let mulai = 0; mulai < baris.length; mulai += BATCH) {
     const potongan = baris
       .slice(mulai, mulai + BATCH)
-      .map((satu) => keSLeiaWaktu(tabel, satu));
+      .map((satu) => kembalikanWaktu(tabel, satu));
 
     await db.insert(tabel).values(potongan as never[]).onConflictDoNothing();
   }

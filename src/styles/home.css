@@ -28,15 +28,29 @@
   overflow: hidden;
 }
 
-/* Overlay gelap supaya teks tetap terbaca di atas foto apa pun. */
+/* Overlay gelap supaya teks tetap terbaca di atas foto apa pun.
+ *
+ * Nilainya hasil kalibrasi, bukan kira-kira. Luminance sembilan foto hero
+ * diukur langsung dari piksel: rata-rata terburuk cukup tinggi dan ada piksel
+ * mendekati putih. Teks hero putih, dan `text-shadow` 0.28 tidak dihitung
+ * sebagai kontras oleh WCAG.
+ *
+ * Keputusan: alfa 0.55 di bidang 25% sampai 75% tinggi, memudar ke 0.30 di
+ * tepi. Karena luminance memakai pangkat 2.4 per kanal, menggelapkan piksel
+ * berskala eksponensial, bukan linear — alfa 0.45 sudah cukup untuk rasio
+ * 4.5:1 pada rata-rata, dan 0.55 memberi margin tanpa membuat foto lenyap.
+ * Tepi sengaja dibiarkan terang supaya foto tetap terlihat di atas dan bawah.
+ */
 .slide-slider::after {
   content: "";
   position: absolute;
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(0, 0, 0, 0.35) 0%,
-    rgba(0, 0, 0, 0.55) 100%
+    rgba(0, 0, 0, 0.3) 0%,
+    rgba(0, 0, 0, 0.55) 25%,
+    rgba(0, 0, 0, 0.55) 75%,
+    rgba(0, 0, 0, 0.3) 100%
   );
 }
 
@@ -46,7 +60,9 @@
 
 .slide-overlay {
   position: relative;
-  z-index: 1;
+  /* Di atas .slide-slider::after (z-index 1). Kalau sama, ::after dilukis
+     setelah anak dan scrim menutupi teks — jadi teksnya hilang, bukan foto. */
+  z-index: 2;
   text-align: center;
   color: var(--rs-white);
   padding: 2rem;
@@ -156,8 +172,25 @@
 }
 
 .swiperslider .swiper-pagination-bullet {
-  width: 11px;
-  height: 11px;
+  /*
+   * Kotak sentuhnya 24px (batas minimum yang disarankan WCAG 2.5.8) sementara
+   * titik yang terlihat tetap 11px seperti hasil pengukuran situs acuan.
+   * Titiknya digambar ulang lewat ::after supaya memperbesar area sentuh
+   * tidak mengubah apa yang dilihat orang.
+   */
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border-radius: 50%;
+  position: relative;
+}
+
+.swiperslider .swiper-pagination-bullet::after {
+  content: "";
+  position: absolute;
+  /* (24 - 11) / 2 = 6.5px, sehingga titik tetap tepat di tengah. */
+  inset: 6.5px;
+  border-radius: 50%;
   background: var(--rs-white);
   opacity: 0.55;
   position: relative;
@@ -174,6 +207,11 @@
 }
 
 .swiperslider .swiper-pagination-bullet-active {
+  opacity: 1;
+  background: transparent;
+}
+
+.swiperslider .swiper-pagination-bullet-active::after {
   opacity: 1;
   background: var(--rs-white);
 }
@@ -240,10 +278,16 @@
   background-color: rgba(42, 37, 54, 0.75);
 }
 
-.slide-container .swiper-button-next::after,
-.slide-container .swiper-button-prev::after {
-  font-size: 18px;
-  font-weight: 700;
+/* Swiper 12 menyuntik ikon navigasi sebagai `<svg>` sebaris, bukan lagi
+   lewat font `swiper-icons` di `::after`. Aturan lama yang menata `::after`
+   akan merender panah kedua di samping SVG baru, jadi diganti dengan penataan
+   langsung pada `svg`. Ukurannya disamakan dengan `font-size: 18px` yang lama
+   supaya tampilannya tidak berubah. */
+.slide-container .swiper-button-next svg,
+.slide-container .swiper-button-prev svg {
+  width: 18px;
+  height: 18px;
+  fill: var(--rs-white);
 }
 
 .slide-container .swiper-pagination {
@@ -251,10 +295,14 @@
 }
 
 .slide-container .swiper-pagination-bullet {
-  width: 8px;
-  height: 8px;
-  background-color: #4070f4;
-  opacity: 0.4;
+  /*
+   * Sama seperti bullet hero: area sentuh 24px, titik terlihat tetap 8px
+   * seperti hasil pengukuran. Diperbesar tanpa mengubah tampilan.
+   */
+  width: 24px;
+  height: 24px;
+  background-color: transparent;
+  position: relative;
   transition: opacity 0.2s ease;
   position: relative;
 }
@@ -269,7 +317,21 @@
   min-height: 24px;
 }
 
+.slide-container .swiper-pagination-bullet::after {
+  content: "";
+  position: absolute;
+  /* (24 - 8) / 2 = 8px, sehingga titik tetap tepat di tengah. */
+  inset: 8px;
+  border-radius: 50%;
+  background-color: #4070f4;
+  opacity: 0.4;
+}
+
 .slide-container .swiper-pagination-bullet-active {
+  opacity: 1;
+}
+
+.slide-container .swiper-pagination-bullet-active::after {
   opacity: 1;
 }
 

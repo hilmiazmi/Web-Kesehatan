@@ -29,6 +29,34 @@
       "when": 1791101075807,
       "tag": "0003_anti_ganda",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791398493845,
+      "tag": "0004_slimy_vector",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791461528737,
+      "tag": "0005_slug_paket_mcu",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791470000001,
+      "tag": "0007_perbaiki_teks_rusak",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791470001001,
+      "tag": "0006_audit_admin",
+      "breakpoints": true
     }
   ]
 }

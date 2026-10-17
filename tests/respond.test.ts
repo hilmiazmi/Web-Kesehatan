@@ -182,6 +182,15 @@ describe("kolomUnique", () => {
     expect(kolomUnique({ code: "23505", constraint: "services_nama_idx" })).toBe("nama");
   });
 
+  it("menangkap nama kolom multi-kata secara utuh", () => {
+    // Regresi: pola lama `([^_]+)` hanya menangkap satu segmen sehingga
+    // `appointments_phone_schedule_unique` dilaporkan sebagai `schedule`,
+    // yaitu field yang tidak ada di formulir mana pun.
+    expect(
+      kolomUnique({ code: "23505", constraint: "appointments_phone_schedule_unique" }),
+    ).toBe("phone_schedule");
+  });
+
   it("mengembalikan null untuk galat yang bukan pelanggaran unique", () => {
     expect(kolomUnique({ code: "23503", constraint: "x_y_key" })).toBeNull();
     expect(kolomUnique({ code: "23505" })).toBeNull();

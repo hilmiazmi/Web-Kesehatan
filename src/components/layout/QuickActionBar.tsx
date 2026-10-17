@@ -1,29 +1,57 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import { QUICK_ACTIONS } from "@/data/quick-action";
 
 /**
- * Bilah aksi cepat, menempel di sisi bawah layar.
+ * Bilah aksi cepat: satu tombol plus yang membuka menu, bukan tiga tombol
+ * yang selalu tampil.
  *
- * PRD bagian 8.4 menyebut `QuickActionBar`. Isinya tidak ada di situs acuan,
- * jadi diambil dari komponen yang sudah ada dan bukan dikarang: dua tombol
- * dari `HEADER_CTAS`, ditambah WhatsApp dari `CONTACT`.
+ * Bentuk ini mengikuti situs acuan (`#toggle-btn` + `#toggle-menu`): tombol
+ * bundar 40px di kanan bawah yang mengembang menjadi menu saat diketuk.
+ * Tiga tombol yang selalu tampil menutupi isi halaman di layar kecil dan
+ * terlihat berantakan di tangkapan layar; menu yang tertutup hanya
+ * menempati satu tombol.
  *
- * Isinya ditulis sebagai data di `src/data/quick-action.ts` supaya bisa diuji
- * tanpa merender, dan supaya komponen ini tidak memuat daftar tautannya
- * sendiri. Kalau `HEADER_CTAS` berubah, isi bilah ini ikut berubah tanpa
- * perlu menyentuh berkas ini.
+ * Isinya tetap diambil dari `src/data/quick-action.ts` (dua CTA header +
+ * WhatsApp), bukan dikarang di sini. Tautan internal memakai `Link` dari
+ * Next.js, tautan luar memakai `rel="noopener noreferrer"`.
  *
- * Tautan WhatsApp memakai `rel="noopener noreferrer"` karena membuka tab baru
- * ke luar situs. Tautan internal memakai `Link` dari Next.js supaya navigasi
- * tetap di sisi peramban.
- *
- * Sengaja disembunyikan di layar kecil. Di bawah lebar 768px ruang vertikal
- * sempit, dan tombol `Daftar Online` sudah ada menapak di header.
+ * Menu yang tertutup disembunyikan dengan `display: none` lewat kelas (bukan
+ * `visibility`), sehingga tautannya hilang dari urutan Tab sekaligus dari
+ * tampilan. Escape menutup menu dan mengembalikan fokus ke tombol, mengikuti
+ * pola yang sama dengan panel navigasi di `Navbar`.
  */
 export default function QuickActionBar() {
+  const [terbuka, setTerbuka] = useState(false);
+  const tombolRef = useRef<HTMLButtonElement>(null);
+
+  // Escape menutup menu. Listener dipasang-hapus lewat effect karena menyentuh
+  // `document` yang tidak ada saat server merender; `setTerbuka` di dalam
+  // callback bukan di badan effect, jadi tidak melanggar
+  // `react-hooks/set-state-in-effect` (pola yang sama dipakai `Navbar`).
+  useEffect(() => {
+    if (!terbuka) return;
+    const tutup = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      setTerbuka(false);
+      tombolRef.current?.focus();
+    };
+    document.addEventListener("keydown", tutup);
+    return () => document.removeEventListener("keydown", tutup);
+  }, [terbuka]);
+
+  // Memilih butir menu berarti pindah halaman (atau tab baru untuk WhatsApp),
+  // jadi menu tidak perlu tetap terbuka di atas konten baru.
+  const pilih = (): void => setTerbuka(false);
+
   return (
     <nav className="quick-action" aria-label="Aksi cepat">
-      <ul className="quick-action-list">
+      <ul
+        id="menu-aksi-cepat"
+        className={`quick-action-list${terbuka ? " quick-action-terbuka" : ""}`}
+      >
         {QUICK_ACTIONS.map((aksi) => (
           <li key={aksi.href}>
             {aksi.external ? (
@@ -32,6 +60,7 @@ export default function QuickActionBar() {
                 className="quick-action-item quick-action-wa"
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={pilih}
               >
                 <i className={`bi ${aksi.icon}`} aria-hidden="true" />
                 <span>{aksi.label}</span>
@@ -40,6 +69,7 @@ export default function QuickActionBar() {
               <Link
                 href={aksi.href}
                 className={`quick-action-item ${aksi.className ?? "btn-primary"}`}
+                onClick={pilih}
               >
                 <i className={`bi ${aksi.icon}`} aria-hidden="true" />
                 <span>{aksi.label}</span>
@@ -48,6 +78,21 @@ export default function QuickActionBar() {
           </li>
         ))}
       </ul>
+
+      <button
+        ref={tombolRef}
+        type="button"
+        className="quick-action-fab"
+        aria-expanded={terbuka}
+        aria-controls="menu-aksi-cepat"
+        aria-label={terbuka ? "Tutup menu aksi cepat" : "Buka menu aksi cepat"}
+        onClick={() => setTerbuka((v) => !v)}
+      >
+        <i
+          className={`bi ${terbuka ? "bi-x-lg" : "bi-plus-lg"}`}
+          aria-hidden="true"
+        />
+      </button>
     </nav>
   );
 }

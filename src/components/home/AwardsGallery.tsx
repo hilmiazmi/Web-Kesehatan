@@ -19,10 +19,15 @@ import { GALLERY_PHOTOS, photo, randomPhoto } from "@/data/images";
  */
 export function AwardsSection() {
   return (
+<<<<<<< HEAD
     <section id="akreditasi" className="penghargaan section">
+=======
+    <section id="akreditasi" className="section">
+      {/* Situs referensi tidak memakai sub-judul di section ini
+          (`section-title pb-0` hanya berisi h2). */}
+>>>>>>> origin/main
       <div className="container section-title pb-0">
         <h2>Akreditasi &amp; Penghargaan</h2>
-        <p>&quot;Komitmen kami terhadap mutu dan pelayanan&quot;</p>
       </div>
 
       <CardCarousel label="Akreditasi dan penghargaan">
@@ -54,10 +59,13 @@ export function AwardsSection() {
 
 export function GallerySection() {
   return (
+<<<<<<< HEAD
     <section id="galeri" className="gallery section light-background">
+=======
+    <section id="galeri" className="section light-background">
+>>>>>>> origin/main
       <div className="container section-title pb-0">
         <h2>Gallery</h2>
-        <p>&quot;Kegiatan dan fasilitas rumah sakit&quot;</p>
       </div>
 
       <div className="container">
@@ -67,7 +75,9 @@ export function GallerySection() {
           sizes="(max-width: 992px) 50vw, 25vw"
           foto={GALLERY.map((g, i) => ({
             src: photo(GALLERY_PHOTOS[i % GALLERY_PHOTOS.length], 400, 400),
-            alt: g,
+            // Nama unit sudah tertulis di `caption` tepat di bawah foto, jadi
+            // `alt` dikosongkan agar tidak dibacakan dua kali.
+            alt: "",
             caption: g,
           }))}
         />

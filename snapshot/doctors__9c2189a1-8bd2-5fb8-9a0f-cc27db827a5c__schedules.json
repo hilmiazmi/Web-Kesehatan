@@ -1,0 +1,26 @@
+[
+ {
+  "id": "5d39c9d5-575c-55fb-8395-adfdd0a877e9",
+  "doctor_id": "9c2189a1-8bd2-5fb8-9a0f-cc27db827a5c",
+  "doctor_name": "Nanda Prasetyo",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 1,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "B2-02",
+  "quota": 40,
+  "note": null
+ },
+ {
+  "id": "1b6e8492-0ff1-5c61-a0fc-736423e6526e",
+  "doctor_id": "9c2189a1-8bd2-5fb8-9a0f-cc27db827a5c",
+  "doctor_name": "Nanda Prasetyo",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 4,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "B2-02",
+  "quota": 40,
+  "note": null
+ }
+]

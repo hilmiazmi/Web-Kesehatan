@@ -1,0 +1,14 @@
+[
+ {
+  "id": "def7804d-c366-5015-bf76-3609581f885a",
+  "doctor_id": "8ae3a4d3-5a3e-588f-8c4d-033482d36fbf",
+  "doctor_name": "Ratna Dewi",
+  "polyclinic": "Poliklinik Ibu dan Anak",
+  "day_of_week": 1,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "C1-04",
+  "quota": 50,
+  "note": null
+ }
+]

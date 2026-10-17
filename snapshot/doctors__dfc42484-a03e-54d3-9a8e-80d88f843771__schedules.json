@@ -1,0 +1,14 @@
+[
+ {
+  "id": "e19f4617-3d5c-5e09-bcef-f70fc81cd2e7",
+  "doctor_id": "dfc42484-a03e-54d3-9a8e-80d88f843771",
+  "doctor_name": "Ony Wijaya",
+  "polyclinic": "Instalasi Gawat Darurat",
+  "day_of_week": 4,
+  "start_time": "10:00:00",
+  "end_time": "14:00:00",
+  "room": "A1-02",
+  "quota": 50,
+  "note": null
+ }
+]

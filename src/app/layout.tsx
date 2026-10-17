@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { Poppins } from "next/font/google";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap-icons/font/bootstrap-icons.css";
+import { Inter, Poppins } from "next/font/google";
+import "@/styles/bootstrap-subset.scss";
+import "@/styles/icons/bootstrap-icons.css";
 import "@/styles/tokens.css";
 import "@/styles/site.css";
 import "@/styles/pages.css";
@@ -17,11 +17,35 @@ import { siteUrl } from "@/lib/site-url";
  * Font asli situs referensi berdesain lisensi komersial sehingga tidak boleh
  * disalin. Poppins dipilih karena paling dekat: sama-sama geometris dan bulat.
  * Lihat docs/design-tokens-terverifikasi.md bagian 2.
+ *
+ * Ikon memakai subset hasil `bun run subset-ikon`, bukan
+ * `bootstrap-icons/font/bootstrap-icons.css` yang penuh. Alasannya pengukuran:
+ * situs memakai 72 ikon dari 2078 yang tersedia, tapi CSS penuh 97 KB dan
+ * font-nya 131 KB yang dikirim apa adanya ke setiap halaman tanpa bisa dikecilkan
+ * gzip karena font sudah terkompresi. Setelah dissubset: CSS 3,9 KB dan font
+ * 7,9 KB. Jangan mengganti import ini kembali tanpa menjalankan
+ * `bun run subset-ikon` lebih dulu, dan baca `tests/subset-ikon.test.ts`
+ * sebelum menyentuh ikon di mana pun.
  */
 const poppins = Poppins({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-poppins",
+  display: "swap",
+});
+
+/**
+ * Inter untuk angka tabular di panel admin.
+ *
+ * Poppins dipakai untuk seluruh situs, tapi angkanya proporsional: di tabel
+ * yang padat, kolom angka yang lebarnya berubah-ubah membuat mata sulit
+ * membandingkan baris. Inter punya angka tabular dan lebih sempit, jadi
+ * kolom data rapi tanpa mengubah identitas situs di halaman publik.
+ */
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-inter",
   display: "swap",
 });
 
@@ -87,7 +111,7 @@ export default function RootLayout({
     // bahwa navigasi antar halaman tidak boleh memakai smooth scroll tanpa
     <html
       lang="id"
-      className={poppins.variable}
+      className={`${poppins.variable} ${inter.variable}`}
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >

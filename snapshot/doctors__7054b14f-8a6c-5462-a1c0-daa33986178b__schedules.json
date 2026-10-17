@@ -1,0 +1,14 @@
+[
+ {
+  "id": "9e837c97-b89b-5e6b-bac6-6b6ed80a2db7",
+  "doctor_id": "7054b14f-8a6c-5462-a1c0-daa33986178b",
+  "doctor_name": "Nadia Oktaviani",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 3,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "A1-01",
+  "quota": 50,
+  "note": null
+ }
+]

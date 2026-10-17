@@ -202,7 +202,11 @@ export function kolomUnique(err: unknown): string | null {
   const sqlErr = dbCause(err);
   if (sqlErr.code !== "23505" || typeof sqlErr.constraint !== "string") return null;
 
-  const cocok = /_([^_]+)_(?:key|pkey|uniq|unique|idx)$/.exec(sqlErr.constraint);
+  // Nama constraint seperti `appointments_phone_schedule_unique` memuat nama
+  // kolom multi-kata (`phone_schedule`). Pola lama `([^_]+)` hanya menangkap
+  // satu segmen (`schedule`), yaitu field yang tidak ada di formulir, sehingga
+  // pesan validasi menunjuk field hantu. `(.+)` menangkap seluruh nama kolom.
+  const cocok = /_(.+)_(?:key|pkey|uniq|unique|idx)$/.exec(sqlErr.constraint);
   return cocok?.[1] ?? sqlErr.constraint;
 }
 

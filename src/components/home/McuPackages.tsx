@@ -23,7 +23,7 @@ export default function McuPackages({
   packages?: PublicMcuPackage[];
 }) {
   return (
-    <section id="mcu" className="mcu section pb-3">
+    <section id="mcu" className="section pb-3">
       <div className="container section-title pb-4">
         <h2>Paket MCU &amp; Promosi</h2>
         <p>&quot;Berbagai penawaran istimewa untuk Anda&quot;</p>
@@ -32,15 +32,16 @@ export default function McuPackages({
       <CardCarousel label="Paket medical check up dan promosi">
         {packages.map((p, i) => (
           <div className="card" key={p.slug}>
-            <div className="image-content">
-              <Photo
-                src={photo(NEWS_PHOTOS[i % NEWS_PHOTOS.length], 600, 400)}
-                alt={p.title}
-                sizes="(max-width: 576px) 100vw, (max-width: 992px) 50vw, 300px"
-                height={150}
-                radius="top"
-              />
-            </div>
+            {/* `Photo` sudah membawa wrapper `.photo-box` sendiri; membungkus
+                lagi membuat aturan `.image-content img` (tinggi 190px tetap)
+                mengalahkan prop `height` di bawah. */}
+            <Photo
+              src={photo(NEWS_PHOTOS[i % NEWS_PHOTOS.length], 600, 400)}
+              alt={p.title}
+              sizes="(max-width: 576px) 100vw, (max-width: 992px) 50vw, 300px"
+              height={150}
+              radius="top"
+            />
 
             <div className="card-content">
               <h3 className="card-title">{p.title}</h3>
@@ -50,9 +51,11 @@ export default function McuPackages({
                   <li key={item}>{item}</li>
                 ))}
               </ul>
+              {/* Di bawah lipatan: tanpa prefetch (hemat RSC, lihat Footer). */}
               <Link
                 href={`/pelayanan/mcu/reguler/${p.slug}`}
                 className="btn btn-primary"
+                prefetch={false}
               >
                 Detail
               </Link>

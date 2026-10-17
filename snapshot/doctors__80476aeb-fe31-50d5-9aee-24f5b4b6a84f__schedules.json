@@ -1,0 +1,14 @@
+[
+ {
+  "id": "54fd8f45-9ad8-5bd9-9ede-862b77c5cc8d",
+  "doctor_id": "80476aeb-fe31-50d5-9aee-24f5b4b6a84f",
+  "doctor_name": "Lukman Hakim",
+  "polyclinic": "Instalasi Gawat Darurat",
+  "day_of_week": 4,
+  "start_time": "10:00:00",
+  "end_time": "14:00:00",
+  "room": "A1-02",
+  "quota": 50,
+  "note": null
+ }
+]

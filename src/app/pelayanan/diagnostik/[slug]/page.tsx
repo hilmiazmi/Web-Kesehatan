@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { hrefDaftarOnline } from "@/lib/daftar-online";
 import { notFound } from "next/navigation";
 import PageHeader from "@/components/layout/PageHeader";
 import Photo from "@/components/ui/Photo";
 import { DetailLayout } from "@/components/pelayanan/DetailLayout";
 import { DIAGNOSTIC_SERVICES } from "@/data/informasi";
 import { FACILITY_PHOTOS, photo } from "@/data/images";
+
+/**
+ * Hanya slug yang sudah ada yang boleh dibuka; slug asing menjawab 404
+ * sungguhan, bukan halaman yang di-render saat diminta.
+ */
+export const dynamicParams = false;
 
 /** Prerender semua layanan diagnostik saat build. */
 export function generateStaticParams() {
@@ -156,7 +163,7 @@ export default async function DiagnosticServicePage({
               ))}
 
               <div className="d-flex gap-2 flex-wrap mt-4">
-                <Link href="/daftar-online" className="btn btn-primary">
+                <Link href={hrefDaftarOnline(href)} className="btn btn-primary">
                   Daftar Online
                 </Link>
                 <Link href="/pelayanan/diagnostik" className="btn btn-tertiary">

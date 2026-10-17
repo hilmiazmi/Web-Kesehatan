@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Photo from "@/components/ui/Photo";
+import McuForm from "@/components/forms/mcu-form";
 import { DetailLayout } from "@/components/pelayanan/DetailLayout";
 import { FACILITY_PHOTOS, photo } from "@/data/images";
 import { formatIDR } from "@/lib/format";
@@ -91,13 +92,40 @@ export function McuPackageDetail({
         </ul>
 
         <div className="d-flex gap-2 flex-wrap mt-4">
-          <Link href={`/daftar-online?paket=${pkg.slug}`} className="btn btn-primary">
+          {/*
+            Tombol sebelumnya menuju `/daftar-online?paket=`, yaitu formulir rawat
+            jalan. Itu salah: paket MCU tidak punya slot dokter dan jam, dan
+            formulir itu tetap meminta memilih keduanya. Sekarang tombol
+            melompat ke formulir MCU yang ada di halaman ini.
+          */}
+          <a href="#daftar-mcu" className="btn btn-primary">
             Pesan Paket Ini
-          </Link>
+          </a>
           <Link href={basePath} className="btn btn-tertiary">
             Semua Paket
           </Link>
         </div>
+
+        <h2 className="detail-subheading mt-5" id="daftar-mcu">
+          Pendaftaran Paket Ini
+        </h2>
+        <p className="detail-lead">
+          Isi formulir untuk memilih jadwal pemeriksaan. Petugas menghubungi
+          pemohon untuk memastikan tanggal dan persiapan yang dibutuhkan.
+        </p>
+
+        <div className="card mt-3">
+          <div className="card-content">
+            <McuForm slugPaket={pkg.slug} namaPaket={pkg.title} />
+          </div>
+        </div>
+
+        <p className="form-footnote">
+          <i className="bi bi-info-circle" aria-hidden="true" />
+          Formulir ini mengirim data ke <code>POST /api/v1/mcu-registrations</code>.
+          Kode tiket yang muncul dipakai untuk mengecek status pendaftaran, dan
+          pendaftaran masuk ke inbox MCU di panel admin.
+        </p>
       </article>
     </DetailLayout>
   );

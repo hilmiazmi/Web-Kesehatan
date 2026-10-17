@@ -1,0 +1,14 @@
+[
+ {
+  "id": "6e734fd1-bf01-5be9-b189-21295a8188ec",
+  "doctor_id": "c97c268e-a11c-5ff8-a886-924b0c0792b2",
+  "doctor_name": "Farhan Maulana",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 5,
+  "start_time": "08:00:00",
+  "end_time": "11:00:00",
+  "room": "C1-04",
+  "quota": 50,
+  "note": null
+ }
+]

@@ -5,8 +5,10 @@ import { ApiError } from "@/server/api/error";
 import { limitRequest } from "@/server/api/rate-limit";
 import { dbOrNull } from "@/server/db/client";
 import { newClaims, sessionCookie, signSession } from "@/server/auth/session";
-import { verifyPassword } from "@/server/auth/password";
+import { koneksiTerenskripsi } from "@/lib/koneksi-aman";
+import { hashPassword, verifyPassword } from "@/server/auth/password";
 import { credentialsByEmail, touchLogin } from "@/server/admin/accounts";
+import { catatAudit } from "@/server/admin/audit";
 import { config } from "@/server/config";
 import { Errors, email as validateEmail, isHoneypotTrap, readJsonBody } from "@/server/validation";
 
@@ -21,15 +23,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   return handle(async () => {
     const body = await readJsonBody(request);
 
+    // Rate limit dulu, honeypot kemudian, sama seperti `jalankanForm`. Kalau
+    // dibalik, bot yang mengisi field `website` mendapat respons `ok` tanpa
+    // batas, dan limiter bisa dilewati persis oleh lalu lintas yang ingin
+    // disaring.
+    limitRequest(request.headers, "login");
+
     if (isHoneypotTrap(String(body.website ?? ""))) {
       return ok({ status: "received" });
     }
-
-    // Rate limit per alamat dipasang sebelum menyentuh database. Tanpa itu,
-    // daftar email dan kata sandi bisa dicoba ribuan kali per menit dari satu
-    // mesin, dan setiap percobaan menampilkan halaman login tanpa satu pun
-    // memberi tahu bahwa ada pembatas.
-    limitRequest(request.headers, "login");
 
     const errors = new Errors();
     const surel = validateEmail(errors, "email", String(body.email ?? ""), true);
@@ -47,7 +49,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (db === null) throw ApiError.readOnly();
 
     const kredensial = await credentialsByEmail(db, surel!);
-    if (kredensial === null) throw ApiError.unauthorized();
+    if (kredensial === null) {
+      // Samarkan waktu respons. Surel yang tidak terdaftar harus menempuh
+      // scrypt yang sama beratnya dengan verifikasi sungguhan; kalau langsung
+      // ditolak, beda waktunya membocorkan surel mana saja yang punya akun di
+      // sini. Hasil hash-nya dibuang, yang dipakai hanya waktunya. Parameter
+      // biayanya ikut `hashPassword`, jadi kalau biaya scrypt dinaikkan di
+      // kemudian hari, pemalsuan ini ikut naik tanpa perubahan di sini.
+      await hashPassword(String(body.password ?? ""));
+      throw ApiError.unauthorized();
+    }
 
     if (!(await verifyPassword(String(body.password ?? ""), kredensial.password_hash))) {
       // Pesan yang sama untuk surel yang tidak ada dan kata sandi yang salah.
@@ -66,7 +77,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       sessionVersion: kredensial.session_version,
     });
 
-    const cookie = sessionCookie(signSession(claims, config().authSecret));
+// Login yang berhasil dicatat, kegagalan tidak. Tujuannya menjawab "siapa
+    // yang terakhir masuk dan kapan", bukan menghitung percobaan: percobaan
+    // yang gagal sudah terlihat di log server, dan mencatatnya di sini akan
+    // membuat tabel riwayat bisa dipakai menghitung surel mana yang benar.
+    await catatAudit(db, {
+      actorId: claims.sub,
+      actorEmail: claims.email,
+      action: "login",
+      tableName: "",
+      summary: "masuk ke panel",
+    });
+    const cookie = sessionCookie(
+      signSession(claims, config().authSecret),
+      await koneksiTerenskripsi(),
+    );
 
     const respons = ok({
       user: {

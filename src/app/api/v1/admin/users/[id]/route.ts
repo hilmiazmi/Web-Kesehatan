@@ -5,7 +5,8 @@ import { ApiError } from "@/server/api/error";
 import { uuid } from "@/server/api/params";
 import { canManageUsers, requireSession, isRole } from "@/server/auth/session";
 import { dbOrNull } from "@/server/db/client";
-import { deleteAccount, updateAccount } from "@/server/admin/accounts";
+import { deleteAccount, findAccount, updateAccount } from "@/server/admin/accounts";
+import { catatAudit } from "@/server/admin/audit";
 import { readJsonBody } from "@/server/validation";
 
 export const dynamic = "force-dynamic";
@@ -29,15 +30,30 @@ export async function PATCH(request: NextRequest, context: Konteks): Promise<Nex
     const peranDiminta = body.role;
     const peran =
       typeof peranDiminta === "string" && isRole(peranDiminta) ? peranDiminta : null;
+    if (typeof peranDiminta === "string" && peran === null) {
+      // Typo seperti "super-admin" terlihat berhasil padahal perannya tidak
+      // berubah. Catat di log server supaya bisa dilacak tanpa mengubah
+      // kontrak respons (tetap 200 untuk field lain yang sah).
+      console.warn(`[users] peran tidak dikenal diabaikan: "${peranDiminta}"`);
+    }
 
-    return ok(
-      await updateAccount(db, uuid(id, "id"), aktor.sub, {
-        email: typeof body.email === "string" ? body.email : null,
-        name: typeof body.name === "string" ? body.name : null,
-        role: peran,
-        is_active: typeof body.is_active === "boolean" ? body.is_active : null,
-      }),
-    );
+    const akun = await updateAccount(db, uuid(id, "id"), aktor.sub, {
+      email: typeof body.email === "string" ? body.email : null,
+      name: typeof body.name === "string" ? body.name : null,
+      role: peran,
+      is_active: typeof body.is_active === "boolean" ? body.is_active : null,
+    });
+
+    await catatAudit(db, {
+      actorId: aktor.sub,
+      actorEmail: aktor.email,
+      action: "update",
+      tableName: "users",
+      rowId: akun.id,
+      summary: `akun ${akun.email} (${akun.role})`,
+    });
+
+    return ok(akun);
   });
 }
 
@@ -49,7 +65,19 @@ export async function DELETE(_request: NextRequest, context: Konteks): Promise<N
     const db = dbOrNull();
     if (db === null) throw ApiError.readOnly();
 
+    // Baris dibaca SEBELUM dihapus: sesudah DELETE tidak ada lagi yang bisa
+    // dibaca, dan riwayat berisi id UUID saja tidak berarti apa-apa.
+    const sebelum = await findAccount(db, uuid(id, "id"));
     await deleteAccount(db, uuid(id, "id"), aktor.sub);
+
+    await catatAudit(db, {
+      actorId: aktor.sub,
+      actorEmail: aktor.email,
+      action: "delete",
+      tableName: "users",
+      rowId: uuid(id, "id"),
+      summary: sebelum ? `akun ${sebelum.email}` : "akun",
+    });
 
     return ok({ deleted: true });
   });

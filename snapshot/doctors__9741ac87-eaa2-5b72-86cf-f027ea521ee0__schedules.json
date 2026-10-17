@@ -1,0 +1,14 @@
+[
+ {
+  "id": "22f7b0ef-3c08-516e-b8d8-2533e6913edd",
+  "doctor_id": "9741ac87-eaa2-5b72-86cf-f027ea521ee0",
+  "doctor_name": "Setiawan Budi",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 2,
+  "start_time": "09:00:00",
+  "end_time": "13:00:00",
+  "room": "C1-05",
+  "quota": 50,
+  "note": null
+ }
+]

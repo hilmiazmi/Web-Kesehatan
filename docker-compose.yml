@@ -1,7 +1,8 @@
 # PostgreSQL untuk development lokal.
 #
-# Hanya database. Backend Rust dijalankan di luar Docker dengan `bun run api`
-# supaya pesan error dan log tetap terlihat langsung di terminal.
+# Hanya database. Aplikasi Next.js (termasuk Route Handler di /api/v1)
+# dijalankan di luar Docker dengan `bun run dev`, supaya pesan error dan log
+# tetap terlihat langsung di terminal.
 #
 # Satu-satunya aturan yang tidak boleh dilanggar: nama service, user, kata
 # sandi, dan nama database di sini harus sama persis dengan `DATABASE_URL`

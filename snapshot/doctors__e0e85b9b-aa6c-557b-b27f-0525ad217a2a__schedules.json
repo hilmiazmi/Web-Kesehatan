@@ -1,0 +1,26 @@
+[
+ {
+  "id": "79c8951b-dfc4-52b2-ac81-d874dec0d5ba",
+  "doctor_id": "e0e85b9b-aa6c-557b-b27f-0525ad217a2a",
+  "doctor_name": "Yuni Astuti",
+  "polyclinic": "Poliklinik Umum",
+  "day_of_week": 1,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "D2-09",
+  "quota": 40,
+  "note": null
+ },
+ {
+  "id": "38aada94-bec0-5f7a-9655-bc73839ae4c9",
+  "doctor_id": "e0e85b9b-aa6c-557b-b27f-0525ad217a2a",
+  "doctor_name": "Yuni Astuti",
+  "polyclinic": "Poliklinik Umum",
+  "day_of_week": 4,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "D2-09",
+  "quota": 40,
+  "note": null
+ }
+]

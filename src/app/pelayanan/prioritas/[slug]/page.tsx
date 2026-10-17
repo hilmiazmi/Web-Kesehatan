@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { hrefDaftarOnline } from "@/lib/daftar-online";
 import { notFound } from "next/navigation";
 import PageHeader from "@/components/layout/PageHeader";
 import { DetailBody, DetailLayout } from "@/components/pelayanan/DetailLayout";
@@ -7,6 +8,12 @@ import { DetailContact, DetailVideo } from "@/components/pelayanan/DetailBlocks"
 import { PRIORITY_SERVICES } from "@/data/home";
 import { DETAIL_CONTENT, DETAIL_INTRO_TAIL } from "@/data/detail-content";
 import { PRIORITY_PHOTOS, photo } from "@/data/images";
+
+/**
+ * Hanya slug yang sudah ada yang boleh dibuka; slug asing menjawab 404
+ * sungguhan, bukan halaman yang di-render saat diminta.
+ */
+export const dynamicParams = false;
 
 /** Prerender semua layanan prioritas saat build. */
 export function generateStaticParams() {
@@ -84,7 +91,7 @@ export default async function PriorityServicePage({
             <DetailContact />
 
             <div className="d-flex gap-2 flex-wrap mt-4">
-              <Link href="/daftar-online" className="btn btn-primary">
+              <Link href={hrefDaftarOnline(href)} className="btn btn-primary">
                 Daftar Online
               </Link>
               <Link href="/pelayanan/prioritas" className="btn btn-tertiary">

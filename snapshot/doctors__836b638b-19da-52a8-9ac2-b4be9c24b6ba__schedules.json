@@ -1,0 +1,26 @@
+[
+ {
+  "id": "990f9c95-28f5-5bdd-a21a-37141a7ab09b",
+  "doctor_id": "836b638b-19da-52a8-9ac2-b4be9c24b6ba",
+  "doctor_name": "Imam Saputra",
+  "polyclinic": "Poliklinik Penyakit Dalam",
+  "day_of_week": 2,
+  "start_time": "09:00:00",
+  "end_time": "13:00:00",
+  "room": "C2-06",
+  "quota": 40,
+  "note": null
+ },
+ {
+  "id": "6aa8f456-5541-5a67-a5a4-d97d90904931",
+  "doctor_id": "836b638b-19da-52a8-9ac2-b4be9c24b6ba",
+  "doctor_name": "Imam Saputra",
+  "polyclinic": "Poliklinik Penyakit Dalam",
+  "day_of_week": 5,
+  "start_time": "09:00:00",
+  "end_time": "12:00:00",
+  "room": "C2-06",
+  "quota": 40,
+  "note": null
+ }
+]

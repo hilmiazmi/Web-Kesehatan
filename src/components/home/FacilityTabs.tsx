@@ -18,7 +18,7 @@ export default function FacilityTabs() {
   const current = FACILITIES[active];
 
   return (
-    <section id="fasilitas" className="departments section light-background">
+    <section id="fasilitas" className="section light-background">
       <div className="container section-title pb-4">
         <h2>Fasilitas &amp; Layanan</h2>
         <p>
@@ -62,9 +62,11 @@ export default function FacilityTabs() {
                 <div className="col-lg-8 details order-2 order-lg-1">
                   <h3>{current.title}</h3>
                   <p>{current.description}</p>
+                  {/* Di bawah lipatan: tanpa prefetch (hemat RSC, lihat Footer). */}
                   <Link
                     href={`/pelayanan/medis/${current.slug}`}
                     className="link-more"
+                    prefetch={false}
                   >
                     Selengkapnya
                   </Link>
@@ -76,7 +78,13 @@ export default function FacilityTabs() {
                         600,
                         460
                       )}
-                      alt={current.title}
+                      /*
+                       * `alt` kosong, bukan nama fasilitas. Namanya sudah
+                       * tertulis di `<h3>` tepat di samping gambar, jadi
+                       * mengulanginya di `alt` membuat pembaca layar
+                       * membacakan "Farmasi Farmasi".
+                       */
+                      alt=""
                       sizes="(max-width: 992px) 100vw, 340px"
                       height={230}
                       radius="all"

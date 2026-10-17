@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { CLINIC_DETAILS } from "@/data/clinics";
 import { DOCTORS } from "@/data/doctors";
+import { SPECIALTIES } from "@/data/home";
 import {
   countDoctors,
   doctorsForClinic,
@@ -17,17 +18,21 @@ describe("data DOCTORS", () => {
     }
   });
 
-  it("setiap spesialisasi dipakai oleh minimal satu halaman detail klinik", () => {
+  it("setiap spesialisasi tampil di klinik atau di widget jadwal", () => {
     // Keterkaitan klinik ke dokter diambil dari `specialty` opsional pada data
-    // detail. Kalau ada spesialis yang tidak dipakai klinik mana pun, data
-    // dokter itu tidak akan pernah tampil di mana pun.
+    // detail. Spesialis yang tidak dipakai klinik mana pun tetap tampil lewat
+    // widget "Cari Jadwal Dokter" di beranda dan halaman `/jadwal-dokter`,
+    // yang keduanya membaca seluruh `DOCTORS` tanpa memandang klinik. Jadi
+    // yang dijaga di sini: setiap spesialisasi punya jalan tampil, entah lewat
+    // halaman detail klinik atau lewat daftar spesialisasi widget.
     const dipakai = new Set(
       CLINIC_DETAILS.map((d) => d.specialty).filter(Boolean)
     );
-    const tidakDipakai = [...new Set(DOCTORS.map((d) => d.specialty))].filter(
-      (s) => !dipakai.has(s)
+    const diWidget = new Set(SPECIALTIES);
+    const tidakTampil = [...new Set(DOCTORS.map((d) => d.specialty))].filter(
+      (s) => !dipakai.has(s) && !diWidget.has(s)
     );
-    expect(tidakDipakai).toEqual([]);
+    expect(tidakTampil).toEqual([]);
   });
 
   it("klinik yang menandai spesialis pasti punya dokter", () => {

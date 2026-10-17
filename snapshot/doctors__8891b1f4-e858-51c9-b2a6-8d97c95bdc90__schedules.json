@@ -1,0 +1,14 @@
+[
+ {
+  "id": "ad3951db-8089-50fd-9953-02676cc4feef",
+  "doctor_id": "8891b1f4-e858-51c9-b2a6-8d97c95bdc90",
+  "doctor_name": "Dimas Ardi",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 3,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "B3-03",
+  "quota": 50,
+  "note": null
+ }
+]

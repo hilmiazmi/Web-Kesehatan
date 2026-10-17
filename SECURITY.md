@@ -199,17 +199,24 @@ Jalur pulihnya ada di luar aplikasi, di sisi database.
 
 ---
 
-## Endpoint tiket tidak punya rate limit, dan itu disengaja
+## Endpoint tiket: rate limit ada, tetapi bukan pertahanan utamanya
 
 `GET /api/v1/tickets/{jenis}/{kode}` adalah satu-satunya endpoint baca yang
-terbuka tanpa sesi. Endpoint tulis publik semuanya melewati `jalankanForm` di
-`src/server/api/form.ts`, yang memanggil `limitRequest` sebelum apa pun yang
-lain. Endpoint tiket tidak memanggilnya, dan itu bukan kelalaian.
+terbuka tanpa sesi dan menyentuh satu baris per permintaan. Endpoint tulis
+publik melewati `jalankanForm` di `src/server/api/form.ts`, yang memanggil
+`limitRequest` sebelum apa pun yang lain. Endpoint tiket **juga** memanggil
+`limitRequest` (kunci `tickets`, batas yang sama dengan formulir) tetapi
+sengaja tidak memanggil `resetLimit`, karena permintaan baca tidak mengubah apa
+pun. Alasannya ada di komentar `src/app/api/v1/tickets/[kind]/[code]/route.ts`:
+yang dikendalikan adalah jumlah kueri ke database, bukan tebakan kode.
+
+> Versi sebelumnya dari bagian ini menyatakan endpoint ini tidak punya rate
+> limit. Itu tidak cocok dengan kodenya (diverifikasi 9 Oktober 2026), jadi
+> bagian ini dikoreksi. `docs/AUDIT-KEAMANAN.md` mengulang klaim lama yang sama.
 
 Hitungannya: bagian acak kode tiket punya 8 posisi dari alfabet 32 karakter,
 jadi `32^8` atau sekitar 1,1 triliun kombinasi per jenis tiket. Tebakan buta
-tidak mungkin melewati batas itu, jadi rate limit di sini hanya menambah satu
-pencarian pada `Map` untuk permintaan yang memang tidak berbahaya.
+tidak realistis; rate limit di sini membatasi beban kueri, bukan menutup celah.
 
 Yang membuat endpoint ini aman justru batasannya, bukan rate limit:
 
@@ -227,8 +234,8 @@ tanpa pengujian ulang:
   Tidak ada daftar putih di lapisan route untuk menahan kolom tambahan.
 - Kalau `RANDOM_LEN` di `src/server/ticket.ts` dipendekkan, hitungan di atas
   tidak berlaku lagi. Pada batas rate limit sekarang, panjang 5 masih berarti
-  12,8 tahun bagi satu penyerang, dan panjang 4 sudah 0,4 tahun. Jadi rate limit
-  baru berarti dibutuhkan kalau `RANDOM_LEN` turun sampai 4 atau kurang.
+  12,8 tahun bagi satu penyerang, dan panjang 4 sudah 0,4 tahun. Jadi pembatas
+  ini baru menjadi pertahanan yang menentukan kalau `RANDOM_LEN` turun sampai 4 atau kurang.
 
 Kode tiket sendiri bisa bocor karena penggunanya membagikannya, misalnya lewat
 tangkapan layar atau pesan grup. Itu sebabnya responsnya dibuat tipis: kode yang

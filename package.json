@@ -8,18 +8,29 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
+    "test:e2e": "export KUNCI_E2E=$(bun run scripts/kunci-build.ts tunggu-tandai) && playwright test",
     "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "verify": "bun run lint && bun run test && bun run build",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "bun run scripts/db-seed.ts",
     "seed:ekstrak": "bun run scripts/seed-ekstrak.ts",
     "db:status": "bun run scripts/db-status.ts",
     "db:snapshot": "bun run scripts/db-snapshot.ts",
+    "db:backup": "bun run scripts/backup-db.ts",
     "cek:konten": "bun run scripts/cek-konten.ts",
     "cek:tautan": "bun run scripts/cek-tautan.ts",
     "cek:tulis": "bun run scripts/cek-tulis.ts",
     "cek:admin": "bun run scripts/cek-admin.ts",
-    "audit:teks": "bun run scripts/audit-teks.ts"
+    "uji:siapkan": "bun run scripts/siapkan-admin-uji.ts",
+    "uji:bersihkan": "bun run scripts/bersihkan-admin-uji.ts",
+    "uji:mobile": "bun run scripts/uji-mobile.ts",
+    "uji:performa": "bun run scripts/uji-performa.ts",
+    "audit:teks": "bun run scripts/audit-teks.ts",
+    "subset-ikon": "bun run scripts/subset-ikon.ts",
+    "prebuild": "bun run scripts/kunci-build.ts tandai",
+    "postbuild": "bun run scripts/kunci-build.ts lepas"
   },
   "dependencies": {
     "bootstrap": "5.3.3",
@@ -29,13 +40,16 @@
     "postgres": "^3.4.9",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "react-select": "5.10.1",
-    "sweetalert2": "11.22.0",
-    "swiper": "11.2.6"
+    "sweetalert2": "11.22.4",
+    "swiper": "12.2.0"
   },
   "devDependencies": {
+<<<<<<< HEAD
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",
+=======
+    "@playwright/test": "^1.64.0",
+>>>>>>> origin/main
     "@types/bun": "^1.4.2",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -43,7 +57,11 @@
     "drizzle-kit": "^0.31.11",
     "eslint": "^9",
     "eslint-config-next": "16.3.8",
+<<<<<<< HEAD
     "jsdom": "^30.1.3",
+=======
+    "sass": "^1.105.1",
+>>>>>>> origin/main
     "typescript": "^5",
     "vitest": "^5.0.3"
   },

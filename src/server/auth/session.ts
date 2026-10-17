@@ -178,28 +178,52 @@ export function newClaims(user: {
   };
 }
 
-/** Atribut cookie sesi. */
-export function sessionCookie(token: string): {
+/** Atribut cookie sesi.
+ *
+ * `aman` dilewatkan pemanggil, bukan dihitung di sini. Alasannya: apakah
+ * koneksi benar-benar terenkripsi hanya diketahui dari permintaan, sedangkan
+ * fungsi ini tidak menerima permintaan.
+ *
+ * Terbukti di produksi 10 Oktober 2026: situs dijalankan di balik
+ * Cloudflare tunnel, yang meneruskan `http` ke container. `adminOrigin`
+ * bernilai `http://localhost:3000`, maka `secure` jadi `false` dan cookie
+ * sesi terbit TANPA atribut `Secure` — padahal pengunjung memakai `https`.
+ * Cookie semacam itu ikut terkirim pada koneksi yang tidak dienkripsi.
+ *
+ * Pemanggil memakai `koneksiTerenskripsi()` yang juga membaca
+ * `x-forwarded-proto`, jadi kasus itu tertutup.
+ *
+ * Parameternya wajib, tanpa nilai bawaan. Kalau ada bawaan, nilai itu harus
+ * `false` supaya mode kegagalannya bukan cookie tanpa `Secure`, dan pemanggil
+ * baru yang lupa mengoper argumen akan menerbitkan cookie tanpa `Secure` tanpa
+ * satu pun galat. Dengan wajib, kelupaan itu ketahuan saat kompilasi.
+ */
+export function sessionCookie(token: string, aman: boolean): {
   name: string;
   value: string;
   options: Record<string, unknown>;
 } {
-  const secure = config().adminOrigin.startsWith("https://");
   return {
     name: COOKIE_NAME,
     value: token,
     options: {
       httpOnly: true,
       sameSite: "lax",
-      secure,
+      secure: aman,
       path: "/",
       maxAge: config().sessionMaxAgeSeconds,
     },
   };
 }
 
-/** Cookie kosong untuk mengakhiri sesi di sisi browser. */
-export function clearedSessionCookie(): {
+/** Cookie kosong untuk mengakhiri sesi di sisi browser.
+ *
+ * `aman` mengikuti aturan yang sama dengan `sessionCookie`: kalau cookie
+ * diterbitkan dengan `Secure`, penghapusannya harus juga bertanda `Secure`,
+ * supaya browser menganggapnya penimpa yang sah dari koneksi terenkripsi dan
+ * benar-benar menyimpannya. Parameternya wajib dengan alasan yang sama.
+ */
+export function clearedSessionCookie(aman: boolean): {
   name: string;
   value: string;
   options: Record<string, unknown>;
@@ -210,7 +234,7 @@ export function clearedSessionCookie(): {
     options: {
       httpOnly: true,
       sameSite: "lax",
-      secure: config().adminOrigin.startsWith("https://"),
+      secure: aman,
       path: "/",
       maxAge: 0,
     },

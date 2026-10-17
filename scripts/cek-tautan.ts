@@ -43,6 +43,7 @@
 
 import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
+<<<<<<< HEAD
 import { collectSitemapPaths, pathDariSitemapXml } from "../src/lib/sitemap";
 import {
   entriDinamisDariManifest,
@@ -50,6 +51,10 @@ import {
   ruteDinamisUntuk,
   type EntriRuteDinamis,
 } from "../src/lib/nav-path";
+=======
+import { collectSitemapPaths } from "../src/lib/sitemap";
+import { getPublicArticles } from "../src/lib/content-loader";
+>>>>>>> origin/main
 
 /** Akar HTML hasil prerender. Hanya `.html` statis, bukan `.rsc` atau `.meta`. */
 const AKAR = path.join(process.cwd(), ".next", "server", "app");
@@ -243,7 +248,15 @@ async function sitemapDariBuild(): Promise<string[]> {
     try {
       xml = await readFile(lokasiXml, "utf8");
     } catch {
-      return collectSitemapPaths().map((e) => e.path);
+      // Sitemap sekarang `force-dynamic`, jadi tidak ada berkas prerender untuk
+      // dibaca. Hitung dengan sumber yang sama seperti `src/app/sitemap.ts`
+      // — modul statis ditambah berita dari loader — supaya yang diperiksa
+      // tetap sama dengan yang benar-benar dikirim saat dijalankan. Tanpa
+      // `getPublicArticles()`, sebelas berita yang route-nya sudah ada akan
+      // dilaporkan "tidak masuk sitemap" padahal masuk.
+      const dariModul = await import("../src/data/home");
+      const dariDb = await getPublicArticles();
+      return collectSitemapPaths([...dariModul.ARTICLES, ...dariDb]).map((e) => e.path);
     }
   }
   return pathDariSitemapXml(xml);

@@ -102,6 +102,16 @@ export type TableSpec = {
   table: string;
   /** Nama untuk judul halaman. */
   label: string;
+  /**
+   * Ikon Bootstrap Icons untuk sidebar, misalnya `bi-newspaper`.
+   *
+   * Ditulis sebagai data supaya sebelas belas jenis konten tidak lagi memakai
+   * ikon `bi-table` yang sama di sidebar. Nama ikon harus ditulis utuh sebagai
+   * literal: `scripts/subset-ikon.ts` mencari pola `bi-*` di sumber, jadi ikon
+   * yang dirangkai dari nama tabel tidak akan ikut ke font subset dan tidak
+   * akan tampil di peramban.
+   */
+  icon: string;
   /** Nama kolom untuk pencarian teks bebas. */
   searchColumns: readonly string[];
   /** Kolom untuk pengurutan bawaan. */
@@ -360,6 +370,7 @@ const TABLES: readonly TableSpec[] = [
   {
     table: "services",
     label: "Layanan",
+    icon: "bi-heart-pulse",
     searchColumns: ["title", "slug", "summary"],
     defaultOrder: "sort_order",
     fields: SERVICES,
@@ -368,6 +379,7 @@ const TABLES: readonly TableSpec[] = [
   {
     table: "articles",
     label: "Berita",
+    icon: "bi-newspaper",
     searchColumns: ["title", "slug", "excerpt"],
     defaultOrder: "published_at",
     fields: ARTICLES,
@@ -376,6 +388,7 @@ const TABLES: readonly TableSpec[] = [
   {
     table: "pages",
     label: "Halaman",
+    icon: "bi-file-earmark-text",
     searchColumns: ["title", "slug"],
     defaultOrder: "sort_order",
     fields: PAGES,
@@ -384,6 +397,7 @@ const TABLES: readonly TableSpec[] = [
   {
     table: "mcu_packages",
     label: "Paket MCU",
+    icon: "bi-clipboard2-check",
     searchColumns: ["name", "slug", "summary"],
     defaultOrder: "sort_order",
     fields: MCU_PACKAGES,
@@ -392,6 +406,7 @@ const TABLES: readonly TableSpec[] = [
   {
     table: "specialties",
     label: "Spesialis",
+    icon: "bi-diagram-3",
     searchColumns: ["name", "slug"],
     defaultOrder: "sort_order",
     fields: SPECIALTIES,
@@ -400,6 +415,7 @@ const TABLES: readonly TableSpec[] = [
   {
     table: "polyclinics",
     label: "Poliklinik",
+    icon: "bi-building",
     searchColumns: ["name", "slug"],
     defaultOrder: "sort_order",
     fields: POLYCLINICS,
@@ -408,6 +424,7 @@ const TABLES: readonly TableSpec[] = [
   {
     table: "doctors",
     label: "Dokter",
+    icon: "bi-person-badge",
     searchColumns: ["full_name", "title"],
     defaultOrder: "full_name",
     fields: DOCTORS,
@@ -416,6 +433,7 @@ const TABLES: readonly TableSpec[] = [
   {
     table: "doctor_schedules",
     label: "Jadwal Praktik",
+    icon: "bi-calendar-week",
     searchColumns: ["room", "note"],
     defaultOrder: "day_of_week",
     fields: DOCTOR_SCHEDULES,
@@ -424,6 +442,7 @@ const TABLES: readonly TableSpec[] = [
   {
     table: "hero_slides",
     label: "Slide Hero",
+    icon: "bi-images",
     searchColumns: ["title", "subtitle"],
     defaultOrder: "sort_order",
     fields: HERO_SLIDES,
@@ -432,6 +451,7 @@ const TABLES: readonly TableSpec[] = [
   {
     table: "awards",
     label: "Penghargaan",
+    icon: "bi-trophy",
     searchColumns: ["title", "issuer"],
     defaultOrder: "sort_order",
     fields: AWARDS,
@@ -440,6 +460,7 @@ const TABLES: readonly TableSpec[] = [
   {
     table: "gallery_items",
     label: "Galeri",
+    icon: "bi-image",
     searchColumns: ["title", "caption", "category"],
     defaultOrder: "sort_order",
     fields: GALLERY,
@@ -448,6 +469,7 @@ const TABLES: readonly TableSpec[] = [
   {
     table: "testimonials",
     label: "Testimoni",
+    icon: "bi-chat-quote",
     searchColumns: ["display_name", "role_label", "quote"],
     defaultOrder: "sort_order",
     fields: TESTIMONIALS,
@@ -456,6 +478,7 @@ const TABLES: readonly TableSpec[] = [
   {
     table: "insurance_partners",
     label: "Mitra Asuransi",
+    icon: "bi-shield-check",
     searchColumns: ["name"],
     defaultOrder: "sort_order",
     fields: INSURANCES,
@@ -464,6 +487,7 @@ const TABLES: readonly TableSpec[] = [
   {
     table: "faqs",
     label: "FAQ",
+    icon: "bi-patch-question",
     searchColumns: ["question", "answer"],
     defaultOrder: "sort_order",
     fields: FAQS,
@@ -472,6 +496,7 @@ const TABLES: readonly TableSpec[] = [
   {
     table: "documents",
     label: "Dokumen",
+    icon: "bi-folder",
     searchColumns: ["title", "slug"],
     defaultOrder: "sort_order",
     fields: DOCUMENTS,
@@ -480,6 +505,7 @@ const TABLES: readonly TableSpec[] = [
   {
     table: "management_members",
     label: "Manajemen",
+    icon: "bi-people",
     searchColumns: ["name", "position", "unit"],
     defaultOrder: "sort_order",
     fields: MANAGEMENT,
@@ -488,6 +514,7 @@ const TABLES: readonly TableSpec[] = [
   {
     table: "job_vacancies",
     label: "Lowongan Kerja",
+    icon: "bi-briefcase",
     searchColumns: ["title", "department", "slug"],
     defaultOrder: "deadline",
     fields: JOB_VACANCIES,

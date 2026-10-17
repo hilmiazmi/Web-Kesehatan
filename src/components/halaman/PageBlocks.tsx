@@ -160,17 +160,29 @@ function Blok({
     case "tautan-anak": {
       const anak = childrenOf(pathname);
       if (anak.length === 0) return null;
+      // Bentuk kartu, bukan daftar tautan polos. Daftar `<li>` telanjang
+      // terlihat seperti isi yang belum selesai: hanya label biru bergaris
+      // bawah tanpa penjelasan apa pun.
+      //
+      // Baris penjelasan sengaja TIDAK diisi dengan mengulang judul. Percobaan
+      // pertama menulis `{a.label}` di dua kolom dan hasilnya justru lebih
+      // buruk: setiap kartu menampilkan "Paket Dasar 1" dua kali, dan kalau
+      // tiap kartu butuh kalimat sendiri berarti `navigation.ts` harus
+      // hundreds baris tambahan yang isinya cuma mengulang judul.
+      //
+      // Yang dipakai hanya judulnya, ditambah panah supaya jelas bisa diklik.
       return (
         <div className="halaman-blok">
           {blok.judul ? <h2 className="halaman-sub-kecil">{blok.judul}</h2> : null}
           {blok.ket ? <p className="halaman-teks">{blok.ket}</p> : null}
-          <ul className="halaman-daftar halaman-daftar-ikon">
+          <div className="halaman-kartu-grid">
             {anak.map((a) => (
-              <li key={a.href}>
-                <Link href={a.href}>{a.label}</Link>
-              </li>
+              <Link key={a.href} href={a.href} className="halaman-kartu halaman-kartu-ringkas">
+                <span className="halaman-kartu-judul">{a.label}</span>
+                <i className="bi bi-arrow-right halaman-kartu-panah" aria-hidden="true" />
+              </Link>
             ))}
-          </ul>
+          </div>
         </div>
       );
     }

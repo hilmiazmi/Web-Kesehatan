@@ -15,6 +15,11 @@ konten, foto, dan nama orang semua dibuat sendiri - jangan salin logo, nama dokt
 testimoni, kontak, atau foto milik rumah sakit nyata mana pun (PRD di `docs/`
 bagian 12 dan 13).
 
+## Awal sesi
+
+Baca `docs/HANDOFF.md` sebelum menyentuh kode. Isinya posisi kerja sekarang,
+keputusan yang sudah diambil, dan masalah yang masih terbuka.
+
 ## Lokasi aplikasi
 
 Aplikasi ada di **root repo**: `src/`, `package.json`, `next.config.ts` semuanya
@@ -33,8 +38,12 @@ bun run test        # Vitest, sekali jalan
 bun run test:watch  # Vitest, mode watching
 ```
 
-`packageManager` dikunci ke `bun@1.4.2`. Belum ada CI workflow, jadi jalankan
-`bun run lint && bun run test && bun run build` sebelum menyatakan selesai.
+`packageManager` dikunci ke `bun@1.4.2`. CI ada di `.github/workflows/gerbang.yml`
+(lint, test, `cek:konten`, `audit:teks`, build, `cek:tautan`, semuanya mode
+snapshot dan `TZ=Asia/Jakarta`). Jalankan minimal
+`bun run lint && bun run test && bun run build` sebelum menyatakan selesai;
+`bun run verify` melakukan tiga langkah itu, tetapi bukan seluruh gerbang CI.
+Panduan lengkap: `docs/TESTING.md`.
 
 Backend memakai skrip yang sama. Urutannya penting, karena tiap langkah
 bergantung pada langkah sebelumnya:
@@ -132,8 +141,7 @@ bukan tebakan. Rinciannya ada di `docs/design-tokens-terverifikasi.md`.
   `next/image` menolak SVG kecuali `dangerouslyAllowSVG` diaktifkan, dan
   mengaktifkannya melemahkan keamanan seluruh situs. Bentuknya dihasilkan oleh
   `/tmp/opencode/gen-avatar.py` supaya dapat dibangun ulang.
-- **Navbar: desktop tanpa hamburger, mobile dengan hamburger.** Permintaan
-  pemilik repo 4 Oktober 2026: pembekuan navbar dicabut. Nav desktop harus
+- **Navbar: desktop tanpa hamburger, mobile dengan hamburger.** Nav desktop
   tampil penuh tanpa hamburger dan tanpa ada yang terpotong; hamburger +
   panel off-canvas hanya untuk mobile di bawah `1200px`.
   - Batas desktop `1200px`, dengan panel off-canvas `translateX(100%)` dan
@@ -143,6 +151,7 @@ bukan tebakan. Rinciannya ada di `docs/design-tokens-terverifikasi.md`.
   - Delapan butir nav butuh `1055px`, tidak membungkus dan tidak menyusut.
     Angka itu adalah lebar elemen `ul` di dalam `.navmenu`,
     hasil `getBoundingClientRect()`, bukan perkiraan.
+<<<<<<< HEAD
   - **Header desktop dua baris.** Baris pertama logo + dua CTA, baris kedua
     nav penuh dan dipusatkan. Alasannya angka: satu baris butuh `1703px`
     (logo 284 + nav 1055 + CTA 340 + padding 24), sedangkan viewport terkecil
@@ -169,11 +178,32 @@ bukan tebakan. Rinciannya ada di `docs/design-tokens-terverifikasi.md`.
     1176px pada viewport 1200px, jadi sisa 121px dan tidak ada yang terpotong.
   - `tests/header-ctas.test.ts` mengunci semua angka di atas;
     `tests/panel-nav-mobile.test.ts` mengunci panel mobile.
+=======
+  - **Tangga lebar header:** satu baris butuh `1496px` (logo 237 + nav 894 +
+    CTA 341 + padding 24), jadi di bawah itu satu baris penuh tidak muat.
+    - `1520px` ke atas: satu baris penuh (logo, nav, CTA), seperti situs
+      referensi. Batasnya 1520px, bukan 1496px, supaya ada sisa ~24px untuk
+      perbedaan metrik font antar mesin peramban (Zen memakai Gecko, Helium
+      memakai Chromium).
+    - `1360-1519px`: satu baris kompak — logo merapat (tanpa tagline), nav
+      `13.5px`, CTA meramping. Total kompak `1269px`, muat dari `1360px`
+      dengan sisa ~50px. Label, urutan, dan tujuan tautan tidak berubah.
+    - `1200-1359px`: dua baris (baris pertama logo dan CTA, baris kedua nav
+      yang dipusatkan). Di bawah `1360px` satu baris mustahil tanpa huruf
+      tak terbaca (eksperimen: kompak butuh `1269px`, ruang di `1200px`
+      hanya `1161px`).
+    - Di bawah `1200px`: hamburger + panel, dan CTA disembunyikan (salinannya
+      ada di panel, bilah aksi cepat, dan footer).
+  - Dua pendekatan lama terbukti buruk dan tidak dipakai: menyembunyikan CTA
+    membuat nav terdorong ke tepi kanan sampai menempel (`12px`), sedangkan
+    mengecilkan nav membuat huruf `15px` menjadi `10px`.
+  - Diukur lewat CDP pada 1200, 1280, 1360, 1366, 1440, 1496, 1520, 1560, 1920, dan
+    2560px: nav tetap `894px`, `scrollWidth` sama dengan `clientWidth` (tidak
+    ada gulir horizontal), dan CTA tampil di `1520px` ke atas.
+>>>>>>> origin/main
 
-  **Panel off-canvas mobile, diperbaiki 4 Oktober 2026 atas izin pemilik repo.**
-  Semua aturan barunya hanya ada di dalam `@media (max-width: 1199.98px)`. `.navmenu` diukur ulang di 1920, 1440, dan
-  1200px: tetap `894px`, font `15px`, `flex-wrap: nowrap`, tinggi `.branding`
-  53px. Angka itu masih dijaga `tests/panel-nav-mobile.test.ts`.
+  **Panel off-canvas mobile.** Semua aturannya hanya ada di dalam
+  `@media (max-width: 1199.98px)`.
   - Panel yang tertutup memakai `visibility: hidden`, bukan hanya
     `translateX(100%)`. Tanpa itu, 74 tautan di dalam panel tetap bisa difokus
     padahal tidak terlihat, jadi Tab masuk ke menu yang tidak kelihatan.
@@ -194,12 +224,6 @@ bukan tebakan. Rinciannya ada di `docs/design-tokens-terverifikasi.md`.
     Bootstrap yang menulis `display: flex !important`, jadi `display` biasa
     kalah. `z-index` tombol itu tidak disentuh, karena
     `tests/kembali-ke-atas.test.ts` mengunci 1199 sebagai satu-satunya nilai.
-
-  `tests/panel-nav-mobile.test.ts` mengunci seluruh perilaku di atas. Cara
-  memeriksa angka CSS di berkas tes ada di helper `kodeSaja()`: komentar harus
-  dibuang dulu, karena aturan pembacaan properti hanya menerima `^`, `{`, atau
-  `;` tepat sebelum nama propertinya. Tanpa itu, `visibility: hidden` yang
-  didahului penutup komentar terbaca tidak ada.
 - **Jangan menulis `*/` di dalam komentar blok manapun di repo ini.** Itu menutup
   komentar lebih awal, dan sisa komentarnya dibaca TypeScript sebagai kode. Error
   berikutnya muncul jauh dari lokasi sebenarnya, jadi sulit dibaca.
@@ -208,6 +232,43 @@ bukan tebakan. Rinciannya ada di `docs/design-tokens-terverifikasi.md`.
 - Submenu navbar: hover di desktop dan tautan induk tetap dinavigasi; accordion
   di mobile. Percabangan ini lewat `isDesktopNav()` dengan batas `1200px` yang
   **harus sama** dengan media query `.navmenu` di `site.css`.
+  - Setiap `li` memakai `position: relative` supaya submenu bersarang sejajar
+    baris induknya, bukan rata atas menu. Tanpa ini kursor menempuh diagonal
+    panjang dan menu keburu tertutup.
+  - Menutup memakai masa tenggang `0,3 detik` (`visibility` ikut ditransisikan,
+    `transition-delay` dinolkan ulang di semua aturan buka). Gerakan diagonal
+    yang terpeleset masih sempat masuk kembali.
+  - **Submenu memakai `border-radius: 4px`, mengikuti acuan**
+    (`.navmenu .dropdown ul`), bukan `25px` seperti `.card` dan bukan `0`.
+    `25px` meninggalkan celah hover di sudut sambungan baris induk dan submenu,
+    dan jembatan `::before` yang dibuat untuk menutup celah itu justru bocor
+    ke baris saudara sehingga dua submenu tingkat ketiga menyala bersamaan di
+    koordinat yang sama. `4px` cukup kecil sehingga sambungan tetap rata dan
+    jembatan samping tidak perlu ada.
+  - **Submenu tingkat kedua ke bawah TIDAK boleh punya jembatan samping
+    `::before`.** Ini sumber bug "dua isi sekaligus": submenu tingkat ketiga
+    menempel di `left: 100%`, jadi pita 10px di kirinya menumpang tindih dengan
+    baris saudara di panel yang sama. Kursor di ujung kanan "Paket Health Meets
+    Holiday" menyalakan submenu "Paket Reguler" juga, dan keduanya di koordinat x
+    yang sama (terukur `left: 952` untuk keduanya) sehingga isinya saling
+    menimpa. Jembatan hanya boleh di `.navmenu > ul > li > ul::before` (10px ke
+    atas, untuk submenu yang muncul di bawah induknya).
+  - **Dropdown desktop menutup paksa setiap `pathname` berubah.** `:hover` tidak
+    hilang selama kursor diam, jadi tanpa ini menu tetap terbuka menutupi konten
+    baru. `Navbar` memasang kelas `navigasi-baru` (spesifisitas penekannya
+    `(0,3,2)` mengalahkan aturan buka `(0,2,2)`) dan melepasnya di
+    `onPointerLeave`/`onPointerEnter`/`onFocus`. `onPointerEnter` wajib ada:
+    setelah klik isi submenu, kursor sudah berada di luar nav (di atas konten),
+    jadi tidak ada `leave` yang akan datang melepas penekanan. Jangan menutup
+    lewat `display: none`: itu mematikan transisi memudar.
+  - Keyboard: `:has(:focus-visible)` membuka submenu seperti hover (khusus
+    desktop), **bukan** `:focus-within`. Klik mouse memberi `:focus` tapi bukan
+    `:focus-visible`, dan fokus itu bertahan melewati navigasi client-side —
+    dengan `:focus-within`, submenu milik link yang baru diklik tetap terbuka
+    di halaman baru lalu tumpang tindih dengan submenu yang di-hover
+    (terukur: rantai "Pelayanan > MCU > Paket Reguler" + submenu "Paket
+    Health Meets Holiday" di `left` yang sama). Situs acuan tidak punya aturan
+    fokus sama sekali (tiap navigasi me-load ulang halaman).
 - **`validate()` di `registration-form.tsx` sengaja di-export** supaya aturan
   validasinya bisa diuji tanpa merender komponen. Jangan dibuat lokal lagi.
 - Form dan komponen lain tidak boleh memanggil `setState` di dalam `useEffect`;
@@ -259,7 +320,7 @@ sebelum menyentuh kredensial apa pun. Ringkasnya:
 - Foto berasal dari Unsplash dan picsum, dan host-nya didaftarkan pada
   `remotePatterns` di `next.config.ts`. Host baru harus ditambahkan di sana atau
   `next/image` akan menolaknya.
-- `react-select` sudah terpasang tetapi belum dipakai. Jangan memasang
+- `react-select` sudah dicopot (commit `4cb47bb`). Jangan memasang
   dependensi baru tanpa diminta.
 
 ## Git
@@ -300,6 +361,23 @@ makna, bukan karakter.
   bentuk `{ function: "() => ..." }`; parameternya bernama `function`.
 - `browser_take_screenshot` menolak selektor yang cocok lebih dari satu elemen.
   Tambahkan `>> nth=0` atau `.first()`.
+
+### Build paralel merusak `.next` dan hasil E2E
+
+- `.next` dipakai bersama semua sesi di mesin ini. `rm -rf .next` di tengah
+  jalan membuat E2E sesi lain memakai build setengah tulis, dan hasilnya
+  mustahil dibedakan dari regresi (terjadi 10 Oktober 2026).
+- Protokolnya otomatis dan dua arah (`scripts/kunci-build.ts`, dikunci
+  `tests/kunci-build.test.ts`): `prebuild` menunggu sampai tidak ada E2E atau
+  build lain baru menandai; `postbuild` melepas; `test:e2e` menunggu lalu
+  MENAHAN kunci E2E bertoken selama tes berjalan, dan `globalTeardown`
+  Playwright melepasnya — tetap jalan saat tes gagal, tidak seperti hook
+  `post` bun yang dilewati saat gagal. Jangan lewati dengan memanggil
+  `playwright test` langsung (tanpa token, teardown tidak melepas apa pun),
+  jangan menjalankan `next build` mentah (bangun selalu lewat `bun run build`
+  supaya penanda terpasang), dan jangan hapus penanda yang masih segar.
+- Sebelum menyimpulkan hasil E2E yang aneh, pastikan tidak ada proses
+  `next build` lain yang berjalan bersamaan.
 
 ### Jebakan `github` MCP di dalam `execute`
 

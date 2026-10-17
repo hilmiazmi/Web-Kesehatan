@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import PageHeader from "@/components/layout/PageHeader";
 import RegistrationForm from "@/components/forms/registration-form";
@@ -24,7 +25,22 @@ export default function DaftarOnlinePage() {
             <div className="col-lg-9">
               <div className="card">
                 <div className="card-content">
-                  <RegistrationForm />
+                  {/*
+                    `RegistrationForm` membaca query string supaya pilihan dari
+                    halaman layanan, paket MCU, atau widget beranda ikut terbawa.
+                    `useSearchParams` membuat halaman ini ikut Suspense, dan
+                    tanpa pembatasnya build gagal pada halaman statis.
+
+                    Fallback-nya memakai `.form-suspense`, yang tingginya
+                    dipesan sebesar form sungguhan. Tanpa itu, satu baris
+                    fallback diganti form 793px dan seluruh isi di bawahnya
+                    terdorong turun.
+                  */}
+                  <div className="form-suspense">
+                    <Suspense fallback={<p className="form-konteks">Memuat formulir...</p>}>
+                      <RegistrationForm />
+                    </Suspense>
+                  </div>
                 </div>
               </div>
 

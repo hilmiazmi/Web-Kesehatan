@@ -16,7 +16,7 @@ import { PRIORITY_PHOTOS, photo } from "@/data/images";
  */
 export default function PriorityServices() {
   return (
-    <section id="layanan" className="layanan section pb-3">
+    <section id="layanan" className="section pb-3">
       <div className="container section-title pb-4">
         <h2>Layanan Unggulan &amp; Prioritas</h2>
         <p>&quot;Layanan Terbaik Untuk Kesehatan Anda&quot;</p>
@@ -25,20 +25,22 @@ export default function PriorityServices() {
       <CardCarousel label="Layanan unggulan dan prioritas">
         {PRIORITY_SERVICES.map((s, i) => (
           <div className="card" key={s.slug}>
-            <div className="image-content">
-              <Photo
-                src={photo(PRIORITY_PHOTOS[i % PRIORITY_PHOTOS.length], 600, 400)}
-                alt={s.title}
-                sizes="(max-width: 576px) 100vw, (max-width: 992px) 50vw, 360px"
-                height={190}
-                radius="top"
-              />
-            </div>
+            {/* `Photo` sudah membawa wrapper `.photo-box` sendiri; membungkus
+                lagi membuat aturan `.image-content img` (tinggi 190px tetap)
+                mengalahkan prop `height` di bawah. */}
+            <Photo
+              src={photo(PRIORITY_PHOTOS[i % PRIORITY_PHOTOS.length], 600, 400)}
+              alt={s.title}
+              sizes="(max-width: 576px) 100vw, (max-width: 992px) 50vw, 360px"
+              height={190}
+              radius="top"
+            />
 
             <div className="card-content">
               <h3 className="card-title">{s.title}</h3>
               <p className="card-description">{s.description}</p>
-              <Link href={`/pelayanan/prioritas/${s.slug}`} className="btn btn-primary">
+              {/* Di bawah lipatan: tanpa prefetch (hemat RSC, lihat Footer). */}
+              <Link href={`/pelayanan/prioritas/${s.slug}`} className="btn btn-primary" prefetch={false}>
                 Detail
               </Link>
             </div>

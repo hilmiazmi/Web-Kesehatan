@@ -61,6 +61,10 @@ const DIKECUALIKAN = new Set([
 const BUKAN_HALAMAN = [
   // Route handler API. Punya halaman di bawah `/api/v1`, tapi isinya JSON.
   "api",
+  // Panel admin. Semuanya di balik sesi, jadi tidak ada yang berguna untuk
+  // mesin pencari, dan `/admin/login` termasuk: isinya hanya form yang tidak
+  // bisa dipakai tanpa akun.
+  "admin",
   // Halaman cadangan Next.js, bukan konten situs.
   "_not-found",
   "_global-error",

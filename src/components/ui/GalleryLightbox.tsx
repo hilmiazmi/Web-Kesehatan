@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { MouseEvent } from "react";
 import Image from "next/image";
-import Photo from "@/components/ui/Photo";
+import Photo, { dekoratif, PROPS_DEKORATIF } from "@/components/ui/Photo";
 
 /**
  * Satu foto di dalam galeri.
@@ -11,6 +11,11 @@ import Photo from "@/components/ui/Photo";
  * Bentuk `src` dan `alt` sama dengan blok `galeri` di data halaman, jadi array
  * dari blok itu bisa langsung dipakai. `caption` opsional untuk grid beranda
  * yang menampilkan nama unit di bawah foto.
+ *
+ * Grid yang sekaligus menampilkan `caption` sebaiknya mengosongkan `alt`:
+ * teks yang sama muncul dua kali kalau keduanya diisi, dan pembaca layar
+ * membacakannya dua kali. Keterangan di dalam lightbox memakai `caption`
+ * lebih dulu supaya nama unit tetap tampil saat album dibuka.
  */
 type Foto = { src: string; alt: string; caption?: string };
 
@@ -142,11 +147,11 @@ export default function GalleryLightbox({
       <div className={className}>
         {foto.map((f, i) => (
           <button
-            key={f.src + f.alt + i}
+            key={f.src + (f.caption ?? f.alt) + i}
             type="button"
             className="galeri-pemicu"
             onClick={(peristiwa) => buka(i, peristiwa)}
-            aria-label={`Perbesar ${f.alt}`}
+            aria-label={`Perbesar ${f.caption ?? f.alt}`}
           >
             <Photo
               src={f.src}
@@ -184,7 +189,7 @@ export default function GalleryLightbox({
 
             <button
               type="button"
-              className="lightbox-navigasi lightbox-navigasi--sebelum"
+              className="lightbox-navigasi"
               onClick={() => geser(-1)}
               aria-label="Foto sebelumnya"
             >
@@ -199,9 +204,13 @@ export default function GalleryLightbox({
                 height={800}
                 sizes="(max-width: 768px) 92vw, 80vw"
                 priority
+                // Sama seperti thumbnail di atas: keterangannya sudah ada di
+                // `figcaption`, jadi `alt` kosong berarti foto di sini
+                // dekoratif dan harus dinyatakan, bukan disimpulkan.
+                {...(dekoratif(kini.alt) ? PROPS_DEKORATIF : {})}
               />
               <figcaption className="lightbox-keterangan">
-                {kini.alt}
+                {kini.caption ?? kini.alt}
                 <span className="lightbox-posisi">
                   {(aktif ?? 0) + 1} dari {foto.length}
                 </span>
@@ -210,7 +219,7 @@ export default function GalleryLightbox({
 
             <button
               type="button"
-              className="lightbox-navigasi lightbox-navigasi--sesudah"
+              className="lightbox-navigasi"
               onClick={() => geser(1)}
               aria-label="Foto berikutnya"
             >

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
 import {
   PASSWORD_MAX,
   PASSWORD_MIN,
@@ -138,5 +139,23 @@ describe("periksaKataSandi", () => {
     const errors = new Errors();
     expect(() => periksaKataSandi(errors, "")).not.toThrow();
     expect(errors.isEmpty).toBe(false);
+  });
+});
+
+describe("login menyamarkan surel tak terdaftar", () => {
+  // Waktu respons tidak bisa diuji dengan jam: `vi.setSystemTime` tidak
+  // memperlambat scrypt, dan mengukur durasi sungguhan rapuh di CI. Yang
+  // dikunci di sini adalah mekanismenya di sumber: cabang surel tak ada harus
+  // memanggil scrypt sebelum menolak, dengan biaya yang ikut `hashPassword`.
+  const sumber = readFileSync(
+    new URL("../src/app/api/v1/auth/login/route.ts", import.meta.url),
+    "utf8",
+  );
+
+  it("cabang kredensial null menempuh scrypt sebelum menolak", () => {
+    const cabang = /if \(kredensial === null\) \{([\s\S]*?)\n    \}/.exec(sumber);
+    expect(cabang, "cabang null tidak ditemukan").not.toBeNull();
+    expect(cabang?.[1]).toContain("await hashPassword(");
+    expect(cabang?.[1]).toContain("ApiError.unauthorized()");
   });
 });

@@ -19,18 +19,20 @@ import {
 } from "drizzle-orm/pg-core";
 
 /**
- * Skema database, diturunkan dari `api/migrations/*.sql`.
+ * Skema database, diturunkan dari `drizzle/0000_baseline.sql`.
  *
- * Dua hal di sini tidak bisa ditulis dengan kolom biasa dan harus dijaga
- * pengulangan testnya:
+ * Dua hal tidak bisa ditulis dengan kolom biasa. Keduanya dikunci
+ * `tests/schema-vs-sql.test.ts` supaya tidak ada yang hilang diam-diam:
  *
  * * `CHECK` dengan pola regex. Drizzle hanya bisa menulis CHECK sederhana, jadi
- *   yang memakai operator regex PostgreSQL (polanya ~ dan ~*) ditulis sebagai SQL
- *   mentah di `src/server/db/migration-kustom.sql`. Daftar constraint-nya ada di
- *   `tests/schema.test.ts` supaya tidak ada yang hilang diam-diam.
- * * Indeks unik parsial `WHERE is_active`. Drizzle punya `where`, jadi ini bisa
- *   ditulis di sini, tapi hanya sebagian indeks unik. Sisanya ada di migrasi
- *   kustom.
+ *   tujuh constraint regex hanya hidup di SQL dan tidak punya `check()` di
+ *   sini: enam `email_format` plus `hero_slides_link_internal`, semuanya di
+ *   `drizzle/0000_baseline.sql`, kecuali `admissions_email_format` yang ikut
+ *   tabelnya di `drizzle/0004_slimy_vector.sql`. Sisanya ditulis di sini
+ *   memakai `check(nama, sql...)`.
+ * * Indeks unik parsial `WHERE is_active`. Drizzle punya `where`, dan seluruh
+ *   indeks di folder `drizzle/` punya padanan di berkas ini, jadi tidak ada
+ *   indeks yang hanya hidup di SQL.
  */
 
 const createdAt = timestamp("created_at", { withTimezone: true })
@@ -88,6 +90,28 @@ export const appointmentStatus = pgEnum("appointment_status", [
 ]);
 
 export const paymentType = pgEnum("payment_type", ["general", "bpjs", "insurance"]);
+
+/**
+ * Status permintaan ruang inap.
+ *
+ * Dipisah dari `appointment_status` karena perawatannya berbeda: pendaftaran
+ * rawat jalan dijadwalkan ke dokter dan jam tertentu, sedangkan rawat inap
+ * bergantung pada ketersediaan tempat tidur dan tidak punya nomor antrean per
+ * dokter.
+ */
+export const admissionStatus = pgEnum("admission_status", [
+  "pending",
+  "confirmed",
+  "cancelled",
+]);
+
+/** Kelas perawatan yang bisa dipilih pasien saat meminta inap. */
+export const wardClass = pgEnum("ward_class", [
+  "intensive",
+  "intermediate",
+  "regular",
+  "private",
+]);
 
 /** Status pengajuan, kritik dan saran, laporan WBS. */
 export const submissionStatus = pgEnum("submission_status", [
@@ -164,8 +188,8 @@ export const users = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
     email: varchar("email", { length: 255 }).notNull(),
     /**
-     * Format argon2id dari `src/server/auth/password.ts`:
-     * `$argon2id$v=19$m=...$salt$hash`.
+     * Format scrypt dari `src/server/auth/password.ts`:
+     * `scrypt$N$r$p$salt$hash`.
      *
      * Panjangnya variabel dan bertambah kalau parameternya dinaikkan, jadi
      * `text` bukan `varchar(255)`.
@@ -599,7 +623,7 @@ export const appointments = pgTable(
     /**
      * 16 digit. Formulir memintanya, tapi nilainya tidak pernah disimpan:
      * constraint di bawah hanya menerima 16 angka nol. `NIK_SIMULASI` di
-     * `src/server/repo/appointments.ts` yang mengisinya, setelah validasi
+     * `src/server/db/repo/appointments.ts` yang mengisinya, setelah validasi
      * 16 digit di server.
      */
     nik: varchar("nik", { length: 16 }).notNull(),
@@ -659,6 +683,63 @@ export const appointments = pgTable(
       sql`${t.email} IS NULL OR ${t.email} ~* ${sql.raw(EMAIL_PATTERN)}`,
     ),
     check("appointments_queue_positive", sql`${t.queueNumber} > 0`),
+  ],
+);
+
+/**
+ * Permintaan rawat inap.
+ *
+ * Berbeda dari `appointments`: tidak ada `doctor_id`, `polyclinic_id`, dan
+ * `queue_number` karena tidak ada slot per dokter yang diperebutkan. Yang
+ * diperebutkan adalah tempat tidur, dan itu sudah tercermin di
+ * `bed_capacity.reserved_beds`.
+ *
+ * Tidak ada `schedule_id` yang Prosedural menuju ke sini: rawat inap
+ * dijadwalkan relatif terhadap tanggal masuk, bukan jam tertentu.
+ */
+export const admissions = pgTable(
+  "admissions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    ticketCode: varchar("ticket_code", { length: 24 }).notNull(),
+    patientName: varchar("patient_name", { length: 160 }).notNull(),
+    /**
+     * 16 digit. Formulir memintanya, tapi nilainya tidak pernah disimpan: nilainya
+     * diganti `NIK_SIMULASI` seperti pada `appointments`, dan constraint di
+     * bawah hanya menerima 16 angka nol.
+     */
+    nik: varchar("nik", { length: 16 }).notNull(),
+    phone: varchar("phone", { length: 30 }).notNull(),
+    email: varchar("email", { length: 255 }),
+    address: text("address"),
+    /** Asal rujukan, sama seperti `appointments`: poliklinik, IGD, atau rujukan luar. */
+    referralSource: varchar("referral_source", { length: 160 }),
+    /** Kelas perawatan yang diminta, bukan yang dijamin diterima. */
+    requestedClass: wardClass("requested_class").notNull(),
+    /** Tanggal rencana masuk, sama dengan tanggal paling awal. */
+    entryDate: date("entry_date").notNull(),
+    /**
+     * Perkiraan lama inap dalam malam. Dipakai untuk memperkirakan
+     * kebutuhan tempat tidur, bukan untuk memotong hak pasien.
+     */
+    estimatedNights: integer("estimated_nights").notNull().default(1),
+    complaint: text("complaint"),
+    paymentType: paymentType("payment_type").notNull(),
+    status: admissionStatus("status").notNull().default("pending"),
+    adminNote: text("admin_note"),
+    createdAt,
+    updatedAt,
+  },
+  (t) => [
+    uniqueIndex("admissions_ticket_code_unique").on(t.ticketCode),
+    index("admissions_inbox_idx").on(t.status, t.createdAt.desc().nullsFirst()),
+    index("admissions_entry_date_idx").on(t.entryDate.desc().nullsFirst()),
+    check("admissions_nik_simulasi", sql`${t.nik} ~ '^[0]{16}$'`),
+    check(
+      "admissions_email_format",
+      sql`${t.email} IS NULL OR ${t.email} ~* ${sql.raw(EMAIL_PATTERN)}`,
+    ),
+    check("admissions_nights_positive", sql`${t.estimatedNights} > 0`),
   ],
 );
 
@@ -883,7 +964,7 @@ export const jobVacancies = pgTable(
  * Key-value dengan nilai jsonb supaya bentuk tiap pengaturan bebas berbeda:
  * `nama_rs` berupa string, `jam_operasional` berupa object.
  *
- * Daftar key yang dikenal ada di `src/server/repo/content.ts`. Pembacaan
+ * Daftar key yang dikenal ada di `src/server/db/repo/content.ts`. Pembacaan
  * memakai daftar itu, jadi key yang salah ketik tidak membuat baris baru
  * diam-diam; key asing hanya diabaikan.
  */
@@ -895,6 +976,59 @@ export const siteSettings = pgTable("site_settings", {
   createdAt,
   updatedAt,
 });
+
+/** Jenis tindakan yang dicatat di riwayat. */
+export const AKSI_AUDIT = [
+  "create",
+  "update",
+  "delete",
+  "status",
+  "login",
+  "logout",
+  "password",
+] as const;
+
+export type AksiAudit = (typeof AKSI_AUDIT)[number];
+
+/**
+ * Jejak tindakan admin.
+ *
+ * Ada karena satu pertanyaan yang tidak bisa dijawab tanpa tabel ini: "siapa
+ * yang mengubah isi ini, dan kapan". Tabel konten menyimpan `updated_by` hanya
+ * di dua tempat (`pages` dan `site_settings`), dan keduanya menimpa nilai lama
+ * setiap kali ada perubahan — jadi riwayatnya hilang begitu tindakan berikutnya
+ * terjadi.
+ *
+ * Tiga keputusan yang perlu dijelaskan:
+ *
+ * - `actorEmail` disalin, tidak hanya dirujuk. Kalau akun dihapus, barisnya
+ *   tetap terbaca dan tetap bisa dipakai menelusuri siapa yang bertindak.
+ *   `actorId` memakai `set null` supaya penghapusan akun tidak menolak.
+ * - `rowId` boleh null karena tidak semua tindakan menyentuh satu baris:
+ *   login, logout, dan ganti password tidak punya baris tujuan.
+ * - `summary` teks bebas satu baris, dipakai untuk "judul" baris yang diubah
+ *   supaya riwayat bisa dibaca tanpa membuka tabel tujuannya.
+ */
+export const adminAudit = pgTable(
+  "admin_audit",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    actorId: uuid("actor_id").references(() => users.id, { onDelete: "set null" }),
+    actorEmail: varchar("actor_email", { length: 255 }).notNull(),
+    action: varchar("action", { length: 20 }).$type<AksiAudit>().notNull(),
+    /** Nama tabel tujuan, misalnya `articles`. Kosong untuk login/logout. */
+    tableName: varchar("table_name", { length: 80 }).notNull().default(""),
+    rowId: uuid("row_id"),
+    summary: varchar("summary", { length: 255 }).notNull().default(""),
+    createdAt,
+  },
+  (t) => [
+    // Pembacaan riwayat selalu "terbaru dulu", jadi indeksnya langsung
+    // mencerminkan urutan itu alih-alih `created_at ASC` lalu dibalik.
+    index("admin_audit_created_idx").on(t.createdAt.desc()),
+    index("admin_audit_table_idx").on(t.tableName, t.createdAt.desc()),
+  ],
+);
 
 /**
  * Pola regex email yang sama persis dengan constraint PostgreSQL, lengkap

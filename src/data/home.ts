@@ -66,34 +66,38 @@ export const PRIORITY_SERVICES = [
   {
     slug: "jantung-terpadu",
     title: "Jantung Terpadu",
-    description: "Pelayanan katerisasi jantung dan pemasangan ring",
+    description:
+      "Pelayanan katerisasi jantung dan pemasangan ring dalam satu alur, dari skrining sampai rehabilitasi. Pasien tidak dirujuk ke luar untuk tindakan utama.",
   },
   {
     slug: "kanker-terpadu",
     title: "Kanker Terpadu",
     description:
-      "Layanan radioterapi, pembedahan onkologi, bedah saraf, dan bedah onkologi",
+      "Layanan radioterapi, pembedahan onkologi, bedah saraf, dan bedah onkologi. Deteksi dini dibuka lewat poliklinik, terapi lanjutan dijadwalkan oleh tim yang sama.",
   },
   {
     slug: "medical-check-up",
     title: "Medical Check Up",
-    description: "Layanan pengecekan kesehatan secara komprehensif",
+    description:
+      "Layanan pengecekan kesehatan secara komprehensif, untuk perorangan maupun rombongan perusahaan. Hasilnya diserahkan tertulis beserta saran tindak lanjut.",
   },
   {
     slug: "stroke-terpadu",
     title: "Stroke Terpadu",
-    description: "Sistem penanganan stroke yang dilakukan secara cepat dan tepat",
+    description:
+      "Sistem penanganan stroke yang dilakukan secara cepat dan tepat, terutama pada jam-jam pertama. Pascaperawatan dilanjut fisioterapi sampai kontrol rutin.",
   },
   {
     slug: "uro-nefrologi",
     title: "Uro Nefrologi",
     description:
-      "Layanan medis yang berfokus untuk menangani penyakit pada sistem saluran kemih, ginjal, dan organ terkait",
+      "Layanan medis yang berfokus untuk menangani penyakit pada sistem saluran kemih, ginjal, dan organ terkait, termasuk tindakan tanpa pembedahan.",
   },
   {
     slug: "maternal-center",
     title: "Maternal Center",
-    description: "Pelayanan ibu dan anak terpadu",
+    description:
+      "Pelayanan ibu dan anak terpadu, dari pemeriksaan kehamilan sampai perawatan bayi baru lahir. Kelas ibu hamil dibuka berkala untuk calon orang tua.",
   },
 ];
 
@@ -106,7 +110,7 @@ export const FACILITIES = [
     slug: "instalasi-gawat-darurat",
     title: "Instalasi Gawat Darurat",
     description:
-    "RSUD Contoh Sehat berkomitmen memberikan pelayanan terbaik dalam situasi darurat",
+      "RSUD Contoh Sehat berkomitmen memberikan pelayanan terbaik dalam situasi darurat, buka 24 jam termasuk malam hari dan hari libur",
   },
   {
     slug: "rawat-jalan",
@@ -136,19 +140,19 @@ export const FACILITIES = [
     slug: "eswl",
     title: "ESWL (Extracorporeal Shock Wave Lithotripsy)",
     description:
-      "Layanan penghancuran batu kanal kemih menggunakan gelombang kejut tanpa pembedahan",
+      "Layanan penghancuran batu kanal kemih menggunakan gelombang kejut tanpa pembedahan, dilanjutkan pemeriksaan ulang dan perawatan pasca tindakan",
   },
   {
     slug: "mri",
     title: "MRI",
     description:
-      "Pencitraan resonansi magnetik resolusi tinggi untuk membantu diagnosis yang lebih akurat",
+      "Pencitraan resonansi magnetik resolusi tinggi untuk membantu diagnosis yang lebih akurat, untuk otak, tulang dan sendi, tulang belakang, serta perut",
   },
   {
     slug: "klinik-eksekutif",
     title: "Klinik Eksekutif",
     description:
-      "Layanan konsultasi cepat bagi pasien yang membutuhkan langsung bertemu dokter spesialis",
+      "Layanan konsultasi cepat bagi pasien yang membutuhkan langsung bertemu dokter spesialis, dengan jadwal lebih fleksibel dan ruang tunggu terpisah",
   },
 ];
 
@@ -281,14 +285,14 @@ export const MCU_HOLIDAY_PACKAGES = [
 /** Berita & artikel kesehatan (section 6). Judul dan isi karangan sendiri. */
 export const ARTICLES = [
   { slug: "rsud-contoh-sehat-terima-akreditasi-utama", title: "RSUD Contoh Sehat Terima Akreditasi Utama", date: "2026-09-28", excerpt: "RSUD Contoh Sehat resmi menerima akreditasi utama dari lembaga kesehatan nasional." },
-  { slug: "layanan-stroke-terpadu", title: "Layanan Stroke Terpadu", date: "2026-09-22", excerpt: "Penanganan stroke cepat dengan tim defibrilasi dan unit stroke siaga." },
+  { slug: "layanan-stroke-terpadu", title: "Layanan Stroke Terpadu", date: "2026-09-22", excerpt: "Penanganan stroke cepat dengan tim defibrilator dan unit stroke siaga." },
   { slug: "program-promosi-layanan-jantung", title: "Program Promosi Layanan Jantung Terpadu", date: "2026-09-15", excerpt: "Penawaran dan informasi layanan jantung terpadu." },
   { slug: "workshop-kesehatan-untuk-warga", title: "Workshop Kesehatan Untuk Warga", date: "2026-09-09", excerpt: "Kegiatan edukasi kesehatan rutin." },
   { slug: "peresmian-unit-maternal-center-baru", title: "Peresmian Unit Maternal Center Baru", date: "2026-09-03", excerpt: "Fasilitas ibu dan anak yang lebih lengkap." },
   { slug: "pemeriksaan-kesehatan-gratis-untuk-masyarakat", title: "Pemeriksaan Kesehatan Gratis Untuk Masyarakat", date: "2026-08-27", excerpt: "Ajang sosial kesehatan berkala." },
   { slug: "kanal-youtube-tersedia-resmi", title: "Kanal Youtube Tersedia Resmi", date: "2026-08-20", excerpt: "Siaran langsung dan podcast." },
   { slug: "pemantauan-tumbuh-kembang-bayi", title: "Pantauan Tumbuh Kembang Bayi", date: "2026-08-14", excerpt: "Layanan pemantauan tumbuh kembang anak secara berkala." },
-  { slug: "kerja-sama-dengan-puskesmas", title: "Kerja Sama Dengan Puskesmas Waik", date: "2026-08-08", excerpt: "Rujukan berjenjang lebih baik." },
+  { slug: "kerja-sama-dengan-puskesmas", title: "Kerja Sama Dengan Puskesmas", date: "2026-08-08", excerpt: "Rujukan berjenjang lebih baik." },
   { slug: "pelatihan-tenaga-kesehatan", title: "Pelatihan Tenaga Kesehatan", date: "2026-08-02", excerpt: "Peningkatan kompetensi tenaga kesehatan di lingkungan rumah sakit." },
   { slug: "zona-integritas-2026", title: "Zona Integritas 2026", date: "2026-07-27", excerpt: "Komitmen anti-korupsi yang kuat di seluruh unit kerja." },
   { slug: "rawat-inap-khusus-trauma", title: "Rawat Inap Khusus Untuk Pasien Trauma", date: "2026-07-20", excerpt: "Kamar VIP dan fasilitas perawatan intensif dengan pemantauan intensif." },
@@ -298,7 +302,13 @@ export const ARTICLES = [
   { slug: "kerja-sama-dengan-universitas", title: "Kerja Sama Dengan Universitas", date: "2026-06-24", excerpt: "Pendidikan dan penelitian bersama mitra universitas." },
 ];
 
-/** Penghargaan & akreditasi (section 7). Placeholder generik. */
+/**
+ * Penghargaan & akreditasi (section 7). Nama generik karangan sendiri.
+ *
+ * Jumlahnya 22, sama seperti situs referensi. Situs referensi memakai logo
+ * dan foto piagam asli yang tidak boleh disalin (PRD bagian 12), jadi di sini
+ * hanya judul generik dengan gambar pola acak dari picsum.
+ */
 export const AWARDS = [
   "Penghargaan Beta Template 2026",
   "Akreditasi Rumah Sakit 2025",
@@ -307,6 +317,21 @@ export const AWARDS = [
   "Sertifikat Akreditasi Utama 2024",
   "Penghargaan Pelayanan Terbaik 2024",
   "Sertifikat ISO 9001 2024",
+  "Penghargaan Pelayanan Prima 2025",
+  "Sertifikat Akreditasi Paripurna 2024",
+  "Penghargaan Inovasi Pelayanan 2025",
+  "Penghargaan Keselamatan Pasien 2024",
+  "Sertifikat Manajemen Mutu 2024",
+  "Penghargaan Kebersihan Lingkungan 2025",
+  "Penghargaan Kepuasan Pasien 2024",
+  "Sertifikat Pelayanan Unggul 2025",
+  "Penghargaan Tertib Administrasi 2024",
+  "Penghargaan Gawat Darurat Siaga 2025",
+  "Sertifikat Layanan Ibu dan Anak 2024",
+  "Penghargaan Keterbukaan Informasi 2024",
+  "Sertifikat Pencegahan Infeksi 2025",
+  "Penghargaan Pengabdian Masyarakat 2024",
+  "Penghargaan Rumah Sakit Bersih 2025",
 ];
 
 /** Galeri (section 8). Placeholder. */
@@ -354,12 +379,12 @@ export const FAQS = [
   {
     question: "Apakah saya bisa menggunakan asuransi swasta?",
     answer:
-      "Kami bekerja sama dengan berbagai perusahaan asuransi swasta. Anda dapat menghubungi bagian konfirmasi untuk memastikan procedur yang berlaku sebelum datang.",
+      "Kami bekerja sama dengan berbagai perusahaan asuransi swasta. Anda dapat menghubungi bagian konfirmasi untuk memastikan prosedur yang berlaku sebelum datang.",
   },
   {
-    question: "Bagaimana cara menyampaikan keluhan atau keluhan?",
+    question: "Bagaimana cara menyampaikan keluhan terhadap pelayanan?",
     answer:
-      "Anda dapat menyampaikan masukan melalui halaman Kritik dan Saran. Setiap masukan yang terkirim akan diberi kode tiket sehingga dapat ditindaklanjuti oleh tim.front office.",
+      "Anda dapat menyampaikan keluhan lewat halaman Pengaduan Masyarakat. Setiap keluhan yang terkirim akan diberi nomor tiket sehingga dapat ditindaklanjuti oleh tim bagian pelayanan.",
   },
   {
     question: "Di mana lokasi RSUD Contoh Sehat dan jam bukanya?",
@@ -396,18 +421,49 @@ export const TESTIMONIALS = [
   },
 ];
 
-/** Mitra asuransi (section 12). Nama generik, bukan logo/asuransi nyata. */
+/**
+ * Mitra asuransi (section 12). Nama generik karangan sendiri, bukan
+ * perusahaan asuransi nyata.
+ *
+ * Jumlahnya 19, sama seperti situs referensi. Situs referensi memakai logo
+ * perusahaan asli yang tidak boleh disalin (PRD bagian 12), jadi di sini
+ * hanya nama generik dengan ikon perisai.
+ */
 export const INSURANCES = [
   "Asuransi Alfa",
   "Asuransi Beta",
   "Asuransi Cakra",
   "Asuransi Delta",
+  "Asuransi Eka",
+  "Asuransi Wira",
+  "Asuransi Surya",
+  "Asuransi Bayu",
+  "Asuransi Candra",
+  "Asuransi Fajar",
+  "Asuransi Gita",
+  "Asuransi Hasta",
+  "Asuransi Indah",
+  "Asuransi Jaya",
+  "Asuransi Kirana",
+  "Asuransi Lestari",
+  "Asuransi Mega",
+  "Asuransi Nusa",
+  "Asuransi Prima",
 ];
 
-/** 3 tombol pendaftaran (section 9). */
+/**
+ * 3 kanal pendaftaran (section 9).
+ *
+ * Situs referensi menautkan ketiganya ke luar (toko aplikasi dan sistem
+ * antrean daring milik mereka). Tautan luar itu tidak disalin karena
+ * identitas situs ini fiktif (PRD bagian 12): menautkan identitas fiktif ke
+ * aplikasi resmi milik instansi nyata akan menyesatkan. Ketiganya mengarah
+ * ke halaman Daftar Online situs ini, yang memang muara seluruh alur
+ * pendaftaran.
+ */
 export const REGISTRATION_OPTIONS = [
-  { title: "JAKSEHAT", description: "Aplikasi Jaminan Kesehatan", icon: "bi-phone", href: "#" },
-  { title: "JKN", description: "Jaminan Kesehatan Nasional", icon: "bi-shield-check", href: "#" },
+  { title: "JAKSEHAT", description: "Aplikasi Jaminan Kesehatan", icon: "bi-phone", href: "/daftar-online" },
+  { title: "JKN", description: "Jaminan Kesehatan Nasional", icon: "bi-shield-check", href: "/daftar-online" },
   { title: "E-Pasien", description: "RSUD Contoh Sehat", icon: "bi-hospital", href: "/daftar-online" },
 ];
 

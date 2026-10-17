@@ -1,0 +1,14 @@
+[
+ {
+  "id": "b28babcc-2351-5628-b919-7f534a6b4956",
+  "doctor_id": "7a0625d9-2252-5fdd-83e8-e94fd5774163",
+  "doctor_name": "Indira Puspita",
+  "polyclinic": "Poliklinik Ibu dan Anak",
+  "day_of_week": 2,
+  "start_time": "09:00:00",
+  "end_time": "13:00:00",
+  "room": "D2-09",
+  "quota": 50,
+  "note": null
+ }
+]

@@ -1,0 +1,14 @@
+[
+ {
+  "id": "881c2aae-ebf5-53f3-9474-ed24f429da97",
+  "doctor_id": "280be2c6-1cca-5aba-bbb3-6e54c5dcba8e",
+  "doctor_name": "Candra Wibowo",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 4,
+  "start_time": "10:00:00",
+  "end_time": "14:00:00",
+  "room": "B3-04",
+  "quota": 50,
+  "note": null
+ }
+]

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { hrefDaftarOnline } from "@/lib/daftar-online";
 import Photo from "@/components/ui/Photo";
 import { DetailLayout } from "@/components/pelayanan/DetailLayout";
 import DoctorCard from "@/components/pelayanan/DoctorCard";
@@ -95,7 +96,12 @@ export function ClinicDetailBody({
         )}
 
         <div className="d-flex gap-2 flex-wrap mt-4">
-          <Link href="/daftar-online" className="btn btn-primary">
+          <Link
+            href={hrefDaftarOnline(`/pelayanan/poliklinik/${detail.clinicSlug}`, {
+              spesialitas: detail.specialty,
+            })}
+            className="btn btn-primary"
+          >
             Daftar Online
           </Link>
           <Link href="/pelayanan/poliklinik" className="btn btn-tertiary">

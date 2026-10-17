@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ARTICLES } from "@/data/home";
+import { PHOTO, photo } from "@/data/images";
 
 /**
  * Content loader halaman publik.
@@ -159,33 +160,97 @@ describe("dariBarisArtikelDetail", () => {
 
 describe("fotoBerita", () => {
   it("memakai URL dari database dan menandai foto itu tidak dioptimasi", () => {
-    const hasil = fotoBerita({ imageUrl: "https://contoh.test/foto.jpg" }, 0, 600, 400);
+    const hasil = fotoBerita(
+      { imageUrl: "https://contoh.test/foto.jpg", slug: "x" },
+      0,
+      600,
+      400,
+    );
 
     expect(hasil.src).toBe("https://contoh.test/foto.jpg");
     expect(hasil.unoptimized).toBe(true);
   });
 
+  it("kebalikannya: URL dari host yang diizinkan tetap dioptimasi", () => {
+    // Dulu setiap `cover_url` dipaksa tidak dioptimasi. Host yang memang sudah
+    // ada di `remotePatterns` bisa dilewatkan optimasi seperti foto bawaan,
+    // jadi WebP dan pemilihan lebar tidak hilang sia-sia.
+    const hasil = fotoBerita(
+      { imageUrl: "https://images.unsplash.com/photo-abc?w=600", slug: "x" },
+      0,
+      600,
+      400,
+    );
+
+    expect(hasil.unoptimized).toBe(false);
+  });
+
   it("memakai foto stok bergiliran kalau database tidak punya foto", () => {
-    const a = fotoBerita({}, 0, 600, 400);
-    const b = fotoBerita({}, 1, 600, 400);
+    // Slugnya sengaja kosong: berita tanpa slug tidak punya pemetaan konteks,
+    // jadi kedua panggilan ini memang harus jatuh ke putaran indeks.
+    const a = fotoBerita({ slug: "" }, 0, 600, 400);
+    const b = fotoBerita({ slug: "" }, 1, 600, 400);
 
     expect(a.unoptimized).toBe(false);
     expect(b.unoptimized).toBe(false);
     expect(a.src).not.toBe(b.src);
+  });
+
+  it("memakai foto yang sesuai konteks slug, bukan putaran indeks", () => {
+    // Berita kanker harus dapat foto kanker, bukan foto ke-3 di daftar
+    // putaran. Inilah yang membuat kartu berita tidak lagi memakai gambar
+    // yang kebetulan.
+    //
+    // Indeksnya sengaja besar: kalau slug tidak diperiksa lebih dulu, indeks 99
+    // jatuh di foto lain sama sekali dan tes ini gagal seperti seharusnya.
+    const hasil = fotoBerita({ slug: "skrining-kanker-wanita-diperluas" }, 99, 600, 400);
+
+    expect(hasil.src).toBe(photo(PHOTO.kangker, 600, 400));
+    expect(hasil.unoptimized).toBe(false);
   });
 });
 
 // ----------------------------------------------------------------- loader
 
 describe("getPublicArticles", () => {
-  it("mengambil dari database ketika mode live", async () => {
+  it("menampilkan berita database lebih dulu, lalu berita bawaan", async () => {
+    // Urutannya penting untuk dua hal sekaligus: database dibaca sebagai
+    // sumber utama, dan berita bawaan yang belum ada di sana tetap punya
+    // tautan masuk. Kalau bawaan tidak ikut, enam belas halamannya jadi
+    // halaman yatim yang tidak bisa ditemukan pengunjung maupun `cek:tautan`.
     keadaan.articles = [baris()];
 
     const hasil = await getPublicArticles();
 
-    expect(hasil).toHaveLength(1);
     expect(hasil[0].title).toBe("Berita dari Database");
+    expect(hasil).toHaveLength(ARTICLES.length + 1);
     expect(keadaan.panggil).toBe(1);
+  });
+
+  it("tidak menampilkan dua kali slug yang ada di kedua sumber", async () => {
+    // Berita bawaan bisa sudah tersimpan di database dengan slug yang sama. Kalau
+    // keduanya ikut, pengunjung melihat artikel yang sama dua kali dengan isi
+    // berbeda, dan detailnya hanya menampilkan versi database.
+    keadaan.articles = [baris({ slug: ARTICLES[0].slug, title: "Versi Database" })];
+
+    const hasil = await getPublicArticles();
+    const slugGanda = hasil.filter((a) => a.slug === ARTICLES[0].slug);
+
+    expect(slugGanda).toHaveLength(1);
+    expect(slugGanda[0].title).toBe("Versi Database");
+    expect(hasil).toHaveLength(ARTICLES.length);
+  });
+
+  it("mengurutkan ulang berdasarkan tanggal setelah digabung", async () => {
+    // Tanpa pengurutan ulang, berita bawaan selalu menempel di bagian akhir dan
+    // halaman `/berita` terlihat seperti belum pernah diperbarui.
+    keadaan.articles = [baris({ slug: "paling-baru", published_at: "2030-01-02T00:00:00Z" })];
+
+    const hasil = await getPublicArticles();
+    const tanggal = hasil.map((a) => a.date);
+
+    expect(tanggal).toEqual([...tanggal].sort((a, b) => b.localeCompare(a)));
+    expect(hasil[0].slug).toBe("paling-baru");
   });
 
   it("kembali ke data statis di mode snapshot tanpa menyentuh database", async () => {
@@ -222,8 +287,10 @@ describe("getPublicArticles", () => {
 
     const hasil = await getPublicArticles();
 
-    expect(hasil).toHaveLength(1);
-    expect(hasil[0].slug).toBe("yang-valid");
+    // Baris yang tanggalnya rusak tidak muncul, dan baris yang valid tetap
+    // ada. Jumlahnya tidak lagi satu karena berita bawaan ikut digabung.
+    expect(hasil.map((a) => a.slug)).toContain("yang-valid");
+    expect(hasil).toHaveLength(ARTICLES.length + 1);
   });
 });
 

@@ -110,6 +110,20 @@ describe("denganSnapshot saat database gagal", () => {
     expect((hasil as { items: unknown[] }).items.length).toBeGreaterThan(0);
   });
 
+  it("mengalihkan ke snapshot saat koneksi ditolak driver", async () => {
+    // Kasus paling umum di produksi: database mati. Driver meneruskan errno
+    // Node (`ECONNREFUSED`), bukan SQLSTATE `08xxx`, jadi tanpa pengecualian
+    // ini fallback tidak pernah terpicu tepat saat paling dibutuhkan.
+    Object.assign(process.env, { API_MODE: "live" });
+    resetConfigCache();
+    keadaan.database = { execute: async () => [] };
+
+    for (const kode of ["ECONNREFUSED", "ENOTFOUND", "ETIMEDOUT"]) {
+      const hasil = await denganSnapshot(sumberGagal(dbGalat(kode)), "/articles");
+      expect((hasil as { items: unknown[] }).items.length, kode).toBeGreaterThan(0);
+    }
+  });
+
   it("tidak mengalihkan untuk galat permintaan", async () => {
     // `22P02` adalah invalid_text_representation, misal nilai enum di luar
     // daftar. Ini kesalahan permintaan, dan menjawabnya dari snapshot akan

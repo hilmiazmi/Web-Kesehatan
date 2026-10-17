@@ -1,5 +1,6 @@
 import { ApiError } from "./api/error";
 import { config } from "./config";
+import { surelValid, teleponServerValid } from "../lib/validasi-umum";
 
 /**
  * Validasi input formulir di sisi server.
@@ -118,7 +119,7 @@ export function email(
     return null;
   }
 
-  if (trimmed.length > 255 || !isEmail(trimmed)) {
+  if (!surelValid(trimmed)) {
     errors.add(field, "Format alamat surel tidak valid.");
     return null;
   }
@@ -145,9 +146,7 @@ export function phoneId(
     return null;
   }
 
-  const digits = trimmed.replace(/[ ()+-]/g, "");
-
-  if (!/^\d+$/.test(digits) || digits.length < 9 || digits.length > 15) {
+  if (!teleponServerValid(trimmed)) {
     errors.add(field, "Nomor telepon tidak valid.");
     return null;
   }
@@ -336,37 +335,6 @@ export function isHoneypotTrap(value: string): boolean {
   return value.trim() !== "";
 }
 
-/**
- * Periksa bentuk alamat surel.
- *
- * Cakupannya sengaja longgar: yang diperiksa adalah susunan yang mustahil
- * bermasalah, bukan kepatuhan penuh terhadap RFC 5322. Server ini tidak
- * pernah mengirim surel dari situs ini, jadi tujuannya menyaring ketikan yang
- * jelas salah, bukan membuktikan alamat itu nyata.
- */
-function isEmail(value: string): boolean {
-  if (/\s/.test(value)) return false;
-
-  // Satu `@` saja. Dua tanda oath tidak pernah sah, dan kalau hanya yang
-  // pertama yang diperiksa, `dua@@at.com` lolos karena bagian domainnya
-  // `@at.com` masih mengandung titik.
-  if (value.split("@").length !== 2) return false;
-
-  const pemisah = value.indexOf("@");
-  const local = value.slice(0, pemisah);
-  const domain = value.slice(pemisah + 1);
-
-  if (local.length === 0 || local.length > 64 || domain.length > 255) return false;
-
-  // Setiap label domain dipisah titik, dan tidak boleh kosong, tidak boleh
-  // diawali atau diakhiri tanda hubung, dan tidak boleh lebih dari 63 karakter.
-  const label = /^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$/;
-  const domainBaik = domain.split(".").every(
-    (bagian) => bagian.length > 0 && bagian.length <= 63 && label.test(bagian),
-  );
-
-  return domainBaik;
-}
 
 /**
  * Baca body permintaan sebagai objek JSON.
@@ -379,7 +347,7 @@ function isEmail(value: string): boolean {
  * Hasil yang dikembalikan selalu objek. Body kosong, body `null`, dan body
  * berupa larik semuanya menjadi objek kosong, karena pengirim formulir dari
  * panel admin dan skrip uji sama-sama mengirim `{}` saat tidak ada yang mau
- * diubah, dan_itSebauh galat untuk kasus itu akan sangat membingungkan.
+ * diubah, dan sebuah galat untuk kasus itu akan sangat membingungkan.
  */
 export async function readJsonBody(request: Request): Promise<Record<string, unknown>> {
   const batas = config().bodyLimitBytes;

@@ -23,7 +23,7 @@ describe("formatIDR", () => {
   // Locale id-ID pada ICU memakai non-breaking space (U+00A0) antara "Rp"
   // dan angka, bukan space biasa. Fungsi bantu di bawah mengubahnya agar
   // perbandingan di bawah bisa ditulis normal.
-  const orientedNormalizer = (s: string) => s.replace(/\u00a0/g, " ");
+  const normalisasiSpasi = (s: string) => s.replace(/\u00a0/g, " ");
 
   it("memakai awalan Rupiah dan pemisah ribuan titik", () => {
     expect(formatIDR(1150000)).toBe("Rp\u00a01.150.000");
@@ -45,7 +45,7 @@ describe("formatIDR", () => {
 
   it("selalu diawali Rupiah dan diikuti angka", () => {
     for (const v of [0, 1500, 850000, 1150000, 100000000]) {
-      expect(orientedNormalizer(formatIDR(v))).toMatch(/^Rp [\d.]+$/);
+      expect(normalisasiSpasi(formatIDR(v))).toMatch(/^Rp [\d.]+$/);
     }
   });
 });

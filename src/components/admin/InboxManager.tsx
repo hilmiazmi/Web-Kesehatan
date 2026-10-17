@@ -2,6 +2,38 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { ApiFailure } from "@/components/admin/types";
+import { keCsv } from "@/lib/csv";
+import { unduhCsv } from "@/components/admin/unduh";
+
+/**
+ * Judul kolom yang bisa dibaca manusia, dipakai bersama oleh tabel dan ekspor
+ * CSV supaya keduanya tidak pernah berbeda.
+ *
+ * Tanpa peta ini header tabel memakai nama kolom database (`patient_name`,
+ * `complaint`), yang terbaca seperti rujukan teknis alih-alih daftar isi.
+ * Kolom yang tidak ada di peta tetap tampil apa adanya: kolom baru di backend
+ * tidak boleh hilang dari layar hanya karena lupa ditambahkan di sini.
+ */
+const JUDUL_KOLOM: Record<string, string> = {
+  patient_name: "Nama pasien",
+  name: "Nama",
+  respondent_name: "Nama responden",
+  ticket_code: "Kode tiket",
+  phone: "Telepon",
+  complaint: "Keluhan",
+  referral_source: "Sumber rujukan",
+  company_name: "Perusahaan",
+  subject: "Subjek",
+  message: "Pesan",
+  description: "Kronologi",
+  involved_unit: "Unit terkait",
+  service_unit: "Unit layanan",
+  comment: "Komentar",
+  created_at: "Masuk",
+  status: "Status",
+};
+
+const judulKolom = (c: string): string => JUDUL_KOLOM[c] ?? c;
 
 /**
  * Daftar inbox satu jenis: pencarian, filter status, dan ubah status.
@@ -35,6 +67,8 @@ export default function InboxManager({
   const [cari, setCari] = useState("");
   const [kataKunci, setKataKunci] = useState("");
   const [catatan, setCatatan] = useState<Record<string, string>>({});
+  const [terpilih, setTerpilih] = useState<string[]>([]);
+  const [statusMassal, setStatusMassal] = useState("");
   const [galat, setGalat] = useState("");
   const [pesan, setPesan] = useState("");
   const [sibuk, setSibuk] = useState(false);
@@ -75,6 +109,10 @@ export default function InboxManager({
         setGalat("");
         setItems(baris);
         setTotal(jumlah);
+        // Pilihan dari tampilan sebelumnya tidak boleh terbawa: id yang sudah
+        // tidak ada di daftar akan mengubah baris yang tidak sedang dilihat.
+        setTerpilih([]);
+        setStatusMassal("");
       })
       .catch((err: unknown) => {
         if (!hidup) return;
@@ -117,6 +155,56 @@ export default function InboxManager({
       setSibuk(false);
     }
   }
+
+  /**
+   * Terapkan satu status ke semua tiket yang dicentang.
+   *
+   * Daftar id dikirim ke endpoint khusus, bukan satu PATCH per baris: sepuluh
+   * tiket berarti satu permintaan, dan kegagalan di tengah tidak bisa
+   * meninggalkan separuh baris berubah separuh tidak.
+   */
+  async function terapkanMassal(status: string) {
+    if (terpilih.length === 0 || status === "") return;
+
+    setSibuk(true);
+    setGalat("");
+    setPesan("");
+
+    try {
+      const res = await fetch(`/api/v1/admin/inbox/${slug}/status-banyak`, {
+        method: "POST",
+        headers: { "content-type": "application/json", accept: "application/json" },
+        body: JSON.stringify({ ids: terpilih, status }),
+      });
+
+      const body = (await res.json().catch(() => ({}))) as {
+        data?: { updated?: number };
+      } & ApiFailure;
+
+      if (!res.ok) {
+        setGalat(body.error?.message ?? "Perubahan massal gagal disimpan.");
+        return;
+      }
+
+      const jumlah = body.data?.updated ?? 0;
+      setPesan(`${jumlah} tiket diubah menjadi "${STATUS_LABEL[status] ?? status}".`);
+
+      const { items: baris, total: totalBaru } = await ambil();
+      setItems(baris);
+      setTotal(totalBaru);
+    } catch {
+      setGalat("Tidak bisa menghubungi server.");
+    } finally {
+      setSibuk(false);
+    }
+  }
+
+  const kolomEkspor = [
+    "ticket_code",
+    ...kolom.filter((c) => c !== "ticket_code"),
+    "created_at",
+    ...(hasStatus ? ["status"] : []),
+  ];
 
   return (
     <div>
@@ -161,7 +249,60 @@ export default function InboxManager({
             ))}
           </select>
         ) : null}
+
+        {/* Ekspor yang sedang tampil, bukan seluruh tabel: berkas ini harus
+            berisi apa yang operator lihat dan yakini, termasuk saringan yang
+            sedang aktif. */}
+        <button
+          type="button"
+          className="btn btn-outline-secondary"
+          onClick={() => unduhCsv(`inbox-${slug}`, keCsv(kolomEkspor, items, JUDUL_KOLOM))}
+          disabled={items.length === 0}
+        >
+          <i className="bi bi-download" aria-hidden="true" /> Ekspor CSV
+        </button>
       </div>
+
+      {/* Bilah aksi massal. Hanya muncul setelah ada yang dicentang, supaya
+          tampilan biasa tidak memuat lima tombol yang belum bisa dipakai.
+          Jenis tanpa status tidak menampilkannya sama sekali. */}
+      {hasStatus && terpilih.length > 0 ? (
+        <div className="admin-bulk mb-3" role="group" aria-label="Aksi massal">
+          <strong>{terpilih.length} tiket dipilih</strong>
+          <select
+            className="form-select form-select-sm"
+            style={{ width: "auto" }}
+            value={statusMassal}
+            onChange={(e) => setStatusMassal(e.target.value)}
+            aria-label="Status baru untuk tiket yang dipilih"
+          >
+            <option value="">Pilih status…</option>
+            {statuses.map((s) => (
+              <option key={s} value={s}>
+                {STATUS_LABEL[s] ?? s}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            className="btn btn-primary btn-sm"
+            disabled={sibuk || statusMassal === ""}
+            onClick={() => terapkanMassal(statusMassal)}
+          >
+            Terapkan
+          </button>
+          <button
+            type="button"
+            className="btn btn-outline-secondary btn-sm"
+            onClick={() => {
+              setTerpilih([]);
+              setStatusMassal("");
+            }}
+          >
+            Batalkan pilihan
+          </button>
+        </div>
+      ) : null}
 
       {galat ? (
         <div className="admin-alert admin-alert-gagal mb-3" role="alert">
@@ -178,12 +319,26 @@ export default function InboxManager({
         <table className="table admin-table">
           <thead>
             <tr>
+              {hasStatus ? (
+                <th scope="col" style={{ width: 44 }}>
+                  <input
+                    type="checkbox"
+                    className="form-check-input"
+                    checked={items.length > 0 && terpilih.length === items.length}
+                    disabled={items.length === 0}
+                    aria-label="Pilih semua tiket di halaman ini"
+                    onChange={(e) =>
+                      setTerpilih(e.target.checked ? items.map((b) => String(b.id)) : [])
+                    }
+                  />
+                </th>
+              ) : null}
               <th scope="col">Kode tiket</th>
               {kolom
                 .filter((c) => c !== "ticket_code")
                 .map((c) => (
                   <th key={c} scope="col">
-                    {c}
+                    {judulKolom(c)}
                   </th>
                 ))}
               <th scope="col">Masuk</th>
@@ -193,7 +348,7 @@ export default function InboxManager({
           <tbody>
             {items.length === 0 ? (
               <tr>
-                <td colSpan={kolom.length + 3} className="admin-empty">
+                <td colSpan={kolom.length + (hasStatus ? 4 : 3)} className="admin-empty">
                   {kataKunci === "" && status === ""
                     ? "Belum ada pengajuan."
                     : "Tidak ada yang cocok dengan saringan."}
@@ -207,6 +362,14 @@ export default function InboxManager({
                   kolom={kolom}
                   statuses={statuses}
                   hasStatus={hasStatus}
+                  terpilih={terpilih.includes(String(baris.id))}
+                  onPilih={(dipilih) =>
+                    setTerpilih((prev) =>
+                      dipilih
+                        ? [...prev, String(baris.id)]
+                        : prev.filter((x) => x !== String(baris.id)),
+                    )
+                  }
                   catatan={catatan[String(baris.id)] ?? ""}
                   sibuk={sibuk}
                   onCatatan={(v) =>
@@ -265,6 +428,8 @@ function Baris({
   kolom,
   statuses,
   hasStatus,
+  terpilih,
+  onPilih,
   catatan,
   sibuk,
   onCatatan,
@@ -274,6 +439,8 @@ function Baris({
   kolom: readonly string[];
   statuses: readonly string[];
   hasStatus: boolean;
+  terpilih: boolean;
+  onPilih: (dipilih: boolean) => void;
   catatan: string;
   sibuk: boolean;
   onCatatan: (v: string) => void;
@@ -284,6 +451,17 @@ function Baris({
 
   return (
     <tr>
+      {hasStatus ? (
+        <td>
+          <input
+            type="checkbox"
+            className="form-check-input"
+            checked={terpilih}
+            aria-label={`Pilih tiket ${baris.ticket_code}`}
+            onChange={(e) => onPilih(e.target.checked)}
+          />
+        </td>
+      ) : null}
       <td>
         <code>{String(baris.ticket_code ?? "-")}</code>
       </td>

@@ -97,20 +97,30 @@ describe("loadStats", () => {
     }
   });
 
-  it("menjumlahkan inbox_unread dari empat jenis yang punya status saja", async () => {
+  it("menjumlahkan inbox_unread dari lima jenis yang punya status saja", async () => {
     const hasil = await loadStats(
-      dbDenganBaris(barisKosong({ pendaftaran_baru: "1", mcu_baru: "2", kritik_baru: "3", wbs_baru: "4", survei_total: "500" })),
+      dbDenganBaris(
+        barisKosong({
+          pendaftaran_baru: "1",
+          inap_baru: "5",
+          mcu_baru: "2",
+          kritik_baru: "3",
+          wbs_baru: "4",
+          survei_total: "500",
+        }),
+      ),
     );
 
     expect(hasil.inbox_by_kind.appointments).toBe(1);
+    expect(hasil.inbox_by_kind.admissions).toBe(5);
     expect(hasil.inbox_by_kind.mcu_registrations).toBe(2);
     expect(hasil.inbox_by_kind.feedbacks).toBe(3);
     expect(hasil.inbox_by_kind.wbs_reports).toBe(4);
 
-    // 1 + 2 + 3 + 4, bukan 510. Survei tidak punya status sehingga tidak bisa
-    // dihitung sebagai "belum ditangani"; menghitungnya membuat angka ini
-    // naik setiap kali ada isian baru.
-    expect(hasil.inbox_unread).toBe(10);
+    // 1 + 5 + 2 + 3 + 4, bukan 515. Survei tidak punya status sehingga tidak
+    // bisa dihitung sebagai "belum ditangani"; menghitungnya membuat angka
+    // ini naik setiap kali ada isian baru.
+    expect(hasil.inbox_unread).toBe(15);
   });
 
   it("tidak memasukkan jumlah survei ke inbox_unread", async () => {
@@ -119,7 +129,16 @@ describe("loadStats", () => {
     // akan melompat jauh dan jelas terlihat.
     // angkanya akan melompat jauh.
     const hasil = await loadStats(
-      dbDenganBaris(barisKosong({ pendaftaran_baru: "0", mcu_baru: "0", kritik_baru: "0", wbs_baru: "0", survei_total: "9999" })),
+      dbDenganBaris(
+        barisKosong({
+          pendaftaran_baru: "0",
+          inap_baru: "0",
+          mcu_baru: "0",
+          kritik_baru: "0",
+          wbs_baru: "0",
+          survei_total: "9999",
+        }),
+      ),
     );
 
     expect(hasil.inbox_unread).toBe(0);

@@ -45,12 +45,17 @@
      src/components/providers/FontProvider.tsx memuat font ini. */
   --rs-font-heading: var(--font-poppins), system-ui, sans-serif;
   --rs-font-body: var(--font-poppins), system-ui, sans-serif;
+  /* Angka tabular untuk tabel dan kartu dasbor. Inter punya digit lebar seragam
+     dan pada lebar lebih sempit daripada Poppins, jadi kolom angka yang rapi
+     tidak memaksa tabel menjadi lebar. Hanya dipakai di panel admin. */
+  --rs-font-angka: var(--font-inter), var(--font-poppins), system-ui, sans-serif;
 
   /* --- Ukuran tipografi (hasil pengukuran) --- */
   --rs-fs-body: 16px; /* line-height 24px */
   --rs-lh-body: 24px;
-  /* Ukuran dasar ini berlaku seragam untuk nav desktop, submenu dropdown,
-     dan panel off-canvas. */
+  /* Ukuran dasar nav desktop dan submenu dropdown. Panel off-canvas mobile
+     menaikannya menjadi 17px lewat override di `site.css` (keterbacaan di
+     layar sentuh), jadi "seragam" di sini berarti desktop saja. */
   --rs-fs-nav: 15px;
   --rs-lh-nav: 22.5px;
   --rs-fs-btn: 16px; /* tombol di dalam kartu, line-height 24px */
@@ -264,6 +269,11 @@ h6 {
 
 /* Bilah aksi cepat, PRD bagian 8.4.
  *
+ * Bentuknya tombol plus yang membuka menu (`.quick-action-fab`), mengikuti
+ * situs acuan (`#toggle-btn` + `#toggle-menu`). Menu yang tertutup hanya
+ * menempati satu tombol 44px, bukan tiga tombol menumpuk yang menutupi isi
+ * halaman di layar kecil.
+ *
  * Ditaruh di `site.css` bersama komponen layout-nya, bukan di `pages.css`,
  * karena `pages.css` hanya diimpor oleh halaman yang butuh. Tombol kembali
  * ke atas memakai warna tombol yang sama, jadi aturannya di sini juga. */
@@ -272,15 +282,35 @@ h6 {
   right: 1rem;
   bottom: 1rem;
   z-index: 1020;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
 }
 
+/* Menu tersembunyi: `display: none` mengeluarkan butirnya dari urutan Tab
+   sekaligus dari tampilan, jadi tidak ada fokus yang nyasar ke menu yang
+   tidak kelihatan. Kelas `.quick-action-terbuka` dari komponen menghidupkan
+   transisinya; `visibility` dianimasikan sebagai langkah diskret supaya menu
+   tetap terlihat sepanjang durasi menutup. */
 .quick-action-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
   gap: 0.5rem;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+
+.quick-action-list.quick-action-terbuka {
+  visibility: visible;
+  opacity: 1;
+  transform: none;
 }
 
 .quick-action-item {
@@ -295,6 +325,7 @@ h6 {
   line-height: var(--rs-lh-btn);
   white-space: nowrap;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  text-decoration: none;
 }
 
 /* Ikon di dalam bilah aksi cepat tidak mewarisi ukuran font teks. */
@@ -308,47 +339,45 @@ h6 {
   outline-offset: 2px;
 }
 
-/* Tombol kembali ke atas, PRD bagian 8 butir 1.
- *
- * Muncul lewat atribut `hidden` dari komponen, bukan lewat kelas, supaya
- * hilang dari urutan Tab sekaligus dari tampilan. */
-.back-to-top {
-  position: fixed;
-  right: 1rem;
-  bottom: 1rem;
-  z-index: 1019;
-  width: 44px;
-  height: 44px;
-  display: flex;
+/* Tombol plus/buka-tutup. 44px mengikuti target sentuh yang sama dengan tombol
+   navigasi lightbox; bentuk bundar penuh membedakannya dari tombol pill dan
+   tombol kartu di halaman. */
+.quick-action-fab {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--rs-gray-300);
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
   border-radius: 50%;
-  background-color: var(--rs-white);
-  color: var(--rs-accent);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-.back-to-top:hover,
-.back-to-top:focus {
   background-color: var(--rs-accent);
   color: var(--rs-white);
-  border-color: var(--rs-accent);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
-.back-to-top:focus-visible {
+.quick-action-fab:hover {
+  background-color: rgba(var(--rs-accent-rgb), 0.85);
+}
+
+.quick-action-fab:focus-visible {
   outline: 3px solid rgba(var(--rs-accent-rgb), 0.4);
   outline-offset: 2px;
 }
 
-/* Di bawah 768px ruang vertikal sempit dan tombol Daftar Online sudah ada
-   menapak di header, jadi keduanya disembunyikan. */
-@media (max-width: 767.98px) {
-  .quick-action,
-  .back-to-top {
-    display: none;
-  }
-}
+/* Aturan `.back-to-top` yang lama sudah dibuang: tidak ada komponen yang
+ * memakainya (`BackToTop` memakai `.scroll-top` di `site.css` dengan
+ * `z-index: 1199`, bukan 1019 di sini). Menyimpannya hanya membingungkan
+ * karena namanya mirip tapi z-index-nya beda. */
+
+/* Bilah aksi cepat tampil di semua lebar: yang melayang hanya satu tombol
+ * 44px saat menu tertutup, jadi tidak ada lagi alasan menyembunyikannya di
+ * layar kecil seperti aturan lama. Justru di layar kecil tombol ini paling
+ * berguna, karena CTA header disembunyikan di bawah 576px. */
 
 /* Latar biru aksen. */
 .bg-rs {
@@ -369,7 +398,23 @@ code {
   font-weight: 600;
   text-decoration: none;
   border-bottom: 1px solid currentColor;
-  padding-bottom: 2px;
+  /*
+   * Area sentuh diperlebar dengan padding, dan tidak memakai margin negatif.
+   *
+   * Versi sebelumnya memakai `padding-top/bottom` plus `margin-top/bottom`
+   * negatif sebesar itu, supaya tinggi yang bisa diklik naik tanpa menggeser
+   * elemen di sekitarnya. Trik itu membuat kotak tautan menumpuk dengan
+   * paragraf di atasnya, dan Lighthouse membaca tumpang-tindih itu sebagai
+   * target "tertutup sebagian": ruang terlihat yang dilaporkan hanya 11px
+   * padahal tinggi tautan 43px. Akibatnya audit target-size tetap gagal walau
+   * ukurannya jauh di atas 24px minimum.
+   *
+   * Tanpa margin negatif, jarak ke paragraf jadi 16px (margin bawaan
+   * `.card-description`) dan tautan berdiri sendiri. Kartu berita tumbuh
+   * sekitar 10px, dan itu tidak terlihat karena tinggi kartu sudah diatur
+   * baris Swiper, bukan oleh isi satu kartu.
+   */
+  padding: 8px 0;
   transition: opacity 0.2s ease;
 }
 

@@ -22,6 +22,9 @@ export default async function AdminLoginPage() {
   return (
     <div className="admin-login-page">
       <div className="admin-login-card">
+        <div className="admin-login-mark" aria-hidden="true">
+          <i className="bi bi-hospital" />
+        </div>
         <h1>Masuk Panel Admin</h1>
         <p className="text-body-secondary mb-4">RSUD Contoh Sehat</p>
         <LoginForm />

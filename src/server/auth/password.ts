@@ -141,25 +141,31 @@ export const PASSWORD_MAX = 200;
  * pemeriksaan field lain dan digabung ke satu respons validasi. Panel menampilkan
  * semua pesan sekaligus; melempar di tengah pemeriksaan lain akan mengembalikan
  * hanya satu pesan dan membuat pengguna memperbaikinya satu per satu.
+ *
+ * `namaField` wajib diberi nama field yang benar-benar dikirim formulir, bukan
+ * ditulis tetap "password". Endpoint ganti sandi mengirim `new_password`, jadi
+ * galat yang menempel ke `password` tidak punya kolom di layar untuk
+ * menampilkannya, dan galat praktis hilang.
  */
 export function periksaKataSandi(
   errors: Errors,
   password: string,
+  namaField = "password",
 ): string | null {
   const panjang = [...password].length;
 
   if (panjang < PASSWORD_MIN) {
-    errors.add("password", `Kata sandi minimal ${PASSWORD_MIN} karakter.`);
+    errors.add(namaField, `Kata sandi minimal ${PASSWORD_MIN} karakter.`);
     return null;
   }
 
   if (panjang > PASSWORD_MAX) {
-    errors.add("password", `Kata sandi maksimal ${PASSWORD_MAX} karakter.`);
+    errors.add(namaField, `Kata sandi maksimal ${PASSWORD_MAX} karakter.`);
     return null;
   }
 
   if (password.trim() === "") {
-    errors.add("password", "Kata sandi tidak boleh hanya spasi.");
+    errors.add(namaField, "Kata sandi tidak boleh hanya spasi.");
     return null;
   }
 

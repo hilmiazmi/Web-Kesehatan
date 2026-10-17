@@ -13,6 +13,12 @@ import { PROFIL_MANAJEMEN } from "@/data/manajemen-profil";
  * `params` itu `Promise` di Next.js 16, jadi `slug` harus di-`await`.
  * Nilai yang dikembalikan harus `{ slug: string }[]`, bukan `{ path }`.
  */
+/**
+ * Hanya slug yang sudah ada yang boleh dibuka; slug asing menjawab 404
+ * sungguhan, bukan halaman yang di-render saat diminta.
+ */
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return MANAGEMENT.map((person) => ({ slug: person.slug }));
 }

@@ -1,0 +1,14 @@
+[
+ {
+  "id": "abaef64d-8a12-5a8f-9936-9017bf5e594a",
+  "doctor_id": "613a4b81-997d-5ab4-9336-2a5d52f61cd3",
+  "doctor_name": "Bagus Pratama",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 1,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "B2-01",
+  "quota": 50,
+  "note": null
+ }
+]

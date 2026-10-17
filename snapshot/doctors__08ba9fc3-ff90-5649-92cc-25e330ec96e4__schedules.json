@@ -1,0 +1,14 @@
+[
+ {
+  "id": "0f2d2d89-4a5a-5d5b-b050-c4e8fbb09204",
+  "doctor_id": "08ba9fc3-ff90-5649-92cc-25e330ec96e4",
+  "doctor_name": "Laras Wulan",
+  "polyclinic": "Poliklinik Umum",
+  "day_of_week": 1,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "D1-08",
+  "quota": 50,
+  "note": null
+ }
+]

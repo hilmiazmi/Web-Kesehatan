@@ -29,7 +29,7 @@ Frontend tidak perlu tahu sedang membaca API sungguhan atau snapshot.
 ## Membuat ulang
 
 ```bash
-DATABASE_URL=... AUTH_SECRET=... bun run db:export
+DATABASE_URL=... AUTH_SECRET=... bun run db:snapshot
 ```
 
 Berkas yang rutenya sudah hilang ikut dihapus, jadi halaman yang dihapus di
@@ -47,11 +47,11 @@ berubah walaupun isinya tidak disentuh:
 | `observed_at` pada tempat tidur | waktu ukur | Waktu pengukuran, bukan bagian dari isi |
 | `generated_at` pada manifest | waktu | Waktu penulisan berkas |
 
-Id dokter sengaja ditulis mati di `src/seed/doctors.rs` karena id itu muncul
-di nama berkasnya. Kalau tidak, setiap seeding mengganti nama berkas tanpa
+Id dokter sengaja dibuat tetap (tertulis di `scripts/seed-data.json`) karena id
+itu muncul di nama berkasnya. Kalau tidak, setiap seeding mengganti nama berkas tanpa
 ada hubungannya dengan perubahan isi.
 
-Akibatnya, diff setelah pembuatan ulang selalu besar. Jalankan `db:export`
+Akibatnya, diff setelah pembuatan ulang selalu besar. Jalankan `db:snapshot`
 secara sengaja, bukan setiap kali deploy, dan baca selisihnya di bagian
 `data` berkas, bukan di nama berkasnya.
 

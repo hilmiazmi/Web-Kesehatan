@@ -213,10 +213,10 @@ export const FOOTER_RELATED = [
 
 /** Kontak di topbar. Fiktif, bukan data asli. */
 export const CONTACT = {
-  phone: "(021) 5000 1234",
-  phoneHref: "tel:+622150001234",
-  whatsapp: "+6281100001234",
-  whatsappHref: "https://wa.me/6281100001234",
+  phone: "021 0000 0000",
+  phoneHref: "tel:+622100000000",
+  whatsapp: "+62 000 0000 0000",
+  whatsappHref: "https://wa.me/620000000000",
   email: "info@rsudcontoh.go.id",
 };
 

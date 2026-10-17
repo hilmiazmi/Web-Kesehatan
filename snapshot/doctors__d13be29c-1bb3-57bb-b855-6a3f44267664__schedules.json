@@ -1,0 +1,14 @@
+[
+ {
+  "id": "acb4793d-80f6-5581-aec4-e5b975643a58",
+  "doctor_id": "d13be29c-1bb3-57bb-b855-6a3f44267664",
+  "doctor_name": "Utami Rani",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 4,
+  "start_time": "10:00:00",
+  "end_time": "14:00:00",
+  "room": "D1-07",
+  "quota": 50,
+  "note": null
+ }
+]

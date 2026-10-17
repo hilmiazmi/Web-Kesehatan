@@ -11,8 +11,16 @@ import { getPublicMcuPackage, getPublicMcuPackages } from "@/lib/content-loader"
 
 const BASE = "/pelayanan/mcu/reguler";
 
+<<<<<<< HEAD
 export const dynamicParams = true;
 export const revalidate = 60;
+=======
+/**
+ * Hanya slug yang sudah ada yang boleh dibuka; slug asing menjawab 404
+ * sungguhan, bukan halaman yang di-render saat diminta.
+ */
+export const dynamicParams = false;
+>>>>>>> origin/main
 
 /** Prerender semua paket MCU reguler saat build. */
 export function generateStaticParams() {

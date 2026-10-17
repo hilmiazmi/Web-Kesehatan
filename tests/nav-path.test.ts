@@ -227,7 +227,11 @@ describe("collectNavPaths", () => {
     // anak-anaknya tetap ikut terdaftar sebagai path utuh, bukan "/prioritas".
     expect(slugs.has("pelayanan/prioritas/jantung-terpadu")).toBe(false);
     expect(hasOwnRoute("/pelayanan/prioritas/jantung-terpadu")).toBe(true);
-    expect(slugs.has("informasi-publik/skm")).toBe(true);
+
+    // `/informasi-publik/skm` punya route sendiri karena form surveinya tidak
+    // bisa berasal dari blok statis, jadi ia tidak lagi di-prerender catch-all.
+    expect(hasOwnRoute("/informasi-publik/skm")).toBe(true);
+    expect(slugs.has("informasi-publik/skm")).toBe(false);
   });
 });
 
@@ -247,6 +251,30 @@ describe("resolveTrail", () => {
     const trail = resolveTrail("/pelayanan/mcu/reguler/paket-dasar-1");
     expect(trail?.map((t) => t.label)).toBeDefined();
     expect(trail!.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("menemukan anak yang href-nya tidak diawali segmen induknya", () => {
+    // `/dokumen/*` adalah anak Informasi Publik dan Zona Integritas, tapi
+    // href-nya berawalan `/dokumen`. Tanpa pencarian href persis, breadcrumb
+    // jatuh ke fallback satu butir `humanize()`.
+    const standar = resolveTrail("/dokumen/standar-pelayanan");
+    expect(standar?.at(-1)?.href).toBe("/dokumen/standar-pelayanan");
+    expect(standar!.length).toBeGreaterThanOrEqual(2);
+
+    const regulasi = resolveTrail("/dokumen/regulasi-zi");
+    expect(regulasi?.at(-1)?.href).toBe("/dokumen/regulasi-zi");
+    expect(regulasi!.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("menemukan tautan CTA header dan footer", () => {
+    // `/administrasi` hanya ada di HEADER_CTAS, `/kontak` dan `/sitemap`
+    // hanya ada di FOOTER_LINKS. Semuanya punya halaman generik, jadi
+    // breadcrumb-nya tidak boleh null.
+    for (const path of ["/administrasi", "/kontak", "/sitemap"]) {
+      const trail = resolveTrail(path);
+      expect(trail, path).not.toBeNull();
+      expect(trail!.at(-1)?.href).toBe(path);
+    }
   });
 });
 

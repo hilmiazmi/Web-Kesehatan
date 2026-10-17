@@ -1,0 +1,14 @@
+[
+ {
+  "id": "37571d6a-248b-5e66-9d96-f5556635bcf1",
+  "doctor_id": "51cd3874-a133-5f30-9985-987ce04ba282",
+  "doctor_name": "Hesti Nuraini",
+  "polyclinic": "Poliklinik Umum",
+  "day_of_week": 1,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "D1-08",
+  "quota": 50,
+  "note": null
+ }
+]

@@ -1,13 +1,38 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
-import Swal from "sweetalert2";
+import { surelValid, teleponFormValid } from "@/lib/validasi-umum";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useSearchParams } from "next/navigation";
+import type { SweetAlertOptions } from "sweetalert2";
+import DatePicker from "@/components/ui/DatePicker";
+import { MCU_HOLIDAY_PACKAGES, MCU_PACKAGES } from "@/data/home";
+import { hariPraktik, isoHariIni } from "@/lib/jadwal";
+
+/**
+ * Tampilkan dialog SweetAlert2.
+ *
+ * `sweetalert2` TIDAK diimpor statis di berkas ini supaya tidak ikut ke
+ * bundle halaman. Pustaka ~40 KB itu hanya dibutuhkan saat pengguna menekan
+ * tombol kirim, jadi dimuat malas di dalam handler yang memang async. `import
+ * type` di atas terhapus saat kompilasi dan tidak menambah satu byte pun.
+ */
+async function beriTahu(pilihan: SweetAlertOptions): Promise<void> {
+  const { default: Swal } = await import("sweetalert2");
+  await Swal.fire(pilihan);
+}
 
 /**
  * Formulir pendaftaran online (E-Pasien).
  *
- * Alurnya mengikuti PRD bagian 5.2: pilih dokter, pilih tanggal kunjungan, pilih
- * slot jam, isi data diri, pilih cara pembayaran, lalu mendapat nomor antrean.
+ * Alurnya: pilih poliklinik, pilih dokter, pilih tanggal kunjungan, pilih slot
+ * jam, isi data diri, pilih cara pembayaran, lalu mendapat nomor antrean.
+ *
+ * Urutannya mulai dari poliklinik, bukan dokter seperti di PRD bagian 5.2.
+ * Poliklinik menentukan dokter mana yang bisa dipilih, jadi sebaliknya orang
+ * harus menggulir 54 nama dokter untuk mencari satu yang praktik di tempat
+ * yang ia tuju. Nama poliklinik yang dikirim ke server tetap tidak ada: yang
+ * terkirim hanya `schedule_id`, dan poliklinik pada pendaftaran diturunkan dari
+ * jadwal itu. Jadi kolom poliklinik di sini murni penyaring untuk layar.
  *
  * Endpoint-nya `POST /api/v1/appointments`. Bentuk kirimannya bukan sama
  * dengan nama field di formulir ini, jadi penerjemahannya dilakukan di
@@ -16,8 +41,8 @@ import Swal from "sweetalert2";
  *
  * Slot jam diambil dari `GET /api/v1/schedules`, yang sudah memfilter jadwal
  * menurut hari praktik. Karena itu tanggal yang dipilih selalu cocok dengan
- * slot yang ditawarkan, dan validasi
- * tidak perlu menghitung sendiri hari apa.
+ * slot yang ditawarkan, dan formulir tidak perlu menghitung sendiri hari
+ * praktik dokter.
  */
 
 /** Bentuk nilai formulir. */
@@ -26,6 +51,14 @@ export type Fields = {
   nik: string;
   telepon: string;
   email: string;
+  /**
+   * Nama poliklinik, bukan id-nya.
+   *
+   * Yang dikirim ke server tetap hanya `schedule_id`: poliklinik pada
+   * pendaftaran diturunkan dari jadwal yang dipilih, jadi kolom ini murni untuk
+   * menyaring daftar dokter di layar.
+   */
+  poliklinik: string;
   /** UUID dokter, bukan namanya. */
   dokter: string;
   tanggal: string;
@@ -54,6 +87,17 @@ export type Dokter = {
   full_name: string;
   title: string | null;
   specialty?: string;
+  /** Nama poliklinik tempat dokter ini praktik. */
+  polyclinics?: string[];
+};
+
+/** Satu poliklinik dari `GET /api/v1/polyclinics`. */
+export type Poliklinik = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  location: string | null;
 };
 
 /** Satu jadwal dari `GET /api/v1/schedules`. */
@@ -68,6 +112,25 @@ export type Slot = {
   /** Hanya terisi kalau jadwalnya diminta untuk satu tanggal tertentu. */
   remaining?: number;
 };
+
+/**
+ * Saring dokter menurut poliklinik yang dipilih pengunjung.
+ *
+ * Poliklinik kosong berarti semua dokter, bukan daftar kosong: kolom dokter
+ * yang kosong sebelum ada yang menyentuh apa pun terlihat seperti halaman rusak,
+ * dan orang yang datang dengan `?dokter=` dari widget beranda perlu tetap
+ * melihat dokter yang sudah dipilih untuknya.
+ *
+ * Dokter tanpa `polyclinics` disembunyikan begitu poliklinik dipilih. Ia tidak
+ * punya jadwal, jadi tidak akan punya slot untuk dipilih di langkah berikutnya.
+ */
+export function dokterUntukPoliklinik(
+  daftar: readonly Dokter[],
+  namaPoliklinik: string,
+): Dokter[] {
+  if (namaPoliklinik === "") return [...daftar];
+  return daftar.filter((d) => d.polyclinics?.includes(namaPoliklinik));
+}
 
 /** Hasil `POST /api/v1/appointments` kalau diminta. */
 export type Konfirmasi = {
@@ -99,6 +162,7 @@ const INITIAL: Fields = {
   nik: "",
   telepon: "",
   email: "",
+  poliklinik: "",
   dokter: "",
   tanggal: "",
   slot: "",
@@ -143,18 +207,18 @@ function tanggalHariIni(): string {
  */
 export function validate(v: Fields): Partial<Record<keyof Fields, string>> {
   const e: Partial<Record<keyof Fields, string>> = {};
-  const digits = v.telepon.replace(/[\s-]/g, "");
   const today = tanggalHariIni();
 
   if (v.nama.trim().length < 3) e.nama = "Nama lengkap minimal 3 karakter.";
   if (v.nama.trim().length > 160) e.nama = "Nama lengkap maksimal 160 karakter.";
   if (!/^\d{16}$/.test(v.nik)) e.nik = "NIK harus 16 digit angka.";
-  if (!/^(\+62|62|0)\d{8,13}$/.test(digits)) {
+  if (!teleponFormValid(v.telepon)) {
     e.telepon = "Nomor telepon tidak valid.";
   }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.email)) {
+  if (!surelValid(v.email)) {
     e.email = "Format email tidak valid.";
   }
+  if (!v.poliklinik) e.poliklinik = "Pilih poliklinik.";
   if (!v.dokter) e.dokter = "Pilih dokter.";
   if (!v.tanggal || v.tanggal < today) {
     e.tanggal = "Pilih tanggal yang tidak sudah lewat.";
@@ -286,6 +350,7 @@ type Muat<T> = {
 };
 
 const KUNCI_DOKTER = "dokter";
+const KUNCI_POLIKLINIK = "poliklinik";
 
 /**
  * Ambil satu amplop `{ data }` dari API.
@@ -302,17 +367,79 @@ async function ambilJson<T>(url: string): Promise<T> {
 }
 
 export default function RegistrationForm() {
-  const [values, setValues] = useState<Fields>(INITIAL);
+  /**
+   * Konteks yang dibawa dari halaman asal lewat query string.
+   *
+   * Halaman unit rawat jalan dan paket MCU mengirim `?spesialis=` atau
+   * `?paket=`, widget beranda mengirim `?dokter=` dan `?tanggal=`. Tanpa
+   * pembacaan di sini semua parameter itu masuk ke halaman lalu diabaikan,
+   * dan orang yang sudah memilih harus mengulang pilihannya.
+   *
+   * Dibaca sekali pada render pertama lewat `useState` dengan fungsi
+   * inisialisasi, bukan di dalam `useEffect`, supaya tidak ada render kedua
+   * yang memantulkan form kosong sebelum query terbaca.
+   */
+  const query = useSearchParams();
+  const [awal] = useState(() => {
+    const hariIni = isoHariIni();
+    const tanggal = query.get("tanggal");
+    return {
+      dokter: query.get("dokter") ?? "",
+      tanggal: tanggal !== null && tanggal >= hariIni ? tanggal : "",
+      spesialitas: query.get("spesialis") ?? "",
+      paket: query.get("paket") ?? "",
+    };
+  });
+
+  const paketDipilih = useMemo(
+    () =>
+      [...MCU_PACKAGES, ...MCU_HOLIDAY_PACKAGES].find((p) => p.slug === awal.paket) ??
+      null,
+    [awal.paket],
+  );
+
+  const [values, setValues] = useState<Fields>({
+    ...INITIAL,
+    dokter: awal.dokter,
+    tanggal: awal.tanggal,
+  });
   const [errors, setErrors] = useState<Partial<Record<keyof Fields, string>>>({});
+  const [poliklinik, setPoliklinik] = useState<Muat<Poliklinik[]>>({
+    kunci: "",
+    status: "memuat",
+    data: [],
+  });
   const [dokter, setDokter] = useState<Muat<Dokter[]>>({
     kunci: "",
     status: "memuat",
     data: [],
   });
   const [slot, setSlot] = useState<Muat<Slot[]>>({ kunci: "", status: "memuat", data: [] });
+  /** Jadwal mingguan dokter terpilih, dipakai untuk mengaktifkan kalender. */
+  const [praktik, setPraktik] = useState<{ dokter: string; hari: number[] }>({
+    dokter: "",
+    hari: [],
+  });
   const [kirim, setKirim] = useState(false);
 
-  // Daftar dokter tidak bergantung pada pilihan lain, jadi dibaca sekali.
+  // Daftar dokter dan daftar poliklinik tidak bergantung pada pilihan lain, jadi
+// keduanya dibaca sekali.
+useEffect(() => {
+    let hidup = true;
+
+    ambilJson<Poliklinik[]>("/api/v1/polyclinics")
+      .then((data) => {
+        if (hidup) setPoliklinik({ kunci: KUNCI_POLIKLINIK, status: "siap", data });
+      })
+      .catch(() => {
+        if (hidup) setPoliklinik({ kunci: KUNCI_POLIKLINIK, status: "gagal", data: [] });
+      });
+
+    return () => {
+      hidup = false;
+    };
+  }, []);
+
   useEffect(() => {
     let hidup = true;
 
@@ -355,6 +482,45 @@ export default function RegistrationForm() {
     };
   }, [idDokter, hariKunjungan, kunciSlot]);
 
+  /**
+   * Jadwal mingguan dokter terpilih.
+   *
+   * Endpoint `/doctors/<id>/schedules` mengembalikan seluruh jadwal
+   * mingguan, bukan hanya satu tanggal, dan itulah yang dibutuhkan kalender:
+   * hanya hari yang ada di daftar itu yang boleh diklik. Tanpa ini pengguna
+   * bisa memilih tanggal yang memang tidak ada praktiknya dan baru tahu
+   * setelah mengisi separuh formulir.
+   */
+  useEffect(() => {
+    if (idDokter === "") return;
+
+    let hidup = true;
+    ambilJson<{ day_of_week: number }[]>(`/api/v1/doctors/${idDokter}/schedules`)
+      .then((data) => {
+        if (hidup) setPraktik({ dokter: idDokter, hari: hariPraktik(data.map((s) => s.day_of_week)) });
+      })
+      .catch(() => {
+        // Kalender tetap boleh semua hari kalau jadwalnya gagal dibaca; yang
+        // salahnya penanda di bawah slot, bukan tidak bisa memilih tanggal.
+        if (hidup) setPraktik({ dokter: idDokter, hari: [] });
+      });
+
+    return () => {
+      hidup = false;
+    };
+  }, [idDokter]);
+
+  /**
+   * Hari yang boleh diklik di kalender.
+   *
+   * Diturunkan, bukan disimpan: `praktik` dibaca Effect yang berjalan
+   * sesudah render pertama, jadi dokter yang baru dipilih masih punya
+   * jadwal dokter sebelumnya. Membandingkan kunci dokter membuat kalender
+   * kembali kosong daripada memakai jadwal yang salah.
+   */
+  const hariBoleh =
+    values.dokter !== "" && praktik.dokter === values.dokter ? praktik.hari : [];
+
   const set = <K extends keyof Fields>(key: K, value: Fields[K]) => {
     setValues((prev) => ({ ...prev, [key]: value }));
     // Hapus pesan error begitu field disentuh lagi.
@@ -382,7 +548,7 @@ export default function RegistrationForm() {
 
     // Jangan lolos ke pengiriman kalau masih ada field bermasalah.
     if (Object.keys(next).length > 0) {
-      Swal.fire({
+      await beriTahu({
         icon: "warning",
         title: "Formulir belum lengkap",
         text: "Periksa kembali bagian yang ditandai merah.",
@@ -403,7 +569,7 @@ export default function RegistrationForm() {
       const body = (await res.json()) as GalatApi & { data?: Konfirmasi };
 
       if (res.status === 201 && body.data) {
-        Swal.fire({
+        await beriTahu({
           icon: "success",
           title: "Pendaftaran berhasil",
           html:
@@ -420,14 +586,14 @@ export default function RegistrationForm() {
       // muncul di samping field yang salah, bukan cuma di modal.
       if (body.error?.fields) setErrors(petakanKolomServer(body.error.fields));
 
-      Swal.fire({
+      await beriTahu({
         icon: "warning",
         title: "Pendaftaran ditolak",
         text: body.error?.message ?? "Server menolak permintaan ini.",
         confirmButtonColor: "#1977cc",
       });
     } catch {
-      Swal.fire({
+      await beriTahu({
         icon: "error",
         title: "Tidak bisa menghubungi server",
         text: "Permintaan gagal dikirim. Periksa koneksi lalu coba lagi.",
@@ -436,6 +602,56 @@ export default function RegistrationForm() {
     } finally {
       setKirim(false);
     }
+  }
+
+  /**
+   * Daftar dokter dikelompok per spesialitas, setelah disaring oleh poliklinik
+   * yang dipilih.
+   *
+   * Dulu semua dokter ditumpuk dalam satu `<select>`. Dengan 54 dokter
+   * itu daftar jadi panjang tanpa judul, dan membaca "dr. Sp.N Bagus Prakoso
+   * — Saraf dan Otak" di antara dua dozen nama lain butuh waktu lama.
+   * `<optgroup>` memunculkan judul spesialitas sebagai baris sendiri.
+   *
+   * Dokter tanpa spesialitas dikumpulkan di satu kelompok terakhir supaya
+   * tidak ada yang tersesat ke grup pertama.
+   */
+  const kelompokDokter = useMemo(() => {
+    const terkunci = dokterUntukPoliklinik(dokter.data, values.poliklinik);
+
+    const peta = new Map<string, Dokter[]>();
+    for (const d of terkunci) {
+      const kunci = d.specialty && d.specialty.trim() !== "" ? d.specialty : "Lainnya";
+      const isi = peta.get(kunci);
+      if (isi) isi.push(d);
+      else peta.set(kunci, [d]);
+    }
+    return [...peta.entries()].sort(([a], [b]) => a.localeCompare(b, "id"));
+  }, [dokter.data, values.poliklinik]);
+
+  /**
+   * Ganti poliklinik, lalu kosongkan pilihan yang jadi tidak berlaku.
+   *
+   * Dokter, tanggal, dan jam milik dokter sebelumnya, jadi ketiganya ikut
+   * dikosongkan. Kalau hanya slot yang dikosongkan, tanggal yang sudah dipilih
+   * bisa jatuh di hari dokter berikutnya tidak praktik, dan pilihannya lolos
+   * ke server sampai ditolak di akhir.
+   */
+  function gantiPoliklinik(nama: string) {
+    setValues((prev) => ({
+      ...prev,
+      poliklinik: nama,
+      dokter: "",
+      tanggal: "",
+      slot: "",
+    }));
+    setErrors((prev) => ({
+      ...prev,
+      poliklinik: undefined,
+      dokter: undefined,
+      tanggal: undefined,
+      slot: undefined,
+    }));
   }
 
   const err = (k: keyof Fields) =>
@@ -447,7 +663,65 @@ export default function RegistrationForm() {
 
   return (
     <form onSubmit={handleSubmit} noValidate>
+      {paketDipilih ? (
+        <div className="form-alert" role="status">
+          <strong>{paketDipilih.title}</strong>
+          <span>
+            Paket ini dipilih di halaman MCU. Formulir di bawah untuk kunjungan
+            rawat jalan per dokter. Pendaftaran pemeriksaan paket memakai
+            formulirnya sendiri di halaman paket itu, karena tidak ada slot
+            dokter maupun jam yang dipilih.
+          </span>
+        </div>
+      ) : null}
+
+      {awal.spesialitas ? (
+        <p className="form-konteks" role="status">
+          Anda datang dari halaman layanan <strong>{awal.spesialitas}</strong>.
+          Daftar di bawah sudah dipisah menurut spesialitas, jadi dokter yang
+          dicari bisa ditemukan lebih cepat.
+        </p>
+      ) : null}
+
       <div className="row g-3">
+        <div className="col-12">
+          <label className="form-label" htmlFor="poliklinik">
+            Poliklinik
+          </label>
+          <select
+            id="poliklinik"
+            name="poliklinik"
+            className={`form-select${errors.poliklinik ? " is-invalid" : ""}`}
+            value={values.poliklinik}
+            onChange={(e) => gantiPoliklinik(e.target.value)}
+            aria-describedby={errors.poliklinik ? "err-poliklinik" : undefined}
+            disabled={poliklinik.status !== "siap"}
+            required
+          >
+            <option value="">
+              {poliklinik.status === "memuat"
+                ? "Memuat daftar poliklinik..."
+                : poliklinik.status === "gagal"
+                  ? "Daftar poliklinik gagal dimuat"
+                  : "Pilih Poliklinik"}
+            </option>
+            {poliklinik.data.map((p) => (
+              <option key={p.id} value={p.name}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+          {/*
+            Satu baris penjelasan, bukan label kedua. Poliklinik menentukan
+            dokter mana yang bisa dipilih, jadi tanpa penjelasan orang bisa
+            mengira kolom squeeze ini tidak berpengaruh apa pun.
+          */}
+          <div className="form-text">
+            Poliklinik menentukan dokter mana yang bisa dipilih.
+          </div>
+          {err("poliklinik")}
+        </div>
+
         <div className="col-md-6">
           <label className="form-label" htmlFor="dokter">
             Dokter
@@ -469,10 +743,15 @@ export default function RegistrationForm() {
                   ? "Daftar dokter gagal dimuat"
                   : "Pilih Dokter"}
             </option>
-            {dokter.data.map((d) => (
-              <option key={d.id} value={d.id}>
-                {labelDokter(d)}
-              </option>
+            {/* Daftar dokter dikelompok per spesialitas lewat `optgroup`. */}
+            {kelompokDokter.map(([spesialitas, isi]) => (
+              <optgroup key={spesialitas} label={spesialitas}>
+                {isi.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {labelDokter(d)}
+                  </option>
+                ))}
+              </optgroup>
             ))}
           </select>
           {err("dokter")}
@@ -482,21 +761,16 @@ export default function RegistrationForm() {
           <label className="form-label" htmlFor="tanggal">
             Tanggal Rencana
           </label>
-          <input
+          <DatePicker
             id="tanggal"
-            name="tanggal"
-            type="date"
-            min={tanggalHariIni()}
-            className={`form-control${errors.tanggal ? " is-invalid" : ""}`}
-            value={values.tanggal}
-            onChange={(e) => {
+            nilai={values.tanggal}
+            hariBoleh={hariBoleh}
+            onUbah={(iso) => {
               // Slot milik tanggal lama tidak berlaku lagi, jadi ikut
               // dikosongkan supaya tidak pernah terkirim ke server.
-              setValues((prev) => ({ ...prev, tanggal: e.target.value, slot: "" }));
+              setValues((prev) => ({ ...prev, tanggal: iso, slot: "" }));
               setErrors((prev) => ({ ...prev, tanggal: undefined, slot: undefined }));
             }}
-            aria-describedby={errors.tanggal ? "err-tanggal" : undefined}
-            required
           />
           {err("tanggal")}
         </div>
@@ -584,7 +858,10 @@ export default function RegistrationForm() {
             type="tel"
             className={`form-control${errors.telepon ? " is-invalid" : ""}`}
             value={values.telepon}
-            onChange={(e) => set("telepon", e.target.value)}
+            onChange={(e) => set("telepon", e.target.value.replace(/[^\d+]/g, ""))}
+            pattern="[0-9+]*"
+            maxLength={15}
+            placeholder="08123456789"
             aria-describedby={errors.telepon ? "err-telepon" : undefined}
             required
           />

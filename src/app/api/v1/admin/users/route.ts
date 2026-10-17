@@ -5,6 +5,7 @@ import { ApiError } from "@/server/api/error";
 import { canManageUsers, requireSession, type Role } from "@/server/auth/session";
 import { dbOrNull } from "@/server/db/client";
 import { countsByRole, createAccount, listAccounts } from "@/server/admin/accounts";
+import { catatAudit } from "@/server/admin/audit";
 import { Errors, choice, email as validateEmail, readJsonBody, textRequired } from "@/server/validation";
 import { periksaKataSandi } from "@/server/auth/password";
 
@@ -26,7 +27,7 @@ export async function GET(_request: NextRequest): Promise<NextResponse> {
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   return handle(async () => {
-    await requireSession(canManageUsers);
+    const sesi = await requireSession(canManageUsers);
 
     const db = dbOrNull();
     if (db === null) throw ApiError.readOnly();
@@ -45,13 +46,22 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     if (!errors.isEmpty) throw errors.toApiError();
 
-    return created(
-      await createAccount(db, {
-        email: surel!,
-        name: nama!,
-        role: peran as Role,
-        password: String(body.password ?? ""),
-      }),
-    );
+    const akun = await createAccount(db, {
+      email: surel!,
+      name: nama!,
+      role: peran as Role,
+      password: String(body.password ?? ""),
+    });
+
+    await catatAudit(db, {
+      actorId: sesi.sub,
+      actorEmail: sesi.email,
+      action: "create",
+      tableName: "users",
+      rowId: akun.id,
+      summary: `akun ${akun.email} (${akun.role})`,
+    });
+
+    return created(akun);
   });
 }

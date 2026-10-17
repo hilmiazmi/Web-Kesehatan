@@ -1,5 +1,5 @@
 /**
- * Periksa bahwa snapshot dan kode route saling asustan.
+ * Periksa bahwa snapshot dan kode route saling konsisten.
  *
  * Dua tempat menentukan nama berkas snapshot: `scripts/db-snapshot.ts` yang
  * menulisnya, dan setiap route handler yang membacanya lewat `denganSnapshot`.
@@ -14,7 +14,7 @@
  * 2. Setiap kunci statis yang dipakai route handler ada di manifest.
  * 3. Kunci dinamis punya route yang benar-benar memakai polanya.
  * 4. Tabel seed tidak kosong, supaya masalah `db:seed` yang belum dijalankan
- *    ketahuan sebelum)/— di panel.
+ *    ketahuan sebelum tampil di panel.
  *
  * ```bash
  * DATABASE_URL=postgres://... bun run cek:konten

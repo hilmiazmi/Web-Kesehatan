@@ -45,7 +45,7 @@ export default async function NewsIndexPage() {
 
               return (
                 <div className="col-md-6 col-lg-3" key={a.slug}>
-                  <article className="card card-berita">
+                  <article className="card">
                     <div className="image-content">
                       <Photo
                         src={foto.src}
