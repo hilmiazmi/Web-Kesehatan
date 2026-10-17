@@ -151,7 +151,6 @@ bukan tebakan. Rinciannya ada di `docs/design-tokens-terverifikasi.md`.
   - Delapan butir nav butuh `1055px`, tidak membungkus dan tidak menyusut.
     Angka itu adalah lebar elemen `ul` di dalam `.navmenu`,
     hasil `getBoundingClientRect()`, bukan perkiraan.
-<<<<<<< HEAD
   - **Header desktop dua baris.** Baris pertama logo + dua CTA, baris kedua
     nav penuh dan dipusatkan. Alasannya angka: satu baris butuh `1703px`
     (logo 284 + nav 1055 + CTA 340 + padding 24), sedangkan viewport terkecil
@@ -178,29 +177,6 @@ bukan tebakan. Rinciannya ada di `docs/design-tokens-terverifikasi.md`.
     1176px pada viewport 1200px, jadi sisa 121px dan tidak ada yang terpotong.
   - `tests/header-ctas.test.ts` mengunci semua angka di atas;
     `tests/panel-nav-mobile.test.ts` mengunci panel mobile.
-=======
-  - **Tangga lebar header:** satu baris butuh `1496px` (logo 237 + nav 894 +
-    CTA 341 + padding 24), jadi di bawah itu satu baris penuh tidak muat.
-    - `1520px` ke atas: satu baris penuh (logo, nav, CTA), seperti situs
-      referensi. Batasnya 1520px, bukan 1496px, supaya ada sisa ~24px untuk
-      perbedaan metrik font antar mesin peramban (Zen memakai Gecko, Helium
-      memakai Chromium).
-    - `1360-1519px`: satu baris kompak — logo merapat (tanpa tagline), nav
-      `13.5px`, CTA meramping. Total kompak `1269px`, muat dari `1360px`
-      dengan sisa ~50px. Label, urutan, dan tujuan tautan tidak berubah.
-    - `1200-1359px`: dua baris (baris pertama logo dan CTA, baris kedua nav
-      yang dipusatkan). Di bawah `1360px` satu baris mustahil tanpa huruf
-      tak terbaca (eksperimen: kompak butuh `1269px`, ruang di `1200px`
-      hanya `1161px`).
-    - Di bawah `1200px`: hamburger + panel, dan CTA disembunyikan (salinannya
-      ada di panel, bilah aksi cepat, dan footer).
-  - Dua pendekatan lama terbukti buruk dan tidak dipakai: menyembunyikan CTA
-    membuat nav terdorong ke tepi kanan sampai menempel (`12px`), sedangkan
-    mengecilkan nav membuat huruf `15px` menjadi `10px`.
-  - Diukur lewat CDP pada 1200, 1280, 1360, 1366, 1440, 1496, 1520, 1560, 1920, dan
-    2560px: nav tetap `894px`, `scrollWidth` sama dengan `clientWidth` (tidak
-    ada gulir horizontal), dan CTA tampil di `1520px` ke atas.
->>>>>>> origin/main
 
   **Panel off-canvas mobile.** Semua aturannya hanya ada di dalam
   `@media (max-width: 1199.98px)`.

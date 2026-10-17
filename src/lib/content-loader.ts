@@ -513,25 +513,23 @@ export function hostGambarDiizinkan(url: string): boolean {
 
 /**
  * Sumber foto untuk kartu dan halaman detail berita.
-<<<<<<< HEAD
-=======
  *
  * Dua kemungkinan, dan keduanya perlu perlakuan berbeda.
  *
- * Kalau admin mengisi `cover_url`, URL itu dipakai apa adanya. Host di luar
- * daftar `HOST_DIIZINKAN` dipaksa tidak dioptimasi. `next/image` hanya mau memuat host yang
- * ada di `remotePatterns` pada `next.config.ts`,
- * sedangkan admin boleh memasukkan host apa pun yang diawali `http` atau
- * `https`. Tanpa `unoptimized`, satu URL dari luar daftar itu tidak sekadar
- * gagal dimuat, ia membuat permintaan ke `/_next/image` yang dijawab galat,
- * sehingga kartu berita tampil dengan kotak rusak. Dengan `unoptimized`, komponen
- * menulis `src` apa adanya ke `img` dan perkakas optimasi tidak pernah ikut,
- * sehingga daftar host tidak berlaku lagi.
+ * Kalau admin mengisi `imageUrl`, URL itu dipakai apa adanya. Host di luar
+ * daftar `HOST_DIIZINKAN` tidak dioptimasi. `next/image` hanya mau memuat
+ * host yang ada di `remotePatterns` pada `next.config.ts`, sedangkan admin
+ * boleh memasukkan host apa pun yang diawali `http` atau `https`. Tanpa
+ * `unoptimized`, satu URL dari luar daftar itu tidak sekadar gagal dimuat,
+ * ia membuat permintaan ke `/_next/image` yang dijawab galat, sehingga kartu
+ * berita tampil dengan kotak rusak. Dengan `unoptimized`, komponen menulis
+ * `src` apa adanya ke `img` dan perkakas optimasi tidak pernah ikut, sehingga
+ * daftar host tidak berlaku lagi.
  *
- * Kalau `cover_url` kosong, foto stok dari `NEWS_PHOTOS` dipakai bergiliran
+ * Kalau `imageUrl` kosong, foto stok dari `NEWS_PHOTOS` dipakai bergiliran
  * seperti sebelumnya. Pilihan fotanya memakai indeks berita pada
- * `ARTICLES`, jadi tata letaknya tetap sama untuk pengunjung yang memakai data bawaan.
->>>>>>> origin/main
+ * `ARTICLES`, jadi tata letaknya tetap sama untuk pengunjung yang memakai
+ * data bawaan.
  */
 export function fotoBerita(
   artikel: Pick<PublicArticle, "imageUrl" | "slug">,

@@ -124,10 +124,7 @@ export default function Navbar() {
         <Link
           href="/"
           className="logo d-flex align-items-center me-auto"
-<<<<<<< HEAD
           aria-label={`${SITE.name} ${SITE.tagline}`}
-=======
->>>>>>> origin/main
         >
           <span className="logo-mark" aria-hidden="true">
             <i className="bi bi-plus-lg" />

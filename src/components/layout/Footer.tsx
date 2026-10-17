@@ -37,11 +37,8 @@ export default function Footer() {
             <Link
               href="/"
               className="footer-identity-link"
-<<<<<<< HEAD
-              aria-label={`${SITE.name} ${SITE.tagline}`}
-=======
               prefetch={false}
->>>>>>> origin/main
+              aria-label={`${SITE.name} ${SITE.tagline}`}
             >
               <span className="logo-mark logo-mark-footer" aria-hidden="true">
                 <i className="bi bi-plus-lg" />

@@ -48,8 +48,8 @@ function sumber(rel: string): string {
  * mobile ke posisi blok desktop menjadi rentang terbalik yang hasilnya string
  * kosong. Tes lalu melaporkan aturan yang benar-benar ada sebagai hilang.
  *
- * Cara yang sama dipakai `tests/panel-nav-mobile.test.ts` dan
- * `tests/kembali-ke-atas.test.ts` untuk alasan yang sama.
+ * Cara yang sama dipakai `tests/kembali-ke-atas.test.ts` untuk
+ * alasan yang sama.
  */
 function kodeSaja(teks: string): string {
   return teks.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");

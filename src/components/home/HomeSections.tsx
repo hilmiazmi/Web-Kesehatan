@@ -13,13 +13,7 @@ import { TESTIMONIAL_PHOTOS, photo } from "@/data/images";
 /** Section 9 — "Pendaftaran": tiga tombol JAKSEHAT, JKN, E-Pasien. */
 export function RegistrationSection() {
   return (
-<<<<<<< HEAD
     <section id="pendaftaran" className="pendaftaran section">
-=======
-    <section id="pendaftaran" className="section">
-      {/* Situs referensi tidak memakai sub-judul di section ini
-          (`section-title pb-0` hanya berisi h2). */}
->>>>>>> origin/main
       <div className="container section-title pb-0">
         <h2>Pendaftaran</h2>
       </div>
@@ -57,11 +51,7 @@ export function RegistrationSection() {
  */
 export function SocialMediaSection() {
   return (
-<<<<<<< HEAD
     <section id="sosial-media" className="about section light-background">
-=======
-    <section id="sosial-media" className="section light-background">
->>>>>>> origin/main
       <div className="container section-title pb-0">
         <h2>Sosial Media</h2>
       </div>
@@ -154,11 +144,7 @@ export function TestimonialsSection() {
 /** Section 12 — "Asuransi". Nama mitra generik, bukan logo asli. */
 export function InsuranceSection() {
   return (
-<<<<<<< HEAD
     <section id="asuransi" className="asuransi section light-background">
-=======
-    <section id="asuransi" className="section light-background">
->>>>>>> origin/main
       <div className="container section-title pb-0">
         <h2>Asuransi</h2>
       </div>
@@ -187,13 +173,8 @@ export function InsuranceSection() {
  */
 export function FaqSection() {
   return (
-<<<<<<< HEAD
     <section id="faq" className="faq section light-background">
       <div className="container section-title">
-=======
-    <section id="faq" className="section light-background">
-      <div className="container section-title pb-0">
->>>>>>> origin/main
         <h2>Frequently Asked Questions</h2>
       </div>
 

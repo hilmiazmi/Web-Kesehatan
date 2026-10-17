@@ -43,7 +43,6 @@
 
 import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
-<<<<<<< HEAD
 import { collectSitemapPaths, pathDariSitemapXml } from "../src/lib/sitemap";
 import {
   entriDinamisDariManifest,
@@ -51,10 +50,7 @@ import {
   ruteDinamisUntuk,
   type EntriRuteDinamis,
 } from "../src/lib/nav-path";
-=======
-import { collectSitemapPaths } from "../src/lib/sitemap";
 import { getPublicArticles } from "../src/lib/content-loader";
->>>>>>> origin/main
 
 /** Akar HTML hasil prerender. Hanya `.html` statis, bukan `.rsc` atau `.meta`. */
 const AKAR = path.join(process.cwd(), ".next", "server", "app");

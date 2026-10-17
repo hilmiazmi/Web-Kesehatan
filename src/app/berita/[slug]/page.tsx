@@ -3,13 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import PageHeader from "@/components/layout/PageHeader";
 import Photo from "@/components/ui/Photo";
-<<<<<<< HEAD
 import TextToSpeech from "@/components/ui/TextToSpeech";
-import { ARTICLES } from "@/data/home";
 import { formatDate, stripHtml } from "@/lib/format";
-=======
-import { formatDate, summarize } from "@/lib/format";
->>>>>>> origin/main
 import {
   fotoBerita,
   getPublicArticle,
@@ -22,8 +17,11 @@ import {
  * Perubahan dari PRD butir 9: sebelumnya hanya slug dari `ARTICLES` yang
  * dilayani, dan isi halaman membaca array statis yang sama. Sekarang:
  *
- * 1. `generateStaticParams()` tetap menyediakan enam belas slug statis awal
- *    supaya halaman bawaan ter-prerender saat build.
+ * 1. `generateStaticParams()` menyediakan slug semua berita yang ada saat
+ *    build, dari `getPublicArticles()` yang membaca database dan mundur ke
+ *    data statis kalau koneksi ditolak. Tanpa itu slug yang hanya ada di
+ *    database tidak pernah ter-prerender dan `cek:tautan` melaporkan
+ *    tautannya mati, padahal halamannya hidup lewat `dynamicParams`.
  * 2. `dynamicParams = true` mengizinkan artikel baru yang ditambah admin
  *    lewat panel dilayani saat diminta, tanpa perlu build ulang.
  * 3. `revalidate = 60` memperbarui halaman setiap menit sehingga perubahan
@@ -32,28 +30,9 @@ import {
 export const dynamicParams = true;
 export const revalidate = 60;
 
-<<<<<<< HEAD
-export function generateStaticParams() {
-  return ARTICLES.map((a) => ({ slug: a.slug }));
-=======
-/**
- * Prerender semua berita yang ada saat build.
- *
- * Daftar diambil dari `getPublicArticles()`, bukan hanya `ARTICLES` statis.
- * Database menyimpan sepuluh berita dan `/berita` menautkan semuanya, tapi
- * `generateStaticParams` yang hanya membaca data statis tidak pernah
- * membuat berkas untuk slug itu. Akibatnya tautannya ada di halaman indeks
- * dan `cek:tautan` melaporkan tiga puluh tautan mati, padahal halamannya hidup
- * begitu diminta lewat `dynamicParams`.
- *
- * Fungsi ini async dan aman tanpa database: `getPublicArticles()` kembali ke
- * data statis kalau koneksi ditolak, jadi `next build` di lingkungan tanpa
- * PostgreSQL tetap berhasil.
- */
 export async function generateStaticParams() {
   const articles = await getPublicArticles();
   return articles.map((a) => ({ slug: a.slug }));
->>>>>>> origin/main
 }
 
 export async function generateMetadata({

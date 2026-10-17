@@ -17,15 +17,9 @@ bukan sebagai perkiraan.
 |---|---|---|
 | Halaman ter-prerender | 150 | `bun run cek:tautan`, berkas `.html` di `.next/server/app` tanpa dua halaman cadangan Next.js. Diukur 10 Oktober 2026; naik 2 dari 148 karena halaman unit `rawat-jalan` dan `rawat-inap` (8 Oktober 2026) |
 | Pola rute dinamis | 11 | `dynamicRoutes` di `.next/prerender-manifest.json` |
-<<<<<<< HEAD
 | Berkas tes | 48 | `bun run test` |
 | Jumlah tes | 678 | `bun run test` |
 | Rute internal dari catch-all | 30 | `collectNavPaths()` di `src/lib/nav-path.ts` |
-=======
-| Berkas tes | 63 | `bun run test`, diukur 10 Oktober 2026 |
-| Jumlah tes | 867 | `bun run test`, diukur 10 Oktober 2026 (862 + 5 pengunci teardown) |
-| Rute internal dari catch-all | 27 | `collectNavPaths()` di `src/lib/nav-path.ts`, diukur 10 Oktober 2026. Turun dari 30 setelah commit SKM/PPID/kapasitas-bed 8 Oktober 2026 yang menyentuh fungsi itu (kemungkinan pengecualian rute yang sudah punya folder sendiri) |
->>>>>>> origin/main
 | Tabel terkelola di panel admin | 17 | `src/server/admin/registry.ts` |
 | Tabel di skema database | 28 | `pgTable` di `src/server/db/schema.ts`, diukur 10 Oktober 2026 (plus 11 `pgEnum`) |
 | Route handler API | 45 | `src/app/api/v1/**/route.ts`: 44 endpoint dan catcher 404. Naik 1 dari 44 karena `admissions` dari pemisahan rawat inap (`409012f`, 8 Oktober 2026) |
@@ -78,18 +72,10 @@ bun -e "const {collectNavPaths}=await import('./src/lib/nav-path.ts');console.lo
 ```
 
 Gerbang kualitas terakhir: typecheck bersih, `bun run lint` bersih,
-<<<<<<< HEAD
 `bun run test` 678 tes lulus dari 48 berkas, `bun run cek:konten` dan
 `bun run audit:teks` lulus, `bun run build` sukses, dan `bun run cek:tautan`
 tidak menemukan tautan mati, halaman tanpa tautan masuk, maupun halaman yang
 lupa masuk sitemap: 148 halaman, 148 tautan unik, 148 entri sitemap.
-=======
-`bun run test` 867 tes lulus dari 63 berkas, `bun run cek:konten` dan
-`bun run audit:teks` lulus, `bun run build` sukses (169/169 halaman), dan
-`bun run cek:tautan` tidak menemukan tautan mati, halaman tanpa tautan masuk,
-maupun halaman yang lupa masuk sitemap: 150 halaman, 150 tautan unik,
-149 entri sitemap. Diukur 10 Oktober 2026.
->>>>>>> origin/main
 
 Database sungguhan sudah bisa dijalankan di mesin ini tanpa Docker, lewat
 PostgreSQL 17.11 dari shim `mise`. menjalankan `db:migrate`, `db:seed`,

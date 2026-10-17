@@ -27,14 +27,7 @@ export default function NewsSection({
   articles?: PublicArticle[];
 }) {
   return (
-<<<<<<< HEAD
     <section id="berita" className="berita section pb-3 light-background">
-=======
-    <section id="berita" className="section pb-3 light-background">
-      {/* Situs referensi tidak memakai sub-judul di section ini
-          (`section-title pb-0` hanya berisi h2). Sub-judul hanya ada di
-          Layanan, Fasilitas, dan MCU. */}
->>>>>>> origin/main
       <div className="container section-title pb-0">
         <h2>Berita dan Artikel Kesehatan</h2>
       </div>
