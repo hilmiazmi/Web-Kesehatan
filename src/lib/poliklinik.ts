@@ -9,7 +9,15 @@ import type { ClinicDetail } from "@/data/clinics";
  * berkas ini tidak ikut membundel data ke client component.
  */
 
-export const DAY_ORDER: Day[] = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat"];
+export const DAY_ORDER: Day[] = [
+  "Senin",
+  "Selasa",
+  "Rabu",
+  "Kamis",
+  "Jumat",
+  "Sabtu",
+  "Minggu",
+];
 
 /** Dokter yang praktik di satu spesialisasi. */
 export function doctorsForSpecialty(
@@ -38,7 +46,7 @@ export function doctorsForClinic(
   return detail.specialty ? doctorsForSpecialty(detail.specialty, doctors) : [];
 }
 
-/** Urutkan jadwal Senin sampai Jumat tanpa mengubah array asli. */
+/** Urutkan jadwal Senin sampai Minggu tanpa mengubah array asli. */
 export function sortSchedule(schedule: DoctorSchedule[]): DoctorSchedule[] {
   return [...schedule].sort(
     (a, b) => DAY_ORDER.indexOf(a.day) - DAY_ORDER.indexOf(b.day)

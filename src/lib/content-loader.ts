@@ -104,6 +104,8 @@ const HARI_MAP: Record<number, Day> = {
   3: "Rabu",
   4: "Kamis",
   5: "Jumat",
+  6: "Sabtu",
+  7: "Minggu",
 };
 
 /**
@@ -217,7 +219,15 @@ export async function getPublicDoctors(): Promise<Doctor[]> {
         const jadwalPerDokter = new Map<string, Array<{ day: Day; time: string }>>();
         for (const j of jadwalDb) {
           const hari = HARI_MAP[j.day_of_week];
-          if (!hari) continue;
+          if (!hari) {
+            // Dilaporkan, bukan didiamkan: hari yang tidak terpetakan berarti
+            // ada row jadwal yang menggantung di luar 1-7, dan pendiaman
+            // membuat selisih ini tersembunyi sampai jadwal terpotong.
+            console.warn(
+              `[content-loader] day_of_week di luar 1-7 terlewat: dokter ${j.doctor_id} hari ${j.day_of_week}`,
+            );
+            continue;
+          }
           const daftar = jadwalPerDokter.get(j.doctor_id) ?? [];
           daftar.push({
             day: hari,

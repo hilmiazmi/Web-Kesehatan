@@ -355,6 +355,22 @@ makna, bukan karakter.
 - Sebelum menyimpulkan hasil E2E yang aneh, pastikan tidak ada proses
   `next build` lain yang berjalan bersamaan.
 
+### Jadwal dokter wajib tuntas tujuh hari
+
+- **Tidak boleh ada satu pun spesialisasi tanpa dokter berjaga pada hari
+  Senin sampai Minggu.** Empat tempat harus berubah bareng-bareng kalau
+  jadwal disentuh: `DOCTORS` di `src/data/doctors.ts`, seed di
+  `scripts/seed-data.json`, `HARI_MAP` di `src/lib/content-loader.ts`
+  (nomor 1-7), dan `DAY_ORDER` di `src/lib/poliklinik.ts`. Yang statis
+  mengisi sel kosong round-robin ke pasangan dokternya; sel Sabtu/Minggu
+  memakai 08.00-12.00. `tests/jadwal-penuh.test.ts` mengunci keduanya,
+  jadi kalau tes itu merah, jangan perbaiki dengan menghapus selisihnya,
+  tetapi tambahkan jadwal yang hilang.
+- `hariPraktik` di `src/lib/jadwal.ts` sudah menerima 1-7 dan membuang
+  nomor di luar itu; loader memakai `HARI_MAP` 6 = Sabtu, 7 = Minggu, dan
+  hari yang tidak terpetakan dilaporkan via `console.warn`, bukan
+  didiamkan diam-diam.
+
 ### Jebakan `github` MCP di dalam `execute`
 
 Tiga kesalahan berturut-turut yang memakan waktu. Semuanya karena menebak
