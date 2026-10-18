@@ -6,7 +6,7 @@
  * bukan waktu setempat mesin: server CI dan VPS bisa berjalan di UTC, dan
  * memakai `getMonth`/`getDate` membuat "hari ini" ikut zona waktu mesin.
  * Akibatnya antara pukul 00.00 dan 06.59 WIB tanggal yang dihitung menjadi
- * kemarin, dan hari praktik dokter yangPtraktis tertukar satu hari.
+ * kemarin, dan hari praktik dokter yang praktis tertukar satu hari.
  *
  * Nomor hari mengikuti `isoWeekday()` di `src/server/db/repo/appointments.ts`:
  * `1` Senin sampai `7` Minggu. Nilai inilah yang tersimpan di kolom
@@ -90,7 +90,7 @@ export function nomorHari(iso: string): number | null {
  * Tanggal terdekat dengan hari tertentu, tidak lebih dulu dari `mulaiIso`.
  *
  * Dipakai widget beranda untuk mengubah pilihan "Selasa" menjadi tanggal yang
- * konkret sebelum diteruskan ke formulir. Kalau hari yang samafalls pada
+ * konkret sebelum diteruskan ke formulir. Kalau hari yang sama jatuh pada
  * `mulaiIso`, tanggal itu yang dipakai; tidak ada penambahan tujuh hari,
  * karena hari itu memang masih bisa dipesan hari ini juga.
  */
