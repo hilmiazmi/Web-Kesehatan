@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import PageHeader from "@/components/layout/PageHeader";
 import PageBlocks from "@/components/halaman/PageBlocks";
+import TextToSpeech from "@/components/ui/TextToSpeech";
 import WbsForm from "@/components/forms/wbs-form";
 import { DetailLayout } from "@/components/pelayanan/DetailLayout";
+import { teksBlok } from "@/data/halaman";
 import { PPID_SUBPAGES } from "@/data/ppid";
 import { NAV_PPID_CHILDREN } from "@/data/ppid-nav";
 
@@ -47,6 +49,10 @@ export default async function PpidSubpage({
   const page = PPID_SUBPAGES.find((x) => x.slug === slug);
   if (!page) notFound();
 
+  const teks = [page.lead, teksBlok(page.blok)]
+    .filter((t) => t !== "")
+    .join("\n");
+
   return (
     <>
       <PageHeader
@@ -62,6 +68,8 @@ export default async function PpidSubpage({
             <article>
               <h1 className="detail-title">{page.title}</h1>
               <p className="detail-lead">{page.lead}</p>
+
+              <TextToSpeech text={teks} title={page.title} />
 
               <PageBlocks blok={page.blok} pathname={`/ppid/${page.slug}`} />
 

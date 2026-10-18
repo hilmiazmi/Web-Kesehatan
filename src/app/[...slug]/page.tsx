@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PageBlocks from "@/components/halaman/PageBlocks";
 import PageHeader from "@/components/layout/PageHeader";
-import { isiHalaman } from "@/data/halaman";
+import TextToSpeech from "@/components/ui/TextToSpeech";
+import { isiHalaman, teksBlok } from "@/data/halaman";
 import { CONTACT } from "@/data/navigation";
 import { collectNavPaths, humanize, resolveTrail } from "@/lib/nav-path";
 
@@ -73,6 +74,12 @@ export default async function GenericPage({
     i === navTrail.length - 1 ? { label: t.label } : t
   ) ?? [{ label: humanize(last) }];
 
+  // Teks baca-nyaring dihitung di server supaya yang berjalan di peramban
+  // hanya pemutarnya, bukan pengekstrak isinya.
+  const teks = isi
+    ? [isi.ringkas, teksBlok(isi.blok)].filter((t) => t !== "").join("\n")
+    : "";
+
   return (
     <>
       <PageHeader title={trail.at(-1)?.label ?? humanize(last)} trail={trail} />
@@ -84,6 +91,10 @@ export default async function GenericPage({
               {isi ? (
                 <>
                   <p className="detail-lead">{isi.ringkas}</p>
+                  <TextToSpeech
+                    text={teks}
+                    title={trail.at(-1)?.label ?? humanize(last)}
+                  />
                   <PageBlocks blok={isi.blok} pathname={path} />
                 </>
               ) : (

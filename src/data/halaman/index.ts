@@ -18,6 +18,7 @@ import { ZONA } from "./zona";
 import type { IsiHalaman } from "./types";
 
 export type { BlokHalaman, IsiHalaman } from "./types";
+export { teksBlok } from "./teks";
 
 /**
  * Isi seluruh halaman generik, dikunci dengan path tanpa garis miring depan.
