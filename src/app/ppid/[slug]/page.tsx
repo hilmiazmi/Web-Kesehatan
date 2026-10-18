@@ -5,7 +5,7 @@ import PageBlocks from "@/components/halaman/PageBlocks";
 import TextToSpeech from "@/components/ui/TextToSpeech";
 import WbsForm from "@/components/forms/wbs-form";
 import { DetailLayout } from "@/components/pelayanan/DetailLayout";
-import { teksBlok } from "@/data/halaman";
+import { gabungTeks, teksBlok } from "@/data/halaman";
 import { PPID_SUBPAGES } from "@/data/ppid";
 import { NAV_PPID_CHILDREN } from "@/data/ppid-nav";
 
@@ -49,9 +49,7 @@ export default async function PpidSubpage({
   const page = PPID_SUBPAGES.find((x) => x.slug === slug);
   if (!page) notFound();
 
-  const teks = [page.lead, teksBlok(page.blok)]
-    .filter((t) => t !== "")
-    .join("\n");
+  const teks = gabungTeks([page.lead, teksBlok(page.blok)]);
 
   return (
     <>

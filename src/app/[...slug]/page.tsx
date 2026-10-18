@@ -3,7 +3,7 @@ import Link from "next/link";
 import PageBlocks from "@/components/halaman/PageBlocks";
 import PageHeader from "@/components/layout/PageHeader";
 import TextToSpeech from "@/components/ui/TextToSpeech";
-import { isiHalaman, teksBlok } from "@/data/halaman";
+import { gabungTeks, isiHalaman, teksBlok } from "@/data/halaman";
 import { CONTACT } from "@/data/navigation";
 import { collectNavPaths, humanize, resolveTrail } from "@/lib/nav-path";
 
@@ -76,9 +76,7 @@ export default async function GenericPage({
 
   // Teks baca-nyaring dihitung di server supaya yang berjalan di peramban
   // hanya pemutarnya, bukan pengekstrak isinya.
-  const teks = isi
-    ? [isi.ringkas, teksBlok(isi.blok)].filter((t) => t !== "").join("\n")
-    : "";
+  const teks = isi ? gabungTeks([isi.ringkas, teksBlok(isi.blok)]) : "";
 
   return (
     <>

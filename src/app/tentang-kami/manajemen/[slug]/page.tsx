@@ -3,9 +3,11 @@ import { notFound } from "next/navigation";
 import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import PageHeader from "@/components/layout/PageHeader";
+import TextToSpeech from "@/components/ui/TextToSpeech";
 import AnimeAvatar from "@/components/ui/AnimeAvatar";
 import { MANAGEMENT } from "@/data/manajemen";
 import { PROFIL_MANAJEMEN } from "@/data/manajemen-profil";
+import { gabungTeks } from "@/data/halaman";
 
 /**
  * Prerender satu halaman untuk tiap pimpinan.
@@ -22,6 +24,16 @@ export const dynamicParams = false;
 export function generateStaticParams() {
   return MANAGEMENT.map((person) => ({ slug: person.slug }));
 }
+
+/**
+ * Judul bagian dan catatan yang dirender di profil, dipakai ulang pada
+ * urutan baca-nyaring supaya keduanya tidak bisa saling tertinggal.
+ */
+const JUDUL_PENDIDIKAN = "Pendidikan";
+const JUDUL_RIWAYAT = "Riwayat Jabatan";
+const JUDUL_FOKUS = "Fokus Kerja";
+const CATATAN_FIKTIF =
+  "Seluruh data pada halaman ini fiktif dan dibuat untuk keperluan demonstrasi.";
 
 /** Indeks avatar dihitung dari urutan roster, jadi harus sama dengan
  *  indeks yang dipakai kisi di halaman daftar. */
@@ -57,6 +69,20 @@ export default async function ProfilManagerPage({
   const profil = PROFIL_MANAJEMEN[slug];
   if (!profil) notFound();
 
+  // Teks baca-nyaring mengikuti urutan visual: ringkasan, ketiga bagian
+  // profil beserta judulnya, lalu catatan fiktif. Avatar dan tombol kembali
+  // dilewati karena bukan isi profil.
+  const teks = gabungTeks([
+    person.ringkas,
+    JUDUL_PENDIDIKAN,
+    ...profil.pendidikan,
+    JUDUL_RIWAYAT,
+    ...profil.riwayat,
+    JUDUL_FOKUS,
+    ...profil.fokus,
+    CATATAN_FIKTIF,
+  ]);
+
   return (
     <>
       <PageHeader
@@ -84,7 +110,9 @@ export default async function ProfilManagerPage({
             <div className="col-lg-8">
               <p className="detail-lead">{person.ringkas}</p>
 
-              <h2 className="detail-heading">Pendidikan</h2>
+              <TextToSpeech text={teks} title={person.name} />
+
+              <h2 className="detail-heading">{JUDUL_PENDIDIKAN}</h2>
               <ul className="detail-list">
                 {profil.pendidikan.map((p) => (
                   <li key={p}>
@@ -94,7 +122,7 @@ export default async function ProfilManagerPage({
                 ))}
               </ul>
 
-              <h2 className="detail-heading mt-4">Riwayat Jabatan</h2>
+              <h2 className="detail-heading mt-4">{JUDUL_RIWAYAT}</h2>
               <ul className="detail-list">
                 {profil.riwayat.map((r) => (
                   <li key={r}>
@@ -104,7 +132,7 @@ export default async function ProfilManagerPage({
                 ))}
               </ul>
 
-              <h2 className="detail-heading mt-4">Fokus Kerja</h2>
+              <h2 className="detail-heading mt-4">{JUDUL_FOKUS}</h2>
               <ul className="detail-list">
                 {profil.fokus.map((f) => (
                   <li key={f}>
@@ -114,10 +142,7 @@ export default async function ProfilManagerPage({
                 ))}
               </ul>
 
-              <p className="detail-note">
-                Seluruh data pada halaman ini fiktif dan dibuat untuk keperluan
-                demonstrasi.
-              </p>
+              <p className="detail-note">{CATATAN_FIKTIF}</p>
 
               <div className="mt-4">
                 <Link

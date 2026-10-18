@@ -1,6 +1,21 @@
 import type { BlokHalaman } from "./types";
 
 /**
+ * Gabung fragmen teks baca-nyaring dengan satu aturan.
+ *
+ * Satu fragmen per baris, spasi di tepi dibuang, fragmen kosong dibuang.
+ * Dipakai bersama oleh `teksBlok` dan halaman yang menyusun teks
+ * baca-nyaringnya sendiri, supaya jeda antar-baris tidak bisa berbeda-beda
+ * karena penulisnya lupa memfilter baris kosong.
+ */
+export function gabungTeks(fragmen: string[]): string {
+  return fragmen
+    .map((f) => f.trim())
+    .filter((f) => f !== "")
+    .join("\n");
+}
+
+/**
  * Teks yang dibacakan baca-nyaring dari blok halaman generik.
  *
  * Hanya teks yang benar-benar terlihat di layar yang diambil: judul, isi
@@ -64,8 +79,5 @@ export function teksBlok(blok: BlokHalaman[]): string {
     }
   }
 
-  return fragmen
-    .map((f) => f.trim())
-    .filter((f) => f !== "")
-    .join("\n");
+  return gabungTeks(fragmen);
 }

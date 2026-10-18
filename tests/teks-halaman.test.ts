@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { teksBlok } from "@/data/halaman";
+import { gabungTeks, teksBlok } from "@/data/halaman";
 import type { BlokHalaman } from "@/data/halaman";
 
 /**
@@ -139,5 +139,17 @@ describe("teksBlok", () => {
     expect(teksBlok([{ jenis: "tautan-anak" }])).toBe("");
     expect(teksBlok([{ jenis: "galeri", foto: [] }])).toBe("");
     expect(teksBlok([{ jenis: "paragraf", teks: "   " }])).toBe("");
+  });
+});
+
+describe("gabungTeks", () => {
+  it("menggabungkan fragmen dengan baris baru per fragmen", () => {
+    expect(gabungTeks(["Satu butir.", "Dua butir."])).toBe(
+      "Satu butir.\nDua butir.",
+    );
+  });
+
+  it("membuang fragmen kosong atau isinya hanya spasi", () => {
+    expect(gabungTeks(["", "   ", "Fragmen. "])).toBe("Fragmen.");
   });
 });
