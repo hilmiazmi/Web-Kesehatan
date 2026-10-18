@@ -4,14 +4,14 @@
 dokumen lain untuk mencari tahu posisi kerja sekarang.
 
 Tanggal pembaruan: **18 Oktober 2026**
-Commit saat serah-terima: **`715cf7b`** ditambah commit dokumen ini, di branch
+Commit saat serah-terima: **`5cc4f16`** ditambah commit dokumen ini, di branch
 **`feat/integrasi-db-performa-tts`**. Branch sudah di-push (PR #55, menunggu
-merge); `upstream/main` berhenti di `63201b2` (PR #53, 11 Oktober). Tujuh belas
-commit di atasnya memuat penyambungan loader halaman publik ke database,
-baca-nyaring (berita, halaman generik, PPID), jadwal dokter tujuh hari,
-perbaikan panel navigasi mobile, penutup temuan 3.23, dan penyelarasan angka
-dokumen. Deploy VPS sudah berjalan lewat tunnel sementara; rincian di entri
-paling bawah.
+merge); `upstream/main` berhenti di `63201b2` (PR #53, 11 Oktober). Sembilan
+belas commit di atasnya memuat penyambungan loader halaman publik ke database,
+baca-nyaring (berita, halaman generik, PPID, halaman detail layanan, profil
+manajemen), jadwal dokter tujuh hari, perbaikan panel navigasi mobile,
+penutup temuan 3.23, dan penyelarasan angka dokumen. Deploy VPS sudah berjalan
+lewat tunnel sementara; rincian di entri paling bawah.
 
 Riwayat per hari ada di bawah, bukan di kepala ini. Kepala berkas hanya
 menunjuk posisi sekarang; jangan tambahkan catatan panjang di sini.
@@ -1350,15 +1350,17 @@ dan `168/168`. E2E tidak dijalankan ulang sesi ini.
 ## Push, PR #55, dan verifikasi VPS (2026-10-18, lanjutan)
 
 Dikerjakan di branch **`feat/integrasi-db-performa-tts`**; branch sudah di-push
-dan **PR #55** terbuka di `upstream` (`gh pr checks 55`: 3 hijau, 0 gagal).
-Tujuh belas commit di atas `upstream/main` (`63201b2`); satu di antaranya
-(`9557daf`, perbaikan aksesibilitas carousel/logo) milik sesi lain yang
-berbagi branch.
+dan **PR #55** terbuka di `upstream` (`gh pr checks 55`: hijau semua sebelum
+push lanjutan). Sembilan belas commit di atas `upstream/main` (`63201b2`);
+satu di antaranya (`9557daf`, perbaikan aksesibilitas carousel/logo) milik
+sesi lain yang berbagi branch; selanjutnya feat berikut ditambah commit
+dokumen.
 
 | Pekerjaan | Commit | Bukti |
 |---|---|---|
 | Baca-nyaring halaman generik + PPID | `715cf7b` | `teksBlok()` di `src/data/halaman/teks.ts` mengekstrak teks dari 12 jenis blok `BlokHalaman` (lewati ikon/href/src/alt); teks dihitung di server lalu diputar `TextToSpeech`; `tests/teks-halaman.test.ts` 10 tes; lint 0, 1028 tes/78 berkas, build exit 0 |
-| Koreksi dokumen (jsdom, ADMIN_ORIGIN, kepala berkas) | commit dokumen ini | `AGENTS.md` + `docs/TESTING.md` kini menyebut jsdom per berkas `.test.tsx`; `docs/DEPLOY-VPS.md` tidak lagi mengklaim `Secure` "tidak bisa dicegah dari kode" |
+| Koreksi dokumen (jsdom, ADMIN_ORIGIN, kepala berkas) | `6608eba` | `AGENTS.md` + `docs/TESTING.md` kini menyebut jsdom per berkas `.test.tsx`; `docs/DEPLOY-VPS.md` tidak lagi mengklaim `Secure` "tidak bisa dicegah dari kode" |
+| Baca-nyaring halaman detail + profil manajemen | `5cc4f16` | `gabungTeks()` jadi aturan komposisi bersama di `src/data/halaman/teks.ts`; `TextToSpeech` masuk `DetailBody` (medis + prioritas), `ClinicDetailBody` (poliklinik, kartu dokter dilewati), `McuPackageDetail` (reguler + holiday), diagnostik, dan profil manajemen; judul bagian jadi konstanta agar JSX dan urutan baca seirama; `tests/detail-baca-nyaring.test.tsx` 3 tes jsdom; lint 0, 1033 tes/79 berkas, build exit 0 |
 
 **Verifikasi VPS, tanpa mengubah apa pun.** Kontainer `webkes-live` memakai
 digest image yang sama dengan registry (`sha256:9667567a...`); image itu
@@ -1372,7 +1374,7 @@ Karena `koneksi-aman.ts` memasang cookie `Secure` dari `x-forwarded-proto`,
 **Masalah terbuka sekarang:**
 
 1. **PR #55 menunggu review/merge.** Setelah merge, `main` `upstream` memuat
-   17 commit ini.
+   19 commit ini.
 2. **Domain tetap VPS (DNS + TLS) dan percobaan Vercel pertama** masih
    keputusan pemilik; URL trycloudflare hanya sementara.
 3. **Sisa manual di peramban:** tata letak responsif di seluruh titik pecah dan
