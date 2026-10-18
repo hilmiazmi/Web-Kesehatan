@@ -169,7 +169,15 @@ export default function Navbar() {
                 key={item.label}
                 item={item}
                 depth={0}
-                onNavigasiMulai={() => setNavigasiBaru(true)}
+                // Dua kelas sekaligus: tanda dropdown desktop ikut ditutup,
+                // dan panel mobile tertutup walau tautan itu menunjuk halaman
+                // yang sama (contoh "Home" saat sedang di beranda), di mana
+                // pathname tidak berakhir berubah sehingga blok di atas tidak
+                // ikut jalan.
+                onNavigasiMulai={() => {
+                  setNavigasiBaru(true);
+                  setMobileOpen(false);
+                }}
               />
             ))}
 
