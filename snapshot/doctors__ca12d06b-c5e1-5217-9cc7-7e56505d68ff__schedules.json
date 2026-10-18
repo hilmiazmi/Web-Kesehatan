@@ -24,6 +24,18 @@
   "note": null
  },
  {
+  "id": "b2994dd2-1c0d-52ce-b488-7866973bc956",
+  "doctor_id": "ca12d06b-c5e1-5217-9cc7-7e56505d68ff",
+  "doctor_name": "Lina Marlina",
+  "polyclinic": "Poliklinik Umum",
+  "day_of_week": 4,
+  "start_time": "08:00:00",
+  "end_time": "11:00:00",
+  "room": "C1-06",
+  "quota": 30,
+  "note": null
+ },
+ {
   "id": "b7446330-03aa-40dc-a587-9d11cafe2288",
   "doctor_id": "ca12d06b-c5e1-5217-9cc7-7e56505d68ff",
   "doctor_name": "Lina Marlina",
@@ -31,6 +43,18 @@
   "day_of_week": 5,
   "start_time": "08:00:00",
   "end_time": "11:00:00",
+  "room": "C1-06",
+  "quota": 30,
+  "note": null
+ },
+ {
+  "id": "ced30b39-1a2f-5ed9-93c4-29a5b094b9fc",
+  "doctor_id": "ca12d06b-c5e1-5217-9cc7-7e56505d68ff",
+  "doctor_name": "Lina Marlina",
+  "polyclinic": "Poliklinik Umum",
+  "day_of_week": 7,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
   "room": "C1-06",
   "quota": 30,
   "note": null

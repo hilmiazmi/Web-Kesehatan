@@ -34,5 +34,17 @@
   "room": "B2-01",
   "quota": 25,
   "note": null
+ },
+ {
+  "id": "fc6ba051-7b27-58b7-954f-9045227e8ec5",
+  "doctor_id": "2207cc2f-fde8-55bc-b2d7-bfa3e9c5e312",
+  "doctor_name": "Ayu Lestari",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 7,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "B2-01",
+  "quota": 40,
+  "note": null
  }
 ]

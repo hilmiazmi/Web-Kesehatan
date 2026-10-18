@@ -1,5 +1,17 @@
 [
  {
+  "id": "5860a42a-262a-577b-94fc-4fe74f62bad5",
+  "doctor_id": "34c4cf92-5522-56f9-af90-c16b9eaf1e43",
+  "doctor_name": "Fajar Setiawan",
+  "polyclinic": "Poliklinik Ibu dan Anak",
+  "day_of_week": 1,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "C1-04",
+  "quota": 40,
+  "note": null
+ },
+ {
   "id": "ae8a406c-bd85-400c-8b9f-af1916733c6a",
   "doctor_id": "34c4cf92-5522-56f9-af90-c16b9eaf1e43",
   "doctor_name": "Fajar Setiawan",
@@ -17,6 +29,18 @@
   "doctor_name": "Fajar Setiawan",
   "polyclinic": "Poliklinik Ibu dan Anak",
   "day_of_week": 4,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "C1-04",
+  "quota": 40,
+  "note": null
+ },
+ {
+  "id": "e0620907-fb4f-5a0e-b553-9f28bb8d0135",
+  "doctor_id": "34c4cf92-5522-56f9-af90-c16b9eaf1e43",
+  "doctor_name": "Fajar Setiawan",
+  "polyclinic": "Poliklinik Ibu dan Anak",
+  "day_of_week": 7,
   "start_time": "08:00:00",
   "end_time": "12:00:00",
   "room": "C1-04",

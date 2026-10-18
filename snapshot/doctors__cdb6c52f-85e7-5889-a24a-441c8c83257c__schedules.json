@@ -34,5 +34,17 @@
   "room": "C1-03",
   "quota": 45,
   "note": null
+ },
+ {
+  "id": "dec0a826-e2c4-5104-aeb7-712cea6d571d",
+  "doctor_id": "cdb6c52f-85e7-5889-a24a-441c8c83257c",
+  "doctor_name": "Citra Wulandari",
+  "polyclinic": "Poliklinik Umum",
+  "day_of_week": 7,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "C1-03",
+  "quota": 45,
+  "note": null
  }
 ]

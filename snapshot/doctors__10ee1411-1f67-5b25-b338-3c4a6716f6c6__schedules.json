@@ -10,5 +10,17 @@
   "room": "A1-01",
   "quota": 50,
   "note": null
+ },
+ {
+  "id": "8fd86b65-22c2-58e3-9b11-382057902948",
+  "doctor_id": "10ee1411-1f67-5b25-b338-3c4a6716f6c6",
+  "doctor_name": "Kirana Melati",
+  "polyclinic": "Poliklinik Ibu dan Anak",
+  "day_of_week": 6,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "A1-01",
+  "quota": 50,
+  "note": null
  }
 ]

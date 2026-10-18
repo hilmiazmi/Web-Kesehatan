@@ -12,11 +12,35 @@
   "note": null
  },
  {
+  "id": "bd8dbd66-0816-5155-96ef-6ae268c38092",
+  "doctor_id": "19f26f72-824d-51ae-a4bc-8da7621bb714",
+  "doctor_name": "Jihan Andriani",
+  "polyclinic": "Poliklinik Umum",
+  "day_of_week": 2,
+  "start_time": "10:00:00",
+  "end_time": "14:00:00",
+  "room": "D1-07",
+  "quota": 40,
+  "note": null
+ },
+ {
   "id": "86eac993-9c0b-55df-b78b-243e49603ff3",
   "doctor_id": "19f26f72-824d-51ae-a4bc-8da7621bb714",
   "doctor_name": "Jihan Andriani",
   "polyclinic": "Poliklinik Umum",
   "day_of_week": 3,
+  "start_time": "10:00:00",
+  "end_time": "14:00:00",
+  "room": "D1-07",
+  "quota": 40,
+  "note": null
+ },
+ {
+  "id": "9702681a-61a4-5137-ac68-f0019394eb00",
+  "doctor_id": "19f26f72-824d-51ae-a4bc-8da7621bb714",
+  "doctor_name": "Jihan Andriani",
+  "polyclinic": "Poliklinik Umum",
+  "day_of_week": 5,
   "start_time": "10:00:00",
   "end_time": "14:00:00",
   "room": "D1-07",

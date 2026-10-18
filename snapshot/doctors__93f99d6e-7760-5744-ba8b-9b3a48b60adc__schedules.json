@@ -10,5 +10,17 @@
   "room": "C1-04",
   "quota": 50,
   "note": null
+ },
+ {
+  "id": "de9e6faf-49aa-5804-8633-9ce3cf0b4241",
+  "doctor_id": "93f99d6e-7760-5744-ba8b-9b3a48b60adc",
+  "doctor_name": "Dewi Anggraini",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 6,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "C1-04",
+  "quota": 50,
+  "note": null
  }
 ]

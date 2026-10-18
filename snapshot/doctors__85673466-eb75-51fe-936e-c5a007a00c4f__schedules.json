@@ -22,5 +22,17 @@
   "room": "B3-03",
   "quota": 40,
   "note": null
+ },
+ {
+  "id": "13719961-38c6-58d0-940f-da05bd2ed4cd",
+  "doctor_id": "85673466-eb75-51fe-936e-c5a007a00c4f",
+  "doctor_name": "Oktavia Sari",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 6,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "B3-03",
+  "quota": 40,
+  "note": null
  }
 ]

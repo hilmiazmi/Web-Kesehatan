@@ -22,5 +22,17 @@
   "room": "B2-03",
   "quota": 35,
   "note": null
+ },
+ {
+  "id": "7d3d9ba7-35dc-5b9c-b955-4dd2dbd14c96",
+  "doctor_id": "8ff250e2-6a10-5e7b-ad08-81f37ac1906d",
+  "doctor_name": "Kartika Dewi",
+  "polyclinic": "Poliklinik Umum",
+  "day_of_week": 7,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "B2-03",
+  "quota": 35,
+  "note": null
  }
 ]

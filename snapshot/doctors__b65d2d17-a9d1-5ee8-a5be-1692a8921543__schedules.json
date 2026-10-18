@@ -10,5 +10,17 @@
   "room": "B3-04",
   "quota": 50,
   "note": null
+ },
+ {
+  "id": "5eb3318e-159d-50e6-8508-e1d90eec0a5f",
+  "doctor_id": "b65d2d17-a9d1-5ee8-a5be-1692a8921543",
+  "doctor_name": "Eni Sukmawati",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 7,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "B3-04",
+  "quota": 50,
+  "note": null
  }
 ]

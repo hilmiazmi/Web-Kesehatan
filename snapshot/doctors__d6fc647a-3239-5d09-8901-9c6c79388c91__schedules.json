@@ -58,5 +58,17 @@
   "room": "A1-01",
   "quota": 30,
   "note": null
+ },
+ {
+  "id": "742eea0c-c97c-53bd-b587-d08dcecf1c51",
+  "doctor_id": "d6fc647a-3239-5d09-8901-9c6c79388c91",
+  "doctor_name": "Rizky Ramadhan",
+  "polyclinic": "Instalasi Gawat Darurat",
+  "day_of_week": 7,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "A1-01",
+  "quota": 30,
+  "note": null
  }
 ]

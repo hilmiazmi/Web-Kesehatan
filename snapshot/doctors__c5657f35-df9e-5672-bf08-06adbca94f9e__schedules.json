@@ -12,11 +12,35 @@
   "note": null
  },
  {
+  "id": "cb04148a-7ac1-5f1a-b217-5282b7d10006",
+  "doctor_id": "c5657f35-df9e-5672-bf08-06adbca94f9e",
+  "doctor_name": "Hesti Rahmawati",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 3,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "C1-05",
+  "quota": 40,
+  "note": null
+ },
+ {
   "id": "178e2775-8b20-5820-842c-099cc9d8438f",
   "doctor_id": "c5657f35-df9e-5672-bf08-06adbca94f9e",
   "doctor_name": "Hesti Rahmawati",
   "polyclinic": "Poliklinik Spesialis",
   "day_of_week": 4,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "C1-05",
+  "quota": 40,
+  "note": null
+ },
+ {
+  "id": "c197ae77-9f73-5187-b550-23c5fd2e905a",
+  "doctor_id": "c5657f35-df9e-5672-bf08-06adbca94f9e",
+  "doctor_name": "Hesti Rahmawati",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 6,
   "start_time": "08:00:00",
   "end_time": "12:00:00",
   "room": "C1-05",

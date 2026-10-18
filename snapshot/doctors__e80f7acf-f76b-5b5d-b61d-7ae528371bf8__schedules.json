@@ -22,5 +22,17 @@
   "room": "A1-01",
   "quota": 40,
   "note": null
+ },
+ {
+  "id": "049f90d1-8607-5386-b2e1-f50dd30e6b23",
+  "doctor_id": "e80f7acf-f76b-5b5d-b61d-7ae528371bf8",
+  "doctor_name": "Zaki Maulana",
+  "polyclinic": "Poliklinik Umum",
+  "day_of_week": 6,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "A1-01",
+  "quota": 40,
+  "note": null
  }
 ]

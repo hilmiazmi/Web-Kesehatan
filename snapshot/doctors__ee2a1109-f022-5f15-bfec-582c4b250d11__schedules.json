@@ -12,12 +12,36 @@
   "note": null
  },
  {
+  "id": "05110f4e-e099-558e-ac65-b0d1b44d54ca",
+  "doctor_id": "ee2a1109-f022-5f15-bfec-582c4b250d11",
+  "doctor_name": "Fitri Handayani",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 3,
+  "start_time": "09:00:00",
+  "end_time": "13:00:00",
+  "room": "C2-06",
+  "quota": 40,
+  "note": null
+ },
+ {
   "id": "19bffebb-77cf-5ec8-9c7a-821a36c45788",
   "doctor_id": "ee2a1109-f022-5f15-bfec-582c4b250d11",
   "doctor_name": "Fitri Handayani",
   "polyclinic": "Poliklinik Spesialis",
   "day_of_week": 5,
   "start_time": "09:00:00",
+  "end_time": "12:00:00",
+  "room": "C2-06",
+  "quota": 40,
+  "note": null
+ },
+ {
+  "id": "dd753c9d-632a-5b6e-8914-9ae810c149e6",
+  "doctor_id": "ee2a1109-f022-5f15-bfec-582c4b250d11",
+  "doctor_name": "Fitri Handayani",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 6,
+  "start_time": "08:00:00",
   "end_time": "12:00:00",
   "room": "C2-06",
   "quota": 40,

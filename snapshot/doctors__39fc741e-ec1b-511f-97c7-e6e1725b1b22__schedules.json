@@ -22,5 +22,17 @@
   "room": "A1-01",
   "quota": 30,
   "note": null
+ },
+ {
+  "id": "4cd81049-1b11-5f4b-93e6-39989c2231fb",
+  "doctor_id": "39fc741e-ec1b-511f-97c7-e6e1725b1b22",
+  "doctor_name": "Dimas Nugroho",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 7,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "A1-01",
+  "quota": 30,
+  "note": null
  }
 ]

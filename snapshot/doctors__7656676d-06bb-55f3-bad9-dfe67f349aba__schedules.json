@@ -1,5 +1,17 @@
 [
  {
+  "id": "a07a095d-13f8-5ce7-a91e-f9350858b97c",
+  "doctor_id": "7656676d-06bb-55f3-bad9-dfe67f349aba",
+  "doctor_name": "Indah Safitri",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 1,
+  "start_time": "09:00:00",
+  "end_time": "13:00:00",
+  "room": "B2-05",
+  "quota": 30,
+  "note": null
+ },
+ {
   "id": "5e09de42-3b70-481f-9093-9032e72c45a0",
   "doctor_id": "7656676d-06bb-55f3-bad9-dfe67f349aba",
   "doctor_name": "Indah Safitri",
@@ -33,6 +45,18 @@
   "end_time": "11:00:00",
   "room": "B2-05",
   "quota": 20,
+  "note": null
+ },
+ {
+  "id": "dfc98271-e755-5fc4-ae3a-c7e9ab46fb10",
+  "doctor_id": "7656676d-06bb-55f3-bad9-dfe67f349aba",
+  "doctor_name": "Indah Safitri",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 7,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "B2-05",
+  "quota": 30,
   "note": null
  }
 ]
