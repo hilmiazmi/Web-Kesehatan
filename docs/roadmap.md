@@ -17,16 +17,16 @@ bukan sebagai perkiraan.
 |---|---|---|
 | Halaman ter-prerender | 150 | `bun run cek:tautan`, berkas `.html` di `.next/server/app` tanpa dua halaman cadangan Next.js. Diukur 10 Oktober 2026; naik 2 dari 148 karena halaman unit `rawat-jalan` dan `rawat-inap` (8 Oktober 2026) |
 | Pola rute dinamis | 11 | `dynamicRoutes` di `.next/prerender-manifest.json` |
-| Berkas tes | 48 | `bun run test` |
-| Jumlah tes | 678 | `bun run test` |
-| Rute internal dari catch-all | 30 | `collectNavPaths()` di `src/lib/nav-path.ts` |
+| Berkas tes | 77 | `bun run test`. Diukur 18 Oktober 2026 |
+| Jumlah tes | 1018 | `bun run test`. Diukur 18 Oktober 2026 |
+| Rute internal dari catch-all | 27 | `collectNavPaths()` di `src/lib/nav-path.ts`, diukur 18 Oktober 2026 |
 | Tabel terkelola di panel admin | 17 | `src/server/admin/registry.ts` |
-| Tabel di skema database | 28 | `pgTable` di `src/server/db/schema.ts`, diukur 10 Oktober 2026 (plus 11 `pgEnum`) |
-| Route handler API | 45 | `src/app/api/v1/**/route.ts`: 44 endpoint dan catcher 404. Naik 1 dari 44 karena `admissions` dari pemisahan rawat inap (`409012f`, 8 Oktober 2026) |
+| Tabel di skema database | 29 | `pgTable` di `src/server/db/schema.ts`, diukur 18 Oktober 2026 (plus 11 `pgEnum`) |
+| Route handler API | 47 | `src/app/api/v1/**/route.ts`: 46 endpoint dan catcher 404. Diukur 18 Oktober 2026. Naik 2 dari 45 sejak `admin/audit` (`3a5c559`) dan `admin/inbox/[kind]/status-banyak` (`d5ccd82`) |
 | Butir navigasi tingkat atas | 8 | `NAV_ITEMS` |
-| Halaman panel admin | 7 | `src/app/admin/**/page.tsx`: 1 login + 6 di dalam `(panel)` (dasbor, akun, beds, inbox, pengaturan, records). Keenamnya dinamis karena butuh sesi |
+| Halaman panel admin | 8 | `src/app/admin/**/page.tsx`: 1 login + 7 di dalam `(panel)` (dasbor, akun, beds, inbox, pengaturan, records, riwayat). Ketujuhnya dinamis karena butuh sesi |
 | Halaman publik yang membaca database | 4 | `getPublicArticles()` di `src/lib/content-loader.ts`: `/berita`, `/berita/[slug]`, `/`, dan `sitemap.xml` |
-| Migration terpasang di database uji | 6 | `bun run db:migrate`, terakhir `0005_slug_paket_mcu.sql`. Diukur 10 Oktober 2026 dari folder `drizzle/` |
+| Migration terpasang di database uji | 8 | `bun run db:migrate`, terakhir `0007_perbaiki_teks_rusak.sql`. Diukur 18 Oktober 2026 dari folder `drizzle/` |
 
 Jumlah "halaman ter-prerender" pernah ditulis 160, lalu 154, lalu 150. Dua-duanya
 salah, dan sekarang alasannya jelas.
@@ -48,7 +48,7 @@ Per 10 Oktober 2026 berkas HTML-nya 152 dan halamannya 150. Tambahan 2 dari
 2026 (`7ccb399`, `409012f`). Cara memeriksa: daftar berkas `.html` di
 `.next/server/app`, kurangi `/_global-error` dan `/_not-found`.
 
-Empat halaman panel admin tidak termasuk 148, dan itu memang benar. Semuanya
+Delapan halaman panel admin tidak termasuk 150, dan itu memang benar. Semuanya
 diserver saat diminta, bukan ditulis ke berkas HTML, karena isinya berbeda
 setiap pengunjung. `bun run cek:tautan` tidak pernah melihatnya, dan tidak
 perlu: `/admin` tidak boleh ada di sitemap maupun punya tautan masuk.
@@ -71,11 +71,11 @@ sudah punya folder sendiri. Cara memeriksa ulang satu baris:
 bun -e "const {collectNavPaths}=await import('./src/lib/nav-path.ts');console.log(collectNavPaths().length)"
 ```
 
-Gerbang kualitas terakhir: typecheck bersih, `bun run lint` bersih,
-`bun run test` 678 tes lulus dari 48 berkas, `bun run cek:konten` dan
+Gerbang kualitas terakhir (18 Oktober 2026): typecheck bersih, `bun run lint`
+bersih, `bun run test` 1018 tes lulus dari 77 berkas, `bun run cek:konten` dan
 `bun run audit:teks` lulus, `bun run build` sukses, dan `bun run cek:tautan`
 tidak menemukan tautan mati, halaman tanpa tautan masuk, maupun halaman yang
-lupa masuk sitemap: 148 halaman, 148 tautan unik, 148 entri sitemap.
+lupa masuk sitemap: 150 halaman, 150 tautan unik, 149 entri sitemap.
 
 Database sungguhan sudah bisa dijalankan di mesin ini tanpa Docker, lewat
 PostgreSQL 17.11 dari shim `mise`. menjalankan `db:migrate`, `db:seed`,
@@ -99,7 +99,7 @@ diperiksa adalah HTML hasil prerender.
 |---|---|---|---|
 | 1 | Layout global: topbar, navbar, footer, back-to-top | selesai | keempatnya ada. Tombol kembali ke atas di `src/components/layout/BackToTop.tsx`, angka dan posisinya diukur dari situs acuan. Lihat 3.10 |
 | 2 | Beranda dengan seluruh section | selesai | 13 section di `src/app/page.tsx`, urutannya sama dengan PRD 8.3 |
-| 3 | Halaman konten dari tabel `pages` | selesai | ikut 148 halaman hasil build |
+| 3 | Halaman konten dari tabel `pages` | selesai | ikut 150 halaman hasil build |
 | 4 | Halaman detail template | selesai | layanan prioritas, fasilitas, MCU, berita |
 | 5 | Galeri dengan lightbox | selesai | `src/components/ui/GalleryLightbox.tsx`, PR #25 |
 
