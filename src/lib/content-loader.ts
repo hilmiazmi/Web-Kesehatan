@@ -4,7 +4,7 @@ import {
   listArticles,
   listDoctors,
   listSchedules,
-  listMcuPackages,
+  listMcuPackagesWithItems,
   findMcuPackage,
 } from "@/server/db/repo/content";
 import { ARTICLES, MCU_PACKAGES, MCU_HOLIDAY_PACKAGES } from "@/data/home";
@@ -278,25 +278,22 @@ export async function getPublicMcuPackages(
 
   if (db) {
     try {
-      const rows = await listMcuPackages(db, KATEGORI_MCU[category]);
+      const rows = await listMcuPackagesWithItems(db, KATEGORI_MCU[category]);
       if (rows.length > 0) {
-        const dariDb: PublicMcuPackage[] = await Promise.all(
-          rows.map(async (r) => {
-            const detail = await findMcuPackage(db, r.slug);
-            const items =
-              detail && detail.items.length > 0
-                ? detail.items.map((it) => it.item_name)
-                : r.summary
-                  ? [r.summary]
-                  : [];
-            return {
-              slug: r.slug,
-              title: r.name,
-              price: r.price,
-              items,
-            };
-          }),
-        );
+        const dariDb: PublicMcuPackage[] = rows.map((r) => {
+          const items =
+            r.items.length > 0
+              ? r.items.map((it) => it.item_name)
+              : r.summary
+                ? [r.summary]
+                : [];
+          return {
+            slug: r.slug,
+            title: r.name,
+            price: r.price,
+            items,
+          };
+        });
 
         const slugAda = new Set(dariDb.map((p) => p.slug));
         const gabungan = [...dariDb];

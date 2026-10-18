@@ -6,6 +6,7 @@ const mockDbState = vi.hoisted(() => ({
   packages: [] as unknown[],
   detail: null as unknown,
   error: null as unknown,
+  panggilDetail: 0,
 }));
 
 vi.mock("@/server/db/client", () => ({
@@ -13,11 +14,12 @@ vi.mock("@/server/db/client", () => ({
 }));
 
 vi.mock("@/server/db/repo/content", () => ({
-  listMcuPackages: async (_db: unknown, _category: string) => {
+  listMcuPackagesWithItems: async (_db: unknown, _category: string) => {
     if (mockDbState.error) throw mockDbState.error;
     return mockDbState.packages;
   },
   findMcuPackage: async (_db: unknown, slug: string) => {
+    mockDbState.panggilDetail += 1;
     if (mockDbState.error) throw mockDbState.error;
     if (mockDbState.detail && (mockDbState.detail as { slug: string }).slug === slug) {
       return mockDbState.detail;
@@ -40,6 +42,7 @@ describe("getPublicMcuPackages & getPublicMcuPackage", () => {
     mockDbState.packages = [];
     mockDbState.detail = null;
     mockDbState.error = null;
+    mockDbState.panggilDetail = 0;
   });
 
   it("fallback ke data statis reguler saat database kosong atau snapshot", async () => {
@@ -65,18 +68,12 @@ describe("getPublicMcuPackages & getPublicMcuPackage", () => {
         price: 3500000,
         summary: "Pemeriksaan menyeluruh",
         category: "reguler",
+        items: [
+          { group_name: "Lab", item_name: "Darah Lengkap" },
+          { group_name: "Radiologi", item_name: "Rontgen Thorax" },
+        ],
       },
     ];
-    mockDbState.detail = {
-      slug: "paket-spesial-eksekutif",
-      name: "Paket Spesial Eksekutif",
-      price: 3500000,
-      summary: "Pemeriksaan menyeluruh",
-      items: [
-        { group_name: "Lab", item_name: "Darah Lengkap" },
-        { group_name: "Radiologi", item_name: "Rontgen Thorax" },
-      ],
-    };
 
     const hasil = await getPublicMcuPackages("reguler");
     const ditemukan = hasil.find((p) => p.slug === "paket-spesial-eksekutif");
@@ -84,6 +81,49 @@ describe("getPublicMcuPackages & getPublicMcuPackage", () => {
     expect(ditemukan?.title).toBe("Paket Spesial Eksekutif");
     expect(ditemukan?.price).toBe(3500000);
     expect(ditemukan?.items).toContain("Darah Lengkap");
+  });
+
+  it("katalog tidak memanggil findMcuPackage per paket (tanpa N+1)", async () => {
+    mockDbState.database = {};
+    mockDbState.packages = [
+      {
+        slug: "paket-a",
+        name: "Paket A",
+        price: 100000,
+        summary: null,
+        category: "reguler",
+        items: [{ group_name: "Lab", item_name: "Darah Lengkap" }],
+      },
+      {
+        slug: "paket-b",
+        name: "Paket B",
+        price: 200000,
+        summary: null,
+        category: "reguler",
+        items: [],
+      },
+    ];
+
+    await getPublicMcuPackages("reguler");
+    expect(mockDbState.panggilDetail).toBe(0);
+  });
+
+  it("memakai ringkasan sebagai item saat paket tidak punya item rinci", async () => {
+    mockDbState.database = {};
+    mockDbState.packages = [
+      {
+        slug: "paket-tanpa-item",
+        name: "Paket Tanpa Item",
+        price: 150000,
+        summary: "Ringkasan paket",
+        category: "reguler",
+        items: [],
+      },
+    ];
+
+    const hasil = await getPublicMcuPackages("reguler");
+    const ditemukan = hasil.find((p) => p.slug === "paket-tanpa-item");
+    expect(ditemukan?.items).toEqual(["Ringkasan paket"]);
   });
 
   it("getPublicMcuPackage mengembalikan detail paket", async () => {
