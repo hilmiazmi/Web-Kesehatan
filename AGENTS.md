@@ -66,10 +66,15 @@ sungguhan, jadi jangan menjalankannya di mode snapshot.
 
 ## Tes
 
-Vitest 5, tanpa jsdom karena semua yang diuji logika murni. Tes ada di
-`tests/*.test.ts` dan hanya mencakup apa yang tidak bisa dijamin mata:
-`nav-path.ts`, `format.ts`, `validate()` di formulir, bentuk data konten,
-sanitasi Markdown, dan fungsi tanggal di `src/server/`.
+Vitest 5 dengan `environment: "node"` sebagai default di `vitest.config.mts`.
+Tes logika murni ada di `tests/*.test.ts` dan hanya mencakup apa yang tidak
+bisa dijamin mata: `nav-path.ts`, `format.ts`, `validate()` di formulir, bentuk
+data konten, sanitasi Markdown, dan fungsi tanggal di `src/server/`.
+
+Komponen yang butuh DOM memakai akhiran `.test.tsx` dengan komentar
+`@vitest-environment jsdom` **per berkas**; jsdom dan `@testing-library/react`
+sudah terpasang dan `environment` global tidak diubah. Contoh:
+`tests/text-to-speech.test.tsx`.
 
 Tes yang menguji aturan waktu **wajib** memakai `vi.setSystemTime`. Aturan
 yang membandingkan "hari ini" dengan tanggal UTC terlihat benar selama

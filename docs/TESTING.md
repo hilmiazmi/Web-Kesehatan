@@ -48,9 +48,12 @@ sudah usang terhadap hasil di atas. Dokumen itu milik pemilik repo dan tidak diu
 
 ## 2. Strategi: apa yang diuji dengan apa
 
-Prinsip dari `AGENTS.md`: Vitest 5, **tanpa jsdom**, karena yang diuji logika murni
-(`environment: "node"` di `vitest.config.mts`). Tes hanya mencakup apa yang tidak
-bisa dijamin oleh mata; tampilan diperiksa manual.
+Prinsip dari `AGENTS.md`: Vitest 5 dengan `environment: "node"` sebagai default
+di `vitest.config.mts`. Komponen yang butuh DOM memakai akhiran `.test.tsx`
+dengan `@vitest-environment jsdom` **per berkas**; jsdom dan
+`@testing-library/react` sudah terpasang dan `environment` global tidak diubah.
+Tes hanya mencakup apa yang tidak bisa dijamin oleh mata; tampilan diperiksa
+manual.
 
 | Lapisan | Alat | Contoh berkas di `tests/` |
 | --- | --- | --- |
@@ -61,6 +64,7 @@ bisa dijamin oleh mata; tampilan diperiksa manual.
 | Auth dan admin | Vitest | `password`, `session`, `read-session`, `peran-admin`, `registry`, `akun-panel`, `akun-diri-sendiri`, `admin-panel`, `admin-nilai-form`, `records`, `stats` |
 | Aturan desain yang dikunci | Vitest | `kembali-ke-atas`, `theme-color`, `kontras`, `tautan-internal` |
 | Keamanan yang dikunci | Vitest | `header-keamanan` (tujuh header di `next.config.ts`), `snapshot-tolak-tulis` (mode snapshot menolak tulis) |
+| Komponen klien (DOM) | Vitest + jsdom | `text-to-speech` |
 | Protokol build paralel yang dikunci | Vitest | `kunci-build` (aturan basi 20 menit, pemasangan hook di `package.json` + teardown di `playwright.config.ts`, aturan lepas bertoken, pemeriksaan proses mentah) |
 | Gerbang manual / CI | skrip `scripts/*.ts` | lihat bagian 4 |
 | Tampilan, interaksi, aksesibilitas | **manual di peramban** | bagian 5 |

@@ -4,11 +4,14 @@
 dokumen lain untuk mencari tahu posisi kerja sekarang.
 
 Tanggal pembaruan: **18 Oktober 2026**
-Commit saat serah-terima: **`b46176f`** ditambah commit dokumen ini, di branch
-**`feat/integrasi-db-performa-tts`**; belum di-push. `upstream/main` berhenti
-di `63201b2` (PR #53, 11 Oktober). Sebelas commit di atasnya memuat
-penyambungan loader halaman publik ke database, baca-nyaring, jadwal dokter
-tujuh hari, perbaikan panel navigasi mobile, dan penutup temuan 3.23.
+Commit saat serah-terima: **`715cf7b`** ditambah commit dokumen ini, di branch
+**`feat/integrasi-db-performa-tts`**. Branch sudah di-push (PR #55, menunggu
+merge); `upstream/main` berhenti di `63201b2` (PR #53, 11 Oktober). Tujuh belas
+commit di atasnya memuat penyambungan loader halaman publik ke database,
+baca-nyaring (berita, halaman generik, PPID), jadwal dokter tujuh hari,
+perbaikan panel navigasi mobile, penutup temuan 3.23, dan penyelarasan angka
+dokumen. Deploy VPS sudah berjalan lewat tunnel sementara; rincian di entri
+paling bawah.
 
 Riwayat per hari ada di bawah, bukan di kepala ini. Kepala berkas hanya
 menunjuk posisi sekarang; jangan tambahkan catatan panjang di sini.
@@ -21,7 +24,7 @@ menunjuk posisi sekarang; jangan tambahkan catatan panjang di sini.
 |---|---|---|
 | A | Audit, tanpa ubah kode | **Selesai** — `docs/STATUS-PROYEK.md` |
 | B | Perbaikan dasar | **Sebagian** — lihat bagian 3 |
-| C | C1 form · C2 daftar online · C3 UI admin · C4 dual deploy | **C3 selesai**, C1 dan C2 sudah ada di kode, C4 belum |
+| C | C1 form · C2 daftar online · C3 UI admin · C4 dual deploy | **C3 selesai**; C1 dan C2 sudah ada di kode; C4 **sebagian** — VPS live lewat tunnel (image `3a5c559`), Vercel belum |
 | D | Pengujian | **Sebagian** — unit dan integrasi API bertambah, E2E belum |
 | E | Audit keamanan | **Selesai** — `docs/AUDIT-KEAMANAN.md` |
 | F | Penutup | **Selesai** — README dan `docs/LAPORAN-PROGRESS.md` |
@@ -56,7 +59,7 @@ Ringkasan. Bukti lengkap di `docs/STATUS-PROYEK.md` bagian 3.
 | Panel admin | Selesai | 7 halaman, 9 kelompok API |
 | Form E-Pasien | Selesai | **Sama dengan Daftar Online.** `src/data/home.ts` mengirim tautan "E-Pasien" ke `/daftar-online`, dan `registration-form.tsx:24` menyebut dirinya "Formulir pendaftaran online (E-Pasien)". Checklist lama bilang "Belum" karena salah baca |
 | Uji E2E (Playwright) | Selesai | `e2e/publik.test.ts` (beranda, hero autoplay, navigasi, 404, gate admin, Daftar Online, mobile 390px) dan `e2e/alur-db.test.ts` (login, panel, pengaturan, kritik terlacak) |
-| Dual deploy Vercel + VPS | Sebagian | `Dockerfile`, `.dockerignore`, `docs/DEPLOY-VERCEL.md`, `docs/DEPLOY-VPS.md` sudah ada. **Docker sudah terverifikasi** di VPS (build sukses, mode snapshot 200, health healthy) — lihat bagian 6. Vercel belum pernah dicoba dari repo ini |
+| Dual deploy Vercel + VPS | Sebagian | `Dockerfile`, `.dockerignore`, `docs/DEPLOY-VERCEL.md`, `docs/DEPLOY-VPS.md` sudah ada. **VPS sudah menjalankan produksi** lewat tunnel sementara (kontainer `webkes-live`, image `3a5c559`, mode `live`, health sehat; verifikasi 18 Oktober di entri paling bawah). Vercel belum pernah dicoba dari repo ini |
 
 ---
 
@@ -95,11 +98,12 @@ Ringkasan. Bukti lengkap di `docs/STATUS-PROYEK.md` bagian 3.
 3. ~~**`sweetalert2@11.22.0`**~~ **Teratasi**, sudah di `11.22.4`.
 4. **`braces` dan `esbuild`** hanya muncul di rantai perkembangan, tidak
    berdampak ke produksi.
-5. **`ADMIN_ORIGIN` harus diawali `https://` di produksi.** Penjaga di kode
-   sudah ditambahkan: `config()` menolak `ADMIN_ORIGIN` yang `http://` untuk host
-   publik di mode `live`, jadi salah environment ketahuan saat start, bukan
-   diam-diam terbit tanpa `Secure`. Yang tersisa hanya mengisi nilai
-   production dengan `https://` di dashboard platform.
+5. ~~**`ADMIN_ORIGIN` harus diawali `https://` di produksi.**~~ **Teratasi
+   lewat kode.** `config()` menolak `ADMIN_ORIGIN` `http://` untuk host publik
+   di mode `live`, dan cookie `Secure` tidak lagi bergantung mutlak padanya:
+   `koneksi-aman.ts` memasang `Secure` dari `x-forwarded-proto` proksi
+   (tunnel/Coolify/Vercel), jadi nilai bawaan tetap aman. Sisa tindakan
+   platform: isi `https://domain` begitu domain tetap sudah ada.
 
 ### Prioritas rendah
 
@@ -114,9 +118,9 @@ Ringkasan. Bukti lengkap di `docs/STATUS-PROYEK.md` bagian 3.
 Semua yang ada di bawah sudah selesai; yang tersisa hanya tindakan yang butuh
 environment produksi atau keputusan Anda.
 
-1. Isi `ADMIN_ORIGIN=https://domain-anda` di dashboard platform (Vercel atau
-   Coolify). `config()` sekarang menolak `http://` untuk host publik, jadi salah
-   environment tidak akan lolos diam-diam.
+1. ~~Isi `ADMIN_ORIGIN=https://domain-anda` di dashboard platform~~ **Tertunda
+   menunggu domain tetap**; nilai bawaan aman di belakang proksi (bagian 4
+   nomor 5). Isi `https://domain-anda` saat domain sudah diarahkan.
 2. Sekali deploy pertama berhasil, jalankan `bun run db:migrate` di server
    (VPS) supaya skema cocok dengan data seed. Snapshot untuk pratinjau Vercel
    sudah cukup tanpa database.
@@ -134,9 +138,11 @@ environment produksi atau keputusan Anda.
    dipush ke `upstream`.
 2. ~~Dua kenaikan versi dependensi belum dikerjakan~~ **Selesai**: `swiper` di
    `12.2.0` dan `sweetalert2` di `11.22.4`.
-3. **Deploy produksi belum dicoba dari repo ini.** Docker sudah terbukti jalan
-   di VPS, tetapi tidak ada domain, DNS, atau TLS yang sudah diarahkan ke sana.
-   Itu keputusan dan biaya, bukan pekerjaan kode.
+3. ~~**Deploy produksi belum dicoba dari repo ini.**~~ **Terkoreksi 18
+   Oktober**: VPS sudah menjalankan produksi (kontainer `webkes-live`, image
+   `3a5c559`, mode `live` sehat) lewat tunnel cloudflared sementara. Yang belum:
+   domain tetap beserta DNS/TLS atas nama rumah sakit, dan Vercel yang belum
+   pernah dicoba. Keduanya keputusan dan biaya, bukan pekerjaan kode.
 
 ---
 
@@ -1338,3 +1344,36 @@ dan `168/168`. E2E tidak dijalankan ulang sesi ini.
    commit hanya berkas yang benar-benar milik sesi ini.
 3. Sisa manual di peramban: tata letak responsif di seluruh titik pecah dan
    carousel Swiper (lihat README bagian Pengujian).
+
+---
+
+## Push, PR #55, dan verifikasi VPS (2026-10-18, lanjutan)
+
+Dikerjakan di branch **`feat/integrasi-db-performa-tts`**; branch sudah di-push
+dan **PR #55** terbuka di `upstream` (`gh pr checks 55`: 3 hijau, 0 gagal).
+Tujuh belas commit di atas `upstream/main` (`63201b2`); satu di antaranya
+(`9557daf`, perbaikan aksesibilitas carousel/logo) milik sesi lain yang
+berbagi branch.
+
+| Pekerjaan | Commit | Bukti |
+|---|---|---|
+| Baca-nyaring halaman generik + PPID | `715cf7b` | `teksBlok()` di `src/data/halaman/teks.ts` mengekstrak teks dari 12 jenis blok `BlokHalaman` (lewati ikon/href/src/alt); teks dihitung di server lalu diputar `TextToSpeech`; `tests/teks-halaman.test.ts` 10 tes; lint 0, 1028 tes/78 berkas, build exit 0 |
+| Koreksi dokumen (jsdom, ADMIN_ORIGIN, kepala berkas) | commit dokumen ini | `AGENTS.md` + `docs/TESTING.md` kini menyebut jsdom per berkas `.test.tsx`; `docs/DEPLOY-VPS.md` tidak lagi mengklaim `Secure` "tidak bisa dicegah dari kode" |
+
+**Verifikasi VPS, tanpa mengubah apa pun.** Kontainer `webkes-live` memakai
+digest image yang sama dengan registry (`sha256:9667567a...`); image itu
+dibangun dari commit `3a5c559` (11 Oktober) dan tidak ada commit penyentuh
+jalur image (`Dockerfile`, `package.json`, `bun.lock`, `next.config.ts`,
+`src/`, `snapshot/`) setelahnya di `upstream/main`. Lewat tunnel cloudflared:
+`sitemap.xml` memakai host tunnel (bukan `localhost`) dan `robots.txt` benar.
+Karena `koneksi-aman.ts` memasang cookie `Secure` dari `x-forwarded-proto`,
+**`ADMIN_ORIGIN` VPS tidak perlu diubah** dan kontainer tidak dibuat ulang.
+
+**Masalah terbuka sekarang:**
+
+1. **PR #55 menunggu review/merge.** Setelah merge, `main` `upstream` memuat
+   17 commit ini.
+2. **Domain tetap VPS (DNS + TLS) dan percobaan Vercel pertama** masih
+   keputusan pemilik; URL trycloudflare hanya sementara.
+3. **Sisa manual di peramban:** tata letak responsif di seluruh titik pecah dan
+   carousel Swiper (README bagian Pengujian).
