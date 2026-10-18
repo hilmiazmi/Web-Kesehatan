@@ -3,11 +3,12 @@
 **Baca berkas ini lebih dulu di awal setiap sesi.** Isinya menggantikan
 dokumen lain untuk mencari tahu posisi kerja sekarang.
 
-Tanggal pembaruan: **11 Oktober 2026**
-Commit saat serah-terima: **`f6fa52e` = `main` = `upstream/main` (sudah di-push).**
-Semua pekerjaan panel admin dan riwayat sudah masuk `main` lewat PR #46;
-branch kerja sesi lalu ada di `polish-panel-riwayat` (perbaiki build yang
-rusak karena berkas tak-terlacak, lihat entri terakhir berkas ini).
+Tanggal pembaruan: **18 Oktober 2026**
+Commit saat serah-terima: **`b46176f`** ditambah commit dokumen ini, di branch
+**`feat/integrasi-db-performa-tts`**; belum di-push. `upstream/main` berhenti
+di `63201b2` (PR #53, 11 Oktober). Sebelas commit di atasnya memuat
+penyambungan loader halaman publik ke database, baca-nyaring, jadwal dokter
+tujuh hari, perbaikan panel navigasi mobile, dan penutup temuan 3.23.
 
 Riwayat per hari ada di bawah, bukan di kepala ini. Kepala berkas hanya
 menunjuk posisi sekarang; jangan tambahkan catatan panjang di sini.
@@ -1293,3 +1294,40 @@ pernah di-commit langsung.
 3. Tulis E2E untuk aksi massal dan halaman riwayat (perlu `bun run test:e2e`).
 4. Verifikasi tampilan riwayat di peramban pada 390px setelah server dev
    direstart (CSS dan `next.config.ts` baru dimuat saat start).
+
+## Angka dokumen diselaraskan + penutup temuan 3.23 (2026-10-18)
+
+Dikerjakan di branch **`feat/integrasi-db-performa-tts`**; tidak ada push.
+Sesi ini tidak menambah fitur: yang dibereskan adalah sisa temuan roadmap dan
+angka dokumen yang basi. Sesi lain di hari yang sama menambah `c547d0c`
+(selaras snapshot) dan `199c6c8` (tautan panel mobile menutup panel).
+
+| Pekerjaan | Commit | Bukti |
+|---|---|---|
+| N+1 `getPublicMcuPackages()` dihapus | `8a2ae85` | `listMcuPackagesWithItems()` mengambil paket dan isinya dalam dua kueri tetap; `tests/mcu-publik.test.ts` mengunci jumlah pemanggilan detail per paket = 0; lint 0, 1018 tes/77 berkas, build exit 0, `cek:tautan` 150/150/149, `audit:teks` BERSIH |
+| Angka status roadmap (bagian 1) diukur ulang | `e68707b` | berkas tes 77, tes 1018, catch-all 27, pgTable 29, route 47, halaman admin 8, migrasi 8 |
+| Angka README dihitung ulang + catatan mode | `0dec2ce` | mode snapshot: 150 halaman, 152 berkas HTML, `Generating static pages (168/168)`, 1018 tes/77 berkas |
+| Temuan 3.23 ditutup di roadmap | `b46176f` | status penutup untuk jadwal Sabtu (`37fb000`) dan catatan N+1 (`8a2ae85`) |
+| Kepala berkas ini | commit dokumen ini | menunjuk `b46176f` |
+
+**Kenapa angka 11 Oktober berbeda 10.** Pengukuran `63201b2` dilakukan dengan
+database menyala, sehingga 10 baris tabel `articles` ikut ter-prerender di
+samping 16 artikel statis `src/data/home.ts`: 160 halaman dan `178/178`.
+Mode snapshot (CI dan klon bersih) menghasilkan 150 halaman dan `168/168`.
+Keduanya benar untuk modenya masing-masing; README kini menulis angka mode
+snapshot sebagai angka utama plus catatan pembeda.
+
+**Butir terbuka entri 11 Oktober yang kini selesai:** E2E panel off-canvas +
+dialog SweetAlert2 sudah punya berkasnya (`e2e/offcanvas-mobile.test.ts`,
+`e2e/dialog-sweetalert.test.ts`), `catatAudit` sudah dipanggil dari `settings`
+dan `beds`, dan pekerjaan panel admin sudah masuk `upstream/main`.
+
+**Masalah terbuka sekarang:**
+
+1. Branch belum di-push; C4 (dual deploy) belum: Vercel menunggu domain tetap,
+   dan `ADMIN_ORIGIN` produksi masih perlu `https://` (tindakan platform).
+2. Beberapa sesi memakai worktree, `.next`, dan PostgreSQL yang sama: build
+   selalu lewat `bun run build` (kunci otomatis `scripts/kunci-build.ts`) dan
+   commit hanya berkas yang benar-benar milik sesi ini.
+3. Sisa manual di peramban: tata letak responsif di seluruh titik pecah dan
+   carousel Swiper (lihat README bagian Pengujian).
