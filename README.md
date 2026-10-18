@@ -174,9 +174,9 @@ per kombinasi parameter, dan `[...slug]` menghidrasi semua rute generik.
 Angka-angka di atas diukur **tanpa koneksi database** (mode snapshot, sama
 seperti CI dan klon bersih), pada 18 Oktober 2026. Dengan database hidup,
 sepuluh baris tabel `articles` ikut ter-prerender di samping 16 artikel statis
-`src/data/home.ts`, jadi angkanya sekitar 10 lebih tinggi — pengukuran
-11 Oktober 2026 dengan database menyala menghasilkan 160 halaman dan
-`Generating static pages (178/178)`.
+`src/data/home.ts`, jadi hasilnya sekitar 10 lebih tinggi: `160 halaman,
+160 tautan unik, 159 entri sitemap` dan `Generating static pages (178/178)`
+(terukur 11 dan 18 Oktober 2026).
 
 ### Home — 13 section
 
