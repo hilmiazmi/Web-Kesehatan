@@ -240,6 +240,22 @@
   padding-bottom: 62px;
 }
 
+/*
+ * Di layar sempit kartu tumbuh ke atas (judul + ringkasan memanjang) dan
+ * menelan pita bawah 62px, sehingga bullet pagination menimpa strip
+ * "Baca Selengkapnya" (terukur jarak 0px pada 390-412px) — klik kiri tautan
+ * justru mendarat pada titik pertama. Padding diperbesar hanya di sini:
+ *   62px → jarak 0px · 96px → 10px · 112px → 26px (batas WCAG 2.5.8 = 24px)
+ * 112px dipilih karena 26px konsisten dari 320px sampai 412px, sedangkan
+ * 110px tetap menyisakan tepi 24px yang rentan pembulatan. Desktop tidak
+ * disentuh: di atas 575.98px jaraknya sudah 38px dengan pita 62px.
+ */
+@media (max-width: 575.98px) {
+  .slide-container .swiper {
+    padding-bottom: 112px;
+  }
+}
+
 /* Tanpa navigasi, pita bawah hanya perlu tempat untuk bullet. */
 .testimonial-carousel .swiper {
   padding-bottom: 34px;

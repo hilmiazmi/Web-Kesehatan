@@ -34,12 +34,10 @@ export default function Footer() {
               jarang diklik, berebut bandwidth dengan LCP di jaringan lambat.
               Navigasi tetap bekerja, hanya tanpa pra-ambil.
             */}
-            <Link
-              href="/"
-              className="footer-identity-link"
-              prefetch={false}
-              aria-label={`${SITE.name} ${SITE.tagline}`}
-            >
+            <Link href="/" className="footer-identity-link" prefetch={false}>
+              {/* Tanpa aria-label: sama seperti logo header, nama aksesibilitas
+                  dari isi menautkan teks terlihat pendek yang sama sehingga
+                  audit label-content-name-mismatch lolos. */}
               <span className="logo-mark logo-mark-footer" aria-hidden="true">
                 <i className="bi bi-plus-lg" />
               </span>

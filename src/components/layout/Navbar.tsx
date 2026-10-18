@@ -121,11 +121,12 @@ export default function Navbar() {
       )}
 
       <div className="container-fluid position-relative d-flex align-items-center justify-content-between header-nav-menu">
-        <Link
-          href="/"
-          className="logo d-flex align-items-center me-auto"
-          aria-label={`${SITE.name} ${SITE.tagline}`}
-        >
+        <Link href="/" className="logo d-flex align-items-center me-auto">
+          {/* Nama aksesibilitas diturunkan dari isi: teks terlihat di innerText
+              memiliki pemisah baris antara nama dan tagline, sehingga
+              aria-label yang dirangkai dengan spasi dinilai tidak cocok oleh
+              audit label-content-name-mismatch. Dengan name-from-content, teks
+              satu komputasi yang sama dipakai keduanya. */}
           <span className="logo-mark" aria-hidden="true">
             <i className="bi bi-plus-lg" />
           </span>
