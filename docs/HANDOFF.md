@@ -1322,6 +1322,13 @@ dialog SweetAlert2 sudah punya berkasnya (`e2e/offcanvas-mobile.test.ts`,
 `e2e/dialog-sweetalert.test.ts`), `catatAudit` sudah dipanggil dari `settings`
 dan `beds`, dan pekerjaan panel admin sudah masuk `upstream/main`.
 
+**Verifikasi akhir 18 Oktober 2026 pukul 12.51 (HEAD `d232406`):** lint 0,
+1018 tes/77 berkas lulus, build sukses, `cek:tautan` dan `cek:konten` hijau
+(20 tabel seed terisi, semua snapshot konsisten). Saat itu `.env.local`
+(dibuat sesi lain pukul 12.32) membuat database hidup, jadi angka halamannya
+`160/160/159` dan `178/178`; tanpa database hasilnya tetap `150/150/149`
+dan `168/168`. E2E tidak dijalankan ulang sesi ini.
+
 **Masalah terbuka sekarang:**
 
 1. Branch belum di-push; C4 (dual deploy) belum: Vercel menunggu domain tetap,
