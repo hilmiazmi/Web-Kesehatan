@@ -1279,6 +1279,10 @@ paket MCU ke database masih berjalan di branch ini saat dokumen ini ditulis,
 jadi bagian ini hanya mencatat hasil pemeriksaan independen terhadap PostgreSQL
 sungguhan, bukan mengubah pekerjaan itu.
 
+**Status 18 Oktober 2026:** semua temuan di bagian ini sudah ditutup. Dua
+perbaikan sudah tercatat di butirnya masing-masing; keputusan jadwal Sabtu dan
+perbaikan catatan N+1 menyusul di akhir bagian ini.
+
 **Nama dokter dari database sempat salah urutan.** Kolom `title` ("Gelar") berisi
 `"dr. Sp.JK"` dan `full_name` ("Nama lengkap") berisi `"Ayu Lestari"`, sehingga
 penyambungan langsung menghasilkan `"dr. Sp.JK Ayu Lestari"` di `/jadwal-dokter`
@@ -1305,9 +1309,19 @@ baris itu jadwal yang sah; sampai diputuskan, barisnya hilang tanpa peringatan.
 Ini sengaja tidak diperbaiki di sini karena menyentuh tipe dan UI yang sedang
 dikerjakan.
 
+**Diputuskan dan ditutup 17 Oktober 2026:** rawat jalan dibuka penuh Senin
+sampai Minggu (commit `37fb000`). `HARI_MAP` di loader kini memetakan 1-7
+(6 = Sabtu, 7 = Minggu), sel Sabtu/Minggu memakai jam 08.00-12.00, dan tidak
+boleh ada satu pun spesialisasi yang kosong pada hari mana pun.
+`tests/jadwal-penuh.test.ts` mengunci keduanya, jadi baris jadwal tidak bisa
+lagi hilang diam-diam.
+
 Catatan kecil: `getPublicMcuPackages()` memanggil `findMcuPackage()` sekali per
 paket (N+1 query). Dengan 10 paket dan cache ISR 60 detik biayanya tidak terasa,
-jadi dibiarkan sebagai catatan, bukan perbaikan.
+jadi sempat dibiarkan sebagai catatan, bukan perbaikan. **Ditutup 18 Oktober
+2026** (commit `8a2ae85`): `listMcuPackagesWithItems()` mengambil paket dan
+isinya dalam dua kueri tetap, urutan tetap sama, dan `tests/mcu-publik.test.ts`
+mengunci jumlah pemanggilan detail per paket = 0.
 
 ---
 
