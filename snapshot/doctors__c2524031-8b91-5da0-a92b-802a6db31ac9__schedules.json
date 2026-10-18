@@ -22,5 +22,17 @@
   "room": "A1-02",
   "quota": 40,
   "note": null
+ },
+ {
+  "id": "f7fd30bc-2e67-50db-b774-fd9bcf9e8fd5",
+  "doctor_id": "c2524031-8b91-5da0-a92b-802a6db31ac9",
+  "doctor_name": "Anisa Rahma",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 5,
+  "start_time": "10:00:00",
+  "end_time": "14:00:00",
+  "room": "A1-02",
+  "quota": 40,
+  "note": null
  }
 ]

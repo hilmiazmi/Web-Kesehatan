@@ -46,5 +46,17 @@
   "room": "C1-05",
   "quota": 20,
   "note": null
+ },
+ {
+  "id": "9ac294f5-860f-5772-b612-123b37ecf12b",
+  "doctor_id": "28a59fc0-2f56-5eee-a744-ef8ec299bde1",
+  "doctor_name": "Endah Permata",
+  "polyclinic": "Poliklinik Ibu dan Anak",
+  "day_of_week": 7,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "C1-05",
+  "quota": 35,
+  "note": null
  }
 ]

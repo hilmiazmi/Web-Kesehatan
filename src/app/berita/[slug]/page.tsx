@@ -3,7 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import PageHeader from "@/components/layout/PageHeader";
 import Photo from "@/components/ui/Photo";
-import { formatDate, summarize } from "@/lib/format";
+import TextToSpeech from "@/components/ui/TextToSpeech";
+import { formatDate, stripHtml } from "@/lib/format";
 import {
   fotoBerita,
   getPublicArticle,
@@ -11,33 +12,24 @@ import {
 } from "@/lib/content-loader";
 
 /**
- * Hanya slug bawaan yang di-prerender.
+ * Halaman detail berita yang membaca langsung dari tabel `articles` saat runtime.
  *
- * `dynamicParams` dibiarkan `true` supaya slug yang tidak ada di
- * `generateStaticParams` tetap dilayani. Tanpa itu, berita yang baru dibuat di
- * panel admin akan menjawab 404  barisnya ada di database. Sifat
- * aslinya memang `true`, jadi ini hanya ditulis supaya tidak ada yang
- * mengira boleh mengubahnya seperti `[...slug]` yang sengaja `false`.
+ * Perubahan dari PRD butir 9: sebelumnya hanya slug dari `ARTICLES` yang
+ * dilayani, dan isi halaman membaca array statis yang sama. Sekarang:
+ *
+ * 1. `generateStaticParams()` menyediakan slug semua berita yang ada saat
+ *    build, dari `getPublicArticles()` yang membaca database dan mundur ke
+ *    data statis kalau koneksi ditolak. Tanpa itu slug yang hanya ada di
+ *    database tidak pernah ter-prerender dan `cek:tautan` melaporkan
+ *    tautannya mati, padahal halamannya hidup lewat `dynamicParams`.
+ * 2. `dynamicParams = true` mengizinkan artikel baru yang ditambah admin
+ *    lewat panel dilayani saat diminta, tanpa perlu build ulang.
+ * 3. `revalidate = 60` memperbarui halaman setiap menit sehingga perubahan
+ *    isi yang diedit admin langsung terlihat oleh pengunjung.
  */
 export const dynamicParams = true;
-
-/** Sama seperti halaman `/berita`, supaya perubahan admin cepat terlihat. */
 export const revalidate = 60;
 
-/**
- * Prerender semua berita yang ada saat build.
- *
- * Daftar diambil dari `getPublicArticles()`, bukan hanya `ARTICLES` statis.
- * Database menyimpan sepuluh berita dan `/berita` menautkan semuanya, tapi
- * `generateStaticParams` yang hanya membaca data statis tidak pernah
- * membuat berkas untuk slug itu. Akibatnya tautannya ada di halaman indeks
- * dan `cek:tautan` melaporkan tiga puluh tautan mati, padahal halamannya hidup
- * begitu diminta lewat `dynamicParams`.
- *
- * Fungsi ini async dan aman tanpa database: `getPublicArticles()` kembali ke
- * data statis kalau koneksi ditolak, jadi `next build` di lingkungan tanpa
- * PostgreSQL tetap berhasil.
- */
 export async function generateStaticParams() {
   const articles = await getPublicArticles();
   return articles.map((a) => ({ slug: a.slug }));
@@ -50,26 +42,28 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const article = await getPublicArticle(slug);
+
   if (!article) return { title: "Berita Tidak Ditemukan" };
+
   return {
     title: article.title,
-    description: summarize(article.metaDescription ?? article.excerpt),
-    openGraph: { title: article.title, type: "article" },
+    description: article.metaDescription ?? article.excerpt,
   };
 }
 
-export default async function ArticlePage({
+export default async function DetailBeritaPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
   const article = await getPublicArticle(slug);
+
   if (!article) notFound();
 
-  // Daftar berita ikut diambil supaya navigasi Sebelumnya dan Berikutnya memakai
-  // urutan yang sama dengan `/berita`. Kalau daftar ini hanya berisi satu
-  // berita, kedua tautan disembunyikan: menautkan artikel ke dirinya sendiri
+  // Daftar lengkap untuk navigasi prev/next diambil dari loader yang sama,
+  // jadi artikel baru dari database tetap punya navigasi antar-artikel.
+  // Lingkaran prev/next hanya dibuat kalau ada minimal dua artikel; satu artikel
   // tidak berguna dan menambah satu klik sia-sia.
   const semua = await getPublicArticles();
   const posisi = semua.findIndex((a) => a.slug === slug);
@@ -78,6 +72,10 @@ export default async function ArticlePage({
 
   const next = semua[(posisi + 1) % semua.length];
   const prev = semua[(posisi - 1 + semua.length) % semua.length];
+
+  const isiTeks = article.bodyHtml
+    ? stripHtml(article.bodyHtml)
+    : (article.paragraphs?.join(". ") ?? article.excerpt);
 
   return (
     <>
@@ -95,6 +93,8 @@ export default async function ArticlePage({
                 <span aria-hidden="true"> &middot; </span>
                 <span>{article.author ?? "Redaksi"}</span>
               </p>
+
+              <TextToSpeech text={isiTeks} title={article.title} />
 
               <Photo
                 src={foto.src}

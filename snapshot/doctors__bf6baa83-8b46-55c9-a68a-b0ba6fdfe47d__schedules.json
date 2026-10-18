@@ -1,5 +1,17 @@
 [
  {
+  "id": "69a2b02f-367f-521c-9afe-da7bca682a89",
+  "doctor_id": "bf6baa83-8b46-55c9-a68a-b0ba6fdfe47d",
+  "doctor_name": "Maya Puspitasari",
+  "polyclinic": "Instalasi Gawat Darurat",
+  "day_of_week": 3,
+  "start_time": "08:00:00",
+  "end_time": "11:00:00",
+  "room": "B2-01",
+  "quota": 50,
+  "note": null
+ },
+ {
   "id": "f72cfa95-6d24-5ad5-9dc9-b8dc0c4919ba",
   "doctor_id": "bf6baa83-8b46-55c9-a68a-b0ba6fdfe47d",
   "doctor_name": "Maya Puspitasari",
@@ -7,6 +19,18 @@
   "day_of_week": 5,
   "start_time": "08:00:00",
   "end_time": "11:00:00",
+  "room": "B2-01",
+  "quota": 50,
+  "note": null
+ },
+ {
+  "id": "869143ed-4c93-5e0e-aa41-fdfde9923479",
+  "doctor_id": "bf6baa83-8b46-55c9-a68a-b0ba6fdfe47d",
+  "doctor_name": "Maya Puspitasari",
+  "polyclinic": "Instalasi Gawat Darurat",
+  "day_of_week": 6,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
   "room": "B2-01",
   "quota": 50,
   "note": null

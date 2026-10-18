@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, isNull, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNull, or, sql } from "drizzle-orm";
 import type { AnyColumn, SQL } from "drizzle-orm";
 import type { Db } from "../client";
 import {
@@ -514,6 +514,61 @@ export async function findMcuPackage(db: Db, slug: string): Promise<McuPackageDe
     .orderBy(asc(mcuPackageItems.sortOrder), asc(mcuPackageItems.groupName));
 
   return { ...intoMcuPackage(found), items };
+}
+
+/**
+ * Semua paket MCU sekaligus dengan itemnya, dalam dua kueri tetap.
+ *
+ * Memanggil `findMcuPackage` per slug berarti satu kueri per paket (N+1) saat
+ * katalog dirender. Fungsi ini mengambil semua paket pada kueri pertama, lalu
+ * semua item milik paket-paket itu pada kueri kedua, dan menyusunnya kembali
+ * per paket. Urutan item tetap `sortOrder` lalu `groupName` seperti versi
+ * satuan, karena urutan global yang disaring per paket tetap urut.
+ */
+export async function listMcuPackagesWithItems(
+  db: Db,
+  category: string | null = null,
+): Promise<McuPackageDetail[]> {
+  const rows = await db
+    .select({ id: mcuPackages.id, ...MCU_SELECT })
+    .from(mcuPackages)
+    .where(
+      and(
+        eq(mcuPackages.isActive, true),
+        category ? eqTeks(mcuPackages.category, category) : undefined,
+      ),
+    )
+    .orderBy(asc(mcuPackages.sortOrder), asc(mcuPackages.name));
+
+  if (rows.length === 0) return [];
+
+  const items = await db
+    .select({
+      package_id: mcuPackageItems.packageId,
+      group_name: mcuPackageItems.groupName,
+      item_name: mcuPackageItems.itemName,
+    })
+    .from(mcuPackageItems)
+    .where(
+      inArray(
+        mcuPackageItems.packageId,
+        rows.map((r) => r.id),
+      ),
+    )
+    .orderBy(asc(mcuPackageItems.sortOrder), asc(mcuPackageItems.groupName));
+
+  const perPaket = new Map<string, McuItemRow[]>();
+  for (const item of items) {
+    const baris: McuItemRow = { group_name: item.group_name, item_name: item.item_name };
+    const daftar = perPaket.get(item.package_id);
+    if (daftar) daftar.push(baris);
+    else perPaket.set(item.package_id, [baris]);
+  }
+
+  return rows.map((r) => ({
+    ...intoMcuPackage(r),
+    items: perPaket.get(r.id) ?? [],
+  }));
 }
 
 // ---------------------------------------------------------------------------

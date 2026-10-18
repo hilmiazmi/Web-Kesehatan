@@ -1,43 +1,38 @@
 import { dbOrNull, type Db } from "@/server/db/client";
-import { findArticle, listArticles } from "@/server/db/repo/content";
-import { ARTICLES } from "@/data/home";
+import {
+  findArticle,
+  listArticles,
+  listDoctors,
+  listSchedules,
+  listMcuPackagesWithItems,
+  findMcuPackage,
+} from "@/server/db/repo/content";
+import { ARTICLES, MCU_PACKAGES, MCU_HOLIDAY_PACKAGES } from "@/data/home";
+import { DOCTORS, type Doctor, type Day } from "@/data/doctors";
 import { articleBody } from "@/data/article-body";
 import { NEWS_PHOTOS, photo } from "@/data/images";
 import { COVER_BERITA } from "@/data/cover-berita";
 
 /**
- * Sumber tunggal untuk isi berita pada halaman publik.
+ * Sumber tunggal untuk isi data dinamis pada halaman publik.
  *
  * Acceptance Criteria butir 9 PRD bagian 12 berbunyi "Admin dapat menambah,
  * mengubah, dan menghapus berita, dan perubahannya tampil di situs publik".
- * Panel admin sudah bisa menulis ke tabel `articles`, tapi halaman `/berita`
- * masih membaca modul statis `src/data/home.ts`, jadi perubahan admin tidak
- * pernah terlihat pengunjung. Modul ini yang menutup celah itu.
+ * Panel admin sudah bisa menulis ke tabel `articles`, `doctors`, dan `mcu_packages`,
+ * tapi halaman publik sebelumnya masih membaca modul statis, jadi perubahan admin
+ * tidak pernah terlihat pengunjung. Modul ini yang menutup celah itu.
  *
  * Tiga sumber, dan ketiganya dipanggil lewat fungsi yang sama:
  *
- * 1. `API_MODE=live` dengan database hidup: baris dari tabel `articles` yang
- *    `is_published = true`.
- * 2. `API_MODE=snapshot` (pratinjau Vercel): data statis `ARTICLES`.
- * 3. Mode live tapi database tidak terjangkau atau kueri gagal: data statis
- *    `ARTICLES`, dengan peringatan di log.
+ * 1. `API_MODE=live` dengan database hidup: baris dari tabel yang bersangkutan.
+ * 2. `API_MODE=snapshot` (pratinjau Vercel): data statis bawaan.
+ * 3. Mode live tapi database tidak terjangkau atau kueri gagal: fallback ke
+ *    data statis bawaan, dengan peringatan di log.
  *
  * Yang dicoba pertama selalu database, dan bukan sebaliknya. Membalik urutan
  * itu akan membuat pratinjau Vercel diam-diam memakai data build lama, sehingga
  * perubahan admin tidak terlihat justru di lingkungan yang paling sering dipakai
  * untuk demonstrasi.
- *
- * Data statis `ARTICLES` sudah persis berbentuk `PublicArticle`, jadi tidak ada
- * pemetaan yang perlu ditulis untuk cabangnya. Aturan yang sama berlaku untuk
- * modul statis lain: jangan menambahkan lapisan konversi yang tidak melakukan
- * apa pun.
- *
- * Snapshot JSON di `snapshot/articles.json` sengaja tidak dipakai di sini.
- * Berkas itu berisi muatan API, yaitu isi yang akan dibungkus `ok()`, bukan
- * bentuk modul data. Membacanya berarti memetakan dua lapis dan menyisakan dua
- * sumber kebenaran untuk isi berita yang sama. `denganSnapshot()` di
- * `src/server/api/snapshot.ts` tetap dipakai route handler, yang memang
- * berbicara dalam bentuk API.
  */
 
 /** Bentuk berita untuk kartu dan daftar. */
@@ -60,6 +55,14 @@ export type PublicArticleDetail = PublicArticle & {
   bodyHtml?: string;
   /** Paragraf cadangan untuk berita yang hanya ada di data statis. */
   paragraphs?: string[];
+};
+
+/** Bentuk paket MCU untuk kartu dan daftar. */
+export type PublicMcuPackage = {
+  slug: string;
+  title: string;
+  price: number;
+  items: string[];
 };
 
 /**
@@ -94,6 +97,17 @@ type BarisArtikelDetail = BarisArtikel & {
  */
 const BATAS_BERITA = 200;
 
+/** Pemetaan hari ISO-8601 (1 = Senin) ke format hari bahasa Indonesia. */
+const HARI_MAP: Record<number, Day> = {
+  1: "Senin",
+  2: "Selasa",
+  3: "Rabu",
+  4: "Kamis",
+  5: "Jumat",
+  6: "Sabtu",
+  7: "Minggu",
+};
+
 /**
  * Ambil daftar berita untuk halaman publik.
  *
@@ -102,11 +116,6 @@ const BATAS_BERITA = 200;
  * yang kosong adalah halaman rusak: Acceptance Criteria butir 6 mensyaratkan
  * tidak ada halaman yatim, dan grid kosong tidak punya satu pun tautan keluar.
  * Karena itu nol baris diperlakukan sebagai "database belum berisi berita".
- *
- * Konsekuensi yang diterima secara sadar: kalau admin menghapus seluruh isi
- * tabel, pengunjung kembali melihat enam belas berita bawaan. Itu pilihan yang
- * lebih baik daripada halaman kosong, dan cara mengubahnya adalah mengisi
- * database, bukan menghapus berkasnya.
  */
 export async function getPublicArticles(): Promise<PublicArticle[]> {
   const db = koneksiKonten();
@@ -168,10 +177,6 @@ function gabung(dariDb: PublicArticle[]): PublicArticle[] {
  * baru di-seed pun belum tentu memuat keenam belas itu. Kalau slug hilang
  * dipecah menjadi 404 di sini, artikel yang tadinya tampil jadi hilang begitu
  * `API_MODE` berubah ke `live`.
- *
- * Sebaliknya, kalau slug ada di database tapi belum ada di data statis, slug itu
- * tetap dilayani. Itulah yang membuat artikel baru dari panel admin langsung
- * punya URL, dan `dynamicParams` yang mengizinkan route-nya.
  */
 export async function getPublicArticle(
   slug: string,
@@ -192,46 +197,259 @@ export async function getPublicArticle(
 }
 
 /**
- * Koneksi database untuk pembacaan konten, atau `null` untuk memakai data statis.
+ * Ambil daftar dokter dan jadwal praktiknya untuk halaman publik `/jadwal-dokter`.
  *
- * `dbOrNull()` tidak hanya mengembalikan `null` di mode snapshot, ia juga
- * melempar galat konfigurasi kalau `DATABASE_URL` kosong di mode `live`.
- * `next build` di lingkungan tanpa environment apa pun akan tegas masuk ke sini,
- * jadi pemanggil wajib memperlakukan kondisi itu sebagai "tidak ada database",
- * bukan sebagai kegagalan.
+ * Menggabungkan dokter dari database dengan data statis `DOCTORS` bawaan.
+ * Jika admin menambah atau mengubah dokter di database, data tersebut langsung
+ * tersedia di halaman publik. Dokter statis tetap dipertahankan sebagai fallback
+ * jika belum ada di database, sehingga seluruh poliklinik dan spesialisasi tetap
+ * memiliki jadwal lengkap.
+ */
+export async function getPublicDoctors(): Promise<Doctor[]> {
+  const db = koneksiKonten();
+
+  if (db) {
+    try {
+      const [dokterDb, jadwalDb] = await Promise.all([
+        listDoctors(db),
+        listSchedules(db, {}, 1000),
+      ]);
+
+      if (dokterDb.length > 0) {
+        const jadwalPerDokter = new Map<string, Array<{ day: Day; time: string }>>();
+        for (const j of jadwalDb) {
+          const hari = HARI_MAP[j.day_of_week];
+          if (!hari) {
+            // Dilaporkan, bukan didiamkan: hari yang tidak terpetakan berarti
+            // ada row jadwal yang menggantung di luar 1-7, dan pendiaman
+            // membuat selisih ini tersembunyi sampai jadwal terpotong.
+            console.warn(
+              `[content-loader] day_of_week di luar 1-7 terlewat: dokter ${j.doctor_id} hari ${j.day_of_week}`,
+            );
+            continue;
+          }
+          const daftar = jadwalPerDokter.get(j.doctor_id) ?? [];
+          daftar.push({
+            day: hari,
+            time: `${j.start_time.slice(0, 5)}–${j.end_time.slice(0, 5)}`,
+          });
+          jadwalPerDokter.set(j.doctor_id, daftar);
+        }
+
+        const dariDb: Doctor[] = dokterDb.map((d) => {
+          const specialty = d.specialty ?? "Umum";
+          return {
+            slug: slugifyDokter(d.full_name),
+            name: namaDokter(d.title, d.full_name),
+            specialty,
+            schedule: jadwalPerDokter.get(d.id) ?? [],
+          };
+        });
+
+        const slugAda = new Set(dariDb.map((d) => d.slug));
+        const gabungan = [...dariDb];
+        for (const statis of DOCTORS) {
+          if (!slugAda.has(statis.slug)) {
+            gabungan.push(statis);
+          }
+        }
+        return gabungan;
+      }
+    } catch (err) {
+      peringatkan("daftar dokter", err);
+    }
+  }
+
+  return [...DOCTORS];
+}
+
+/**
+ * Ambil daftar paket MCU untuk halaman publik.
+ *
+ * Kategori: "reguler" (bawaan) atau "holiday".
+ * Mendukung pembacaan dinamis dari tabel `mcu_packages` jika database hidup,
+ * dan fallback ke data statis `MCU_PACKAGES` atau `MCU_HOLIDAY_PACKAGES`.
+ */
+export async function getPublicMcuPackages(
+  category: KategoriMcu = "reguler",
+): Promise<PublicMcuPackage[]> {
+  const statisFallback = category === "holiday" ? MCU_HOLIDAY_PACKAGES : MCU_PACKAGES;
+  const db = koneksiKonten();
+
+  if (db) {
+    try {
+      const rows = await listMcuPackagesWithItems(db, KATEGORI_MCU[category]);
+      if (rows.length > 0) {
+        const dariDb: PublicMcuPackage[] = rows.map((r) => {
+          const items =
+            r.items.length > 0
+              ? r.items.map((it) => it.item_name)
+              : r.summary
+                ? [r.summary]
+                : [];
+          return {
+            slug: r.slug,
+            title: r.name,
+            price: r.price,
+            items,
+          };
+        });
+
+        const slugAda = new Set(dariDb.map((p) => p.slug));
+        const gabungan = [...dariDb];
+        for (const s of statisFallback) {
+          if (!slugAda.has(s.slug)) {
+            gabungan.push(s);
+          }
+        }
+        return gabungan;
+      }
+    } catch (err) {
+      peringatkan(`paket MCU ${category}`, err);
+    }
+  }
+
+  return [...statisFallback];
+}
+
+/**
+ * Ambil satu paket MCU untuk halaman detail (`/pelayanan/mcu/reguler/[slug]`
+ * atau `/pelayanan/mcu/holiday/[slug]`).
+ */
+export async function getPublicMcuPackage(
+  category: "reguler" | "holiday",
+  slug: string,
+): Promise<PublicMcuPackage | null> {
+  const statisFallback = category === "holiday" ? MCU_HOLIDAY_PACKAGES : MCU_PACKAGES;
+  const db = koneksiKonten();
+
+  if (db) {
+    try {
+      const found = await findMcuPackage(db, slug);
+      if (found) {
+        const items =
+          found.items.length > 0
+            ? found.items.map((it) => it.item_name)
+            : found.summary
+              ? [found.summary]
+              : [];
+        return {
+          slug: found.slug,
+          title: found.name,
+          price: found.price,
+          items,
+        };
+      }
+    } catch (err) {
+      peringatkan(`detail paket MCU "${slug}"`, err);
+    }
+  }
+
+  const statis = statisFallback.find((p) => p.slug === slug);
+  return statis ? { ...statis } : null;
+}
+
+/**
+ * Dua kategori paket MCU, dinamai dari sudut halaman pengunjung.
+ *
+ * Halaman publik memisahkan paket reguler dan paket hari raya, sedangkan kolom
+ * `mcu_packages.category` di database memakai `reguler` dan
+ * `health_meets_holiday`. Selama pemetaan itu tidak ditulis, kategori holiday
+ * dikirim apa adanya ke SQL, tidak ada baris yang cocok, dan halaman hari raya
+ * diam-diam selalu menampilkan data statis tanpa satu pun tanda bahwa database
+ * tidak pernah dibaca. `choice("category", ...)` pada `registry.ts` memuat daftar
+ * nilai yang sah, dan itulah yang harus dicocokkan.
+ */
+export type KategoriMcu = "reguler" | "holiday";
+
+/** Nama kategori di halaman pengunjung ke nilai kolom di database. */
+export const KATEGORI_MCU: Record<KategoriMcu, string> = {
+  reguler: "reguler",
+  holiday: "health_meets_holiday",
+};
+
+/**
+ * Susun nama dokter dari kolom `title` dan `full_name`.
+ *
+ * Dua kolom itu tidak boleh disambung begitu saja. `registry.ts` menamai
+ * `full_name` sebagai "Nama lengkap" dan `title` sebagai "Gelar", dan data seed
+ * memperkuatnya: `full_name` = "Ayu Lestari", `title` = "dr. Sp.JK". Kalau
+ * gelar ditempel di depan, hasilnya "dr. Sp.JK Ayu Lestari", sehingga gelar
+ * spesialis terbaca seperti nama depan. Itu bukan teori: halaman
+ * `/jadwal-dokter` sempat menampilkannya begitu.
+ *
+ * Satu kolom `title` bisa memuat dua bagian sekaligus, yaitu gelar depan dan
+ * penanda spesialis. Keduanya dipisah pada potongan pertama yang diawali `Sp.`,
+ * lalu gelar depan diletakkan sebelum nama dan penanda spesialis sesudahnya.
+ * Bentuknya jadi sama dengan `DOCTORS` di `src/data/doctors.ts`, misalnya
+ * "dr. Annisa Rahma, Sp.A".
+ *
+ * Spesialisasi lengkap tidak ikut ditambahkan. Nilainya sudah ditampilkan
+ * sebagai kolom sendiri di tabel jadwal dan dipakai sebagai pilihan filter,
+ * jadi menambahkannya lagi ke nama hanya mengulang informasi yang sama.
+ */
+export function namaDokter(title: string | null, nama: string): string {
+  const namaBersih = nama.trim();
+  const gelar = (title ?? "").trim();
+  if (gelar === "") return namaBersih;
+
+  const potongan = gelar.split(/\s+/);
+  const mulaiSpesialis = potongan.findIndex((t) => /^Sp\./i.test(t));
+
+  const depan = (mulaiSpesialis === -1 ? potongan : potongan.slice(0, mulaiSpesialis))
+    .join(" ")
+    .trim();
+  const belakang =
+    mulaiSpesialis === -1 ? "" : potongan.slice(mulaiSpesialis).join(" ").trim();
+
+  const namaLengkap = [depan, namaBersih].filter(Boolean).join(" ").trim();
+  return belakang === "" ? namaLengkap : `${namaLengkap}, ${belakang}`;
+}
+
+/**
+ * Buat slug berbentuk URL dari nama dokter.
+ *
+ * Dipakai karena tabel `doctors` tidak punya kolom slug, sedangkan halaman
+ * publik memakai slug sebagai kunci di `CariDokter`, `JadwalTabel`, dan id
+ * jangkar `#dokter-<slug>`. Nama di database unik, jadi slugnya juga unik; itu
+ * diperiksa `tests/dokter-publik.test.ts`.
+ */
+export function slugifyDokter(nama: string): string {
+  return nama
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+/**
+ * Koneksi database untuk pembacaan konten, atau `null` untuk memakai data statis.
  */
 function koneksiKonten(): Db | null {
   try {
     return dbOrNull();
   } catch (err) {
-    peringatkan("koneksi database", err);
+    console.warn(
+      `[konten] database dilewati: ${
+        err instanceof Error ? err.message : String(err)
+      }`,
+    );
     return null;
   }
 }
 
-/**
- * Catat masalah database tanpa menggagalkan halaman.
- *
- * Halaman publik harus tetap punya isi. Tapi galat tidak boleh hilang tanpa
- * jejak, karena begitu saja tidak ada yang tahu bahwa `API_MODE=live` sudah tidak
- * membaca database dan diam-diam menyajikan data lama. Satu baris per kegagalan,
- * tanpa nilai environment apa pun di dalamnya.
- */
+/** Format pesan peringatan yang seragam untuk seluruh pemanggilan repo. */
 function peringatkan(konteks: string, err: unknown): void {
   console.warn(
-    `[konten] ${konteks} tidak terbaca, data statis dipakai:`,
-    err instanceof Error ? err.message : String(err),
+    `[konten] kueri ${konteks} gagal, kembali ke data statis: ${
+      err instanceof Error ? err.message : String(err)
+    }`,
   );
 }
 
 /**
  * Ubah satu baris tabel `articles` menjadi bentuk publik.
- *
- * Mengembalikan `null` untuk baris tanpa tanggal yang bisa dipakai. Tanggal
- * tidak pernah kosong di skema karena `published_at` adalah `NOT NULL`, tapi
- * `iso()` mengembalikan teks kosong untuk nilai yang tidak bisa diurai, dan satu
- * kartu berita bertanggal "Invalid Date" lebih buruk daripada kartu yang
- * dilewati.
  */
 export function dariBarisArtikel(row: BarisArtikel): PublicArticle | null {
   const tanggal = tanggalPendek(row.published_at);
@@ -258,19 +476,12 @@ export function dariBarisArtikelDetail(
     ...dasar,
     ...(row.author ? { author: row.author } : {}),
     ...(row.meta_description ? { metaDescription: row.meta_description } : {}),
-    // `body_html` sudah melewati `render()` yang menyaring HTML. Isinya tidak
-    // pernah kosong untuk berita dari database, tapi kalau kosong halaman detail
-    // akan kehilangan semua paragrafnya, jadi nilai kosongnya sengaja diabaikan.
     ...(row.body_html ? { bodyHtml: row.body_html } : {}),
   };
 }
 
 /**
  * Ambil berita dari data statis.
- *
- * `null` kalau slug-nya memang tidak ada, dan itu yang membuat pemanggil bisa
- * memakai `notFound()`. Paragrafnya disusun dari ringkasan lewat
- * `articleBody()`, sama seperti sebelum modul ini ada.
  */
 function dariStatis(slug: string): PublicArticleDetail | null {
   const artikel = ARTICLES.find((a) => a.slug === slug);
@@ -312,19 +523,20 @@ export function hostGambarDiizinkan(url: string): boolean {
  *
  * Dua kemungkinan, dan keduanya perlu perlakuan berbeda.
  *
- * Kalau admin mengisi `cover_url`, URL itu dipakai apa adanya. Host di luar
- * daftar `HOST_DIIZINKAN` dipaksa tidak dioptimasi. `next/image` hanya mau memuat host yang
- * ada di `remotePatterns` pada `next.config.ts`,
- * sedangkan admin boleh memasukkan host apa pun yang diawali `http` atau
- * `https`. Tanpa `unoptimized`, satu URL dari luar daftar itu tidak sekadar
- * gagal dimuat, ia membuat permintaan ke `/_next/image` yang dijawab galat,
- * sehingga kartu berita tampil dengan kotak rusak. Dengan `unoptimized`, komponen
- * menulis `src` apa adanya ke `img` dan perkakas optimasi tidak pernah ikut,
- * sehingga daftar host tidak berlaku lagi.
+ * Kalau admin mengisi `imageUrl`, URL itu dipakai apa adanya. Host di luar
+ * daftar `HOST_DIIZINKAN` tidak dioptimasi. `next/image` hanya mau memuat
+ * host yang ada di `remotePatterns` pada `next.config.ts`, sedangkan admin
+ * boleh memasukkan host apa pun yang diawali `http` atau `https`. Tanpa
+ * `unoptimized`, satu URL dari luar daftar itu tidak sekadar gagal dimuat,
+ * ia membuat permintaan ke `/_next/image` yang dijawab galat, sehingga kartu
+ * berita tampil dengan kotak rusak. Dengan `unoptimized`, komponen menulis
+ * `src` apa adanya ke `img` dan perkakas optimasi tidak pernah ikut, sehingga
+ * daftar host tidak berlaku lagi.
  *
- * Kalau `cover_url` kosong, foto stok dari `NEWS_PHOTOS` dipakai bergiliran
+ * Kalau `imageUrl` kosong, foto stok dari `NEWS_PHOTOS` dipakai bergiliran
  * seperti sebelumnya. Pilihan fotanya memakai indeks berita pada
- * `ARTICLES`, jadi tata letaknya tetap sama untuk pengunjung yang memakai data bawaan.
+ * `ARTICLES`, jadi tata letaknya tetap sama untuk pengunjung yang memakai
+ * data bawaan.
  */
 export function fotoBerita(
   artikel: Pick<PublicArticle, "imageUrl" | "slug">,

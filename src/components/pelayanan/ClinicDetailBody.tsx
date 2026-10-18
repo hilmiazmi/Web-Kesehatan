@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { hrefDaftarOnline } from "@/lib/daftar-online";
 import Photo from "@/components/ui/Photo";
-import { DetailLayout } from "@/components/pelayanan/DetailLayout";
+import TextToSpeech from "@/components/ui/TextToSpeech";
+import { DetailLayout, JUDUL_LAYANAN } from "@/components/pelayanan/DetailLayout";
 import DoctorCard from "@/components/pelayanan/DoctorCard";
 import { CLINIC_DETAILS, type ClinicDetail } from "@/data/clinics";
+import { gabungTeks } from "@/data/halaman";
 import { DOCTORS } from "@/data/doctors";
 import { doctorsForClinic } from "@/lib/poliklinik";
 import { GALLERY_PHOTOS, photo } from "@/data/images";
@@ -43,6 +45,17 @@ export function ClinicDetailBody({
   // tetap punya halaman detailnya tanpa blok ini.
   const doctors = doctorsForClinic(detail, DOCTORS);
 
+  // Teks baca-nyaring hanya isi deskriptif yang statis: deskripsi, judul
+  // bagian, daftar layanan, dan jam praktik. Kartu dokter tidak ikut karena
+  // jadwalnya berganti tiap pekan; tabel jadwal di kartu sudah dibaca sendiri
+  // oleh pembaca layar, dan salinan teks tunggal cepat kedaluwarsa.
+  const teks = gabungTeks([
+    detail.description,
+    JUDUL_LAYANAN,
+    ...detail.services,
+    detail.hours,
+  ]);
+
   return (
     <DetailLayout
       items={CLINIC_DETAILS.map((d) => ({
@@ -67,7 +80,9 @@ export function ClinicDetailBody({
 
         <p className="detail-lead">{detail.description}</p>
 
-        <h2 className="detail-subheading">Layanan</h2>
+        <TextToSpeech text={teks} title={detail.name} />
+
+        <h2 className="detail-subheading">{JUDUL_LAYANAN}</h2>
         <ul className="detail-list">
           {detail.services.map((s) => (
             <li key={s}>

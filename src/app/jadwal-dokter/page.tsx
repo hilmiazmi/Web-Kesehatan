@@ -4,13 +4,15 @@ import { hrefDaftarOnline } from "@/lib/daftar-online";
 import PageHeader from "@/components/layout/PageHeader";
 import CariDokter from "@/components/jadwal/CariDokter";
 import JadwalTabel from "@/components/jadwal/JadwalTabel";
-import { DOCTORS } from "@/data/doctors";
+import { getPublicDoctors } from "@/lib/content-loader";
 
 export const metadata: Metadata = {
   title: "Jadwal Dokter",
   description:
     "Cari jadwal praktik dokter RSUD Contoh Sehat berdasarkan spesialisasi, nama dokter, dan hari.",
 };
+
+export const revalidate = 60;
 
 /**
  * Halaman jadwal dokter.
@@ -21,11 +23,13 @@ export const metadata: Metadata = {
  * tabelnya sengaja dibuat berbeda, yaitu seluruh jadwal langsung dirender di
  * server. Alasannya ada di `src/components/jadwal/JadwalTabel.tsx`.
  *
- * Data dokter dibaca dari `src/data/doctors.ts`, satu-satunya sumber nama
- * dokter di repo. Tidak ada nama yang ditulis ulang di halaman ini.
+ * Data dokter dibaca melalui loader `getPublicDoctors()`, yang menghubungkan
+ * ke tabel database dokter & jadwal secara dinamis saat mode live, dan tetap
+ * aman fallback ke data statis bawaan.
  */
-export default function JadwalDokterPage() {
-  const doctors = DOCTORS.map(({ slug, name, specialty, schedule }) => ({
+export default async function JadwalDokterPage() {
+  const allDoctors = await getPublicDoctors();
+  const doctors = allDoctors.map(({ slug, name, specialty, schedule }) => ({
     slug,
     name,
     specialty,

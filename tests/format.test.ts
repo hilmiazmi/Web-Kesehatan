@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatDate, formatIDR, summarize } from "@/lib/format";
+import { formatDate, formatIDR, stripHtml, summarize } from "@/lib/format";
 
 describe("formatDate", () => {
   it("menghasilkan tanggal Indonesia dengan nama bulan panjang", () => {
@@ -68,5 +68,25 @@ describe("summarize", () => {
 
   it("menghormati batas kustom", () => {
     expect(summarize("abcdefghij", 5)).toBe("ab...");
+  });
+});
+
+describe("stripHtml", () => {
+  it("membersihkan tag HTML dan mempertahankan teks", () => {
+    expect(stripHtml("<p>Halo <strong>Dunia</strong>!</p>")).toBe(
+      "Halo Dunia!",
+    );
+  });
+
+  it("mengonversi entitas HTML umum", () => {
+    expect(
+      stripHtml("RSUD&nbsp;&amp;&nbsp;Puskesmas: &quot;Kesehatan &lt;Utama&gt;&quot;"),
+    ).toBe('RSUD & Puskesmas: "Kesehatan <Utama>"');
+  });
+
+  it("menghilangkan spasi ganda dan baris baru", () => {
+    expect(stripHtml("<div>  Baris satu  \n\n  <span>Baris dua</span>  </div>")).toBe(
+      "Baris satu Baris dua",
+    );
   });
 });

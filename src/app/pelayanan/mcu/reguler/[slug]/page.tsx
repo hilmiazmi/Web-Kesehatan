@@ -7,14 +7,12 @@ import {
 } from "@/components/pelayanan/McuPackageDetail";
 import { MCU_PACKAGES } from "@/data/home";
 import { formatIDR } from "@/lib/format";
+import { getPublicMcuPackage, getPublicMcuPackages } from "@/lib/content-loader";
 
 const BASE = "/pelayanan/mcu/reguler";
 
-/**
- * Hanya slug yang sudah ada yang boleh dibuka; slug asing menjawab 404
- * sungguhan, bukan halaman yang di-render saat diminta.
- */
-export const dynamicParams = false;
+export const dynamicParams = true;
+export const revalidate = 60;
 
 /** Prerender semua paket MCU reguler saat build. */
 export function generateStaticParams() {
@@ -27,7 +25,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const pkg = MCU_PACKAGES.find((p) => p.slug === slug);
+  const pkg = await getPublicMcuPackage("reguler", slug);
   if (!pkg) return { title: "Paket Tidak Ditemukan" };
   return {
     title: pkg.title,
@@ -40,6 +38,9 @@ export async function generateMetadata({
  *
  * Daftar paket lain diletakkan di kolom kiri, mengikuti halaman detail paket
  * di situs referensi.
+ *
+ * Data dibaca via loader `getPublicMcuPackage()` dan `getPublicMcuPackages()`,
+ * mendukung database live saat runtime dan fallback ke data statis.
  */
 export default async function McuPackagePage({
   params,
@@ -47,8 +48,11 @@ export default async function McuPackagePage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const index = MCU_PACKAGES.findIndex((p) => p.slug === slug);
-  if (index === -1) notFound();
+  const pkg = await getPublicMcuPackage("reguler", slug);
+  if (!pkg) notFound();
+
+  const siblings = await getPublicMcuPackages("reguler");
+  const index = Math.max(0, siblings.findIndex((p) => p.slug === slug));
 
   return (
     <>
@@ -57,16 +61,16 @@ export default async function McuPackagePage({
           { label: "Pelayanan", href: "/pelayanan" },
           { label: "MCU", href: "/pelayanan/mcu" },
           { label: "Paket Reguler", href: BASE },
-          { label: MCU_PACKAGES[index].title },
+          { label: pkg.title },
         ]}
       />
 
       <section className="section">
         <div className="container">
           <McuPackageDetail
-            pkg={MCU_PACKAGES[index]}
+            pkg={pkg}
             index={index}
-            siblings={MCU_PACKAGES}
+            siblings={siblings}
             basePath={BASE}
             photos={FACILITY_PHOTOS}
           />

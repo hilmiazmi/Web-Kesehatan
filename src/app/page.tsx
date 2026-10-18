@@ -15,7 +15,10 @@ import {
   SocialMediaSection,
   TestimonialsSection,
 } from "@/components/home/HomeSections";
-import { getPublicArticles } from "@/lib/content-loader";
+import {
+  getPublicArticles,
+  getPublicMcuPackages,
+} from "@/lib/content-loader";
 import "@/styles/home.css";
 
 /**
@@ -30,15 +33,16 @@ import "@/styles/home.css";
  * Asuransi). Di sini ID-nya dibedakan menjadi `akreditasi` dan `asuransi`
  * agar anchor link tidak bentrok.
  *
- * Halaman di-regenerate tiap menit supaya kartu berita di section 6 ikut
- * menampilkan isi database. Tanpa itu, `/berita` sudah berubah sementara
- * beranda masih menampilkan modul statis, jadi admin dan pengunjung melihat
- * dua isi berbeda untuk hal yang sama.
+ * Halaman di-regenerate tiap menit supaya kartu berita di section 6 dan
+ * paket MCU di section 5 ikut menampilkan isi database.
  */
 export const revalidate = 60;
 
 export default async function Home() {
-  const articles = await getPublicArticles();
+  const [articles, mcuPackages] = await Promise.all([
+    getPublicArticles(),
+    getPublicMcuPackages("reguler"),
+  ]);
 
   return (
     <>
@@ -55,7 +59,7 @@ export default async function Home() {
       <DoctorSearchCard />
       <PriorityServices />
       <FacilityTabs />
-      <McuPackages />
+      <McuPackages packages={mcuPackages} />
       <NewsSection articles={articles} />
       <AwardsSection />
       <GallerySection />

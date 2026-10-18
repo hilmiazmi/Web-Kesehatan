@@ -10,5 +10,17 @@
   "room": "B2-01",
   "quota": 50,
   "note": null
+ },
+ {
+  "id": "e881ee77-41df-5098-ac10-53f15c0962d1",
+  "doctor_id": "613a4b81-997d-5ab4-9336-2a5d52f61cd3",
+  "doctor_name": "Bagus Pratama",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 6,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "B2-01",
+  "quota": 50,
+  "note": null
  }
 ]

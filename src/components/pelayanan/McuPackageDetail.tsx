@@ -1,8 +1,10 @@
 import Link from "next/link";
 import Photo from "@/components/ui/Photo";
+import TextToSpeech from "@/components/ui/TextToSpeech";
 import McuForm from "@/components/forms/mcu-form";
 import { DetailLayout } from "@/components/pelayanan/DetailLayout";
 import { FACILITY_PHOTOS, photo } from "@/data/images";
+import { gabungTeks } from "@/data/halaman";
 import { formatIDR } from "@/lib/format";
 
 /**
@@ -28,6 +30,12 @@ const SYARAT = [
   "Hasil pemeriksaan berlaku selama 30 hari.",
 ];
 
+/** Teks halaman ini yang ikut dibacakan; dipakai di JSX dan urutan baca. */
+const PENGANTAR_MCU =
+  "Paket medical check up untuk membantu Anda mengenali kondisi kesehatan sejak dini.";
+const JUDUL_RINCIAN = "Rincian Pemeriksaan";
+const JUDUL_SYARAT = "Syarat dan Ketentuan";
+
 export function McuPackageDetail({
   pkg,
   index,
@@ -44,6 +52,18 @@ export function McuPackageDetail({
   photos: readonly string[];
 }) {
   const href = `${basePath}/${pkg.slug}`;
+
+  // Teks baca-nyaring mengikuti urutan visual: harga, pengantar, rincian,
+  // lalu syarat. Catatan teknis formulir dan tombolnya dilewati karena bukan
+  // isi paket.
+  const teks = gabungTeks([
+    formatIDR(pkg.price),
+    PENGANTAR_MCU,
+    JUDUL_RINCIAN,
+    ...pkg.items,
+    JUDUL_SYARAT,
+    ...SYARAT,
+  ]);
 
   return (
     <DetailLayout
@@ -69,19 +89,18 @@ export function McuPackageDetail({
 
         <p className="mcu-price mcu-price-large">{formatIDR(pkg.price)}</p>
 
-        <p className="detail-lead">
-          Paket medical check up untuk membantu Anda mengenali kondisi
-          kesehatan sejak dini.
-        </p>
+        <p className="detail-lead">{PENGANTAR_MCU}</p>
 
-        <h2 className="detail-subheading">Rincian Pemeriksaan</h2>
+        <TextToSpeech text={teks} title={pkg.title} />
+
+        <h2 className="detail-subheading">{JUDUL_RINCIAN}</h2>
         <ul className="mcu-items mcu-items-detailed">
           {pkg.items.map((item) => (
             <li key={item}>{item}</li>
           ))}
         </ul>
 
-        <h2 className="detail-subheading">Syarat dan Ketentuan</h2>
+        <h2 className="detail-subheading">{JUDUL_SYARAT}</h2>
         <ul className="detail-list">
           {SYARAT.map((s) => (
             <li key={s}>

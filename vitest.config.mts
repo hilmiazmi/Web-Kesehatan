@@ -7,9 +7,10 @@ import { defineConfig } from "vitest/config";
  * Ekstensi .mts dipakai karena paket ini tidak menulis "type": "module",
  * sedangkan Vite membaca berkas .ts memakai pemuat CommonJS.
  *
- * Semua yang diuji di repo ini logika murni (pembantu format, penelusuran
- * path menu, aturan validasi formulir), jadi tidak perlu DOM. `environment`
- * karena itu dibiarkan "node" dan jsdom tidak dipasang.
+ * Semua test .test.ts menguji logika murni (pembantu format, penelusuran
+ * path menu, aturan validasi formulir), jadi default `environment` tetap
+ * "node". Test komponen DOM memakai ekstensi .test.tsx dan memilih jsdom
+ * per berkas lewat komentar `@vitest-environment jsdom`.
  *
  * Alias `@/` harus dideklarasikan ulang di sini; `tsconfig.json` tidak dibaca
  * otomatis oleh Vite.
@@ -21,7 +22,7 @@ export default defineConfig({
     },
   },
   test: {
-    include: ["tests/**/*.test.ts"],
+    include: ["tests/**/*.test.ts", "tests/**/*.test.tsx"],
     environment: "node",
   },
 });

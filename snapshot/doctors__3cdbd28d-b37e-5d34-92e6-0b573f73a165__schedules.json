@@ -22,5 +22,17 @@
   "room": "B4-01",
   "quota": 25,
   "note": null
+ },
+ {
+  "id": "3cf41c2c-317c-5a8c-b718-e6c1b7b9cd20",
+  "doctor_id": "3cdbd28d-b37e-5d34-92e6-0b573f73a165",
+  "doctor_name": "Mahendra Yoga",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 7,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "B4-01",
+  "quota": 25,
+  "note": null
  }
 ]

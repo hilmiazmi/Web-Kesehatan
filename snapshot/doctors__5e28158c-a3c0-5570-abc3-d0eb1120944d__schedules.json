@@ -10,5 +10,17 @@
   "room": "C2-06",
   "quota": 50,
   "note": null
+ },
+ {
+  "id": "d5b67de4-7bcc-50cc-a1f1-cca82c6167dc",
+  "doctor_id": "5e28158c-a3c0-5570-abc3-d0eb1120944d",
+  "doctor_name": "Taufik Hidayat",
+  "polyclinic": "Poliklinik Spesialis",
+  "day_of_week": 6,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "C2-06",
+  "quota": 50,
+  "note": null
  }
 ]

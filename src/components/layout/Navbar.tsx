@@ -121,10 +121,12 @@ export default function Navbar() {
       )}
 
       <div className="container-fluid position-relative d-flex align-items-center justify-content-between header-nav-menu">
-        <Link
-          href="/"
-          className="logo d-flex align-items-center me-auto"
-        >
+        <Link href="/" className="logo d-flex align-items-center me-auto">
+          {/* Nama aksesibilitas diturunkan dari isi: teks terlihat di innerText
+              memiliki pemisah baris antara nama dan tagline, sehingga
+              aria-label yang dirangkai dengan spasi dinilai tidak cocok oleh
+              audit label-content-name-mismatch. Dengan name-from-content, teks
+              satu komputasi yang sama dipakai keduanya. */}
           <span className="logo-mark" aria-hidden="true">
             <i className="bi bi-plus-lg" />
           </span>
@@ -168,7 +170,15 @@ export default function Navbar() {
                 key={item.label}
                 item={item}
                 depth={0}
-                onNavigasiMulai={() => setNavigasiBaru(true)}
+                // Dua kelas sekaligus: tanda dropdown desktop ikut ditutup,
+                // dan panel mobile tertutup walau tautan itu menunjuk halaman
+                // yang sama (contoh "Home" saat sedang di beranda), di mana
+                // pathname tidak berakhir berubah sehingga blok di atas tidak
+                // ikut jalan.
+                onNavigasiMulai={() => {
+                  setNavigasiBaru(true);
+                  setMobileOpen(false);
+                }}
               />
             ))}
 

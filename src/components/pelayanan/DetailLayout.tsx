@@ -1,5 +1,7 @@
 import Photo from "@/components/ui/Photo";
+import TextToSpeech from "@/components/ui/TextToSpeech";
 import DetailSidebar, { type SidebarItem } from "@/components/pelayanan/DetailSidebar";
+import { gabungTeks } from "@/data/halaman";
 
 /**
  * Susunan halaman detail yang dipakai bersama.
@@ -10,6 +12,15 @@ import DetailSidebar, { type SidebarItem } from "@/components/pelayanan/DetailSi
  *
  * Keduanya server component supaya isi tetap dirender di server.
  */
+
+/**
+ * Judul bagian layanan yang dirender DetailBody.
+ *
+ * Diekspor karena halaman yang menyusun teks baca-nyaringnya sendiri
+ * (detail poliklinik) memakai judul yang sama persis di JSX dan di urutan
+ * pembacaan; satu nama menghindari dua kata yang saling tertinggal.
+ */
+export const JUDUL_LAYANAN = "Layanan";
 
 /** Kolom kiri berisi daftar saudara, kolom kanan berisi isi halaman. */
 export function DetailLayout({
@@ -55,6 +66,11 @@ export function DetailBody({
   /** Kalimat penutup yang sama dipakai di semua halaman detail. */
   introTail: string;
 }) {
+  // Teks baca-nyaring disusun dari properti yang dirender, urutannya
+  // mengikuti urutan visual: paragraf pembuka, penutup, judul bagian, lalu
+  // butir layanan.
+  const teks = gabungTeks([description, introTail, JUDUL_LAYANAN, ...points]);
+
   return (
     <article>
       <h1 className="detail-title">{title}</h1>
@@ -73,7 +89,9 @@ export function DetailBody({
       <p className="detail-lead">{description}</p>
       <p className="detail-lead">{introTail}</p>
 
-      <h2 className="detail-subheading">Layanan</h2>
+      <TextToSpeech text={teks} title={title} />
+
+      <h2 className="detail-subheading">{JUDUL_LAYANAN}</h2>
       <ul className="detail-list">
         {points.map((p) => (
           <li key={p}>

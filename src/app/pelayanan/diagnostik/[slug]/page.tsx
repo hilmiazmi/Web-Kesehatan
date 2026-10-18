@@ -4,9 +4,11 @@ import { hrefDaftarOnline } from "@/lib/daftar-online";
 import { notFound } from "next/navigation";
 import PageHeader from "@/components/layout/PageHeader";
 import Photo from "@/components/ui/Photo";
+import TextToSpeech from "@/components/ui/TextToSpeech";
 import { DetailLayout } from "@/components/pelayanan/DetailLayout";
 import { DIAGNOSTIC_SERVICES } from "@/data/informasi";
 import { FACILITY_PHOTOS, photo } from "@/data/images";
+import { gabungTeks } from "@/data/halaman";
 
 /**
  * Hanya slug yang sudah ada yang boleh dibuka; slug asing menjawab 404
@@ -53,6 +55,20 @@ export default async function DiagnosticServicePage({
   const service = DIAGNOSTIC_SERVICES[index];
   const href = `/pelayanan/diagnostik/${service.slug}`;
 
+  // Teks baca-nyaring mengikuti seluruh urutan visual: pengantar, lalu tiap
+  // bagian dari judulnya sampai isi kartunya. Ikon dilewati karena hanya
+  // nama kelas dekorasi, bukan bunyi di layar.
+  const teks = gabungTeks([
+    service.description,
+    ...(service.paragraphs ?? []),
+    ...service.sections.flatMap((bagian) => [
+      bagian.title,
+      ...(bagian.lead ? [bagian.lead] : []),
+      ...(bagian.points ?? []),
+      ...(bagian.cards?.flatMap((kartu) => [kartu.name, ...kartu.points]) ?? []),
+    ]),
+  ]);
+
   return (
     <>
       <PageHeader
@@ -91,6 +107,8 @@ export default async function DiagnosticServicePage({
               </div>
 
               <p className="detail-lead">{service.description}</p>
+
+              <TextToSpeech text={teks} title={service.title} />
 
               {service.paragraphs?.map((paragraf) => (
                 <p key={paragraf}>{paragraf}</p>

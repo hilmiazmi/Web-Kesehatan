@@ -59,8 +59,9 @@ Gerbang pemeriksaan lain, semuanya mode snapshot kecuali yang disebut:
 
 ### Backend
 
-Halaman publik sendiri **tidak** butuh database: isinya masih dibaca dari
-`src/data/`. Database hanya dipakai oleh Route Handler dan skrip.
+Halaman publik sendiri **tidak** butuh database: tanpa koneksi, isinya dibaca
+dari `src/data/`. Saat database hidup, artikel, dokter/jadwal, dan paket MCU
+diambil langsung lewat loader server (`src/lib/content-loader.ts`).
 
 ```bash
 docker compose up -d postgres   # PostgreSQL lokal, hanya mendengarkan di 127.0.0.1
@@ -154,21 +155,28 @@ dasbor, `settings` lewat `/admin/pengaturan`, `audit` lewat `/admin/riwayat`.
 
 ### Halaman
 
-**160 halaman** ter-build (162 berkas HTML minus dua halaman cadangan Next.js),
+**150 halaman** ter-build (152 berkas HTML minus dua halaman cadangan Next.js),
 plus `opengraph-image`, `robots.txt`, dan
 `sitemap.xml`. Selain beranda, sudah ada katalog pelayanan (poliklinik, medis,
 diagnostik, MCU), PPID bercabang, berita, informasi publik, laboratorium,
 radiologi, tentang-kami, dan daftar online.
 
 Angka ini dihitung dari `bun run cek:tautan`, bukan dikira, dan hasilnya
-`160 halaman, 160 tautan unik, 159 entri sitemap`. Selisih antara 160 halaman
-dan 159 entri sitemap itu memang disengaja: yang tidak masuk sitemap adalah
+`150 halaman, 150 tautan unik, 149 entri sitemap`. Selisih antara 150 halaman
+dan 149 entri sitemap itu memang disengaja: yang tidak masuk sitemap adalah
 halaman 404 bawaan Next.js. Halaman `/admin` tidak masuk hitungan sama sekali,
 karena semuanya dihitung sebagai dinamis di balik gate server.
 
-`bun run build` mencetak `Generating static pages (178/178)`. Angka itu lebih
+`bun run build` mencetak `Generating static pages (168/168)`. Angka itu lebih
 besar karena route berparameter (`[slug]`, `[kind]`, `[table]`) dihitung satu kali
 per kombinasi parameter, dan `[...slug]` menghidrasi semua rute generik.
+
+Angka-angka di atas diukur **tanpa koneksi database** (mode snapshot, sama
+seperti CI dan klon bersih), pada 18 Oktober 2026. Dengan database hidup,
+sepuluh baris tabel `articles` ikut ter-prerender di samping 16 artikel statis
+`src/data/home.ts`, jadi hasilnya sekitar 10 lebih tinggi: `160 halaman,
+160 tautan unik, 159 entri sitemap` dan `Generating static pages (178/178)`
+(terukur 11 dan 18 Oktober 2026).
 
 ### Home — 13 section
 
@@ -247,7 +255,7 @@ kompilasi, bukan diam-diam menerbitkan cookie tanpa `Secure`.
 
 ### Pengujian
 
-**939 test di 70 berkas** memakai Vitest, tanpa jsdom karena semua yang diuji
+**1018 test di 77 berkas** memakai Vitest, tanpa jsdom karena semua yang diuji
 logika murni: bentuk data konten, validasi formulir, sanitasi Markdown, hashing
 dan verifikasi sesi, penelusuran path menu, fungsi tanggal, penjaga rantai
 migrasi drizzle, dan penolakan mode snapshot atas permintaan yang mengubah
@@ -294,9 +302,10 @@ Yang **sudah** selesai dan dulu tercatat belum, diperbarui 11 Oktober 2026:
 | Uji end-to-end | 25 test Playwright di 5 berkas, berjalan di CI |
 | Deploy VPS | Image GHCR `:stabil`, dua container, migrasi dijalankan terpisah |
 
-Halaman publik masih membaca `src/data/`, bukan Route Handler. Itu pilihan
-sengaja: isi situs tidak boleh ikut hilang saat database tidak bisa dijangkau,
-dan `snapshot/` sudah menyediakan salinan baca untuk keadaan itu.
+Halaman publik membaca data lewat loader server, bukan lewat Route Handler
+HTTP-nya sendiri. Saat database tidak bisa dijangkau, sumbernya jatuh ke
+`src/data/` — itu pilihan sengaja: isi situs tidak boleh ikut hilang, dan
+`snapshot/` sudah menyediakan salinan baca untuk keadaan itu.
 
 ---
 

@@ -22,5 +22,17 @@
   "room": "A1-04",
   "quota": 45,
   "note": null
+ },
+ {
+  "id": "4824dc5b-4f1d-5e3f-bd0c-dc292d0112fb",
+  "doctor_id": "510625a7-7236-5dbd-91dd-43f2e1dfbc29",
+  "doctor_name": "Putri Anggraini",
+  "polyclinic": "Poliklinik Umum",
+  "day_of_week": 7,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "A1-04",
+  "quota": 45,
+  "note": null
  }
 ]

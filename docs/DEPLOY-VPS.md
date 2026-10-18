@@ -74,9 +74,13 @@ NEXT_PUBLIC_SITE_URL=https://<domain-anda>
 sering berisi kredensial database, dan izin baca yang longgar membuat kredensial
 itu terbaca semua pengguna di mesin.
 
-`ADMIN_ORIGIN` dan `NEXT_PUBLIC_SITE_URL` **wajib** berawalan `https://`. Kalau
-`ADMIN_ORIGIN` tidak diawali `https://`, cookie sesi dikirim tanpa atribut
-`Secure`, dan itu tidak bisa dicegah dari kode.
+Isi keduanya dengan `https://` begitu domain tetap sudah ada. Kalau
+`ADMIN_ORIGIN` masih `http://localhost:3000` (kontainer polos di belakang
+proksi), itu tetap aman: `koneksi-aman.ts` memasang atribut `Secure` pada
+cookie sesi dari `x-forwarded-proto` yang dikirim proksi, jadi `Secure` tidak
+hilang. `config()` tetap menolak `ADMIN_ORIGIN` `http://` untuk host publik
+non-loopback. `NEXT_PUBLIC_SITE_URL` dibeku saat build; `sitemap.xml` dan
+`robots.txt` mengikuti host permintaan, jadi URL tunnel pun tetap benar.
 
 ## 3. Jalankan
 

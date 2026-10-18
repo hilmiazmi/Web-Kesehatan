@@ -22,5 +22,17 @@
   "room": "C2-06",
   "quota": 40,
   "note": null
+ },
+ {
+  "id": "30f81444-6f4c-55c2-aa53-99cd0d37b27a",
+  "doctor_id": "836b638b-19da-52a8-9ac2-b4be9c24b6ba",
+  "doctor_name": "Imam Saputra",
+  "polyclinic": "Poliklinik Penyakit Dalam",
+  "day_of_week": 6,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "C2-06",
+  "quota": 40,
+  "note": null
  }
 ]

@@ -34,5 +34,17 @@
   "room": "B3-04",
   "quota": 35,
   "note": null
+ },
+ {
+  "id": "7428d0ba-7285-5ab9-9c93-791b832a051d",
+  "doctor_id": "082a95ba-6544-5358-b8aa-b1f4cdcd0961",
+  "doctor_name": "Gita Maharani",
+  "polyclinic": "Poliklinik Penyakit Dalam",
+  "day_of_week": 7,
+  "start_time": "08:00:00",
+  "end_time": "12:00:00",
+  "room": "B3-04",
+  "quota": 50,
+  "note": null
  }
 ]

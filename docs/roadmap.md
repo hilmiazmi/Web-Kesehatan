@@ -17,16 +17,16 @@ bukan sebagai perkiraan.
 |---|---|---|
 | Halaman ter-prerender | 150 | `bun run cek:tautan`, berkas `.html` di `.next/server/app` tanpa dua halaman cadangan Next.js. Diukur 10 Oktober 2026; naik 2 dari 148 karena halaman unit `rawat-jalan` dan `rawat-inap` (8 Oktober 2026) |
 | Pola rute dinamis | 11 | `dynamicRoutes` di `.next/prerender-manifest.json` |
-| Berkas tes | 63 | `bun run test`, diukur 10 Oktober 2026 |
-| Jumlah tes | 867 | `bun run test`, diukur 10 Oktober 2026 (862 + 5 pengunci teardown) |
-| Rute internal dari catch-all | 27 | `collectNavPaths()` di `src/lib/nav-path.ts`, diukur 10 Oktober 2026. Turun dari 30 setelah commit SKM/PPID/kapasitas-bed 8 Oktober 2026 yang menyentuh fungsi itu (kemungkinan pengecualian rute yang sudah punya folder sendiri) |
+| Berkas tes | 77 | `bun run test`. Diukur 18 Oktober 2026 |
+| Jumlah tes | 1018 | `bun run test`. Diukur 18 Oktober 2026 |
+| Rute internal dari catch-all | 27 | `collectNavPaths()` di `src/lib/nav-path.ts`, diukur 18 Oktober 2026 |
 | Tabel terkelola di panel admin | 17 | `src/server/admin/registry.ts` |
-| Tabel di skema database | 28 | `pgTable` di `src/server/db/schema.ts`, diukur 10 Oktober 2026 (plus 11 `pgEnum`) |
-| Route handler API | 45 | `src/app/api/v1/**/route.ts`: 44 endpoint dan catcher 404. Naik 1 dari 44 karena `admissions` dari pemisahan rawat inap (`409012f`, 8 Oktober 2026) |
+| Tabel di skema database | 29 | `pgTable` di `src/server/db/schema.ts`, diukur 18 Oktober 2026 (plus 11 `pgEnum`) |
+| Route handler API | 47 | `src/app/api/v1/**/route.ts`: 46 endpoint dan catcher 404. Diukur 18 Oktober 2026. Naik 2 dari 45 sejak `admin/audit` (`3a5c559`) dan `admin/inbox/[kind]/status-banyak` (`d5ccd82`) |
 | Butir navigasi tingkat atas | 8 | `NAV_ITEMS` |
-| Halaman panel admin | 7 | `src/app/admin/**/page.tsx`: 1 login + 6 di dalam `(panel)` (dasbor, akun, beds, inbox, pengaturan, records). Keenamnya dinamis karena butuh sesi |
+| Halaman panel admin | 8 | `src/app/admin/**/page.tsx`: 1 login + 7 di dalam `(panel)` (dasbor, akun, beds, inbox, pengaturan, records, riwayat). Ketujuhnya dinamis karena butuh sesi |
 | Halaman publik yang membaca database | 4 | `getPublicArticles()` di `src/lib/content-loader.ts`: `/berita`, `/berita/[slug]`, `/`, dan `sitemap.xml` |
-| Migration terpasang di database uji | 6 | `bun run db:migrate`, terakhir `0005_slug_paket_mcu.sql`. Diukur 10 Oktober 2026 dari folder `drizzle/` |
+| Migration terpasang di database uji | 8 | `bun run db:migrate`, terakhir `0007_perbaiki_teks_rusak.sql`. Diukur 18 Oktober 2026 dari folder `drizzle/` |
 
 Jumlah "halaman ter-prerender" pernah ditulis 160, lalu 154, lalu 150. Dua-duanya
 salah, dan sekarang alasannya jelas.
@@ -48,7 +48,7 @@ Per 10 Oktober 2026 berkas HTML-nya 152 dan halamannya 150. Tambahan 2 dari
 2026 (`7ccb399`, `409012f`). Cara memeriksa: daftar berkas `.html` di
 `.next/server/app`, kurangi `/_global-error` dan `/_not-found`.
 
-Empat halaman panel admin tidak termasuk 148, dan itu memang benar. Semuanya
+Delapan halaman panel admin tidak termasuk 150, dan itu memang benar. Semuanya
 diserver saat diminta, bukan ditulis ke berkas HTML, karena isinya berbeda
 setiap pengunjung. `bun run cek:tautan` tidak pernah melihatnya, dan tidak
 perlu: `/admin` tidak boleh ada di sitemap maupun punya tautan masuk.
@@ -71,12 +71,11 @@ sudah punya folder sendiri. Cara memeriksa ulang satu baris:
 bun -e "const {collectNavPaths}=await import('./src/lib/nav-path.ts');console.log(collectNavPaths().length)"
 ```
 
-Gerbang kualitas terakhir: typecheck bersih, `bun run lint` bersih,
-`bun run test` 867 tes lulus dari 63 berkas, `bun run cek:konten` dan
-`bun run audit:teks` lulus, `bun run build` sukses (169/169 halaman), dan
-`bun run cek:tautan` tidak menemukan tautan mati, halaman tanpa tautan masuk,
-maupun halaman yang lupa masuk sitemap: 150 halaman, 150 tautan unik,
-149 entri sitemap. Diukur 10 Oktober 2026.
+Gerbang kualitas terakhir (18 Oktober 2026): typecheck bersih, `bun run lint`
+bersih, `bun run test` 1018 tes lulus dari 77 berkas, `bun run cek:konten` dan
+`bun run audit:teks` lulus, `bun run build` sukses, dan `bun run cek:tautan`
+tidak menemukan tautan mati, halaman tanpa tautan masuk, maupun halaman yang
+lupa masuk sitemap: 150 halaman, 150 tautan unik, 149 entri sitemap.
 
 Database sungguhan sudah bisa dijalankan di mesin ini tanpa Docker, lewat
 PostgreSQL 17.11 dari shim `mise`. menjalankan `db:migrate`, `db:seed`,
@@ -100,7 +99,7 @@ diperiksa adalah HTML hasil prerender.
 |---|---|---|---|
 | 1 | Layout global: topbar, navbar, footer, back-to-top | selesai | keempatnya ada. Tombol kembali ke atas di `src/components/layout/BackToTop.tsx`, angka dan posisinya diukur dari situs acuan. Lihat 3.10 |
 | 2 | Beranda dengan seluruh section | selesai | 13 section di `src/app/page.tsx`, urutannya sama dengan PRD 8.3 |
-| 3 | Halaman konten dari tabel `pages` | selesai | ikut 148 halaman hasil build |
+| 3 | Halaman konten dari tabel `pages` | selesai | ikut 150 halaman hasil build |
 | 4 | Halaman detail template | selesai | layanan prioritas, fasilitas, MCU, berita |
 | 5 | Galeri dengan lightbox | selesai | `src/components/ui/GalleryLightbox.tsx`, PR #25 |
 
@@ -1176,6 +1175,199 @@ perilaku apa pun, jadi lolos dengan benar.
 
 Sekarang `bun run audit:teks` membaca 260 berkas, bukan 255.
 
+### 3.21 `cek:tautan` menghitung ulang sitemap, bukan membacanya
+
+**Selesai.** Ini cacat yang diperantalkan oleh pekerjaan di 3.17, jadi dicatat
+apa adanya.
+
+`scripts/cek-tautan.ts` membandingkan halaman hasil prerender dengan daftar
+sitemap. Daftar itu diambil dari `collectSitemapPaths()`, yaitu menghitung
+ulang sendiri, bukan membaca sitemap yang benar-benar dihasilkan build.
+
+Kolateralnya langsung terasa begitu 3.17 selesai. `src/app/sitemap.ts`
+menggabungkan berita dari modul statis dan berita dari database, jadi kalau
+`cek:tautan` dijalankan dalam mode live, HTML-nya berisi sepuluh slug berita dari
+database sementara daftar hasil hitung ulang tidak memuat satu pun. Skripnya
+lalu melaporkan sepuluh halaman "tidak ada di sitemap" yang sebenarnya ada. Itu
+kebalikan dari gunanya, yaitu menjaga agar tidak ada yang lolos tanpa ketahuan.
+
+Masalah kedua lebih halus dan tidak terlihat dari kode. `metadataBase` di
+`src/app/layout.tsx` berlaku untuk `metadata`, bukan untuk sitemap, jadi
+`src/app/sitemap.ts` wajib membuat URL-nya absolut sendiri. Kalau salah dan
+menulisnya sebagai path relatif, `collectSitemapPaths()` tetap keluar normal
+karena fungsi itu memang tidak melakukan apa-apa soal URL. Jadi `cek:tautan`
+tidak akan pernah menangkap kerusakan di route handler sitemap.
+
+Perbaikannya membaca `.next/server/app/sitemap.xml.body`, berkas yang benar-benar
+ditulis build, dengan `sitemap.xml` sebagai cadangan dan `collectSitemapPaths()`
+sebagai cadangan terakhir supaya skrip masih bisa dijalankan sebelum build. Yang
+dibandingkan sekarang adalah dua keluaran dari kode yang sama.
+
+Aturan parsing-nya dipindah ke `pathDariSitemapXml()` di `src/lib/sitemap.ts`,
+supaya bisa diuji tanpa menjalankan build. Tujuh tes di `tests/sitemap.test.ts`
+menyelubunginya, termasuk dua yang paling penting: `<loc>` yang tidak absolut
+dibuang, dan `loc` yang rusak dilewati tanpa menggagalkan seluruh parsing.
+
+Dua mutasi dicoba langsung pada berkas hasil build, dan keduanya tertangkap:
+
+| Mutasi pada `sitemap.xml.body` | Skrip lama | Skrip sekarang |
+|---|---|---|
+| 16 entri `/berita/*` dibuang | lulus, 148 entri | gagal, 132 entri |
+| 148 `<loc>` diubah jadi relatif | lulus, 148 entri | gagal, 0 entri |
+
+### 3.22 Gerbang tautan menuduh halaman dinamis sebagai mati
+
+**Selesai.** Ini cacat gerbangnya sendiri, bukan cacat halamannya, dan
+ditemukan karena 3.17 mengubah apa yang ditautkan `/` dan `/berita`.
+
+Begitu mode live, kedua halaman itu menautkan 10 slug dari tabel `articles`.
+`next build` tidak menulis HTML untuk slug-slug itu: `generateStaticParams`
+hanya mengembalikan 16 slug statis, dan 10 slug database dirender saat diminta
+karena `fallback`-nya blocking. `cek:tautan` lalu melaporkan 20 "tautan mati"
+yang semuanya menjawab 200 saat servernya hidup. Gerbang yang menuduh halaman
+hidup sebagai mati lebih buruk daripada tidak ada gerbang: operator belajar
+mengabaikannya, dan tuduhan yang benar berikutnya ikut terabaikan.
+
+Perbaikannya tiga bagian, semuanya di sekitar satu prinsip: gerbang
+membuktikan yang diklaimnya, dan yang tidak bisa dibuktikan dilaporkan sebagai
+belum terbukti, bukan sebagai mati atau hidup.
+
+**Keranjang nomor 4: tautan ke rute dinamis.** Tautan tanpa HTML yang cocok
+dengan rute `fallback` blocking masuk keranjang sendiri, bukan keranjang mati.
+Aturannya ada di dua fungsi murni pada `src/lib/nav-path.ts` supaya bisa diuji
+tanpa build: `entriDinamisDariManifest()` membaca `dynamicRoutes` dari
+prerender-manifest, dan `ruteDinamisUntuk()` mencocokkan pathname. Cocok pola
+belum membuktikan slugnya hidup, jadi tanpa flag `--live` gerbang gagal dengan
+daftarnya dan perintah verifikasinya. Dengan `--live=http://localhost:PORT`,
+setiap URL diambil langsung dan yang bukan 200 kembali ke keranjang mati
+beserta statusnya. Enam mutasi dicoba pada dua fungsi itu dan keenamnya
+tertangkap.
+
+**Aturan bayangan fallback.** Mode live juga membuat 16 artikel statis yatim
+sekaligus: tidak ada yang menautkannya lagi, tapi semuanya tetap 200 lewat
+fallback dan tetap ada di sitemap. Itu disengaja sejak 3.17, jadi melaporkannya
+sebagai kegagalan akan membuat gerbang tidak pernah bisa hijau di mode live.
+`halamanBayangan()` memaafkannya dengan tiga syarat kumulatif yang semuanya
+bisa dibuktikan dari berkas build: ada bukti daftar isi digantikan (keranjang
+nomor 4 tidak kosong), URL-nya cocok rute blocking, dan URL-nya ada di sitemap.
+Tanpa bukti konten dinamis, syarat pertama gugur dan mode snapshot tetap ketat
+seperti dulu. Tiga mutasi dicoba dan ketiganya tertangkap.
+
+**Sitemap dibaca dua arah.** Sebelumnya hanya satu arah: setiap halaman HTML
+harus ada di sitemap. Sekarang entri sitemap tanpa HTML juga diperiksa: yang
+tidak cocok rute blocking mana pun gagal langsung, yang cocok ikut diambil
+lewat `--live` bersama keranjang nomor 4. Ini yang menutup lubang "sitemap
+menunjuk 404".
+
+Bukti ujung ke ujung dalam mode live, build yang sama untuk semuanya:
+
+| Perintah | Hasil |
+|---|---|
+| `bun run cek:tautan` | gagal: 10 dinamis belum terverifikasi, 16 bayangan dilaporkan |
+| `bun run cek:tautan --live=http://localhost:3431` | lolos: 10 URL dinamis HTTP 200, hijau penuh |
+| `--live` ke port yang tidak ada servernya | gagal: 10 mati beserta alasan galatnya |
+
+Mode snapshot tidak berubah satu byte pun: 148 halaman, 148 tautan unik,
+148 entri sitemap, dan baris hijau yang sama persis.
+
+---
+
+### 3.23 Dua temuan di loader dokter/MCU yang belum selesai
+
+**Tercatat, belum diperbaiki.** Pekerjaan menyambungkan `/jadwal-dokter` dan
+paket MCU ke database masih berjalan di branch ini saat dokumen ini ditulis,
+jadi bagian ini hanya mencatat hasil pemeriksaan independen terhadap PostgreSQL
+sungguhan, bukan mengubah pekerjaan itu.
+
+**Status 18 Oktober 2026:** semua temuan di bagian ini sudah ditutup. Dua
+perbaikan sudah tercatat di butirnya masing-masing; keputusan jadwal Sabtu dan
+perbaikan catatan N+1 menyusul di akhir bagian ini.
+
+**Nama dokter dari database sempat salah urutan.** Kolom `title` ("Gelar") berisi
+`"dr. Sp.JK"` dan `full_name` ("Nama lengkap") berisi `"Ayu Lestari"`, sehingga
+penyambungan langsung menghasilkan `"dr. Sp.JK Ayu Lestari"` di `/jadwal-dokter`
+mode live. Sudah diperbaiki lewat `namaDokter()`: gelar depan sebelum nama,
+penanda `Sp.` sesudah nama, sesuai bentuk `DOCTORS` di `src/data/doctors.ts`.
+Terverifikasi di HTML hasil build: 41 dokter, 0 salah bentuk. 16 tes di
+`tests/dokter-publik.test.ts`.
+
+**Kategori holiday tidak pernah cocok.** Halaman memakai kata `"holiday"`,
+kolom database memakai `"health_meets_holiday"` (lihat `choice("category", ...)`
+di `registry.ts`). Tanpa pemetaan, paket hari raya dari database tidak pernah
+keluar: 0 dari 3. Sudah dipetakan lewat `KATEGORI_MCU`; sekarang 2 dari 3 paket
+holiday berasal dari database. Ada tes yang mengunci nilai pemetaan terhadap
+daftar pilihan di `registry.ts`, supaya keduanya tidak bisa berbeda diam-diam.
+
+**Jadwal Sabtu dibuang diam-diam.** Seed punya 2 baris `dayOfWeek = 6`
+(Endah Permata dan Indah Safitri, 08.00-11.00, kuota 20), sedangkan `HARI_MAP`
+di loader hanya memetakan 1-5 dan `if (!hari) continue` membuang sisanya tanpa
+jejak. Dropdown hari di `CariDokter` diambil dari keluaran loader, jadi tidak
+ada jalur UI yang menampilkannya, sementara `jadwalOnDate()` di sisi server
+tetap melayani hari 6. Belum diputuskan apakah Sabtu memang tutup untuk rawat
+jalan (tipe `Day` di `src/data/doctors.ts` hanya mengenal Senin-Jumat) atau
+baris itu jadwal yang sah; sampai diputuskan, barisnya hilang tanpa peringatan.
+Ini sengaja tidak diperbaiki di sini karena menyentuh tipe dan UI yang sedang
+dikerjakan.
+
+**Diputuskan dan ditutup 17 Oktober 2026:** rawat jalan dibuka penuh Senin
+sampai Minggu (commit `37fb000`). `HARI_MAP` di loader kini memetakan 1-7
+(6 = Sabtu, 7 = Minggu), sel Sabtu/Minggu memakai jam 08.00-12.00, dan tidak
+boleh ada satu pun spesialisasi yang kosong pada hari mana pun.
+`tests/jadwal-penuh.test.ts` mengunci keduanya, jadi baris jadwal tidak bisa
+lagi hilang diam-diam.
+
+Catatan kecil: `getPublicMcuPackages()` memanggil `findMcuPackage()` sekali per
+paket (N+1 query). Dengan 10 paket dan cache ISR 60 detik biayanya tidak terasa,
+jadi sempat dibiarkan sebagai catatan, bukan perbaikan. **Ditutup 18 Oktober
+2026** (commit `8a2ae85`): `listMcuPackagesWithItems()` mengambil paket dan
+isinya dalam dua kueri tetap, urutan tetap sama, dan `tests/mcu-publik.test.ts`
+mengunci jumlah pemanggilan detail per paket = 0.
+
+---
+
+### 3.24 Header desktop diperbesar atas permintaan pemilik repo
+
+**Selesai.** Pemilik repo menilai header "terlalu kecil dan tidak simetris",
+tapi desainnya sudah disukai. Jadi yang diubah hanya ukuran, bukan arsitektur:
+tetap dua baris, tetap batas 1200px, tetap tanpa hamburger di desktop, dan
+mobile tidak ikut berubah sama sekali. Pembekuan navbar yang dicatat di 3.7
+dibuka khusus untuk permintaan ini.
+
+Ukuran acuan diambil dari stylesheet situs referensi sendiri, bukan tebakan:
+branding `padding: 10px 0`, logo `30px`, dan nav item `padding: 15px 14px`.
+Riset pola navbar situs rumah sakit (Medilab, Mayo, Temple Health, Mount Sinai)
+sepakat pada tiga hal yang sudah ada di sini: CTA janji temu selalu terlihat
+di header, tautan logo ke beranda, dan menu menempel secukupnya. Tidak ada yang
+diubah dari ketiganya.
+
+Yang berubah, semuanya di dalam `@media (min-width: 1200px)`:
+
+| Elemen | Sebelum | Sesudah |
+|---|---|---|
+| `.branding` padding | 4px 0 | 10px 0 |
+| `.logo-mark` | 44px | 52px |
+| Teks logo | 18px | 22px |
+| Huruf nav | 15px | 16px |
+| Padding tautan nav | 8px / 7px | 12px / 14px |
+| Tinggi `.branding` | 100px | 134px |
+| Lebar delapan butir nav | 894px | 1055px |
+
+Simetrinya diukur, bukan dirasa: margin kiri-kanan nav 166px sama persis, dan
+margin logo-kiri dengan CTA-kanan 12px sama persis. Nav tetap muat di viewport
+desktop tersempit 1200px karena baris kedua menyediakan 1176px. CTA tidak
+diubah karena ukurannya sudah sama dengan acuan (14px, 8px 25px).
+
+Fakta bahwa semua aturan baru ada di blok desktop sekaligus menjadi buktinya:
+tidak ada satu pun aturan dasar yang disentuh, jadi mobile terbukti tidak
+berubah tanpa perlu diukur ulang. `tests/panel-nav-mobile.test.ts` tetap hijau
+tanpa disentuh.
+
+`tests/header-ctas.test.ts` dan angka di `AGENTS.md` diperbarui mengikuti hasil
+ukur ulang. Komentar yang menyebut angka lama ikut diperbarui, karena komentar
+yang menyebut angka salah lebih buruk daripada tidak ada komentar.
+
+---
+
 ---
 
 ### 3.21 Pekerjaan 8-10 Oktober 2026: admin, isi halaman, dan aksesibilitas
@@ -1267,10 +1459,13 @@ kunci. Gerbang: typecheck 0, lint 0, unit 867/63, audit 318 BERSIH,
 
 ## 4. Langkah berikutnya
 
-Empat belas langkah versi sebelumnya sudah diselesaikan. Yang terakhir adalah
+Delapan belas langkah versi sebelumnya sudah diselesaikan. Yang terakhir adalah
 constraint anti-pendaftaran ganda di 3.13, content loader berita di 3.17, ukuran
 Lighthouse di 3.5, pembuktian terhadap database sungguhan di 3.18, verifikasi
-token dari CSS acuan di 3.19, dan Perluasan cakupan audit teks di 3.20.
+token dari CSS acuan di 3.19, perluasan cakupan audit teks di 3.20, pembacaan
+sitemap dari berkas hasil build di 3.21, gerbang tautan yang jujur soal halaman
+dinamis di 3.22, dua temuan terverifikasi di loader dokter/MCU di 3.23, dan
+pembesaran header desktop di 3.24.
 
 Yang tersisa dua butir optional di bawah, plus dua temuan 10 Oktober
 yang sebaiknya didahulukan karena menyangkut kebenaran `main`, bukan selera.

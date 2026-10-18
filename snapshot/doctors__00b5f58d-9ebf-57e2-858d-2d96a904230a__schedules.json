@@ -12,6 +12,18 @@
   "note": null
  },
  {
+  "id": "dd824b7f-7e44-582a-a4dd-74ca9323e464",
+  "doctor_id": "00b5f58d-9ebf-57e2-858d-2d96a904230a",
+  "doctor_name": "Gilang Ramadhan",
+  "polyclinic": "Poliklinik Umum",
+  "day_of_week": 2,
+  "start_time": "10:00:00",
+  "end_time": "14:00:00",
+  "room": "D1-07",
+  "quota": 40,
+  "note": null
+ },
+ {
   "id": "f07c7405-e5b6-52fd-a664-0bec9b66351f",
   "doctor_id": "00b5f58d-9ebf-57e2-858d-2d96a904230a",
   "doctor_name": "Gilang Ramadhan",
